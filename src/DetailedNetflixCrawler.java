@@ -968,8 +968,8 @@ public class DetailedNetflixCrawler {
 
         try {
             // 로그인 정보 설정 (실제 사용 시 변경 필요)
-            String email = "k0207k@naver.com";
-            String password = "ggkk9977";
+            String email = "email";
+            String password = "password";
 
             // 크롤러 생성 및 실행
             DetailedNetflixCrawler crawler = new DetailedNetflixCrawler(email, password);
