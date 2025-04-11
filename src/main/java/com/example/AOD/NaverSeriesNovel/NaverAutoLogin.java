@@ -1,4 +1,4 @@
-package com.example.AOD.NaverSeriesCrawler;
+package com.example.AOD.NaverSeriesNovel;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -13,7 +13,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.time.Duration;
-import java.util.Scanner;
 import java.util.Set;
 
 public class NaverAutoLogin {
@@ -32,7 +31,7 @@ public class NaverAutoLogin {
      * "key=value; key2=value2..." 형태의 쿠키 문자열로 반환
      */
     public static String loginAndGetCookies() {
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\kokyungwoo\\Desktop\\chromedriver-win64\\chromedriver.exe");
 
         ChromeOptions options = new ChromeOptions();
         // 브라우저 확인하려면 주석 처리
