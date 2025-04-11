@@ -48,6 +48,7 @@ public class NaverSeriesService {
 
         NaverSeriesNovel novel = new NaverSeriesNovel(novelDTO);
         novel.setGenres(genres);
+        novel.setAuthor(author);
 
         return novelRepository.save(novel);
     }
