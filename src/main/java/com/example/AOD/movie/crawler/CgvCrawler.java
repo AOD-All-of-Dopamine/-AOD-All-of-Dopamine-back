@@ -258,22 +258,7 @@ public class CgvCrawler {
                 }
             }
 
-            List<String> genres = new ArrayList<>();
-
-            Elements dtElements = doc.select("dl dt");
-            for (Element dt : dtElements) {
-                if (dt.text().trim().contains("장르")) {
-                    Element dd = dt.nextElementSibling();
-                    if (dd != null) {
-                        genres = Arrays.stream(dd.text().split(","))
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())
-                                .collect(Collectors.toList());
-                    }
-                    break;
-                }
-            }
-
+            List<String> genres = parseGenres(doc);
 
             String ratingText = doc.select(".egg-gage.small .percent").text();
             Double rating = parseRating(ratingText);
@@ -308,6 +293,35 @@ public class CgvCrawler {
             log.error("ID {}의 영화 상세 정보 크롤링 오류: {}", externalId, e.getMessage(), e);
             return null;
         }
+    }
+
+    private List<String> parseGenres(Document doc) {
+        List<String> genres = new ArrayList<>();
+
+        // 장르 정보가 들어있는 dt 요소 찾기
+        Element genreElement = doc.selectFirst(".spec dl dt:contains(장르 :)");
+
+        if (genreElement != null) {
+            String genreText = genreElement.text().trim();
+            log.debug("장르 원본 텍스트: {}", genreText);
+
+            // "장르 :" 부분 제거
+            if (genreText.startsWith("장르 :")) {
+                genreText = genreText.substring("장르 :".length()).trim();
+
+                // 콤마로 구분된 장르들 분리
+                genres = Arrays.stream(genreText.split(","))
+                        .map(s -> s.trim())
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+
+                log.info("파싱된 장르 목록: {}", genres);
+            }
+        } else {
+            log.warn("장르 정보를 찾을 수 없습니다");
+        }
+
+        return genres;
     }
 
     private Double parseRating(String ratingText) {
