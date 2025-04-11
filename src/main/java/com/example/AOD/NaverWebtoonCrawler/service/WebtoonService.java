@@ -55,7 +55,7 @@ public class WebtoonService {
         String pw = System.getenv("naverPw");
         System.out.println(id+" "+pw);
         loginHandler.naverLogin(driver, id, pw);
-
+        //전부 DTO를 들고 한번에 처리하는걸 트랜잭션 개선이 필요해보임
         ArrayList<NaverWebtoonDTO> naverWebtoonDTOS = naverWebtoonCrawler.crawlAllOngoingWebtoons(driver);
         System.out.println("Save Webtoon Start");
         for (NaverWebtoonDTO naverWebtoonDTO : naverWebtoonDTOS) {
