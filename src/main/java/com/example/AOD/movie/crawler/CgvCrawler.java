@@ -1,6 +1,5 @@
 package com.example.AOD.movie.crawler;
 
-import com.example.AOD.movie.domain.CountryType;
 import com.example.AOD.movie.domain.Movie;
 import com.example.AOD.movie.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -273,14 +272,11 @@ public class CgvCrawler {
             // 각 메서드에 동일한 텍스트를 전달하여 각각의 정보를 추출
             String ageRating = parseAgeRating(basicInfoText);
             Integer runningTime = parseRunningTime(basicInfoText);
-            CountryType country = parseCountry(basicInfoText);
+            String country = parseCountry(basicInfoText);
 
             String releaseDateText = doc.select(".spec dl dt:contains(개봉) + dd").text();
             LocalDate releaseDate = parseReleaseDate(releaseDateText);
             boolean isRerelease = isRerelease(releaseDateText);
-
-            log.info("영화 '{}' 개봉일: {}, 재개봉 여부: {}", title, releaseDate, isRerelease);
-
 
             return Movie.builder()
                     .title(title)
@@ -312,7 +308,6 @@ public class CgvCrawler {
 
         if (genreElement != null) {
             String genreText = genreElement.text().trim();
-            log.debug("장르 원본 텍스트: {}", genreText);
 
             // "장르 :" 부분 제거
             if (genreText.startsWith("장르 :")) {
@@ -324,7 +319,6 @@ public class CgvCrawler {
                         .filter(s -> !s.isEmpty())
                         .collect(Collectors.toList());
 
-                log.info("파싱된 장르 목록: {}", genres);
             }
         } else {
             log.warn("장르 정보를 찾을 수 없습니다");
@@ -390,29 +384,16 @@ public class CgvCrawler {
         }
     }
 
-    private CountryType parseCountry(String basicInfoText) {
-        // 일반적으로 기본 정보의 마지막 부분이 국가
+    private String parseCountry(String basicInfoText) {
+        // 기본 정보에서 국가 정보는 일반적으로 마지막 콤마 이후에 있음
         String[] parts = basicInfoText.split(",");
         if (parts.length > 0) {
-            String lastPart = parts[parts.length - 1].trim();
-
-            List<String> koreanTerms = Arrays.asList("한국", "대한민국");
-            for (String term : koreanTerms) {
-                if (lastPart.contains(term)) {
-                    return CountryType.DOMESTIC;
-                }
-            }
+            // 마지막 부분이 국가 정보로 간주
+            return parts[parts.length - 1].trim();
         }
 
-        // 기본 정보에서 국가를 찾지 못한 경우 전체 텍스트 검색
-        List<String> koreanTerms = Arrays.asList("한국", "대한민국");
-        for (String term : koreanTerms) {
-            if (basicInfoText.contains(term)) {
-                return CountryType.DOMESTIC;
-            }
-        }
-
-        return CountryType.FOREIGN;
+        // 국가 정보를 찾지 못한 경우
+        return "미상";
     }
 
     /**
@@ -422,12 +403,12 @@ public class CgvCrawler {
         try {
             // "(재개봉)" 등의 부가 정보를 제거하고 날짜만 추출
             String dateOnly = releaseDateText.replaceAll("\\(.*\\)", "").trim();
-            log.debug("개봉일 파싱: 원본='{}', 처리 후='{}'", releaseDateText, dateOnly);
+            //log.debug("개봉일 파싱: 원본='{}', 처리 후='{}'", releaseDateText, dateOnly);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
             return LocalDate.parse(dateOnly, formatter);
         } catch (Exception e) {
-            log.warn("개봉일 파싱 오류: {}", releaseDateText, e);
+            //log.warn("개봉일 파싱 오류: {}", releaseDateText, e);
             return LocalDate.now();
         }
     }
@@ -437,7 +418,7 @@ public class CgvCrawler {
      */
     private boolean isRerelease(String releaseDateText) {
         boolean result = releaseDateText.contains("재개봉");
-        log.debug("재개봉 여부 확인: '{}' -> {}", releaseDateText, result);
+        //log.debug("재개봉 여부 확인: '{}' -> {}", releaseDateText, result);
         return result;
     }
 
