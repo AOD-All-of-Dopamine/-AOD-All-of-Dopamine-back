@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ChromeDriverProvider {
 
-    private String driver_path = "C:\\Users\\oms01\\OneDrive\\바탕 화면\\Develop\\projects\\webtoon\\src\\main\\resources\\static\\chromedriver.exe";
+    private String driver_path = "C:\\Users\\kokyungwoo\\Desktop\\chromedriver-win64\\chromedriver.exe";
     private final String driver_id = "webdriver.chrome.driver";
 
     @Getter
