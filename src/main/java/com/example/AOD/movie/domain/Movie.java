@@ -38,8 +38,7 @@ public class Movie {
     private Double rating;
     private Integer runningTime; // 분 단위
 
-    @Enumerated(EnumType.STRING)
-    private CountryType country;
+    private String country;
 
     private LocalDate releaseDate;
 
