@@ -40,14 +40,14 @@ public class NaverSeriesNovel {
     )
     private List<NaverSeriesNovelGenre> genres;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "author_id", nullable = true)
     private NaverSeriesNovelAuthor author;
     //출판사
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String publisher;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String ageRating;
 
     public NaverSeriesNovel() {
