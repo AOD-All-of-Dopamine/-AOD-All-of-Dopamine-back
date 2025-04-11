@@ -46,6 +46,8 @@ public class Movie {
     // 재개봉 여부 필드 추가
     private Boolean isRerelease;
 
+    private String ageRating; // 추가된 관람 연령대 필드
+
     @Column(unique = true)
     private String externalId; // 크롤링 소스에서의 고유 ID
 

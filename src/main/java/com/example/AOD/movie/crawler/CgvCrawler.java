@@ -267,17 +267,20 @@ public class CgvCrawler {
             String reservationRateText = doc.select(".score .percent span").text();
             Double reservationRate = parseReservationRate(reservationRateText);
 
-            String runningTimeText = doc.select(".spec dl dt:contains(기본 정보) + dd").text();
-            Integer runningTime = parseRunningTime(runningTimeText);
+            // 기본 정보 텍스트를 한 번만 가져옴
+            String basicInfoText = doc.select(".spec dl dt:contains(기본 정보) + dd.on").text();
 
-            String countryText = doc.select(".spec dl dt:contains(기본 정보) + dd").text();
-            CountryType country = parseCountry(countryText);
+            // 각 메서드에 동일한 텍스트를 전달하여 각각의 정보를 추출
+            String ageRating = parseAgeRating(basicInfoText);
+            Integer runningTime = parseRunningTime(basicInfoText);
+            CountryType country = parseCountry(basicInfoText);
 
             String releaseDateText = doc.select(".spec dl dt:contains(개봉) + dd").text();
             LocalDate releaseDate = parseReleaseDate(releaseDateText);
             boolean isRerelease = isRerelease(releaseDateText);
 
             log.info("영화 '{}' 개봉일: {}, 재개봉 여부: {}", title, releaseDate, isRerelease);
+
 
             return Movie.builder()
                     .title(title)
@@ -292,6 +295,7 @@ public class CgvCrawler {
                     .isRerelease(isRerelease) // 재개봉 여부 설정
                     .externalId(externalId)
                     .lastUpdated(LocalDate.now())
+                    .ageRating(ageRating) // 관람 연령대 추가
                     .build();
 
         } catch (IOException e) {
@@ -347,10 +351,31 @@ public class CgvCrawler {
         }
     }
 
-    private Integer parseRunningTime(String runningTimeText) {
+    private String parseAgeRating(String basicInfoText) {
         try {
-            if (runningTimeText.contains("분")) {
-                String[] parts = runningTimeText.split(",");
+            if (basicInfoText == null || basicInfoText.isEmpty()) {
+                return "";
+            }
+
+            // 첫 번째 콤마까지의 텍스트가 관람 연령대
+            int commaIndex = basicInfoText.indexOf(",");
+            if (commaIndex > 0) {
+                return basicInfoText.substring(0, commaIndex).trim();
+            }
+
+            // 콤마가 없으면 전체 텍스트 반환
+            return basicInfoText.trim();
+        } catch (Exception e) {
+            log.warn("관람 연령대 파싱 오류: {}", basicInfoText);
+            return "";
+        }
+    }
+
+    private Integer parseRunningTime(String basicInfoText) {
+        try {
+            if (basicInfoText.contains("분")) {
+                // 분을 포함하는 부분 추출
+                String[] parts = basicInfoText.split(",");
                 for (String part : parts) {
                     part = part.trim();
                     if (part.contains("분")) {
@@ -360,16 +385,29 @@ public class CgvCrawler {
             }
             return 0;
         } catch (NumberFormatException e) {
-            log.warn("상영시간 파싱 오류: {}", runningTimeText);
+            log.warn("상영시간 파싱 오류: {}", basicInfoText);
             return 0;
         }
     }
 
-    private CountryType parseCountry(String countryText) {
-        List<String> koreanTerms = Arrays.asList("한국", "대한민국");
+    private CountryType parseCountry(String basicInfoText) {
+        // 일반적으로 기본 정보의 마지막 부분이 국가
+        String[] parts = basicInfoText.split(",");
+        if (parts.length > 0) {
+            String lastPart = parts[parts.length - 1].trim();
 
+            List<String> koreanTerms = Arrays.asList("한국", "대한민국");
+            for (String term : koreanTerms) {
+                if (lastPart.contains(term)) {
+                    return CountryType.DOMESTIC;
+                }
+            }
+        }
+
+        // 기본 정보에서 국가를 찾지 못한 경우 전체 텍스트 검색
+        List<String> koreanTerms = Arrays.asList("한국", "대한민국");
         for (String term : koreanTerms) {
-            if (countryText.contains(term)) {
+            if (basicInfoText.contains(term)) {
                 return CountryType.DOMESTIC;
             }
         }
