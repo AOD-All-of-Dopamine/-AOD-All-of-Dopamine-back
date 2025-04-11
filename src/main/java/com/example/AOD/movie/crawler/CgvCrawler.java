@@ -178,6 +178,7 @@ public class CgvCrawler {
         return externalIds;
     }
 
+    // 일정 주기 단위로 크롤링(추후 추가)
     public void crawlRecent() {
         log.info("CGV 최신 영화 크롤링 시작");
         int newMoviesCount = 0;
@@ -274,6 +275,9 @@ public class CgvCrawler {
 
             String releaseDateText = doc.select(".spec dl dt:contains(개봉) + dd").text();
             LocalDate releaseDate = parseReleaseDate(releaseDateText);
+            boolean isRerelease = isRerelease(releaseDateText);
+
+            log.info("영화 '{}' 개봉일: {}, 재개봉 여부: {}", title, releaseDate, isRerelease);
 
             return Movie.builder()
                     .title(title)
@@ -285,6 +289,7 @@ public class CgvCrawler {
                     .runningTime(runningTime)
                     .country(country)
                     .releaseDate(releaseDate)
+                    .isRerelease(isRerelease) // 재개봉 여부 설정
                     .externalId(externalId)
                     .lastUpdated(LocalDate.now())
                     .build();
@@ -372,14 +377,30 @@ public class CgvCrawler {
         return CountryType.FOREIGN;
     }
 
+    /**
+     * 개봉일 문자열에서 날짜만 추출하여 LocalDate로 파싱
+     */
     private LocalDate parseReleaseDate(String releaseDateText) {
         try {
+            // "(재개봉)" 등의 부가 정보를 제거하고 날짜만 추출
+            String dateOnly = releaseDateText.replaceAll("\\(.*\\)", "").trim();
+            log.debug("개봉일 파싱: 원본='{}', 처리 후='{}'", releaseDateText, dateOnly);
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-            return LocalDate.parse(releaseDateText, formatter);
+            return LocalDate.parse(dateOnly, formatter);
         } catch (Exception e) {
-            log.warn("개봉일 파싱 오류: {}", releaseDateText);
+            log.warn("개봉일 파싱 오류: {}", releaseDateText, e);
             return LocalDate.now();
         }
+    }
+
+    /**
+     * 개봉일 문자열에서 재개봉 여부 확인
+     */
+    private boolean isRerelease(String releaseDateText) {
+        boolean result = releaseDateText.contains("재개봉");
+        log.debug("재개봉 여부 확인: '{}' -> {}", releaseDateText, result);
+        return result;
     }
 
     private String extractExternalId(String href) {
