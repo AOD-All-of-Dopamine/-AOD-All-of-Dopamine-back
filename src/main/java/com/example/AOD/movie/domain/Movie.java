@@ -43,6 +43,9 @@ public class Movie {
 
     private LocalDate releaseDate;
 
+    // 재개봉 여부 필드 추가
+    private Boolean isRerelease;
+
     @Column(unique = true)
     private String externalId; // 크롤링 소스에서의 고유 ID
 
