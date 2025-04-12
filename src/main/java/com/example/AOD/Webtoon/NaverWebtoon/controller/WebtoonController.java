@@ -3,7 +3,7 @@ package com.example.AOD.Webtoon.NaverWebtoon.controller;
 import com.example.AOD.Webtoon.NaverWebtoon.crawler.NaverWebtoonCrawler;
 import com.example.AOD.Webtoon.NaverWebtoon.domain.dto.NaverWebtoonDTO;
 import com.example.AOD.Webtoon.NaverWebtoon.service.WebtoonService;
-import com.example.AOD.Webtoon.NaverWebtoon.util.ChromeDriverProvider;
+import com.example.AOD.util.ChromeDriverProvider;
 import java.awt.AWTException;
 import java.util.HashMap;
 import java.util.Map;

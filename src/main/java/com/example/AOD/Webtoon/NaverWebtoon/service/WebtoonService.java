@@ -8,7 +8,7 @@ import com.example.AOD.Webtoon.NaverWebtoon.domain.dto.NaverWebtoonDTO;
 import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonAuthorRepository;
 import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonGenreRepository;
 import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
-import com.example.AOD.Webtoon.NaverWebtoon.util.ChromeDriverProvider;
+import com.example.AOD.util.ChromeDriverProvider;
 import com.example.AOD.Webtoon.NaverWebtoon.util.NaverLoginHandler;
 import java.awt.AWTException;
 import java.util.ArrayList;
