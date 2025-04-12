@@ -1,8 +1,9 @@
 package com.example.AOD.StreamAPI;
 
-import com.example.AOD.StreamAPI.dto.AllGameFetchDto.SimpleGameDto;
-import com.example.AOD.StreamAPI.dto.GameDetailDto.GameDetailDto;
-import java.sql.SQLOutput;
+import com.example.AOD.game.StreamAPI.SteamApiFetcher;
+import com.example.AOD.game.StreamAPI.dto.AllGameFetchDto.SimpleGameDto;
+import com.example.AOD.game.StreamAPI.dto.GameDetailDto.GameDetailDto;
+
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
