@@ -22,7 +22,7 @@ public class NetflixContentCrawler {
     private String password;
     private WebDriver driver;
     private Random random = new Random();
-    private final int MAX_ITEMS = 2; // 테스트용
+    private final int MAX_ITEMS = 5; // 테스트용
 
     static {
         try {
@@ -35,10 +35,11 @@ public class NetflixContentCrawler {
         }
     }
 
-    public NetflixContentCrawler(String email, String password) {
+    public NetflixContentCrawler(String email, String password,  WebDriver driver) {
         this.email = email;
         this.password = password;
-        WebDriverManager.chromedriver().setup();
+        this.driver = driver;
+        //WebDriverManager.chromedriver().setup();
     }
 
     public void setupDriver() {
@@ -84,7 +85,9 @@ public class NetflixContentCrawler {
      */
     public List<NetflixContentDTO> crawl() {
         List<NetflixContentDTO> results = new ArrayList<>();
+
         try {
+            // 1) 시리즈 목록 페이지 진입
             driver.get(seriesUrl);
             Thread.sleep(3000);
 
@@ -94,17 +97,32 @@ public class NetflixContentCrawler {
                 Thread.sleep(1000);
             }
 
+            // 2) 목록 아이템을 모두 찾기
             List<WebElement> items = driver.findElements(By.cssSelector("a.slider-refocus"));
             if (items.isEmpty()) {
                 logger.warning("항목 없음");
                 return results;
             }
+            // 테스트용으로 최대 MAX_ITEMS만
             int limit = Math.min(MAX_ITEMS, items.size());
+
+            // 3) '목록 아이템'에 대한 정보를 먼저 문자열로 추출해서 저장
+            //    (StaleElement 방지를 위해, 여기서 WebElement에 의존하지 않고 필요한 데이터만 빼놓는다)
+            List<String> urlList = new ArrayList<>();
+            List<String> titleList = new ArrayList<>();
+            List<String> imageUrlList = new ArrayList<>();
+            List<String> contentIdList = new ArrayList<>();
+
             for (int i = 0; i < limit; i++) {
                 WebElement item = items.get(i);
-                String url = item.getAttribute("href");
-                if (url == null) continue;
 
+                // URL
+                String url = item.getAttribute("href");
+                if (url == null) {
+                    continue;
+                }
+
+                // title
                 String title = item.getAttribute("aria-label");
                 if (title == null || title.isEmpty()) {
                     try {
@@ -114,6 +132,7 @@ public class NetflixContentCrawler {
                     }
                 }
 
+                // 이미지 URL
                 String imageUrl = "";
                 try {
                     imageUrl = item.findElement(By.tagName("img")).getAttribute("src");
@@ -121,9 +140,23 @@ public class NetflixContentCrawler {
                     // ignore
                 }
 
-                // URL에서 contentId 추출
+                // contentId
                 String[] parts = url.split("\\?")[0].split("/");
                 String contentId = parts[parts.length - 1];
+
+                // 리스트에 저장
+                urlList.add(url);
+                titleList.add(title);
+                imageUrlList.add(imageUrl);
+                contentIdList.add(contentId);
+            }
+
+            // 4) 목록에서 뽑아둔 정보로 상세 페이지를 순회하며 DTO 구성
+            for (int i = 0; i < urlList.size(); i++) {
+                String url = urlList.get(i);
+                String title = titleList.get(i);
+                String imageUrl = imageUrlList.get(i);
+                String contentId = contentIdList.get(i);
 
                 NetflixContentDTO dto = getDetailInfo(contentId, title, url, imageUrl);
                 if (dto != null) {
@@ -131,12 +164,12 @@ public class NetflixContentCrawler {
                 }
                 Thread.sleep(randomSleep(1000, 2000));
             }
+
         } catch (Exception e) {
             logger.log(Level.SEVERE, "크롤링 중 오류", e);
         }
         return results;
     }
-
     /**
      * 상세 정보 페이지 접근, DTO에 세부 정보 셋팅
      */

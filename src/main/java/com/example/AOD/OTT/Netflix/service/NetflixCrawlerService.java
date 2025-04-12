@@ -14,7 +14,9 @@ import com.example.AOD.OTT.Netflix.repository.ActorRepository;
 import com.example.AOD.OTT.Netflix.repository.FeatureRepository;
 import com.example.AOD.OTT.Netflix.repository.GenreRepository;
 import com.example.AOD.OTT.Netflix.repository.NetflixContentRepository;
+import com.example.AOD.util.ChromeDriverProvider;
 import lombok.RequiredArgsConstructor;
+import org.openqa.selenium.WebDriver;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -37,36 +39,32 @@ public class NetflixCrawlerService {
      * 3) 크롤
      * 4) 반환된 DTO를 저장
      */
+    // ChromeDriverProvider를 주입받는다고 가정
+    private final ChromeDriverProvider chromeDriverProvider;
+
     @Async
     public void runCrawler(String email, String password) {
-        // 1) 크롤러 생성 및 드라이버 설정
-        NetflixContentCrawler crawler = new NetflixContentCrawler(email, password);
-        crawler.setupDriver();
+        // 1) 크롬드라이버 생성
+        WebDriver driver = chromeDriverProvider.getDriver();
+
+        // 2) 크롤러에 주입
+        NetflixContentCrawler crawler = new NetflixContentCrawler(email, password, driver);
 
         try {
-            // 2) 로그인
-            boolean loginSuccess = crawler.login();
-            if (!loginSuccess) {
-                // 로그인 실패 시 중단
-                return;
+            // 3) 로그인
+            if (!crawler.login()) {
+                return; // 로그인 실패 시 종료
             }
 
-            // 3) 크롤
+            // 4) 크롤
             List<NetflixContentDTO> dtoList = crawler.crawl();
-            if (dtoList.isEmpty()) {
-                // 항목이 없다면 종료
-                return;
-            }
 
-            // 4) 받은 DTO 각각 저장
+            // 5) DTO -> 엔티티 변환 & 저장
             for (NetflixContentDTO dto : dtoList) {
                 saveNetflixContent(dto);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
-            // 5) 드라이버 종료
+            // 6) 드라이버 종료
             crawler.cleanup();
         }
     }
