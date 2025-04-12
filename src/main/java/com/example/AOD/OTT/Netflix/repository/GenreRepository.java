@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public class GenreRepository extends JpaRepository<Genre, Long> {
+public interface GenreRepository extends JpaRepository<Genre, Long> {
 
-    public Optional<Genre> findByName(String genreName) {
-    }
+
+    Optional<Genre> findByName(String genreName);
 }
