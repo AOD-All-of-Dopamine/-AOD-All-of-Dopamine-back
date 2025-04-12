@@ -1,4 +1,4 @@
-package com.example.AOD.Webtoon.NaverWebtoon.util;
+package com.example.AOD.util;
 
 import java.util.List;
 import lombok.Getter;
