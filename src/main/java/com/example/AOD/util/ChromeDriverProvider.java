@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class ChromeDriverProvider {
 
     private String driver_path = "C:\\Users\\kokyungwoo\\Desktop\\chromedriver-win64\\chromedriver.exe";
+    //private String driver_path = "C:\\chromedriver-win64\\chromedriver.exe"; 디버깅용
     private final String driver_id = "webdriver.chrome.driver";
 
     @Getter
