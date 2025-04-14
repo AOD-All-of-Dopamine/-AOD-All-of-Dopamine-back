@@ -1,7 +1,7 @@
-package com.example.AOD.movie.crawler;
+package com.example.AOD.movie.CGV.crawler;
 
-import com.example.AOD.movie.domain.Movie;
-import com.example.AOD.movie.repository.MovieRepository;
+import com.example.AOD.movie.CGV.dto.MovieDTO;
+import com.example.AOD.util.ChromeDriverProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,11 +11,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -32,7 +29,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CgvCrawler {
 
-    private final MovieRepository movieRepository;
     private final String BASE_URL = "http://www.cgv.co.kr";
     private final String MOVIE_LIST_URL = BASE_URL + "/movies/";
     private final String MOVIE_DETAIL_URL = BASE_URL + "/movies/detail-view/?midx=";
@@ -43,29 +39,20 @@ public class CgvCrawler {
     private static final int WAIT_TIMEOUT = 10;
     private static final int MAX_CLICK_ATTEMPTS = 10;
 
-    @Autowired
-    public CgvCrawler(MovieRepository movieRepository) {
-        this.movieRepository = movieRepository;
+    private final ChromeDriverProvider chromeDriverProvider;
+
+    public CgvCrawler(ChromeDriverProvider chromeDriverProvider) {
+        this.chromeDriverProvider = chromeDriverProvider;
     }
 
-    public void crawlAll() {
+    public List<MovieDTO> crawlAll() {
         log.info("CGV 전체 영화 크롤링 시작");
-        int newMoviesCount = 0;
+        List<MovieDTO> crawledMovies = new ArrayList<>();
         WebDriver driver = null;
 
         try {
-            // NaverAutoLogin 방식으로 ChromeDriver 설정
-            System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
-
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--headless");
-            options.addArguments("--disable-gpu");
-            options.addArguments("--no-sandbox");
-            options.addArguments("--disable-dev-shm-usage");
-            options.addArguments("--window-size=1920,1080");
-            options.addArguments("user-agent=" + USER_AGENT);
-
-            driver = new ChromeDriver(options);
+            // WebDriver 초기화
+            driver = chromeDriverProvider.getDriver();
             driver.get(MOVIE_LIST_URL);
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT));
@@ -77,16 +64,11 @@ public class CgvCrawler {
 
             for (String externalId : externalIds) {
                 try {
-                    if (movieRepository.existsByExternalId(externalId)) {
-                        log.debug("이미 존재하는 영화 ID: {}, 건너뜀", externalId);
-                        continue;
-                    }
-
-                    Movie movie = crawlMovieDetail(externalId);
-                    if (movie != null) {
-                        movieRepository.save(movie);
-                        newMoviesCount++;
-                        log.info("영화 저장 완료: {}", movie.getTitle());
+                    // 영화 상세 정보를 DTO로 가져옴
+                    MovieDTO movieDTO = crawlMovieDetail(externalId);
+                    if (movieDTO != null) {
+                        crawledMovies.add(movieDTO);
+                        log.info("영화 크롤링 완료: {}", movieDTO.getTitle());
                     }
 
                     delay();
@@ -95,7 +77,7 @@ public class CgvCrawler {
                 }
             }
 
-            log.info("CGV 전체 영화 크롤링 완료. {}개 신규 영화 크롤링됨", newMoviesCount);
+            log.info("CGV 전체 영화 크롤링 완료. {}개 영화 크롤링됨", crawledMovies.size());
         } catch (Exception e) {
             log.error("Selenium 크롤링 오류: {}", e.getMessage(), e);
         } finally {
@@ -104,6 +86,8 @@ public class CgvCrawler {
                 log.info("WebDriver 종료");
             }
         }
+
+        return crawledMovies;
     }
 
     private void clickMoreButtonUntilNoMore(WebDriver driver, WebDriverWait wait) {
@@ -177,63 +161,7 @@ public class CgvCrawler {
         return externalIds;
     }
 
-    // 일정 주기 단위로 크롤링(추후 추가)
-    public void crawlRecent() {
-        log.info("CGV 최신 영화 크롤링 시작");
-        int newMoviesCount = 0;
-        WebDriver driver = null;
-
-        try {
-            // NaverAutoLogin 방식으로 ChromeDriver 설정
-            System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
-
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--headless");
-            options.addArguments("--disable-gpu");
-            options.addArguments("--no-sandbox");
-            options.addArguments("--disable-dev-shm-usage");
-            options.addArguments("user-agent=" + USER_AGENT);
-
-            driver = new ChromeDriver(options);
-            driver.get(MOVIE_LIST_URL);
-
-            List<String> externalIds = extractAllMovieIds(driver);
-            log.info("첫 페이지에서 {}개 영화 발견", externalIds.size());
-
-            LocalDate oneWeekAgo = LocalDate.now().minusWeeks(1);
-
-            for (String externalId : externalIds) {
-                try {
-                    if (movieRepository.existsByExternalId(externalId)) {
-                        log.debug("이미 존재하는 영화 ID: {}, 건너뜀", externalId);
-                        continue;
-                    }
-
-                    Movie movie = crawlMovieDetail(externalId);
-                    if (movie != null) {
-                        movieRepository.save(movie);
-                        newMoviesCount++;
-                        log.info("최신 영화 저장 완료: {}", movie.getTitle());
-                    }
-
-                    delay();
-                } catch (Exception e) {
-                    log.error("영화 상세 정보 크롤링 오류: {}", e.getMessage(), e);
-                }
-            }
-
-            log.info("CGV 최신 영화 크롤링 완료. {}개 신규 영화 크롤링됨", newMoviesCount);
-        } catch (Exception e) {
-            log.error("최신 영화 Selenium 크롤링 오류: {}", e.getMessage(), e);
-        } finally {
-            if (driver != null) {
-                driver.quit();
-                log.info("WebDriver 종료");
-            }
-        }
-    }
-
-    private Movie crawlMovieDetail(String externalId) {
+    private MovieDTO crawlMovieDetail(String externalId) {
         try {
             String url = MOVIE_DETAIL_URL + externalId;
             Document doc = Jsoup.connect(url)
@@ -266,10 +194,7 @@ public class CgvCrawler {
             String reservationRateText = doc.select(".score .percent span").text();
             Double reservationRate = parseReservationRate(reservationRateText);
 
-            // 기본 정보 텍스트를 한 번만 가져옴
             String basicInfoText = doc.select(".spec dl dt:contains(기본 정보) + dd.on").text();
-
-            // 각 메서드에 동일한 텍스트를 전달하여 각각의 정보를 추출
             String ageRating = parseAgeRating(basicInfoText);
             Integer runningTime = parseRunningTime(basicInfoText);
             String country = parseCountry(basicInfoText);
@@ -278,7 +203,8 @@ public class CgvCrawler {
             LocalDate releaseDate = parseReleaseDate(releaseDateText);
             boolean isRerelease = isRerelease(releaseDateText);
 
-            return Movie.builder()
+            // DTO 생성
+            return MovieDTO.builder()
                     .title(title)
                     .director(director)
                     .actors(actors)
@@ -288,10 +214,10 @@ public class CgvCrawler {
                     .runningTime(runningTime)
                     .country(country)
                     .releaseDate(releaseDate)
-                    .isRerelease(isRerelease) // 재개봉 여부 설정
+                    .isRerelease(isRerelease)
+                    .ageRating(ageRating)
                     .externalId(externalId)
                     .lastUpdated(LocalDate.now())
-                    .ageRating(ageRating) // 관람 연령대 추가
                     .build();
 
         } catch (IOException e) {
@@ -300,7 +226,9 @@ public class CgvCrawler {
         }
     }
 
+    // 나머지 파싱 메서드들은 그대로 유지...
     private List<String> parseGenres(Document doc) {
+        // 기존 코드 유지
         List<String> genres = new ArrayList<>();
 
         // 장르 정보가 들어있는 dt 요소 찾기
@@ -396,29 +324,21 @@ public class CgvCrawler {
         return "미상";
     }
 
-    /**
-     * 개봉일 문자열에서 날짜만 추출하여 LocalDate로 파싱
-     */
     private LocalDate parseReleaseDate(String releaseDateText) {
         try {
             // "(재개봉)" 등의 부가 정보를 제거하고 날짜만 추출
             String dateOnly = releaseDateText.replaceAll("\\(.*\\)", "").trim();
-            //log.debug("개봉일 파싱: 원본='{}', 처리 후='{}'", releaseDateText, dateOnly);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
             return LocalDate.parse(dateOnly, formatter);
         } catch (Exception e) {
-            //log.warn("개봉일 파싱 오류: {}", releaseDateText, e);
+            log.warn("개봉일 파싱 오류: {}", releaseDateText);
             return LocalDate.now();
         }
     }
 
-    /**
-     * 개봉일 문자열에서 재개봉 여부 확인
-     */
     private boolean isRerelease(String releaseDateText) {
         boolean result = releaseDateText.contains("재개봉");
-        //log.debug("재개봉 여부 확인: '{}' -> {}", releaseDateText, result);
         return result;
     }
 
