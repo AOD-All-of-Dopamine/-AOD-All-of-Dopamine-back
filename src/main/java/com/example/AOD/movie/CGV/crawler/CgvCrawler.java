@@ -313,15 +313,40 @@ public class CgvCrawler {
     }
 
     private String parseCountry(String basicInfoText) {
-        // 기본 정보에서 국가 정보는 일반적으로 마지막 콤마 이후에 있음
-        String[] parts = basicInfoText.split(",");
-        if (parts.length > 0) {
-            // 마지막 부분이 국가 정보로 간주
-            return parts[parts.length - 1].trim();
-        }
+        // 기존 코드 수정
+        try {
+            if (basicInfoText == null || basicInfoText.isEmpty()) {
+                return "-";
+            }
 
-        // 국가 정보를 찾지 못한 경우
-        return "미상";
+            // 콤마로 분리
+            String[] parts = basicInfoText.split(",");
+
+            // 마지막 부분이 있는지 확인하고, 그 값이 비어있는지 확인
+            if (parts.length > 0) {
+                String lastPart = parts[parts.length - 1].trim();
+
+                // 마지막 부분이 비어있거나 오직 공백만 포함하고 있는 경우
+                if (lastPart.isEmpty() || lastPart.matches("^\\s*$")) {
+                    return "-";
+                }
+
+                // 마지막 부분이 숫자와 "분"만을 포함하는 경우 (상영시간인 경우)
+                if (lastPart.matches("^\\s*\\d+\\s*분\\s*$")) {
+                    return "-";
+                }
+
+                // 그 외의 경우 마지막 부분을 국가 정보로 간주
+                return lastPart;
+            }
+
+            // 콤마가 없거나 다른 예외 경우
+            return "-";
+
+        } catch (Exception e) {
+            log.warn("국가 정보 파싱 오류: {}", basicInfoText);
+            return "-";
+        }
     }
 
     private LocalDate parseReleaseDate(String releaseDateText) {
