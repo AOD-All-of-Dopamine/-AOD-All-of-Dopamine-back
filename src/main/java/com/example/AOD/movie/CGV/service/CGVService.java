@@ -135,6 +135,7 @@ public class CGVService {
                 .releaseDate(movieDTO.getReleaseDate())
                 .isRerelease(movieDTO.getIsRerelease())
                 .ageRating(movieDTO.getAgeRating())
+                .thumbnailUrl(movieDTO.getThumbnailUrl()) // 썸네일 URL 설정 추가
                 .externalId(movieDTO.getExternalId())
                 .lastUpdated(LocalDate.now())
                 .build();
@@ -161,6 +162,14 @@ public class CGVService {
             // 변동 가능한 데이터만 업데이트
             movie.setReservationRate(movieDTO.getReservationRate());
             movie.setRating(movieDTO.getRating());
+
+            // 썸네일 URL이 있고 기존에 없었다면 업데이트
+            if (movieDTO.getThumbnailUrl() != null && !movieDTO.getThumbnailUrl().isEmpty() &&
+                    (movie.getThumbnailUrl() == null || movie.getThumbnailUrl().isEmpty())) {
+                movie.setThumbnailUrl(movieDTO.getThumbnailUrl());
+                log.info("영화 썸네일 URL 업데이트: {}", movieDTO.getTitle());
+            }
+
             movie.setLastUpdated(LocalDate.now());
 
             log.info("영화 데이터 업데이트: {} (평점: {}, 예매율: {})",
