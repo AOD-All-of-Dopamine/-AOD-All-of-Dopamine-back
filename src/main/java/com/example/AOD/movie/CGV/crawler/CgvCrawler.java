@@ -203,6 +203,9 @@ public class CgvCrawler {
             LocalDate releaseDate = parseReleaseDate(releaseDateText);
             boolean isRerelease = isRerelease(releaseDateText);
 
+            // 썸네일 이미지 URL 추출
+            String thumbnailUrl = parseThumbnailUrl(doc);
+
             // DTO 생성
             return MovieDTO.builder()
                     .title(title)
@@ -216,6 +219,7 @@ public class CgvCrawler {
                     .releaseDate(releaseDate)
                     .isRerelease(isRerelease)
                     .ageRating(ageRating)
+                    .thumbnailUrl(thumbnailUrl) // 썸네일 URL 추가
                     .externalId(externalId)
                     .lastUpdated(LocalDate.now())
                     .build();
@@ -226,9 +230,44 @@ public class CgvCrawler {
         }
     }
 
-    // 나머지 파싱 메서드들은 그대로 유지...
+    /**
+     * 영화 포스터 썸네일 URL을 추출합니다.
+     */
+    private String parseThumbnailUrl(Document doc) {
+        try {
+            // 메인 포스터 이미지 선택자
+            Element posterElement = doc.selectFirst(".box-image a .thumb-image img");
+
+            if (posterElement != null) {
+                String thumbnailUrl = posterElement.attr("src");
+
+                // URL이 없거나 비어있는 경우 대체 방법 시도
+                if (thumbnailUrl == null || thumbnailUrl.isEmpty()) {
+                    // 대체 이미지 선택자 시도
+                    Element altPosterElement = doc.selectFirst(".sect-movie-chart .box-image img");
+                    if (altPosterElement != null) {
+                        thumbnailUrl = altPosterElement.attr("src");
+                    }
+                }
+
+                // 상대 경로인 경우 절대 경로로 변환
+                if (thumbnailUrl != null && !thumbnailUrl.isEmpty() && !thumbnailUrl.startsWith("http")) {
+                    thumbnailUrl = "http://www.cgv.co.kr" + thumbnailUrl;
+                }
+
+                return thumbnailUrl;
+            }
+
+            log.warn("영화 썸네일 이미지를 찾을 수 없습니다.");
+            return "";
+
+        } catch (Exception e) {
+            log.error("썸네일 URL 파싱 오류: {}", e.getMessage());
+            return "";
+        }
+    }
+
     private List<String> parseGenres(Document doc) {
-        // 기존 코드 유지
         List<String> genres = new ArrayList<>();
 
         // 장르 정보가 들어있는 dt 요소 찾기
@@ -313,7 +352,6 @@ public class CgvCrawler {
     }
 
     private String parseCountry(String basicInfoText) {
-        // 기존 코드 수정
         try {
             if (basicInfoText == null || basicInfoText.isEmpty()) {
                 return "-";
