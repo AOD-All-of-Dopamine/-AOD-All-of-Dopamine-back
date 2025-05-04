@@ -187,7 +187,7 @@ public class NetflixContentCrawler {
             String description = "";
             try {
                 WebElement descElem = new WebDriverWait(driver, Duration.ofSeconds(5))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".title-info-synopsis")));
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".preview-modal-synopsis")));
                 description = descElem.getText().trim();
             } catch (Exception ex) {
                 logger.fine("설명 없음");
