@@ -1,13 +1,13 @@
 package com.example.AOD.StreamAPI.service;
 
-import com.example.AOD.game.StreamAPI.domain.Game;
+import com.example.AOD.game.StreamAPI.domain.SteamGame;
 import com.example.AOD.game.StreamAPI.service.GameService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GameServiceTest {
+class SteamGameServiceTest {
 
     @Autowired
     private GameService gameService;
@@ -15,7 +15,7 @@ class GameServiceTest {
     @Test
     public void test(){
 //        gameService.fetch();
-        Game game = gameService.getGameDetailById(578080L);
-        System.out.println("game = " + game);
+        SteamGame steamGame = gameService.getGameDetailById(578080L);
+        System.out.println("game = " + steamGame);
     }
 }

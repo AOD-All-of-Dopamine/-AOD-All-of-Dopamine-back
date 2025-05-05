@@ -1,5 +1,6 @@
 package com.example.AOD.game.StreamAPI.domain;
 
+import com.example.AOD.OTT.Netflix.domain.Genre;
 import com.example.AOD.game.StreamAPI.dto.GameDetailDto.GameDetailDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +12,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,7 +22,7 @@ import lombok.ToString;
 @Getter @Setter
 @NoArgsConstructor
 @ToString
-public class Game {
+public class SteamGame {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,9 +73,8 @@ public class Game {
     )
     private List<GamePublisher> publishers;
 
-
-//    private PriceOverview price_overview; //무료 게임의 경우 null
-
+    private int initialPrice;
+    private int finalPrice;
 
     @ManyToMany
     @JoinTable(
@@ -91,11 +92,7 @@ public class Game {
     )
     private List<GameGenre> genres;
 
-//    private List<Screenshot> screenshots;
-//    private ReleaseDate release_date;
-
-
-    public Game(GameDetailDto dto) {
+    public SteamGame(GameDetailDto dto) {
         this.name = dto.getName();
         this.steam_appid = dto.getSteam_appid();
         this.required_age = dto.getRequired_age();
@@ -108,11 +105,23 @@ public class Game {
         this.capsule_imagev5 = dto.getCapsule_imagev5();
         this.website = dto.getWebsite();
 
-        this.developers = new ArrayList<>();
-//
-//        developers;
-//        this.publishers = publishers;
-//        this.categories = categories;
-//        this.genres = genres;
+        if(dto.getPrice_overview() != null) {
+            this.initialPrice = dto.getPrice_overview().getInitial();
+            this.finalPrice = dto.getPrice_overview().getFinal_();
+        } else{
+            this.initialPrice = 0;
+            this.finalPrice = 0;
+        }
+
+        this.developers = dto.getDevelopers().stream()
+                .map(GameDeveloper::new).collect(Collectors.toList());
+        this.publishers = dto.getPublishers().stream()
+                .map(GamePublisher::new).collect(Collectors.toList());
+        this.categories = dto.getCategories().stream()
+                .map(category -> new SteamGameCategory(category.getDescription()))
+                .collect(Collectors.toList());
+        this.genres = dto.getGenres().stream()
+                .map(genre -> new GameGenre(genre.getName()))
+                .collect(Collectors.toList());
     }
 }

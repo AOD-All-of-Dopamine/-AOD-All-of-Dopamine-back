@@ -1,7 +1,7 @@
 package com.example.AOD.game.StreamAPI.service;
 
 import com.example.AOD.game.StreamAPI.SteamApiFetcher;
-import com.example.AOD.game.StreamAPI.domain.Game;
+import com.example.AOD.game.StreamAPI.domain.SteamGame;
 import com.example.AOD.game.StreamAPI.domain.GameDeveloper;
 import com.example.AOD.game.StreamAPI.domain.GameGenre;
 import com.example.AOD.game.StreamAPI.domain.GamePublisher;
@@ -30,7 +30,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final SteamApiFetcher steamApiFetcher;
 
-    public Game saveGame(GameDetailDto dto) {
+    public SteamGame saveGame(GameDetailDto dto) {
         List<GameDeveloper> developers = dto.getDevelopers().stream()
                 .map(name -> gameDeveloperRepository.findByName(name)
                         .orElseGet(() -> gameDeveloperRepository.save(new GameDeveloper(name))))
@@ -51,12 +51,12 @@ public class GameService {
                         .orElseGet(() -> gameCategoryRepository.save(new SteamGameCategory(category.getDescription()))))
                 .collect(Collectors.toList());
 
-        Game game = new Game(dto);
-        game.setDevelopers(developers);
-        game.setPublishers(publishers);
-        game.setGenres(genres);
-        game.setCategories(categories);
-        return gameRepository.save(game);
+        SteamGame steamGame = new SteamGame(dto);
+        steamGame.setDevelopers(developers);
+        steamGame.setPublishers(publishers);
+        steamGame.setGenres(genres);
+        steamGame.setCategories(categories);
+        return gameRepository.save(steamGame);
     }
     
     //절대 이걸 써서는 안돼
@@ -77,8 +77,8 @@ public class GameService {
         }
     }
 
-    public Game getGameDetailById(Long id) {
-        Optional<Game> game = gameRepository.findById(id);
+    public SteamGame getGameDetailById(Long id) {
+        Optional<SteamGame> game = gameRepository.findById(id);
         if (game.isEmpty()) {
             GameDetailDto gameDetailDto = steamApiFetcher.getGameDetailById(id, "korean");
             return saveGame(gameDetailDto);
