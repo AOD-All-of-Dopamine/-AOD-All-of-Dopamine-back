@@ -1,5 +1,6 @@
 package com.example.AOD.game.StreamAPI.domain;
 
+import com.example.AOD.game.StreamAPI.dto.GameDetailDto.Category;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class SteamGameCategory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,4 +24,5 @@ public class SteamGameCategory {
     public SteamGameCategory(String name) {
         this.name = name;
     }
+
 }
