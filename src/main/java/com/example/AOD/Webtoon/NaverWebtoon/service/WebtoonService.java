@@ -13,11 +13,14 @@ import com.example.AOD.Webtoon.NaverWebtoon.util.NaverLoginHandler;
 import java.awt.AWTException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.WebDriver;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +64,42 @@ public class WebtoonService {
         for (NaverWebtoonDTO naverWebtoonDTO : naverWebtoonDTOS) {
             saveWebtoon(naverWebtoonDTO);
         }
+    }
+
+    /**
+     * 매일 자정에 실행되는 네이버 웹툰 신작 크롤링 메서드
+     */
+    @Async
+    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
+    @Transactional
+    public void crawlNewWebtoons() throws InterruptedException, AWTException {
+        ChromeDriverProvider chromeDriverProvider = new ChromeDriverProvider();
+        WebDriver driver = chromeDriverProvider.getDriver();
+        NaverLoginHandler loginHandler = new NaverLoginHandler();
+
+        String id = System.getenv("naverId");
+        String pw = System.getenv("naverPw");
+        System.out.println("신작 웹툰 크롤링 시작: " + id);
+
+        loginHandler.naverLogin(driver, id, pw);
+
+        // 신작 웹툰 크롤링 실행
+        ArrayList<NaverWebtoonDTO> newWebtoons = naverWebtoonCrawler.crawlNewWebtoons(driver);
+        System.out.println("신작 웹툰 크롤링 완료: " + newWebtoons.size() + "개 발견");
+
+        // 이미 저장된 웹툰은 제외하고 새로운 웹툰만 저장
+        int savedCount = 0;
+        for (NaverWebtoonDTO webtoonDTO : newWebtoons) {
+            // URL로 기존 웹툰 확인
+            Optional<Webtoon> existingWebtoon = webtoonRepository.findByUrl(webtoonDTO.getUrl());
+
+            if (existingWebtoon.isEmpty()) {
+                saveWebtoon(webtoonDTO);
+                savedCount++;
+            }
+        }
+
+        System.out.println("신작 웹툰 저장 완료: " + savedCount + "개 신규 저장");
+        driver.quit();
     }
 }
