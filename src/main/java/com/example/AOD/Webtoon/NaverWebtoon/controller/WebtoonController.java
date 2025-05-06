@@ -43,4 +43,13 @@ public class WebtoonController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/startNewWebtoonCrawl")
+    public ResponseEntity<Map<String,Object>> startNewWebtoonCrawl() throws InterruptedException, AWTException {
+        webtoonService.crawlNewWebtoons();
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "신작 웹툰 크롤링 작업이 백그라운드에서 실행 중입니다.");
+        return ResponseEntity.ok(response);
+    }
+
 }
