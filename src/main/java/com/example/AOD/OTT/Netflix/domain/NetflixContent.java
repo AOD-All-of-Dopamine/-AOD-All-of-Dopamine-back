@@ -2,7 +2,6 @@ package com.example.AOD.OTT.Netflix.domain;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -55,7 +54,7 @@ public class NetflixContent {
             joinColumns = @JoinColumn(name = "content_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
-    private List<Actor> actors;
+    private List<NetflixContentActor> netflixContentActors;
 
     // 장르 리스트 (ManyToMany)
     @ManyToMany
@@ -64,7 +63,7 @@ public class NetflixContent {
             joinColumns = @JoinColumn(name = "content_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    private List<Genre> genres;
+    private List<NetflixContentGenre> netflixContentGenres;
 
     // 특징 리스트 (ManyToMany)
     @ManyToMany
@@ -73,5 +72,5 @@ public class NetflixContent {
             joinColumns = @JoinColumn(name = "content_id"),
             inverseJoinColumns = @JoinColumn(name = "feature_id")
     )
-    private List<Feature> features;
+    private List<NetflixContentFeature> netflixContentFeatures;
 }
