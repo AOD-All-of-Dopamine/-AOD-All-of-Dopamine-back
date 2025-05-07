@@ -38,11 +38,10 @@ public class NetflixContentCrawler {
         }
     }
 
-    public NetflixContentCrawler(String email, String password,  WebDriver driver) {
+    public NetflixContentCrawler(String email, String password, WebDriver driver) {
         this.email = email;
         this.password = password;
         this.driver = driver;
-        //WebDriverManager.chromedriver().setup();
     }
 
     public void setupDriver() {
@@ -113,7 +112,6 @@ public class NetflixContentCrawler {
             //    (StaleElement 방지를 위해, 여기서 WebElement에 의존하지 않고 필요한 데이터만 빼놓는다)
             List<String> urlList = new ArrayList<>();
             List<String> titleList = new ArrayList<>();
-            List<String> imageUrlList = new ArrayList<>();
             List<String> contentIdList = new ArrayList<>();
 
             for (int i = 0; i < limit; i++) {
@@ -135,14 +133,6 @@ public class NetflixContentCrawler {
                     }
                 }
 
-                // 이미지 URL
-                String imageUrl = "";
-                try {
-                    imageUrl = item.findElement(By.tagName("img")).getAttribute("src");
-                } catch (Exception ex) {
-                    // ignore
-                }
-
                 // contentId
                 String[] parts = url.split("\\?")[0].split("/");
                 String contentId = parts[parts.length - 1];
@@ -150,7 +140,6 @@ public class NetflixContentCrawler {
                 // 리스트에 저장
                 urlList.add(url);
                 titleList.add(title);
-                imageUrlList.add(imageUrl);
                 contentIdList.add(contentId);
             }
 
@@ -158,10 +147,9 @@ public class NetflixContentCrawler {
             for (int i = 0; i < urlList.size(); i++) {
                 String url = urlList.get(i);
                 String title = titleList.get(i);
-                String imageUrl = imageUrlList.get(i);
                 String contentId = contentIdList.get(i);
 
-                NetflixContentDTO dto = getDetailInfo(contentId, title, url, imageUrl);
+                NetflixContentDTO dto = getDetailInfo(contentId, title, url);
                 if (dto != null) {
                     results.add(dto);
                 }
@@ -173,10 +161,11 @@ public class NetflixContentCrawler {
         }
         return results;
     }
+
     /**
      * 상세 정보 페이지 접근, DTO에 세부 정보 셋팅
      */
-    private NetflixContentDTO getDetailInfo(String contentId, String title, String url, String imageUrl) {
+    private NetflixContentDTO getDetailInfo(String contentId, String title, String url) {
         NetflixContentDTO dto = new NetflixContentDTO();
         try {
             String detailUrl = "https://www.netflix.com/title/" + contentId;
@@ -274,13 +263,29 @@ public class NetflixContentCrawler {
                 }
             }
 
+            // 고화질 썸네일/스토리아트 이미지 URL 추출
+            String imageUrl = "";
+            try {
+                // storyArt 클래스를 가진 div 안의 img 태그 찾기
+                WebElement storyArtImg = new WebDriverWait(driver, Duration.ofSeconds(5))
+                        .until(ExpectedConditions.presenceOfElementLocated(
+                                By.cssSelector(".storyArt img")
+                        ));
+                if (storyArtImg != null) {
+                    imageUrl = storyArtImg.getAttribute("src");
+                    logger.info("이미지 추출 성공: " + imageUrl);
+                }
+            } catch (Exception ex) {
+                logger.warning("이미지 추출 실패: " + ex.getMessage());
+            }
+
             // DTO 필드 채우기
             dto.setContentId(contentId);
             dto.setTitle(title);
             dto.setType(contentType);
             dto.setUrl(url);
             dto.setDetailUrl(detailUrl);
-            dto.setThumbnail(imageUrl);
+            dto.setThumbnail(imageUrl); // 고화질 이미지를 썸네일로 사용
             dto.setDescription(description);
             dto.setCreator(creator);
             dto.setMaturityRating(maturityRating);
