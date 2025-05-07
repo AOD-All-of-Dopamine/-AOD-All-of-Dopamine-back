@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class NaverWebtoonCrawler {
 
     private final String baseUrl = "https://comic.naver.com/webtoon";
+    private final String newWebtoonUrl = "https://comic.naver.com/webtoon?tab=new";
     private final int SLEEP_TIME = 300;
 
     public ArrayList<NaverWebtoonDTO> crawlAllOngoingWebtoons(WebDriver driver){
@@ -69,6 +70,38 @@ public class NaverWebtoonCrawler {
             System.out.println("error! : "+ href);
         }
         return null;
+    }
+
+    /**
+     * 네이버 웹툰 신작 탭에서 웹툰을 크롤링합니다.
+     */
+    public ArrayList<NaverWebtoonDTO> crawlNewWebtoons(WebDriver driver) {
+        ArrayList<String> hrefList = new ArrayList<>();
+        try {
+            driver.get(newWebtoonUrl);
+            Thread.sleep(SLEEP_TIME);
+
+            // 신작 탭의 리스트 컨테이너 찾기 - 클래스명만 수정
+            WebElement newWebtoonContainer = driver.findElement(By.className("ContentList__content_list--q5KXY"));
+            List<WebElement> listItems = newWebtoonContainer.findElements(By.tagName("li"));
+
+            for (WebElement listItem : listItems) {
+                WebElement link = listItem.findElement(By.className("Poster__link--sopnC"));
+                String href = link.getAttribute("href");
+
+                hrefList.add(href);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<NaverWebtoonDTO> webtoons = new ArrayList<>();
+        for (String href : hrefList) {
+            NaverWebtoonDTO naverWebtoonDTO = crawlWebtoonDetails(href, driver);
+            if (naverWebtoonDTO != null) webtoons.add(naverWebtoonDTO);
+        }
+
+        return webtoons;
     }
 
     private String getThumbnail(WebElement elements) {

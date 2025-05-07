@@ -27,4 +27,13 @@ public class NaverSeriesNovelController {
         response.put("message", "크롤링 작업이 백그라운드에서 실행 중입니다.");
         return org.springframework.http.ResponseEntity.ok(response);
     }
+
+    @GetMapping("/allNovelStartCrawl")
+    public ResponseEntity<Map<String,Object>> startAllNovelCrawl() throws InterruptedException, AWTException {
+        naverSeriesService.crawlAllNaverSeriesNovels();
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "전체 소설 크롤링 작업이 백그라운드에서 실행 중입니다.");
+        return ResponseEntity.ok(response);
+    }
 }
