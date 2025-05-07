@@ -52,7 +52,7 @@ public class NaverSeriesService {
     }
 
 
-    @Async
+    /*@Async
     public void NaverSeriesNovelCrawl() throws InterruptedException, AWTException {
         ChromeDriverProvider chromeDriverProvider = new ChromeDriverProvider();
         NaverLoginHandler loginHandler = new NaverLoginHandler();
@@ -76,5 +76,62 @@ public class NaverSeriesService {
 
         // 작업 완료 후 드라이버 종료
         driver.quit();
+    }*/
+
+    /**
+     * 공통 크롤링 메서드 - URL을 매개변수로 받아 해당 URL의 소설을 크롤링
+     */
+    @Async
+    public void crawlNovelsByUrl(String baseUrl, String logMessage) throws InterruptedException, AWTException {
+        ChromeDriverProvider chromeDriverProvider = new ChromeDriverProvider();
+        NaverLoginHandler loginHandler = new NaverLoginHandler();
+        WebDriver driver = chromeDriverProvider.getDriver();
+
+        String id = System.getenv("naverId");
+        String pw = System.getenv("naverPw");
+        System.out.println(id + " " + pw);
+
+        loginHandler.naverLogin(driver, id, pw);
+        String cookieString = loginHandler.getCookieString(driver);
+
+        // 로그인 후 WebDriver를 활용해 쿠키를 획득한 상태로 크롤링 실행
+        List<NaverSeriesNovelDTO> dtos;
+
+        if (baseUrl.contains("recentList")) {
+            dtos = crawler.crawlRecentNovels(cookieString);
+        } else if (baseUrl.contains("categoryProductList")) {
+            dtos = crawler.crawlAllNovels(cookieString);
+        } else {
+            // 기본적으로 URL을 직접 크롤링
+            dtos = crawler.crawlNovels(baseUrl, cookieString);
+        }
+
+        System.out.println(logMessage + " - 저장 시작");
+
+        // 크롤링된 각 DTO를 도메인 엔티티로 변환 후 저장
+        for (NaverSeriesNovelDTO dto : dtos) {
+            saveNovel(dto);
+        }
+
+        // 작업 완료 후 드라이버 종료
+        driver.quit();
+    }
+
+    /**
+     * 기존 최신 소설 크롤링 메서드 - 공통 메서드 호출
+     */
+    @Async
+    public void NaverSeriesNovelCrawl() throws InterruptedException, AWTException {
+        String recentListUrl = "https://series.naver.com/novel/recentList.series";
+        crawlNovelsByUrl(recentListUrl, "최신 소설 크롤링 완료");
+    }
+
+    /**
+     * 전체 소설 크롤링 메서드 - 공통 메서드 호출
+     */
+    @Async
+    public void crawlAllNaverSeriesNovels() throws InterruptedException, AWTException {
+        String allListUrl = "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all";
+        crawlNovelsByUrl(allListUrl, "전체 소설 크롤링 완료");
     }
 }

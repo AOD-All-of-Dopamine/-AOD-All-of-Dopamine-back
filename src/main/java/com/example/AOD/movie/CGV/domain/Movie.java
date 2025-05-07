@@ -41,6 +41,10 @@ public class Movie {
 
     private String ageRating;
 
+    // 썸네일 이미지 URL 필드 추가
+    @Column(length = 1000)
+    private String thumbnailUrl;
+
     @Column(unique = true)
     private String externalId; // 크롤링 소스에서의 고유 ID
 

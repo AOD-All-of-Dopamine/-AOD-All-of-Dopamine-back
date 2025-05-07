@@ -10,11 +10,96 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NaverSeriesCrawler {
+    /**
+     * url을 기준으로 전체, 신작 소설 크롤링.
+     */
+    public List<NaverSeriesNovelDTO> crawlNovels(String baseListUrl, String cookieString) {
+        List<NaverSeriesNovelDTO> novels = new ArrayList<>();
+        // 쿠키 검증
+        if (cookieString.isEmpty()) {
+            System.out.println("쿠키 추출 실패 => 프로그램 종료.");
+            return novels;
+        }
+
+        try {
+            int page = 1;
+            boolean hasMorePages = true;
+
+            // 페이지에 작품이 없을 때까지 계속 크롤링
+            while (hasMorePages) {
+                String pageUrl = baseListUrl;
+                // URL에 이미 파라미터가 있는지 확인하여 페이지 파라미터 추가
+                if (pageUrl.contains("?")) {
+                    pageUrl += "&page=" + page;
+                } else {
+                    pageUrl += "?page=" + page;
+                }
+
+                Document listDoc = getDocumentWithCookies(pageUrl, cookieString);
+                Elements items = listDoc.select("ul.lst_list li");
+
+                if (items.isEmpty()) {
+                    System.out.println(page + "페이지 작품이 없음. 크롤링 종료.");
+                    hasMorePages = false;
+                    break;
+                }
+
+                System.out.println("[페이지 " + page + "] 작품 수: " + items.size());
+
+                // 각 소설 상세 페이지 파싱
+                for (Element li : items) {
+                    Element linkElem = li.selectFirst("a.pic");
+                    if (linkElem == null) continue;
+                    String detailUrl = linkElem.attr("href");
+                    if (!detailUrl.startsWith("http")) {
+                        detailUrl = "https://series.naver.com" + detailUrl;
+                    }
+
+                    // 상세 페이지 접근 후 파싱하여 DTO 생성
+                    Document detailDoc = getDocumentWithCookies(detailUrl, cookieString);
+                    NaverSeriesNovelDTO dto = parseDetailPage(detailDoc, detailUrl);
+                    if (dto != null) {
+                        novels.add(dto);
+                        System.out.println("소설 정보 추출 완료: " + dto.getTitle());
+                    }
+
+                    // 과도한 요청 방지 위한 딜레이
+                    Thread.sleep(1000);
+                }
+
+                // 페이지 증가 및 페이지 간 딜레이
+                page++;
+                Thread.sleep(2000);
+            }
+
+            System.out.println("소설 크롤링 완료. 총 " + novels.size() + "개 소설 수집됨");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("크롤링 중 오류 발생: " + e.getMessage());
+        }
+
+        return novels;
+    }
 
     /**
      * 최근 웹소설 목록을 크롤링하여 DTO 리스트로 반환
      */
     public List<NaverSeriesNovelDTO> crawlRecentNovels(String cookieString) {
+        String recentListUrl = "https://series.naver.com/novel/recentList.series";
+        return crawlNovels(recentListUrl, cookieString);
+    }
+
+    /**
+     * 전체 웹소설 목록을 크롤링하여 DTO 리스트로 반환
+     */
+    public List<NaverSeriesNovelDTO> crawlAllNovels(String cookieString) {
+        String allListUrl = "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all";
+        return crawlNovels(allListUrl, cookieString);
+    }
+    /**
+     * 최근 웹소설 목록을 크롤링하여 DTO 리스트로 반환
+     */
+/*    public List<NaverSeriesNovelDTO> crawlRecentNovels(String cookieString) {
         List<NaverSeriesNovelDTO> novels = new ArrayList<>();
         // 1. Selenium 등을 이용한 로그인 후 쿠키 획득
         if (cookieString.isEmpty()) {
@@ -53,7 +138,7 @@ public class NaverSeriesCrawler {
             e.printStackTrace();
         }
         return novels;
-    }
+    }*/
 
 
     private NaverSeriesNovelDTO parseDetailPage(Document detailDoc, String detailUrl) {
