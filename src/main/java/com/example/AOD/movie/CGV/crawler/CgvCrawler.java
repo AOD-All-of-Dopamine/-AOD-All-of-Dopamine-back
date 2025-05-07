@@ -203,6 +203,9 @@ public class CgvCrawler {
             LocalDate releaseDate = parseReleaseDate(releaseDateText);
             boolean isRerelease = isRerelease(releaseDateText);
 
+            // 썸네일 이미지 URL 추출
+            String thumbnailUrl = parseThumbnailUrl(doc);
+
             // DTO 생성
             return MovieDTO.builder()
                     .title(title)
@@ -216,6 +219,7 @@ public class CgvCrawler {
                     .releaseDate(releaseDate)
                     .isRerelease(isRerelease)
                     .ageRating(ageRating)
+                    .thumbnailUrl(thumbnailUrl) // 썸네일 URL 추가
                     .externalId(externalId)
                     .lastUpdated(LocalDate.now())
                     .build();
@@ -226,9 +230,44 @@ public class CgvCrawler {
         }
     }
 
-    // 나머지 파싱 메서드들은 그대로 유지...
+    /**
+     * 영화 포스터 썸네일 URL을 추출합니다.
+     */
+    private String parseThumbnailUrl(Document doc) {
+        try {
+            // 메인 포스터 이미지 선택자
+            Element posterElement = doc.selectFirst(".box-image a .thumb-image img");
+
+            if (posterElement != null) {
+                String thumbnailUrl = posterElement.attr("src");
+
+                // URL이 없거나 비어있는 경우 대체 방법 시도
+                if (thumbnailUrl == null || thumbnailUrl.isEmpty()) {
+                    // 대체 이미지 선택자 시도
+                    Element altPosterElement = doc.selectFirst(".sect-movie-chart .box-image img");
+                    if (altPosterElement != null) {
+                        thumbnailUrl = altPosterElement.attr("src");
+                    }
+                }
+
+                // 상대 경로인 경우 절대 경로로 변환
+                if (thumbnailUrl != null && !thumbnailUrl.isEmpty() && !thumbnailUrl.startsWith("http")) {
+                    thumbnailUrl = "http://www.cgv.co.kr" + thumbnailUrl;
+                }
+
+                return thumbnailUrl;
+            }
+
+            log.warn("영화 썸네일 이미지를 찾을 수 없습니다.");
+            return "";
+
+        } catch (Exception e) {
+            log.error("썸네일 URL 파싱 오류: {}", e.getMessage());
+            return "";
+        }
+    }
+
     private List<String> parseGenres(Document doc) {
-        // 기존 코드 유지
         List<String> genres = new ArrayList<>();
 
         // 장르 정보가 들어있는 dt 요소 찾기
@@ -313,15 +352,39 @@ public class CgvCrawler {
     }
 
     private String parseCountry(String basicInfoText) {
-        // 기본 정보에서 국가 정보는 일반적으로 마지막 콤마 이후에 있음
-        String[] parts = basicInfoText.split(",");
-        if (parts.length > 0) {
-            // 마지막 부분이 국가 정보로 간주
-            return parts[parts.length - 1].trim();
-        }
+        try {
+            if (basicInfoText == null || basicInfoText.isEmpty()) {
+                return "-";
+            }
 
-        // 국가 정보를 찾지 못한 경우
-        return "미상";
+            // 콤마로 분리
+            String[] parts = basicInfoText.split(",");
+
+            // 마지막 부분이 있는지 확인하고, 그 값이 비어있는지 확인
+            if (parts.length > 0) {
+                String lastPart = parts[parts.length - 1].trim();
+
+                // 마지막 부분이 비어있거나 오직 공백만 포함하고 있는 경우
+                if (lastPart.isEmpty() || lastPart.matches("^\\s*$")) {
+                    return "-";
+                }
+
+                // 마지막 부분이 숫자와 "분"만을 포함하는 경우 (상영시간인 경우)
+                if (lastPart.matches("^\\s*\\d+\\s*분\\s*$")) {
+                    return "-";
+                }
+
+                // 그 외의 경우 마지막 부분을 국가 정보로 간주
+                return lastPart;
+            }
+
+            // 콤마가 없거나 다른 예외 경우
+            return "-";
+
+        } catch (Exception e) {
+            log.warn("국가 정보 파싱 오류: {}", basicInfoText);
+            return "-";
+        }
     }
 
     private LocalDate parseReleaseDate(String releaseDateText) {

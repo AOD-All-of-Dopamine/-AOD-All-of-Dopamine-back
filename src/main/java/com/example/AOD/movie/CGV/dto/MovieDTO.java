@@ -24,6 +24,7 @@ public class MovieDTO {
     private LocalDate releaseDate;
     private Boolean isRerelease;
     private String ageRating;
+    private String thumbnailUrl; // 썸네일 이미지 URL 필드 추가
     private String externalId;
     private LocalDate lastUpdated;
 }
