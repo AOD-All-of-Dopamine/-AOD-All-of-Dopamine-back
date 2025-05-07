@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "feature")
-public class Feature {
+public class NetflixContentFeature {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

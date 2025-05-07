@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "actor")
-public class Actor {
+public class NetflixContentActor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
