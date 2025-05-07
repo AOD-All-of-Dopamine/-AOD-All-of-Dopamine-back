@@ -20,4 +20,8 @@ public enum Days {
         }
         return days;
     }
+
+    public String getLabel() {
+        return label;
+    }
 }
