@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler;
-import com.example.AOD.OTT.Netflix.domain.Actor;
-import com.example.AOD.OTT.Netflix.domain.Feature;
-import com.example.AOD.OTT.Netflix.domain.Genre;
+import com.example.AOD.OTT.Netflix.domain.NetflixContentActor;
+import com.example.AOD.OTT.Netflix.domain.NetflixContentFeature;
+import com.example.AOD.OTT.Netflix.domain.NetflixContentGenre;
 import com.example.AOD.OTT.Netflix.domain.NetflixContent;
 import com.example.AOD.OTT.Netflix.dto.NetflixContentDTO;
-import com.example.AOD.OTT.Netflix.repository.ActorRepository;
-import com.example.AOD.OTT.Netflix.repository.FeatureRepository;
-import com.example.AOD.OTT.Netflix.repository.GenreRepository;
+import com.example.AOD.OTT.Netflix.repository.NetflixContentActorRepository;
+import com.example.AOD.OTT.Netflix.repository.NetflixContentFeatureRepository;
+import com.example.AOD.OTT.Netflix.repository.NetflixContentGenreRepository;
 import com.example.AOD.OTT.Netflix.repository.NetflixContentRepository;
 import com.example.AOD.util.ChromeDriverProvider;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +27,9 @@ public class NetflixCrawlerService {
     private final NetflixContentRepository contentRepository;
 
 
-    private final ActorRepository actorRepository;
-    private final GenreRepository genreRepository;
-    private final FeatureRepository featureRepository;
+    private final NetflixContentActorRepository netflixContentActorRepository;
+    private final NetflixContentGenreRepository netflixContentGenreRepository;
+    private final NetflixContentFeatureRepository netflixContentFeatureRepository;
 
 
     /**
@@ -87,47 +87,47 @@ public class NetflixCrawlerService {
         // 2) 배우(Actor) 리스트 처리
         // DTO에는 배우 이름 리스트가 들어있고, DB에는 Actor 엔티티가 존재
         // 존재하면 재사용, 없으면 새로 생성
-        List<Actor> actorEntities = dto.getActors().stream()
+        List<NetflixContentActor> netflixContentActorEntities = dto.getActors().stream()
                 .map(actorName -> {
                     // findByName 등으로 존재하는 배우인지 확인
-                    return actorRepository.findByName(actorName)
+                    return netflixContentActorRepository.findByName(actorName)
                             .orElseGet(() -> {
                                 // 없으면 새로 생성
-                                Actor newActor = new Actor();
-                                newActor.setName(actorName);
-                                return actorRepository.save(newActor);
+                                NetflixContentActor newNetflixContentActor = new NetflixContentActor();
+                                newNetflixContentActor.setName(actorName);
+                                return netflixContentActorRepository.save(newNetflixContentActor);
                             });
                 })
                 .collect(Collectors.toList());
 
         // 3) 장르(Genre) 리스트 처리
-        List<Genre> genreEntities = dto.getGenres().stream()
+        List<NetflixContentGenre> netflixContentGenreEntities = dto.getGenres().stream()
                 .map(genreName -> {
-                    return genreRepository.findByName(genreName)
+                    return netflixContentGenreRepository.findByName(genreName)
                             .orElseGet(() -> {
-                                Genre newGenre = new Genre();
-                                newGenre.setName(genreName);
-                                return genreRepository.save(newGenre);
+                                NetflixContentGenre newNetflixContentGenre = new NetflixContentGenre();
+                                newNetflixContentGenre.setName(genreName);
+                                return netflixContentGenreRepository.save(newNetflixContentGenre);
                             });
                 })
                 .collect(Collectors.toList());
 
         // 4) 특징(Feature) 리스트 처리
-        List<Feature> featureEntities = dto.getFeatures().stream()
+        List<NetflixContentFeature> netflixContentFeatureEntities = dto.getFeatures().stream()
                 .map(featureName -> {
-                    return featureRepository.findByName(featureName)
+                    return netflixContentFeatureRepository.findByName(featureName)
                             .orElseGet(() -> {
-                                Feature newFeature = new Feature();
-                                newFeature.setName(featureName);
-                                return featureRepository.save(newFeature);
+                                NetflixContentFeature newNetflixContentFeature = new NetflixContentFeature();
+                                newNetflixContentFeature.setName(featureName);
+                                return netflixContentFeatureRepository.save(newNetflixContentFeature);
                             });
                 })
                 .collect(Collectors.toList());
 
         // 5) 연관관계 설정
-        content.setActors(actorEntities);
-        content.setGenres(genreEntities);
-        content.setFeatures(featureEntities);
+        content.setNetflixContentActors(netflixContentActorEntities);
+        content.setNetflixContentGenres(netflixContentGenreEntities);
+        content.setNetflixContentFeatures(netflixContentFeatureEntities);
 
         // 6) 최종 저장
         return contentRepository.save(content);

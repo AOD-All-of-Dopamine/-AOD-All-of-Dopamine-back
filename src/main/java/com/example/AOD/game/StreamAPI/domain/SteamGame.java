@@ -1,6 +1,5 @@
 package com.example.AOD.game.StreamAPI.domain;
 
-import com.example.AOD.OTT.Netflix.domain.Genre;
 import com.example.AOD.game.StreamAPI.dto.GameDetailDto.GameDetailDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;

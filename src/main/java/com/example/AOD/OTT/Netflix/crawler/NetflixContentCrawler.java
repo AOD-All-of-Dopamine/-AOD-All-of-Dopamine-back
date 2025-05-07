@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.NoSuchElementException;
 import java.util.logging.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -187,21 +190,58 @@ public class NetflixContentCrawler {
             String description = "";
             try {
                 WebElement descElem = new WebDriverWait(driver, Duration.ofSeconds(5))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".title-info-synopsis")));
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".preview-modal-synopsis")));
                 description = descElem.getText().trim();
             } catch (Exception ex) {
                 logger.fine("설명 없음");
             }
 
             String releaseYear = "";
+            // 1) 먼저 숫자 형태로 표시된 등급(span.maturity-number) 시도
             String maturityRating = "";
-            List<WebElement> metaItems = driver.findElements(By.cssSelector(".title-info-metadata-item"));
-            for (WebElement meta : metaItems) {
-                String text = meta.getText().trim();
-                if (text.matches("\\d{4}")) {
-                    releaseYear = text;
-                } else if (Arrays.asList("TV-14", "TV-MA", "PG-13", "R").contains(text)) {
-                    maturityRating = text;
+            List<WebElement> numberSpans = driver.findElements(By.cssSelector("span.maturity-number"));
+            if (!numberSpans.isEmpty()) {
+                // "15+" 등 플러스를 제거하고 숫자만 남김
+                String txt = numberSpans.get(0).getText().trim();
+                maturityRating = txt.replaceAll("\\D+", "");
+            } else {
+                // 2) 아이콘(svg) 형태 처리: span.maturity-graphic 안 첫 번째 svg
+                try {
+                    WebElement iconSvg = new WebDriverWait(driver, Duration.ofSeconds(5))
+                            .until(ExpectedConditions.presenceOfElementLocated(
+                                    By.cssSelector("span.maturity-graphic svg")
+                            ));
+                    String code = null;
+
+                    // 2-1) id 속성에서 추출 (예: id="maturity-rating-976")
+                    String svgId = iconSvg.getAttribute("id");
+                    if (svgId != null && svgId.startsWith("maturity-rating-")) {
+                        code = svgId.substring("maturity-rating-".length());
+                    } else {
+                        // 2-2) class 속성에서 추출 (예: class="svg-icon-maturity-rating-24306")
+                        String classes = iconSvg.getAttribute("class");
+                        Matcher m = Pattern.compile("maturity-rating-(\\d+)").matcher(classes);
+                        if (m.find()) {
+                            code = m.group(1);
+                        }
+                    }
+
+                    // 3) code → 실제 나이로 매핑
+                    if (code != null) {
+                        switch (code) {
+                            case "976":    // Netflix 내부 코드 976 → 12세
+                                maturityRating = "12";
+                                break;
+                            case "24306":  // 내부 코드 24306 → 19세
+                                maturityRating = "19";
+                                break;
+                            // 필요하면 다른 코드도 여기에 추가
+                            default:
+                                maturityRating = code;  // fallback: 숫자 그대로
+                        }
+                    }
+                } catch (TimeoutException | NoSuchElementException ex) {
+                    logger.fine("maturity-icon 요소를 찾지 못함");
                 }
             }
 
