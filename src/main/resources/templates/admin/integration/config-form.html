@@ -1,0 +1,378 @@
+<!-- config-form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${config.id != null ? '설정 수정' : '새 설정 생성'}">설정 폼</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4" th:text="${config.id != null ? '설정 수정' : '새 설정 생성'}">설정 폼</h1>
+
+    <form th:action="${config.id != null ? '/admin/integration/config/edit/' + config.id : '/admin/integration/config/create'}"
+          th:object="${config}" method="post" id="configForm">
+        <input type="hidden" th:field="*{contentType}" />
+
+        <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" class="form-control" id="name" th:field="*{name}" required />
+        </div>
+
+        <div class="form-group">
+            <label for="description">설명</label>
+            <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+        </div>
+
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="isActive" name="active"
+                   th:checked="${config.active}" />
+            <label class="form-check-label" for="isActive">활성화</label>
+        </div>
+
+        <h3>필드 매핑</h3>
+        <div id="fieldMappingsContainer">
+            <div th:each="mapping, stat : *{fieldMappings}" class="card mb-3 mapping-card">
+                <div class="card-body">
+                    <button type="button" class="close remove-mapping" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <input type="hidden" th:field="*{fieldMappings[__${stat.index}__].id}" />
+
+                    <div class="form-group">
+                        <label>Common 필드</label>
+                        <select class="form-control" th:field="*{fieldMappings[__${stat.index}__].commonField}" required>
+                            <option value="">-- 선택 --</option>
+                            <option th:each="field : ${commonFields}"
+                                    th:value="${field.name}"
+                                    th:text="${field.name + ' (' + field.type + ')'}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>플랫폼</label>
+                        <select class="form-control platform-select"
+                                th:field="*{fieldMappings[__${stat.index}__].platform}"
+                                th:data-index="${stat.index}" required>
+                            <option value="">-- 선택 --</option>
+                            <option th:each="platform : ${platforms}"
+                                    th:value="${platform.id}"
+                                    th:text="${platform.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>플랫폼 필드</label>
+                        <select class="form-control platform-field-select"
+                                th:field="*{fieldMappings[__${stat.index}__].platformField}" required>
+                            <option value="">-- 먼저 플랫폼을 선택하세요 --</option>
+                            <!-- 동적으로 로드됨 -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>우선순위</label>
+                        <input type="number" class="form-control"
+                               th:field="*{fieldMappings[__${stat.index}__].priority}"
+                               min="1" value="1" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="addFieldMapping" class="btn btn-secondary mb-4">+ 필드 매핑 추가</button>
+
+        <h3>커스텀 계산</h3>
+        <div id="calculationsContainer">
+            <div th:each="calc, stat : *{customCalculations}" class="card mb-3 calculation-card">
+                <div class="card-body">
+                    <button type="button" class="close remove-calculation" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <input type="hidden" th:field="*{customCalculations[__${stat.index}__].id}" />
+
+                    <div class="form-group">
+                        <label>대상 필드</label>
+                        <select class="form-control" th:field="*{customCalculations[__${stat.index}__].targetField}" required>
+                            <option value="">-- 선택 --</option>
+                            <option th:each="field : ${commonFields}"
+                                    th:value="${field.name}"
+                                    th:text="${field.name + ' (' + field.type + ')'}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>계산 유형</label>
+                        <select class="form-control calculation-type-select"
+                                th:field="*{customCalculations[__${stat.index}__].calculationType}"
+                                th:data-index="${stat.index}" required>
+                            <option value="">-- 선택 --</option>
+                            <option value="AVERAGE">평균</option>
+                            <option value="MAX">최대값</option>
+                            <option value="CUSTOM">커스텀</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" th:style="${calc.calculationType == 'CUSTOM' ? '' : 'display: none;'}"
+                         th:id="'expressionContainer_' + ${stat.index}">
+                        <label>계산식</label>
+                        <textarea class="form-control"
+                                  th:field="*{customCalculations[__${stat.index}__].calculationExpression}"
+                                  rows="3"></textarea>
+                        <small class="form-text text-muted">표현식에서 소스 객체는 'source'로 참조할 수 있습니다.</small>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input"
+                               th:field="*{customCalculations[__${stat.index}__].isRequired}" />
+                        <label class="form-check-label">이 계산은 필수입니다</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="addCalculation" class="btn btn-secondary mb-4">+ 커스텀 계산 추가</button>
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary">저장</button>
+            <a th:href="@{/admin/integration/config/list/{contentType}(contentType=${contentType})}" class="btn btn-secondary">취소</a>
+        </div>
+    </form>
+</div>
+
+<!-- 템플릿: 필드 매핑 -->
+<template id="fieldMappingTemplate">
+    <div class="card mb-3 mapping-card">
+        <div class="card-body">
+            <button type="button" class="close remove-mapping" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <div class="form-group">
+                <label>Common 필드</label>
+                <select class="form-control" name="fieldMappings[INDEX].commonField" required>
+                    <option value="">-- 선택 --</option>
+                    <!-- 동적으로 로드됨 -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>플랫폼</label>
+                <select class="form-control platform-select"
+                        name="fieldMappings[INDEX].platform"
+                        data-index="INDEX" required>
+                    <option value="">-- 선택 --</option>
+                    <!-- 동적으로 로드됨 -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>플랫폼 필드</label>
+                <select class="form-control platform-field-select"
+                        name="fieldMappings[INDEX].platformField" required>
+                    <option value="">-- 먼저 플랫폼을 선택하세요 --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>우선순위</label>
+                <input type="number" class="form-control"
+                       name="fieldMappings[INDEX].priority"
+                       min="1" value="1" required />
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- 템플릿: 커스텀 계산 -->
+<template id="calculationTemplate">
+    <div class="card mb-3 calculation-card">
+        <div class="card-body">
+            <button type="button" class="close remove-calculation" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <div class="form-group">
+                <label>대상 필드</label>
+                <select class="form-control" name="customCalculations[INDEX].targetField" required>
+                    <option value="">-- 선택 --</option>
+                    <!-- 동적으로 로드됨 -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>계산 유형</label>
+                <select class="form-control calculation-type-select"
+                        name="customCalculations[INDEX].calculationType"
+                        data-index="INDEX" required>
+                    <option value="">-- 선택 --</option>
+                    <option value="AVERAGE">평균</option>
+                    <option value="MAX">최대값</option>
+                    <option value="CUSTOM">커스텀</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="display: none;" id="expressionContainer_INDEX">
+                <label>계산식</label>
+                <textarea class="form-control"
+                          name="customCalculations[INDEX].calculationExpression"
+                          rows="3"></textarea>
+                <small class="form-text text-muted">표현식에서 소스 객체는 'source'로 참조할 수 있습니다.</small>
+            </div>
+
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input"
+                       name="customCalculations[INDEX].isRequired" />
+                <label class="form-check-label">이 계산은 필수입니다</label>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        // 공통 필드와 플랫폼 데이터
+        const commonFields = /*[[${commonFields}]]*/ [];
+        const platforms = /*[[${platforms}]]*/ [];
+        const contentType = /*[[${contentType}]]*/ '';
+
+        // 이미 존재하는 플랫폼 필드 로드
+        $('.platform-select').each(function() {
+            const index = $(this).data('index');
+            const platform = $(this).val();
+
+            if (platform) {
+                loadPlatformFields(platform, index);
+            }
+        });
+
+        // 필드 매핑 추가
+        let fieldMappingIndex = /*[[${config.fieldMappings != null ? config.fieldMappings.size() : 0}]]*/ 0;
+
+        $('#addFieldMapping').click(function() {
+            const template = $('#fieldMappingTemplate').html()
+                .replace(/INDEX/g, fieldMappingIndex);
+            $('#fieldMappingsContainer').append(template);
+
+            // Common 필드 옵션 로드
+            const commonFieldSelect = $(`select[name="fieldMappings[${fieldMappingIndex}].commonField"]`);
+            commonFields.forEach(field => {
+                commonFieldSelect.append(
+                    $('<option>', {
+                        value: field.name,
+                        text: `${field.name} (${field.type})`
+                    })
+                );
+            });
+
+            // 플랫폼 옵션 로드
+            const platformSelect = $(`select[name="fieldMappings[${fieldMappingIndex}].platform"]`);
+            platforms.forEach(platform => {
+                platformSelect.append(
+                    $('<option>', {
+                        value: platform.id,
+                        text: platform.name
+                    })
+                );
+            });
+
+            fieldMappingIndex++;
+        });
+
+        // 플랫폼 선택시 해당 필드 로드
+        $(document).on('change', '.platform-select', function() {
+            const platform = $(this).val();
+            const index = $(this).data('index');
+
+            if (platform) {
+                loadPlatformFields(platform, index);
+            } else {
+                // 플랫폼이 선택되지 않은 경우 필드 선택 초기화
+                const fieldSelect = $(this).closest('.mapping-card')
+                    .find('.platform-field-select');
+                fieldSelect.empty()
+                    .append('<option value="">-- 먼저 플랫폼을 선택하세요 --</option>');
+            }
+        });
+
+        // 필드 매핑 제거
+        $(document).on('click', '.remove-mapping', function() {
+            $(this).closest('.mapping-card').remove();
+        });
+
+        // 플랫폼 필드 로드 함수
+        function loadPlatformFields(platform, index) {
+            $.ajax({
+                url: `/admin/integration/config/fields/${contentType}/${platform}`,
+                type: 'GET',
+                success: function(fields) {
+                    const fieldSelect = $(`select[name="fieldMappings[${index}].platformField"]`);
+                    fieldSelect.empty()
+                        .append('<option value="">-- 필드 선택 --</option>');
+
+                    fields.forEach(field => {
+                        fieldSelect.append(
+                            $('<option>', {
+                                value: field.name,
+                                text: `${field.name} (${field.type})`
+                            })
+                        );
+                    });
+
+                    // 기존 선택된 값이 있으면 보존
+                    const selectedValue = $(`input[name="fieldMappings[${index}].platformField"]`).val();
+                    if (selectedValue) {
+                        fieldSelect.val(selectedValue);
+                    }
+                }
+            });
+        }
+
+        // 커스텀 계산 추가
+        let calculationIndex = /*[[${config.customCalculations != null ? config.customCalculations.size() : 0}]]*/ 0;
+
+        $('#addCalculation').click(function() {
+            const template = $('#calculationTemplate').html()
+                .replace(/INDEX/g, calculationIndex);
+            $('#calculationsContainer').append(template);
+
+            // Common 필드 옵션 로드
+            const targetFieldSelect = $(`select[name="customCalculations[${calculationIndex}].targetField"]`);
+            commonFields.forEach(field => {
+                targetFieldSelect.append(
+                    $('<option>', {
+                        value: field.name,
+                        text: `${field.name} (${field.type})`
+                    })
+                );
+            });
+
+            calculationIndex++;
+        });
+
+        // 계산 유형이 변경될 때
+        $(document).on('change', '.calculation-type-select', function() {
+            const value = $(this).val();
+            const index = $(this).data('index');
+            const expressionContainer = $(`#expressionContainer_${index}`);
+
+            if (value === 'CUSTOM') {
+                expressionContainer.show();
+            } else {
+                expressionContainer.hide();
+            }
+        });
+
+        // 커스텀 계산 제거
+        $(document).on('click', '.remove-calculation', function() {
+            $(this).closest('.calculation-card').remove();
+        });
+    });
+</script>
+</body>
+</html>
