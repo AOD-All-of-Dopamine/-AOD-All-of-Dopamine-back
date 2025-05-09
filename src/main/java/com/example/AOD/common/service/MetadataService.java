@@ -1,7 +1,13 @@
 package com.example.AOD.common.service;
 
+import com.example.AOD.Novel.NaverSeriesNovel.repository.NaverSeriesNovelRepository;
 import com.example.AOD.common.dto.FieldInfoDTO;
 import com.example.AOD.common.dto.PlatformInfoDTO;
+import com.example.AOD.game.StreamAPI.repository.GameRepository;
+import com.example.AOD.movie.CGV.repository.MovieRepository;
+import com.example.AOD.OTT.Netflix.repository.NetflixContentRepository;
+import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -13,6 +19,26 @@ import java.util.stream.Collectors;
 @Service
 public class MetadataService {
 
+    private final NaverSeriesNovelRepository naverSeriesNovelRepository;
+    private final MovieRepository movieRepository;
+    private final NetflixContentRepository netflixContentRepository;
+    private final WebtoonRepository webtoonRepository;
+    private final GameRepository steamGameRepository;
+
+    @Autowired
+    public MetadataService(
+            NaverSeriesNovelRepository naverSeriesNovelRepository,
+            MovieRepository movieRepository,
+            NetflixContentRepository netflixContentRepository,
+            WebtoonRepository webtoonRepository,
+            GameRepository steamGameRepository) {
+        this.naverSeriesNovelRepository = naverSeriesNovelRepository;
+        this.movieRepository = movieRepository;
+        this.netflixContentRepository = netflixContentRepository;
+        this.webtoonRepository = webtoonRepository;
+        this.steamGameRepository = steamGameRepository;
+    }
+
     // 콘텐츠 유형별 플랫폼 정보 제공
     public List<PlatformInfoDTO> getPlatformsForContentType(String contentType) {
         List<PlatformInfoDTO> platforms = new ArrayList<>();
@@ -20,23 +46,23 @@ public class MetadataService {
         switch(contentType) {
             case "novel":
                 platforms.add(new PlatformInfoDTO("naver", "네이버 시리즈", "com.example.AOD.Novel.NaverSeriesNovel.domain.NaverSeriesNovel"));
-                // 다른 소설 플랫폼 추가
+                // 다른 소설 플랫폼 추가 가능
                 break;
             case "movie":
                 platforms.add(new PlatformInfoDTO("cgv", "CGV", "com.example.AOD.movie.CGV.domain.Movie"));
-                // 다른 영화 플랫폼 추가
+                // 다른 영화 플랫폼 추가 가능
                 break;
             case "ott":
                 platforms.add(new PlatformInfoDTO("netflix", "Netflix", "com.example.AOD.OTT.Netflix.domain.NetflixContent"));
-                // 다른 OTT 플랫폼 추가
+                // 다른 OTT 플랫폼 추가 가능
                 break;
             case "webtoon":
                 platforms.add(new PlatformInfoDTO("naver", "네이버 웹툰", "com.example.AOD.Webtoon.NaverWebtoon.domain.Webtoon"));
-                // 다른 웹툰 플랫폼 추가
+                // 다른 웹툰 플랫폼 추가 가능
                 break;
             case "game":
                 platforms.add(new PlatformInfoDTO("steam", "Steam", "com.example.AOD.game.StreamAPI.domain.SteamGame"));
-                // 다른 게임 플랫폼 추가
+                // 다른 게임 플랫폼 추가 가능
                 break;
         }
 
@@ -125,6 +151,39 @@ public class MetadataService {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
+        }
+
+        return new ArrayList<>();
+    }
+
+    // 플랫폼별 콘텐츠 목록 로드
+    public List<?> getContentsForPlatform(String contentType, String platformId) {
+        switch(contentType) {
+            case "novel":
+                if ("naver".equals(platformId)) {
+                    return naverSeriesNovelRepository.findAll();
+                }
+                break;
+            case "movie":
+                if ("cgv".equals(platformId)) {
+                    return movieRepository.findAll();
+                }
+                break;
+            case "ott":
+                if ("netflix".equals(platformId)) {
+                    return netflixContentRepository.findAll();
+                }
+                break;
+            case "webtoon":
+                if ("naver".equals(platformId)) {
+                    return webtoonRepository.findAll();
+                }
+                break;
+            case "game":
+                if ("steam".equals(platformId)) {
+                    return steamGameRepository.findAll();
+                }
+                break;
         }
 
         return new ArrayList<>();
