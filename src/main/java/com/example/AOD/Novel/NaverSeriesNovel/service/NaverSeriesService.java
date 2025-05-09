@@ -126,6 +126,8 @@ public class NaverSeriesService {
         crawlNovelsByUrl(recentListUrl, "최신 소설 크롤링 완료");
     }
 
+
+
     /**
      * 전체 소설 크롤링 메서드 - 공통 메서드 호출
      */

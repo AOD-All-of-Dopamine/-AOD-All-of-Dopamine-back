@@ -38,11 +38,10 @@ public class NetflixContentCrawler {
         }
     }
 
-    public NetflixContentCrawler(String email, String password,  WebDriver driver) {
+    public NetflixContentCrawler(String email, String password, WebDriver driver) {
         this.email = email;
         this.password = password;
         this.driver = driver;
-        //WebDriverManager.chromedriver().setup();
     }
 
     public void setupDriver() {
@@ -113,7 +112,6 @@ public class NetflixContentCrawler {
             //    (StaleElement 방지를 위해, 여기서 WebElement에 의존하지 않고 필요한 데이터만 빼놓는다)
             List<String> urlList = new ArrayList<>();
             List<String> titleList = new ArrayList<>();
-            List<String> imageUrlList = new ArrayList<>();
             List<String> contentIdList = new ArrayList<>();
 
             for (int i = 0; i < limit; i++) {
@@ -135,14 +133,6 @@ public class NetflixContentCrawler {
                     }
                 }
 
-                // 이미지 URL
-                String imageUrl = "";
-                try {
-                    imageUrl = item.findElement(By.tagName("img")).getAttribute("src");
-                } catch (Exception ex) {
-                    // ignore
-                }
-
                 // contentId
                 String[] parts = url.split("\\?")[0].split("/");
                 String contentId = parts[parts.length - 1];
@@ -150,7 +140,6 @@ public class NetflixContentCrawler {
                 // 리스트에 저장
                 urlList.add(url);
                 titleList.add(title);
-                imageUrlList.add(imageUrl);
                 contentIdList.add(contentId);
             }
 
@@ -158,10 +147,9 @@ public class NetflixContentCrawler {
             for (int i = 0; i < urlList.size(); i++) {
                 String url = urlList.get(i);
                 String title = titleList.get(i);
-                String imageUrl = imageUrlList.get(i);
                 String contentId = contentIdList.get(i);
 
-                NetflixContentDTO dto = getDetailInfo(contentId, title, url, imageUrl);
+                NetflixContentDTO dto = getDetailInfo(contentId, title, url);
                 if (dto != null) {
                     results.add(dto);
                 }
@@ -173,10 +161,257 @@ public class NetflixContentCrawler {
         }
         return results;
     }
+
+    public List<NetflixContentDTO> crawlLatestContent() {
+        List<NetflixContentDTO> results = new ArrayList<>();
+
+        try {
+            // 1) 최신 콘텐츠 페이지 접근
+            String latestUrl = "https://www.netflix.com/latest";
+            driver.get(latestUrl);
+            Thread.sleep(3000);
+
+            // 스크롤다운 - 모든 콘텐츠가 로드되도록
+            for (int i = 0; i < 5; i++) {
+                ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, 800);");
+                Thread.sleep(1000);
+            }
+
+            // 2) 최신 콘텐츠 목록 가져오기 - 'slider-refocus' 클래스를 가진 요소들
+            List<WebElement> items = driver.findElements(By.cssSelector("a.slider-refocus"));
+            if (items.isEmpty()) {
+                logger.warning("최신 콘텐츠 항목 없음");
+                return results;
+            }
+
+            logger.info("최신 콘텐츠 " + items.size() + "개 발견");
+
+            // 3) 목록 아이템에 대한 정보를 먼저 문자열로 추출해서 저장
+            List<String> urlList = new ArrayList<>();
+            List<String> titleList = new ArrayList<>();
+            List<String> contentIdList = new ArrayList<>();
+
+            for (WebElement item : items) {
+                // URL
+                String url = item.getAttribute("href");
+                if (url == null) {
+                    continue;
+                }
+
+                // title
+                String title = item.getAttribute("aria-label");
+                if (title == null || title.isEmpty()) {
+                    try {
+                        title = item.findElement(By.tagName("img")).getAttribute("alt");
+                    } catch (NoSuchElementException ex) {
+                        title = "Unknown Title";
+                    }
+                }
+
+                // contentId
+                String[] parts = url.split("\\?")[0].split("/");
+                String contentId = parts[parts.length - 1];
+
+                // 중복 방지 (동일 contentId는 한 번만 추가)
+                if (!contentIdList.contains(contentId)) {
+                    urlList.add(url);
+                    titleList.add(title);
+                    contentIdList.add(contentId);
+                    logger.info("발견한 최신 콘텐츠: " + title + " (ID: " + contentId + ")");
+                }
+            }
+
+            // 4) 목록에서 뽑아둔 정보로 상세 페이지 순회하며 DTO 구성
+            for (int i = 0; i < contentIdList.size(); i++) {
+                String url = urlList.get(i);
+                String title = titleList.get(i);
+                String contentId = contentIdList.get(i);
+
+                NetflixContentDTO dto = getDetailInfo(contentId, title, url);
+                if (dto != null) {
+                    results.add(dto);
+                    logger.info("최신 콘텐츠 상세 정보 수집 완료: " + title);
+                }
+
+                // 요청 간 간격 두기
+                Thread.sleep(randomSleep(1000, 2000));
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "최신 콘텐츠 크롤링 중 오류", e);
+        }
+
+        return results;
+    }
+
+
+    /**
+     * 이번주 공개된 넷플릭스 최신 콘텐츠만 크롤링 - 최적화 버전
+     */
+    public List<NetflixContentDTO> crawlThisWeekContent() {
+        List<NetflixContentDTO> results = new ArrayList<>();
+
+        try {
+            // 1) 최신 콘텐츠 페이지 접근
+            String latestUrl = "https://www.netflix.com/latest";
+            driver.get(latestUrl);
+            Thread.sleep(3000);
+
+            // 스크롤다운 - 모든 콘텐츠가 로드되도록
+            for (int i = 0; i < 5; i++) {
+                ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, 800);");
+                Thread.sleep(1000);
+            }
+
+            // 2) "이번 주 공개 콘텐츠" 섹션 찾기 - 정확한 클래스와 텍스트 매칭
+            WebElement thisWeekSection = null;
+            List<WebElement> rowHeaderTitles = driver.findElements(By.cssSelector(".row-header-title"));
+
+            // 모든 섹션 헤더 로깅
+            logger.info("찾은 섹션 헤더:");
+            for (WebElement header : rowHeaderTitles) {
+                logger.info("- " + header.getText().trim());
+            }
+
+            // 정확한 텍스트로 섹션 찾기
+            for (WebElement header : rowHeaderTitles) {
+                String headerText = header.getText().trim();
+                if (headerText.equals("이번 주 공개 콘텐츠")) {
+                    // 헤더에서 lolomoRow를 찾아 올라가기
+                    thisWeekSection = header.findElement(By.xpath("./ancestor::div[contains(@class, 'lolomoRow')]"));
+                    logger.info("이번 주 공개 콘텐츠 섹션 발견!");
+                    break;
+                }
+            }
+
+            if (thisWeekSection == null) {
+                logger.warning("정확한 '이번 주 공개 콘텐츠' 섹션을 찾지 못했습니다. 유사한 섹션을 찾습니다.");
+
+                // 유사한 텍스트로 재시도
+                for (WebElement header : rowHeaderTitles) {
+                    String headerText = header.getText().trim();
+                    if (headerText.contains("이번 주") || headerText.contains("이번주") ||
+                            headerText.contains("공개 콘텐츠") || headerText.contains("New this week")) {
+                        thisWeekSection = header.findElement(By.xpath("./ancestor::div[contains(@class, 'lolomoRow')]"));
+                        logger.info("유사한 섹션 발견: " + headerText);
+                        break;
+                    }
+                }
+            }
+
+            // 여전히 섹션을 찾지 못한 경우
+            if (thisWeekSection == null) {
+                logger.warning("이번 주 공개 콘텐츠 섹션을 찾지 못했습니다.");
+                return results;
+            }
+
+            // 3) 이번 주 공개 콘텐츠 섹션 내의 슬라이더 콘텐츠 찾기
+            WebElement sliderContent = thisWeekSection.findElement(By.cssSelector(".sliderContent"));
+            logger.info("슬라이더 콘텐츠 요소 발견");
+
+            // 4) 슬라이더 콘텐츠 내의 모든 slider-item 요소 찾기
+            List<WebElement> sliderItems = sliderContent.findElements(By.cssSelector(".slider-item"));
+            logger.info("슬라이더 아이템 수: " + sliderItems.size());
+
+            // 5) 각 slider-item에서 slider-refocus 링크 추출
+            List<WebElement> items = new ArrayList<>();
+            for (WebElement item : sliderItems) {
+                try {
+                    WebElement link = item.findElement(By.cssSelector("a.slider-refocus"));
+                    items.add(link);
+                } catch (NoSuchElementException e) {
+                    // 링크가 없는 슬라이더 아이템은 무시
+                }
+            }
+
+            logger.info("추출된 콘텐츠 링크 수: " + items.size());
+
+            if (items.isEmpty()) {
+                logger.warning("이번 주 공개 콘텐츠 섹션에서 콘텐츠 링크를 찾지 못했습니다.");
+                return results;
+            }
+
+            // 6) 링크에서 필요한 정보 추출
+            List<String> urlList = new ArrayList<>();
+            List<String> titleList = new ArrayList<>();
+            List<String> contentIdList = new ArrayList<>();
+
+            for (WebElement item : items) {
+                // URL
+                String url = item.getAttribute("href");
+                if (url == null || !url.contains("/watch/")) {
+                    continue;
+                }
+
+                // title (aria-label 속성)
+                String title = item.getAttribute("aria-label");
+                if (title == null || title.isEmpty()) {
+                    try {
+                        // fallback: 이미지의 alt 속성
+                        WebElement img = item.findElement(By.cssSelector(".boxart-image"));
+                        title = img.getAttribute("alt");
+                    } catch (NoSuchElementException ex) {
+                        // 이미지도 없는 경우
+                        try {
+                            // fallback: fallback-text 요소
+                            WebElement fallbackText = item.findElement(By.cssSelector(".fallback-text"));
+                            title = fallbackText.getText().trim();
+                        } catch (NoSuchElementException ex2) {
+                            // 모든 방법이 실패한 경우 ID로 제목 생성
+                            String tempId = url.split("/watch/")[1].split("\\?")[0];
+                            title = "Title #" + tempId;
+                        }
+                    }
+                }
+
+                // contentId
+                String contentId;
+                try {
+                    contentId = url.split("/watch/")[1].split("\\?")[0];
+                } catch (Exception e) {
+                    // URL 파싱 실패 시 건너뛰기
+                    continue;
+                }
+
+                // 중복 제거
+                if (!contentIdList.contains(contentId)) {
+                    urlList.add(url);
+                    titleList.add(title);
+                    contentIdList.add(contentId);
+                    logger.info("발견한 이번 주 공개 콘텐츠: " + title + " (ID: " + contentId + ")");
+                }
+            }
+
+            logger.info("중복 제거 후 이번 주 공개 콘텐츠 수: " + contentIdList.size());
+
+            // 7) 각 콘텐츠의 상세 정보 가져오기
+            for (int i = 0; i < contentIdList.size(); i++) {
+                String url = urlList.get(i);
+                String title = titleList.get(i);
+                String contentId = contentIdList.get(i);
+
+                NetflixContentDTO dto = getDetailInfo(contentId, title, url);
+                if (dto != null) {
+                    results.add(dto);
+                    logger.info("이번 주 공개 콘텐츠 상세 정보 수집 완료: " + title);
+                }
+
+                // 요청 간 간격 두기
+                Thread.sleep(randomSleep(1000, 2000));
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "이번 주 공개 콘텐츠 크롤링 중 오류", e);
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
     /**
      * 상세 정보 페이지 접근, DTO에 세부 정보 셋팅
      */
-    private NetflixContentDTO getDetailInfo(String contentId, String title, String url, String imageUrl) {
+    private NetflixContentDTO getDetailInfo(String contentId, String title, String url) {
         NetflixContentDTO dto = new NetflixContentDTO();
         try {
             String detailUrl = "https://www.netflix.com/title/" + contentId;
@@ -274,13 +509,29 @@ public class NetflixContentCrawler {
                 }
             }
 
+            // 고화질 썸네일/스토리아트 이미지 URL 추출
+            String imageUrl = "";
+            try {
+                // storyArt 클래스를 가진 div 안의 img 태그 찾기
+                WebElement storyArtImg = new WebDriverWait(driver, Duration.ofSeconds(5))
+                        .until(ExpectedConditions.presenceOfElementLocated(
+                                By.cssSelector(".storyArt img")
+                        ));
+                if (storyArtImg != null) {
+                    imageUrl = storyArtImg.getAttribute("src");
+                    logger.info("이미지 추출 성공: " + imageUrl);
+                }
+            } catch (Exception ex) {
+                logger.warning("이미지 추출 실패: " + ex.getMessage());
+            }
+
             // DTO 필드 채우기
             dto.setContentId(contentId);
             dto.setTitle(title);
             dto.setType(contentType);
             dto.setUrl(url);
             dto.setDetailUrl(detailUrl);
-            dto.setThumbnail(imageUrl);
+            dto.setThumbnail(imageUrl); // 고화질 이미지를 썸네일로 사용
             dto.setDescription(description);
             dto.setCreator(creator);
             dto.setMaturityRating(maturityRating);

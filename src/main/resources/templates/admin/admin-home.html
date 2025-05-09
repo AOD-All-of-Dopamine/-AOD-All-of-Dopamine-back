@@ -1,0 +1,53 @@
+<!-- admin-home.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 페이지</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4">콘텐츠 관리 시스템</h1>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">통합 설정 관리</div>
+                <div class="card-body">
+                    <h5 class="card-title">콘텐츠 유형 별 통합 설정</h5>
+                    <p class="card-text">각 콘텐츠 유형에 대한 통합 설정을 관리합니다.</p>
+                    <div class="list-group">
+                        <a th:href="@{/admin/integration/config/list/novel}" class="list-group-item list-group-item-action">소설 통합 설정</a>
+                        <a th:href="@{/admin/integration/config/list/movie}" class="list-group-item list-group-item-action">영화 통합 설정</a>
+                        <a th:href="@{/admin/integration/config/list/ott}" class="list-group-item list-group-item-action">OTT 통합 설정</a>
+                        <a th:href="@{/admin/integration/config/list/webtoon}" class="list-group-item list-group-item-action">웹툰 통합 설정</a>
+                        <a th:href="@{/admin/integration/config/list/game}" class="list-group-item list-group-item-action">게임 통합 설정</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">콘텐츠 통합</div>
+                <div class="card-body">
+                    <h5 class="card-title">플랫폼 콘텐츠 통합</h5>
+                    <p class="card-text">여러 플랫폼의 콘텐츠를 통합하여 Common 엔티티를 생성합니다.</p>
+                    <div class="list-group">
+                        <a th:href="@{/admin/integration/novel/integrate}" class="list-group-item list-group-item-action">소설 통합</a>
+                        <a th:href="@{/admin/integration/movie/integrate}" class="list-group-item list-group-item-action">영화 통합</a>
+                        <a th:href="@{/admin/integration/ott/integrate}" class="list-group-item list-group-item-action">OTT 통합</a>
+                        <a th:href="@{/admin/integration/webtoon/integrate}" class="list-group-item list-group-item-action">웹툰 통합</a>
+                        <a th:href="@{/admin/integration/game/integrate}" class="list-group-item list-group-item-action">게임 통합</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
