@@ -26,7 +26,8 @@ public class NaverSeriesCrawler {
             boolean hasMorePages = true;
 
             // 페이지에 작품이 없을 때까지 계속 크롤링
-            while (hasMorePages) {
+            // 이엿는데 page 3페이지까지 일단 하도록
+            for (; page <= 1; page++) {
                 String pageUrl = baseListUrl;
                 // URL에 이미 파라미터가 있는지 확인하여 페이지 파라미터 추가
                 if (pageUrl.contains("?")) {
