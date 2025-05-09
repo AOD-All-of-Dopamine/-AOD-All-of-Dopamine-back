@@ -1,0 +1,123 @@
+<!-- content-integration-result.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${contentType + ' 통합 결과'}">통합 결과</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4" th:text="${contentType + ' 통합 결과'}">통합 결과</h1>
+
+    <div class="alert alert-success" role="alert">
+        콘텐츠 통합이 성공적으로 완료되었습니다!
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header" th:text="${'통합된 ' + contentType + ' 정보'}">통합된 정보</div>
+        <div class="card-body">
+            <table class="table">
+                <tbody>
+                <!-- 모든 콘텐츠 유형에 공통적으로 적용되는 필드 -->
+                <tr>
+                    <th style="width: 150px;">ID</th>
+                    <td th:text="${result.id}"></td>
+                </tr>
+                <tr>
+                    <th>제목</th>
+                    <td th:text="${result.title}"></td>
+                </tr>
+                <tr>
+                    <th>이미지 URL</th>
+                    <td>
+                        <span th:if="${result.imageUrl}" th:text="${result.imageUrl}"></span>
+                        <span th:unless="${result.imageUrl}" class="text-muted">없음</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>장르</th>
+                    <td>
+                        <span th:if="${result.genre != null && !result.genre.empty}"
+                              th:text="${#strings.listJoin(result.genre, ', ')}"></span>
+                        <span th:unless="${result.genre != null && !result.genre.empty}"
+                              class="text-muted">없음</span>
+                    </td>
+                </tr>
+
+                <!-- Novel 전용 필드 -->
+                <tr th:if="${contentType == 'novel'}">
+                    <th>상태</th>
+                    <td th:text="${result.status}"></td>
+                </tr>
+                <tr th:if="${contentType == 'novel'}">
+                    <th>작가</th>
+                    <td th:text="${result.author}"></td>
+                </tr>
+                <tr th:if="${contentType == 'novel'}">
+                    <th>연령 등급</th>
+                    <td th:text="${result.ageRating}"></td>
+                </tr>
+
+                <!-- Movie 전용 필드 -->
+                <tr th:if="${contentType == 'movie'}">
+                    <th>개봉일</th>
+                    <td th:text="${result.releaseDate}"></td>
+                </tr>
+                <tr th:if="${contentType == 'movie'}">
+                    <th>상영 시간</th>
+                    <td th:text="${result.runningTime}"></td>
+                </tr>
+                <tr th:if="${contentType == 'movie'}">
+                    <th>감독</th>
+                    <td th:text="${result.director}"></td>
+                </tr>
+
+                <!-- OTT 전용 필드 -->
+                <tr th:if="${contentType == 'ott'}">
+                    <th>유형</th>
+                    <td th:text="${result.type}"></td>
+                </tr>
+                <tr th:if="${contentType == 'ott'}">
+                    <th>제작자</th>
+                    <td th:text="${result.creator}"></td>
+                </tr>
+
+                <!-- Webtoon 전용 필드 -->
+                <tr th:if="${contentType == 'webtoon'}">
+                    <th>발행일</th>
+                    <td th:text="${result.publishDate}"></td>
+                </tr>
+                <tr th:if="${contentType == 'webtoon'}">
+                    <th>업로드 요일</th>
+                    <td th:text="${result.uploadDay}"></td>
+                </tr>
+
+                <!-- Game 전용 필드 -->
+                <tr th:if="${contentType == 'game'}">
+                    <th>초기 가격</th>
+                    <td th:text="${result.initialPrice}"></td>
+                </tr>
+                <tr th:if="${contentType == 'game'}">
+                    <th>최종 가격</th>
+                    <td th:text="${result.finalPrice}"></td>
+                </tr>
+                <tr th:if="${contentType == 'game'}">
+                    <th>연령 제한</th>
+                    <td th:text="${result.requiredAge}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <a th:href="@{/admin/integration/{type}/integrate(type=${contentType})}" class="btn btn-primary">새 통합 만들기</a>
+        <a th:href="@{/admin}" class="btn btn-secondary">관리자 홈으로</a>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

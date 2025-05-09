@@ -1,0 +1,62 @@
+<!-- content-integration-form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${contentType + ' 콘텐츠 통합'}">콘텐츠 통합</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4" th:text="${contentType + ' 콘텐츠 통합'}">콘텐츠 통합</h1>
+
+    <form th:action="@{/admin/integration/{contentType}/integrate(contentType=${contentType})}" th:object="${integrationRequest}" method="post">
+        <div class="form-group">
+            <label for="configId">통합 설정</label>
+            <select class="form-control" id="configId" th:field="*{configId}" required>
+                <option value="">-- 설정 선택 --</option>
+                <option th:each="config : ${configs}"
+                        th:value="${config.id}"
+                        th:text="${config.name + ' - ' + config.description}"></option>
+            </select>
+        </div>
+
+        <!-- 플랫폼별 콘텐츠 선택 영역 -->
+        <div th:each="platform : ${platforms}" class="card mb-4">
+            <div class="card-header">
+                <span th:text="${platform.name}">플랫폼 이름</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div th:each="content : ${platformContents.get(platform.id)}" class="col-md-4 mb-3">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input"
+                                       th:id="${platform.id + '_content_' + content.id}"
+                                       th:name="sourceIds"
+                                       th:value="${content.id}" />
+                                <label class="custom-control-label"
+                                       th:for="${platform.id + '_content_' + content.id}"
+                                       th:text="${content.title}">콘텐츠 제목</label>
+                            </div>
+                        </div>
+                        <!-- 콘텐츠가 없는 경우 -->
+                        <div th:if="${platformContents.get(platform.id) == null || platformContents.get(platform.id).isEmpty()}" class="col-12">
+                            <p class="text-muted">이용 가능한 콘텐츠가 없습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">콘텐츠 통합</button>
+            <a th:href="@{/admin}" class="btn btn-secondary">취소</a>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
