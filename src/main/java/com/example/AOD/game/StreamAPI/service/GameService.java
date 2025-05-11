@@ -14,6 +14,7 @@ import com.example.AOD.game.StreamAPI.repository.GameGenreRepository;
 import com.example.AOD.game.StreamAPI.repository.GamePublisherRepository;
 import com.example.AOD.game.StreamAPI.repository.GameRepository;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,22 +35,22 @@ public class GameService {
     private final SteamApiFetcher steamApiFetcher;
 
     public SteamGame saveGame(GameDetailDto dto) {
-        List<GameDeveloper> developers = dto.getDevelopers().stream()
+        List<GameDeveloper> developers = Optional.ofNullable(dto.getDevelopers()).orElse(Collections.emptyList()).stream()
                 .map(name -> gameDeveloperRepository.findByName(name)
                         .orElseGet(() -> gameDeveloperRepository.save(new GameDeveloper(name))))
                 .collect(Collectors.toList());
 
-        List<GamePublisher> publishers = dto.getPublishers().stream()
+        List<GamePublisher> publishers = Optional.ofNullable(dto.getPublishers()).orElse(Collections.emptyList()).stream()
                 .map(name -> gamePublisherRepository.findByName(name)
                         .orElseGet(() -> gamePublisherRepository.save(new GamePublisher(name))))
                 .collect(Collectors.toList());
 
-        List<GameGenre> genres = dto.getGenres().stream()
+        List<GameGenre> genres = Optional.ofNullable(dto.getGenres()).orElse(Collections.emptyList()).stream()
                 .map(genre -> gameGenreRepository.findByName(genre.getName())
                         .orElseGet(() -> gameGenreRepository.save(new GameGenre(genre.getName()))))
                 .collect(Collectors.toList());
 
-        List<SteamGameCategory> categories = dto.getCategories().stream()
+        List<SteamGameCategory> categories = Optional.ofNullable(dto.getCategories()).orElse(Collections.emptyList()).stream()
                 .map(category -> gameCategoryRepository.findByName(category.getDescription())
                         .orElseGet(() -> gameCategoryRepository.save(new SteamGameCategory(category.getDescription()))))
                 .collect(Collectors.toList());
