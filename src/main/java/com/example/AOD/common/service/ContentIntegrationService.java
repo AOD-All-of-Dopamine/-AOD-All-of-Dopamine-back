@@ -323,6 +323,65 @@ public class ContentIntegrationService {
         return value;
     }
 
+    /**
+     * 특정 콘텐츠 ID가 이미 Common 테이블에 존재하는지 확인
+     * @param contentType 콘텐츠 유형
+     * @param sourceIds 확인할 소스 ID 목록
+     * @return 중복된 ID와 제목의 Map (없으면 빈 맵)
+     */
+    public Map<Long, String> checkDuplicateContent(String contentType, List<Long> sourceIds) {
+        if (sourceIds == null || sourceIds.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        Map<Long, String> duplicates = new HashMap<>();
+
+        switch (contentType) {
+            case "novel":
+                for (Long id : sourceIds) {
+                    Optional<NovelCommon> existing = novelCommonRepository.findById(id);
+                    if (existing.isPresent()) {
+                        duplicates.put(id, existing.get().getTitle());
+                    }
+                }
+                break;
+            case "movie":
+                for (Long id : sourceIds) {
+                    Optional<MovieCommon> existing = movieCommonRepository.findById(id);
+                    if (existing.isPresent()) {
+                        duplicates.put(id, existing.get().getTitle());
+                    }
+                }
+                break;
+            case "ott":
+                for (Long id : sourceIds) {
+                    Optional<OTTCommon> existing = ottCommonRepository.findById(id);
+                    if (existing.isPresent()) {
+                        duplicates.put(id, existing.get().getTitle());
+                    }
+                }
+                break;
+            case "webtoon":
+                for (Long id : sourceIds) {
+                    Optional<WebtoonCommon> existing = webtoonCommonRepository.findById(id);
+                    if (existing.isPresent()) {
+                        duplicates.put(id, existing.get().getTitle());
+                    }
+                }
+                break;
+            case "game":
+                for (Long id : sourceIds) {
+                    Optional<GameCommon> existing = gameCommonRepository.findById(id);
+                    if (existing.isPresent()) {
+                        duplicates.put(id, existing.get().getTitle());
+                    }
+                }
+                break;
+        }
+
+        return duplicates;
+    }
+
     private Field findField(Class<?> clazz, String fieldName) {
         try {
             return clazz.getDeclaredField(fieldName);

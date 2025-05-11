@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,13 +59,33 @@ public class ContentIntegrationController {
     public String integrateContent(
             @PathVariable String contentType,
             @ModelAttribute ContentIntegrationRequestDTO request,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
-        List<Object> results = contentIntegrationService.integrateContent(request.getConfigId(), request.getSourceIds());
+        // 중복 콘텐츠 확인
+        Map<Long, String> duplicates = contentIntegrationService.checkDuplicateContent(
+                contentType, request.getSourceIds());
+
+        // 중복이 있으면 경고 메시지와 함께 폼으로 리다이렉트
+        if (!duplicates.isEmpty()) {
+            // 중복 콘텐츠 제목 목록 생성
+            List<String> duplicateTitles = new ArrayList<>(duplicates.values());
+
+            // 리다이렉트 속성에 경고 메시지 추가
+            redirectAttributes.addFlashAttribute("duplicateError", true);
+            redirectAttributes.addFlashAttribute("duplicateTitles", duplicateTitles);
+            redirectAttributes.addFlashAttribute("integrationRequest", request); // 기존 요청 정보 유지
+
+            return "redirect:/admin/integration/" + contentType + "/integrate";
+        }
+
+        // 중복이 없으면 통합 진행
+        List<Object> results = contentIntegrationService.integrateContent(
+                request.getConfigId(), request.getSourceIds());
 
         model.addAttribute("contentType", contentType);
-        model.addAttribute("results", results); // 복수형으로 변경
-        model.addAttribute("result", results.isEmpty() ? null : results.get(0)); // 기존 템플릿 호환성 유지
+        model.addAttribute("results", results);
+        model.addAttribute("result", results.isEmpty() ? null : results.get(0));
 
         return "admin/integration/content-integration-result";
     }
@@ -88,9 +110,11 @@ public class ContentIntegrationController {
     }
 
     @PostMapping("/novel/integrate")
-    public String integrateNovel(@ModelAttribute ContentIntegrationRequestDTO request, Model model) {
-        return integrateContent("novel", request, model);
+    public String integrateNovel(
+            @ModelAttribute ContentIntegrationRequestDTO request,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        return integrateContent("novel", request, model, redirectAttributes);
     }
-
     // 다른 콘텐츠 유형에 대한 메서드들...
 }

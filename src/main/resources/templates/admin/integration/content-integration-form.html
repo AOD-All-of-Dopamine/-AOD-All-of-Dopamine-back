@@ -10,6 +10,22 @@
 <div class="container mt-4">
     <h1 class="mb-4" th:text="${contentType + ' 콘텐츠 통합'}">콘텐츠 통합</h1>
 
+    <!-- 중복 콘텐츠 경고 메시지 추가 -->
+    <div th:if="${duplicateError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>중복 콘텐츠 감지!</strong>
+        <p>다음 콘텐츠는 이미 통합되어 있습니다:</p>
+        <ul>
+            <li th:each="title : ${duplicateTitles}" th:text="${title}"></li>
+        </ul>
+        <p>중복된 콘텐츠를 제외하고 진행하려면 선택을 변경해주세요.</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <form th:action="@{/admin/integration/{contentType}/integrate(contentType=${contentType})}" th:object="${integrationRequest}" method="post">
+        <!-- ... 기존 폼 내용 유지 -->
+
     <form th:action="@{/admin/integration/{contentType}/integrate(contentType=${contentType})}" th:object="${integrationRequest}" method="post">
         <div class="form-group">
             <label for="configId">통합 설정</label>
