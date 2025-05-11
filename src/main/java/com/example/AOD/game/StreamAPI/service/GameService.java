@@ -65,13 +65,10 @@ public class GameService {
     //절대 이걸 써서는 안돼
     public void fetchAll() {
         List<SimpleGameDto> allGameId = steamApiFetcher.getAllGame();
-        System.out.println("allGameId.size() = " + allGameId.size());
-        int cnt = 0;
         for (SimpleGameDto game : allGameId) {
             Long id = game.getAppid();
             GameDetailDto gameDetailDto = steamApiFetcher.getGameDetailById(id, "korean");
-            System.out.println(cnt+" : "+game.getName());
-            cnt++;
+
             if(gameDetailDto==null || !Objects.equals(gameDetailDto.getType(), "game")){
                 continue;
             }
@@ -106,5 +103,10 @@ public class GameService {
             }
         }
         return ret;
+    }
+
+    public SteamGame findBySteamGameId(Long steamGameId) {
+        Optional<SteamGame> steamGame = gameRepository.findBySteam_appid(steamGameId);
+        return steamGame.orElse(null);
     }
 }

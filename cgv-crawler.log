@@ -1,0 +1,234 @@
+2025-05-11T20:15:36.341+09:00  INFO 14764 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.7 with PID 14764 (C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back\build\classes\java\main started by oms01 in C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back)
+2025-05-11T20:15:36.342+09:00 DEBUG 14764 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-11T20:15:36.343+09:00  INFO 14764 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-11T20:15:37.077+09:00  INFO 14764 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-11T20:15:37.167+09:00  INFO 14764 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 83 ms. Found 26 JPA repository interfaces.
+2025-05-11T20:15:37.527+09:00  INFO 14764 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-11T20:15:37.539+09:00  INFO 14764 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-11T20:15:37.540+09:00  INFO 14764 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-11T20:15:37.584+09:00  INFO 14764 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-11T20:15:37.584+09:00  INFO 14764 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1207 ms
+2025-05-11T20:15:37.680+09:00  INFO 14764 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-11T20:15:37.839+09:00  INFO 14764 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:moviesdb user=SA
+2025-05-11T20:15:37.841+09:00  INFO 14764 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-11T20:15:37.871+09:00  INFO 14764 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-11T20:15:37.925+09:00  INFO 14764 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-11T20:15:37.953+09:00  INFO 14764 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-11T20:15:38.181+09:00  INFO 14764 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-11T20:15:38.246+09:00  INFO 14764 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-11T20:15:39.020+09:00  INFO 14764 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-11T20:15:39.090+09:00  INFO 14764 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-11T20:15:39.495+09:00  WARN 14764 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-11T20:15:39.726+09:00  INFO 14764 --- [AOD] [main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:moviesdb'
+2025-05-11T20:15:39.776+09:00  INFO 14764 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-11T20:15:39.784+09:00  INFO 14764 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 3.737 seconds (process running for 4.161)
+2025-05-11T20:16:01.288+09:00  INFO 14764 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-11T20:16:01.288+09:00  INFO 14764 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-11T20:16:01.289+09:00  INFO 14764 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-05-11T20:23:38.286+09:00 ERROR 14764 --- [AOD] [task-1] .a.i.SimpleAsyncUncaughtExceptionHandler : Unexpected exception occurred invoking async method: public void com.example.AOD.Webtoon.NaverWebtoon.service.WebtoonService.crawl() throws java.lang.InterruptedException,java.awt.AWTException
+
+org.openqa.selenium.remote.NoSuchDriverException: Unable to obtain: chromedriver, error chromedriver must exist: C:\Users\kokyungwoo\Desktop\chromedriver-win64\chromedriver.exe
+For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location/
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.7'
+Driver info: driver.version: ChromeDriver
+	at org.openqa.selenium.remote.service.DriverFinder.getBinaryPaths(DriverFinder.java:121) ~[selenium-remote-driver-4.25.0.jar:na]
+	at org.openqa.selenium.remote.service.DriverFinder.getDriverPath(DriverFinder.java:55) ~[selenium-remote-driver-4.25.0.jar:na]
+	at org.openqa.selenium.chrome.ChromeDriver.generateExecutor(ChromeDriver.java:99) ~[selenium-chrome-driver-4.25.0.jar:na]
+	at org.openqa.selenium.chrome.ChromeDriver.<init>(ChromeDriver.java:88) ~[selenium-chrome-driver-4.25.0.jar:na]
+	at org.openqa.selenium.chrome.ChromeDriver.<init>(ChromeDriver.java:83) ~[selenium-chrome-driver-4.25.0.jar:na]
+	at org.openqa.selenium.chrome.ChromeDriver.<init>(ChromeDriver.java:72) ~[selenium-chrome-driver-4.25.0.jar:na]
+	at com.example.AOD.util.ChromeDriverProvider.getDriver(ChromeDriverProvider.java:31) ~[main/:na]
+	at com.example.AOD.Webtoon.NaverWebtoon.service.WebtoonService.crawl(WebtoonService.java:55) ~[main/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-6.2.5.jar:6.2.5]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.2.5.jar:6.2.5]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.2.5.jar:6.2.5]
+	at org.springframework.aop.interceptor.AsyncExecutionInterceptor.lambda$invoke$0(AsyncExecutionInterceptor.java:114) ~[spring-aop-6.2.5.jar:6.2.5]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:833) ~[na:na]
+Caused by: java.lang.IllegalStateException: chromedriver must exist: C:\Users\kokyungwoo\Desktop\chromedriver-win64\chromedriver.exe
+	at org.openqa.selenium.internal.Require$PathStateChecker.isExecutable(Require.java:478) ~[selenium-api-4.25.0.jar:na]
+	at org.openqa.selenium.remote.service.DriverFinder.getBinaryPaths(DriverFinder.java:118) ~[selenium-remote-driver-4.25.0.jar:na]
+	... 19 common frames omitted
+
+2025-05-11T20:30:29.713+09:00  INFO 14764 --- [AOD] [http-nio-8080-exec-4] o.apache.coyote.http11.Http11Processor   : Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+
+java.lang.IllegalArgumentException: Invalid character found in method name [h+/tmp/gpon8080&ipv=0...]. HTTP method names must be tokens
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:409) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:270) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at java.base/java.lang.Thread.run(Thread.java:833) ~[na:na]
+
+2025-05-11T20:34:50.674+09:00  INFO 14764 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-11T20:34:50.815+09:00  INFO 14764 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-11T20:34:50.818+09:00  INFO 14764 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-11T20:34:50.826+09:00  INFO 14764 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-11T20:34:50.827+09:00  INFO 14764 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-11T20:34:54.635+09:00  INFO 24804 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.7 with PID 24804 (C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back\build\classes\java\main started by oms01 in C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back)
+2025-05-11T20:34:54.636+09:00 DEBUG 24804 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-11T20:34:54.637+09:00  INFO 24804 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-11T20:34:55.101+09:00  INFO 24804 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-11T20:34:55.201+09:00  INFO 24804 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 93 ms. Found 26 JPA repository interfaces.
+2025-05-11T20:34:55.564+09:00  INFO 24804 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-11T20:34:55.577+09:00  INFO 24804 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-11T20:34:55.578+09:00  INFO 24804 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-11T20:34:55.629+09:00  INFO 24804 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-11T20:34:55.629+09:00  INFO 24804 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 957 ms
+2025-05-11T20:34:55.723+09:00  INFO 24804 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-11T20:34:55.866+09:00  INFO 24804 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:moviesdb user=SA
+2025-05-11T20:34:55.867+09:00  INFO 24804 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-11T20:34:55.895+09:00  INFO 24804 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-11T20:34:55.941+09:00  INFO 24804 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-11T20:34:55.966+09:00  INFO 24804 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-11T20:34:56.179+09:00  INFO 24804 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-11T20:34:56.237+09:00  INFO 24804 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-11T20:34:57.140+09:00  INFO 24804 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-11T20:34:57.209+09:00  INFO 24804 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-11T20:34:57.614+09:00  WARN 24804 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-11T20:34:57.841+09:00  INFO 24804 --- [AOD] [main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:moviesdb'
+2025-05-11T20:34:57.899+09:00  INFO 24804 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-11T20:34:57.907+09:00  INFO 24804 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 3.579 seconds (process running for 4.048)
+2025-05-11T20:35:09.372+09:00  INFO 24804 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-11T20:35:09.372+09:00  INFO 24804 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-11T20:35:09.373+09:00  INFO 24804 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-05-11T20:35:19.670+09:00  WARN 24804 --- [AOD] [task-1] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-11T20:35:19.670+09:00  WARN 24804 --- [AOD] [task-1] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.93. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-11T20:35:24.808+09:00  INFO 24804 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-11T20:35:24.944+09:00  INFO 24804 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-11T20:36:29.393+09:00  INFO 28036 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.7 with PID 28036 (C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back\build\classes\java\main started by oms01 in C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back)
+2025-05-11T20:36:29.394+09:00 DEBUG 28036 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-11T20:36:29.394+09:00  INFO 28036 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-11T20:36:29.858+09:00  INFO 28036 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-11T20:36:29.960+09:00  INFO 28036 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 94 ms. Found 26 JPA repository interfaces.
+2025-05-11T20:36:30.312+09:00  INFO 28036 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-11T20:36:30.324+09:00  INFO 28036 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-11T20:36:30.324+09:00  INFO 28036 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-11T20:36:30.374+09:00  INFO 28036 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-11T20:36:30.374+09:00  INFO 28036 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 944 ms
+2025-05-11T20:36:30.472+09:00  INFO 28036 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-11T20:36:30.618+09:00  INFO 28036 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:moviesdb user=SA
+2025-05-11T20:36:30.619+09:00  INFO 28036 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-11T20:36:30.646+09:00  INFO 28036 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-11T20:36:30.693+09:00  INFO 28036 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-11T20:36:30.719+09:00  INFO 28036 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-11T20:36:30.935+09:00  INFO 28036 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-11T20:36:30.992+09:00  INFO 28036 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-11T20:36:31.813+09:00  INFO 28036 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-11T20:36:31.884+09:00  INFO 28036 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-11T20:36:32.308+09:00  WARN 28036 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-11T20:36:32.539+09:00  INFO 28036 --- [AOD] [main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:moviesdb'
+2025-05-11T20:36:32.587+09:00  INFO 28036 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-11T20:36:32.595+09:00  INFO 28036 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 3.505 seconds (process running for 3.92)
+2025-05-11T20:36:34.646+09:00  INFO 28036 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-11T20:36:34.646+09:00  INFO 28036 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-11T20:36:34.647+09:00  INFO 28036 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-05-11T20:36:35.560+09:00  WARN 28036 --- [AOD] [task-1] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-11T20:36:35.561+09:00  WARN 28036 --- [AOD] [task-1] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.93. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-11T20:36:50.851+09:00  INFO 28036 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-11T20:36:51.000+09:00  INFO 28036 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-11T20:37:23.546+09:00  INFO 19732 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.7 with PID 19732 (C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back\build\classes\java\main started by oms01 in C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back)
+2025-05-11T20:37:23.548+09:00 DEBUG 19732 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-11T20:37:23.548+09:00  INFO 19732 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-11T20:37:24.020+09:00  INFO 19732 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-11T20:37:24.136+09:00  INFO 19732 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 106 ms. Found 26 JPA repository interfaces.
+2025-05-11T20:37:24.497+09:00  INFO 19732 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-11T20:37:24.505+09:00  INFO 19732 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-11T20:37:24.506+09:00  INFO 19732 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-11T20:37:24.556+09:00  INFO 19732 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-11T20:37:24.556+09:00  INFO 19732 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 973 ms
+2025-05-11T20:37:24.656+09:00  INFO 19732 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-11T20:37:24.805+09:00  INFO 19732 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:moviesdb user=SA
+2025-05-11T20:37:24.806+09:00  INFO 19732 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-11T20:37:24.834+09:00  INFO 19732 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-11T20:37:24.880+09:00  INFO 19732 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-11T20:37:24.907+09:00  INFO 19732 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-11T20:37:25.123+09:00  INFO 19732 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-11T20:37:25.180+09:00  INFO 19732 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-11T20:37:25.998+09:00  INFO 19732 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-11T20:37:26.072+09:00  INFO 19732 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-11T20:37:26.482+09:00  WARN 19732 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-11T20:37:26.716+09:00  INFO 19732 --- [AOD] [main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:moviesdb'
+2025-05-11T20:37:26.766+09:00  INFO 19732 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-11T20:37:26.776+09:00  INFO 19732 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 3.52 seconds (process running for 3.927)
+2025-05-11T20:37:28.652+09:00  INFO 19732 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-11T20:37:28.652+09:00  INFO 19732 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-11T20:37:28.653+09:00  INFO 19732 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-05-11T20:37:29.572+09:00  WARN 19732 --- [AOD] [task-1] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-11T20:37:29.572+09:00  WARN 19732 --- [AOD] [task-1] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.93. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-11T21:30:02.322+09:00  INFO 19732 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-11T21:30:02.451+09:00  INFO 19732 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-11T21:30:02.455+09:00  INFO 19732 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-11T21:30:02.460+09:00  INFO 19732 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-11T21:30:02.461+09:00  INFO 19732 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-11T21:30:05.992+09:00  INFO 21384 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.7 with PID 21384 (C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back\build\classes\java\main started by oms01 in C:\Users\oms01\OneDrive\바탕 화면\-AOD-All-of-Dopamine-back)
+2025-05-11T21:30:05.994+09:00 DEBUG 21384 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-11T21:30:05.994+09:00  INFO 21384 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-11T21:30:06.449+09:00  INFO 21384 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-11T21:30:06.549+09:00  INFO 21384 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 93 ms. Found 26 JPA repository interfaces.
+2025-05-11T21:30:06.917+09:00  INFO 21384 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-11T21:30:06.927+09:00  INFO 21384 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-11T21:30:06.927+09:00  INFO 21384 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-11T21:30:06.990+09:00  INFO 21384 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-11T21:30:06.990+09:00  INFO 21384 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 961 ms
+2025-05-11T21:30:07.092+09:00  INFO 21384 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-11T21:30:07.255+09:00  INFO 21384 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:moviesdb user=SA
+2025-05-11T21:30:07.257+09:00  INFO 21384 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-11T21:30:07.286+09:00  INFO 21384 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-11T21:30:07.342+09:00  INFO 21384 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-11T21:30:07.370+09:00  INFO 21384 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-11T21:30:07.599+09:00  INFO 21384 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-11T21:30:07.666+09:00  INFO 21384 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-11T21:30:08.495+09:00  INFO 21384 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-11T21:30:08.566+09:00  INFO 21384 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-11T21:30:08.973+09:00  WARN 21384 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-11T21:30:09.197+09:00  INFO 21384 --- [AOD] [main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:moviesdb'
+2025-05-11T21:30:09.255+09:00  INFO 21384 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-11T21:30:09.263+09:00  INFO 21384 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 3.545 seconds (process running for 3.947)
