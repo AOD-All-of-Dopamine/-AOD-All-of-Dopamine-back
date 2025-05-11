@@ -24,6 +24,11 @@ public class SteamApiFetcher {
                 .toList();
     }
 
+    /*
+        매 200번째 요청마다 429 Too Many Requests 발생 : 5분 동안 요청 불가
+        게임 1000개 가져오는데 약 23분
+        전체 게임 다운로드하는 데 약 95시간
+     */
     public GameDetailDto getGameDetailById(Long id, String language){
         String url = "https://store.steampowered.com/api/appdetails?";
         url += "appids="+id;
