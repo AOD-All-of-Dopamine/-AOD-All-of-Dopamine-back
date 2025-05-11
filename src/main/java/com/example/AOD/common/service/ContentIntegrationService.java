@@ -435,7 +435,7 @@ public class ContentIntegrationService {
                 break;
             case "game":
                 steamGameRepository.findAllById(sourceIds).forEach(
-                        game -> titles.put(game.getId(), game.getName()));
+                        game -> titles.put(game.getId(), game.getTitle()));
                 break;
         }
 
