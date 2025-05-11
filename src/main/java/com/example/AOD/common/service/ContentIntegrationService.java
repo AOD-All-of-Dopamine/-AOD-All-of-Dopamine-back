@@ -55,7 +55,7 @@ public class ContentIntegrationService {
             MovieRepository movieRepository,
             NetflixContentRepository netflixContentRepository,
             WebtoonRepository webtoonRepository,
-            GameRepository steamGameRepository, GameRepository steamGameRepository1,
+            GameRepository steamGameRepository,
             NovelCommonRepository novelCommonRepository,
             MovieCommonRepository movieCommonRepository,
             OTTCommonRepository ottCommonRepository,
@@ -68,7 +68,7 @@ public class ContentIntegrationService {
         this.movieRepository = movieRepository;
         this.netflixContentRepository = netflixContentRepository;
         this.webtoonRepository = webtoonRepository;
-        this.steamGameRepository = steamGameRepository1;
+        this.steamGameRepository = steamGameRepository;
         this.novelCommonRepository = novelCommonRepository;
         this.movieCommonRepository = movieCommonRepository;
         this.ottCommonRepository = ottCommonRepository;
@@ -77,30 +77,97 @@ public class ContentIntegrationService {
     }
 
     @Transactional
-    public Object integrateContent(Long configId, List<Long> sourceIds) {
+    public List<Object> integrateContent(Long configId, List<Long> sourceIds) {
         ContentIntegrationConfig config = configRepository.findById(configId)
                 .orElseThrow(() -> new RuntimeException("Configuration not found"));
 
         String contentType = config.getContentType();
+        List<Object> results = new ArrayList<>();
 
-        // 소스 데이터 로드
-        Map<String, Object> sourceData = loadSourceData(contentType, sourceIds);
+        // sourceIds가 없으면 빈 리스트 반환
+        if (sourceIds == null || sourceIds.isEmpty()) {
+            return results;
+        }
 
-        // Common 엔티티 생성
-        Object commonEntity = createCommonEntity(contentType);
+        // 각 소스 ID에 대해 개별적으로 통합 처리
+        for (Long sourceId : sourceIds) {
+            // 각 소스에 대한 데이터 로드
+            Map<String, Object> sourceData = loadSingleSourceData(contentType, sourceId);
 
-        // 필드 매핑 적용
-        List<FieldMapping> fieldMappings = fieldMappingRepository.findByConfigIdOrderByPriorityAsc(configId);
-        applyFieldMappings(commonEntity, fieldMappings, sourceData);
+            if (sourceData.isEmpty()) {
+                continue; // 유효한 소스 데이터가 없으면 건너뛰기
+            }
 
-        // 커스텀 계산 적용
-        List<CustomFieldCalculation> customCalculations = customFieldCalculationRepository.findByConfigId(configId);
-        applyCustomCalculations(commonEntity, customCalculations, sourceData);
+            // Common 엔티티 생성
+            Object commonEntity = createCommonEntity(contentType);
 
-        // 저장 및 반환
-        return saveCommonEntity(contentType, commonEntity);
+            // ID 설정 (소스 ID를 Common 엔티티 ID로 사용)
+            setEntityId(commonEntity, sourceId);
+
+            // 필드 매핑 적용
+            List<FieldMapping> fieldMappings = fieldMappingRepository.findByConfigIdOrderByPriorityAsc(configId);
+            applyFieldMappings(commonEntity, fieldMappings, sourceData);
+
+            // 커스텀 계산 적용
+            List<CustomFieldCalculation> customCalculations = customFieldCalculationRepository.findByConfigId(configId);
+            applyCustomCalculations(commonEntity, customCalculations, sourceData);
+
+            // 저장 및 결과 리스트에 추가
+            Object savedEntity = saveCommonEntity(contentType, commonEntity);
+            results.add(savedEntity);
+        }
+
+        return results;
     }
 
+    // ID 설정 메서드 추가
+    private void setEntityId(Object entity, Long id) {
+        try {
+            Field idField = findField(entity.getClass(), "id");
+            if (idField != null) {
+                idField.setAccessible(true);
+                idField.set(entity, id);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set ID on entity", e);
+        }
+    }
+
+    // 단일 소스 데이터 로드를 위한 새 메서드
+    private Map<String, Object> loadSingleSourceData(String contentType, Long sourceId) {
+        Map<String, Object> sourceData = new HashMap<>();
+
+        if (sourceId == null) {
+            return sourceData;
+        }
+
+        switch (contentType) {
+            case "novel":
+                naverSeriesNovelRepository.findById(sourceId).ifPresent(
+                        novel -> sourceData.put("naver_" + novel.getId(), novel));
+                break;
+            case "movie":
+                movieRepository.findById(sourceId).ifPresent(
+                        movie -> sourceData.put("cgv_" + movie.getId(), movie));
+                break;
+            case "ott":
+                netflixContentRepository.findById(sourceId).ifPresent(
+                        content -> sourceData.put("netflix_" + content.getContentId(), content));
+                break;
+            case "webtoon":
+                webtoonRepository.findById(sourceId).ifPresent(
+                        webtoon -> sourceData.put("naver_" + webtoon.getId(), webtoon));
+                break;
+            case "game":
+                steamGameRepository.findById(sourceId).ifPresent(
+                        game -> sourceData.put("steam_" + game.getId(), game));
+                break;
+        }
+
+        return sourceData;
+    }
+
+    // 기존 메서드는 유지하되 사용하지 않음
     private Map<String, Object> loadSourceData(String contentType, List<Long> sourceIds) {
         Map<String, Object> sourceData = new HashMap<>();
 
@@ -316,27 +383,37 @@ public class ContentIntegrationService {
 
     // 특정 유형 통합 메서드 - 기존 코드와의 호환성을 위해
     @Transactional
-    public NovelCommon integrateNovelData(Long configId, List<Long> sourceIds) {
-        return (NovelCommon) integrateContent(configId, sourceIds);
+    public List<NovelCommon> integrateNovelData(Long configId, List<Long> sourceIds) {
+        return integrateContent(configId, sourceIds).stream()
+                .map(obj -> (NovelCommon) obj)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public MovieCommon integrateMovieData(Long configId, List<Long> sourceIds) {
-        return (MovieCommon) integrateContent(configId, sourceIds);
+    public List<MovieCommon> integrateMovieData(Long configId, List<Long> sourceIds) {
+        return integrateContent(configId, sourceIds).stream()
+                .map(obj -> (MovieCommon) obj)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public OTTCommon integrateOTTData(Long configId, List<Long> sourceIds) {
-        return (OTTCommon) integrateContent(configId, sourceIds);
+    public List<OTTCommon> integrateOTTData(Long configId, List<Long> sourceIds) {
+        return integrateContent(configId, sourceIds).stream()
+                .map(obj -> (OTTCommon) obj)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public WebtoonCommon integrateWebtoonData(Long configId, List<Long> sourceIds) {
-        return (WebtoonCommon) integrateContent(configId, sourceIds);
+    public List<WebtoonCommon> integrateWebtoonData(Long configId, List<Long> sourceIds) {
+        return integrateContent(configId, sourceIds).stream()
+                .map(obj -> (WebtoonCommon) obj)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public GameCommon integrateGameData(Long configId, List<Long> sourceIds) {
-        return (GameCommon) integrateContent(configId, sourceIds);
+    public List<GameCommon> integrateGameData(Long configId, List<Long> sourceIds) {
+        return integrateContent(configId, sourceIds).stream()
+                .map(obj -> (GameCommon) obj)
+                .collect(Collectors.toList());
     }
 }

@@ -59,10 +59,11 @@ public class ContentIntegrationController {
             @ModelAttribute ContentIntegrationRequestDTO request,
             Model model) {
 
-        Object result = contentIntegrationService.integrateContent(request.getConfigId(), request.getSourceIds());
+        List<Object> results = contentIntegrationService.integrateContent(request.getConfigId(), request.getSourceIds());
 
         model.addAttribute("contentType", contentType);
-        model.addAttribute("result", result);
+        model.addAttribute("results", results); // 복수형으로 변경
+        model.addAttribute("result", results.isEmpty() ? null : results.get(0)); // 기존 템플릿 호환성 유지
 
         return "admin/integration/content-integration-result";
     }

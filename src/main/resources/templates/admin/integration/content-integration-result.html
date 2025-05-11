@@ -11,11 +11,12 @@
     <h1 class="mb-4" th:text="${contentType + ' 통합 결과'}">통합 결과</h1>
 
     <div class="alert alert-success" role="alert">
-        콘텐츠 통합이 성공적으로 완료되었습니다!
+        <span th:text="${results.size()}">0</span>개의 콘텐츠가 성공적으로 통합되었습니다!
     </div>
 
-    <div class="card mb-4">
-        <div class="card-header" th:text="${'통합된 ' + contentType + ' 정보'}">통합된 정보</div>
+    <!-- 각 결과에 대한 카드 표시 -->
+    <div th:each="result, iterStat : ${results}" class="card mb-4">
+        <div class="card-header" th:text="${'통합된 ' + contentType + ' 정보 #' + (iterStat.index + 1)}">통합된 정보</div>
         <div class="card-body">
             <table class="table">
                 <tbody>
@@ -109,6 +110,11 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- 결과가 없는 경우 -->
+    <div th:if="${results.isEmpty()}" class="alert alert-warning">
+        통합된 콘텐츠가 없습니다. 다시 시도해주세요.
     </div>
 
     <div class="form-group">
