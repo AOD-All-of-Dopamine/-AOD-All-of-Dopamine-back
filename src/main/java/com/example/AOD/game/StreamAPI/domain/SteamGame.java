@@ -28,7 +28,7 @@ public class SteamGame {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String title;
 
     @Column(nullable = false)
     private Long steam_appid;
@@ -92,13 +92,13 @@ public class SteamGame {
     private List<GameGenre> genres;
 
     public SteamGame(GameDetailDto dto) {
-        this.name = dto.getName();
+        this.title = dto.getName();
         this.steam_appid = dto.getSteam_appid();
         this.required_age = dto.getRequired_age();
-        this.detailed_description = dto.getDetailed_description();
-        this.about_the_game = dto.getAbout_the_game();
-        this.short_description = dto.getShort_description();
-        this.supported_languages = dto.getSupported_languages();
+        this.detailed_description = stringCleaning(dto.getDetailed_description());
+        this.about_the_game = stringCleaning(dto.getAbout_the_game());
+        this.short_description = stringCleaning(dto.getShort_description());
+        this.supported_languages = stringCleaning(dto.getSupported_languages());
         this.header_image = dto.getHeader_image();
         this.capsule_image = dto.getCapsule_image();
         this.capsule_imagev5 = dto.getCapsule_imagev5();
@@ -111,16 +111,14 @@ public class SteamGame {
             this.initialPrice = 0;
             this.finalPrice = 0;
         }
-
-        this.developers = dto.getDevelopers().stream()
-                .map(GameDeveloper::new).collect(Collectors.toList());
-        this.publishers = dto.getPublishers().stream()
-                .map(GamePublisher::new).collect(Collectors.toList());
-        this.categories = dto.getCategories().stream()
-                .map(category -> new SteamGameCategory(category.getDescription()))
-                .collect(Collectors.toList());
-        this.genres = dto.getGenres().stream()
-                .map(genre -> new GameGenre(genre.getName()))
-                .collect(Collectors.toList());
+    }
+    private String stringCleaning(String str){
+        if(str == null) return "";
+        return str
+                .replaceAll("<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>", "")
+                .replaceAll("<[^>]*>", "")
+                .replaceAll("(?i)<br\\s*/?>", "")
+                .replaceAll("(?i)(<br\\s*/?>\\s*)+", "")
+                .replaceAll("[\\r\\n]+", "");
     }
 }

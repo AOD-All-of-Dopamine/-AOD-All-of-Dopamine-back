@@ -26,7 +26,7 @@ public class SteamGameController {
     @GetMapping("/startGameScrappingFromTo")
     public ResponseEntity<Map<String, Object>> getGameDetail(
             @RequestParam(value = "start", defaultValue = "0") Integer start,
-            @RequestParam(value = "end", defaultValue = "300'000") Integer end) {
+            @RequestParam(value = "end", defaultValue = "300000") Integer end) {
 
         List<GameDetailDto> gameDetails = gameService.getGamesFromTo(start, end);
         for(GameDetailDto gameDetail : gameDetails) {
