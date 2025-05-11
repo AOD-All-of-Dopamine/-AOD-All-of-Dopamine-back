@@ -13,15 +13,18 @@ import com.example.AOD.game.StreamAPI.repository.GameDeveloperRepository;
 import com.example.AOD.game.StreamAPI.repository.GameGenreRepository;
 import com.example.AOD.game.StreamAPI.repository.GamePublisherRepository;
 import com.example.AOD.game.StreamAPI.repository.GameRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GameService {
     private final GameCategoryRepository gameCategoryRepository;
     private final GameDeveloperRepository gameDeveloperRepository;
@@ -84,5 +87,24 @@ public class GameService {
             return saveGame(gameDetailDto);
         }
         return game.get();
+    }
+
+    public List<GameDetailDto> getGamesFromTo(int start, int end){
+        List<SimpleGameDto> allGameId = steamApiFetcher.getAllGame();
+        List<GameDetailDto> ret = new ArrayList<>();
+
+        start = Math.max(start, 0);
+        end = Math.min(end, allGameId.size());
+
+        for(int i=start;i<end;i++){
+            SimpleGameDto game = allGameId.get(i);
+            try {
+                GameDetailDto g = steamApiFetcher.getGameDetailById(game.getAppid(), "korean");
+                if(g!=null) ret.add(g);
+            } catch (Exception e){
+                break;
+            }
+        }
+        return ret;
     }
 }
