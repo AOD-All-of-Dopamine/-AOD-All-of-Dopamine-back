@@ -23,18 +23,26 @@
 
         <!-- 플랫폼별 콘텐츠 선택 영역 -->
         <div th:each="platform : ${platforms}" class="card mb-4">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <span th:text="${platform.name}">플랫폼 이름</span>
+                <!-- 플랫폼별 전체선택 버튼 추가 -->
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input platform-select-all"
+                           th:id="${'select-all-' + platform.id}"
+                           th:data-platform="${platform.id}">
+                    <label class="custom-control-label" th:for="${'select-all-' + platform.id}">전체선택</label>
+                </div>
             </div>
             <div class="card-body">
                 <div class="form-group">
                     <div class="row">
                         <div th:each="content : ${platformContents.get(platform.id)}" class="col-md-4 mb-3">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input"
+                                <input type="checkbox" class="custom-control-input content-checkbox"
                                        th:id="${platform.id + '_content_' + content.id}"
                                        th:name="sourceIds"
-                                       th:value="${content.id}" />
+                                       th:value="${content.id}"
+                                       th:data-platform="${platform.id}">
                                 <label class="custom-control-label"
                                        th:for="${platform.id + '_content_' + content.id}"
                                        th:text="${content.title}">콘텐츠 제목</label>
@@ -49,6 +57,16 @@
             </div>
         </div>
 
+        <!-- 전체 통합 버튼 위에 모든 플랫폼의 전체선택 버튼 추가 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="select-all-platforms">
+                    <label class="custom-control-label" for="select-all-platforms">모든 플랫폼 전체선택</label>
+                </div>
+            </div>
+        </div>
+
         <div class="form-group">
             <button type="submit" class="btn btn-primary">콘텐츠 통합</button>
             <a th:href="@{/admin}" class="btn btn-secondary">취소</a>
@@ -56,7 +74,53 @@
     </form>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // 플랫폼별 전체선택 체크박스 동작
+        $('.platform-select-all').change(function() {
+            var isChecked = $(this).prop('checked');
+            var platformId = $(this).data('platform');
+
+            // 해당 플랫폼의 모든 콘텐츠 체크박스 상태 변경
+            $('.content-checkbox[data-platform="' + platformId + '"]').prop('checked', isChecked);
+
+            // 모든 플랫폼 전체선택 체크박스 상태 업데이트
+            updateGlobalSelectAllState();
+        });
+
+        // 개별 콘텐츠 체크박스 변경 시
+        $('.content-checkbox').change(function() {
+            var platformId = $(this).data('platform');
+
+            // 해당 플랫폼의 모든 콘텐츠 체크박스 상태 확인
+            var allChecked = $('.content-checkbox[data-platform="' + platformId + '"]').length ===
+                $('.content-checkbox[data-platform="' + platformId + '"]:checked').length;
+
+            // 플랫폼 전체선택 체크박스 상태 변경
+            $('#select-all-' + platformId).prop('checked', allChecked);
+
+            // 모든 플랫폼 전체선택 체크박스 상태 업데이트
+            updateGlobalSelectAllState();
+        });
+
+        // 모든 플랫폼 전체선택 체크박스 동작
+        $('#select-all-platforms').change(function() {
+            var isChecked = $(this).prop('checked');
+
+            // 모든 콘텐츠 체크박스와 플랫폼별 전체선택 체크박스 상태 변경
+            $('.content-checkbox').prop('checked', isChecked);
+            $('.platform-select-all').prop('checked', isChecked);
+        });
+
+        // 모든 플랫폼 전체선택 체크박스 상태 업데이트 함수
+        function updateGlobalSelectAllState() {
+            var allContentChecked = $('.content-checkbox').length === $('.content-checkbox:checked').length;
+            $('#select-all-platforms').prop('checked', allContentChecked);
+        }
+    });
+</script>
 </body>
 </html>
