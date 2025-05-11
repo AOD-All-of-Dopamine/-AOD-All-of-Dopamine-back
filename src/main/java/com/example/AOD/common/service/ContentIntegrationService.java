@@ -324,10 +324,10 @@ public class ContentIntegrationService {
     }
 
     /**
-     * 특정 콘텐츠 ID가 이미 Common 테이블에 존재하는지 확인
+     * 특정 콘텐츠의 제목이 이미 Common 테이블에 존재하는지 확인
      * @param contentType 콘텐츠 유형
      * @param sourceIds 확인할 소스 ID 목록
-     * @return 중복된 ID와 제목의 Map (없으면 빈 맵)
+     * @return 중복된 제목과 ID의 Map (없으면 빈 맵)
      */
     public Map<Long, String> checkDuplicateContent(String contentType, List<Long> sourceIds) {
         if (sourceIds == null || sourceIds.isEmpty()) {
@@ -336,50 +336,110 @@ public class ContentIntegrationService {
 
         Map<Long, String> duplicates = new HashMap<>();
 
+        // 선택된 소스에서 제목 추출
+        Map<Long, String> sourceTitles = getSourceTitles(contentType, sourceIds);
+
+        // 제목으로 중복 확인
         switch (contentType) {
             case "novel":
-                for (Long id : sourceIds) {
-                    Optional<NovelCommon> existing = novelCommonRepository.findById(id);
-                    if (existing.isPresent()) {
-                        duplicates.put(id, existing.get().getTitle());
+                for (Map.Entry<Long, String> entry : sourceTitles.entrySet()) {
+                    Long id = entry.getKey();
+                    String title = entry.getValue();
+
+                    // 제목으로 기존 Common 엔티티 검색
+                    List<NovelCommon> existing = novelCommonRepository.findByTitleIgnoreCase(title);
+                    if (!existing.isEmpty()) {
+                        duplicates.put(id, title);
                     }
                 }
                 break;
             case "movie":
-                for (Long id : sourceIds) {
-                    Optional<MovieCommon> existing = movieCommonRepository.findById(id);
-                    if (existing.isPresent()) {
-                        duplicates.put(id, existing.get().getTitle());
+                for (Map.Entry<Long, String> entry : sourceTitles.entrySet()) {
+                    Long id = entry.getKey();
+                    String title = entry.getValue();
+
+                    List<MovieCommon> existing = movieCommonRepository.findByTitleIgnoreCase(title);
+                    if (!existing.isEmpty()) {
+                        duplicates.put(id, title);
                     }
                 }
                 break;
             case "ott":
-                for (Long id : sourceIds) {
-                    Optional<OTTCommon> existing = ottCommonRepository.findById(id);
-                    if (existing.isPresent()) {
-                        duplicates.put(id, existing.get().getTitle());
+                for (Map.Entry<Long, String> entry : sourceTitles.entrySet()) {
+                    Long id = entry.getKey();
+                    String title = entry.getValue();
+
+                    List<OTTCommon> existing = ottCommonRepository.findByTitleIgnoreCase(title);
+                    if (!existing.isEmpty()) {
+                        duplicates.put(id, title);
                     }
                 }
                 break;
             case "webtoon":
-                for (Long id : sourceIds) {
-                    Optional<WebtoonCommon> existing = webtoonCommonRepository.findById(id);
-                    if (existing.isPresent()) {
-                        duplicates.put(id, existing.get().getTitle());
+                for (Map.Entry<Long, String> entry : sourceTitles.entrySet()) {
+                    Long id = entry.getKey();
+                    String title = entry.getValue();
+
+                    List<WebtoonCommon> existing = webtoonCommonRepository.findByTitleIgnoreCase(title);
+                    if (!existing.isEmpty()) {
+                        duplicates.put(id, title);
                     }
                 }
                 break;
             case "game":
-                for (Long id : sourceIds) {
-                    Optional<GameCommon> existing = gameCommonRepository.findById(id);
-                    if (existing.isPresent()) {
-                        duplicates.put(id, existing.get().getTitle());
+                for (Map.Entry<Long, String> entry : sourceTitles.entrySet()) {
+                    Long id = entry.getKey();
+                    String title = entry.getValue();
+
+                    List<GameCommon> existing = gameCommonRepository.findByTitleIgnoreCase(title);
+                    if (!existing.isEmpty()) {
+                        duplicates.put(id, title);
                     }
                 }
                 break;
         }
 
         return duplicates;
+    }
+
+    /**
+     * 소스 ID 목록에서 제목을 추출
+     */
+    private Map<Long, String> getSourceTitles(String contentType, List<Long> sourceIds) {
+        Map<Long, String> titles = new HashMap<>();
+
+        switch (contentType) {
+            case "novel":
+                naverSeriesNovelRepository.findAllById(sourceIds).forEach(
+                        novel -> titles.put(novel.getId(), novel.getTitle()));
+                break;
+            case "movie":
+                movieRepository.findAllById(sourceIds).forEach(
+                        movie -> titles.put(movie.getId(), movie.getTitle()));
+                break;
+            case "ott":
+                netflixContentRepository.findAllById(sourceIds).forEach(
+                        content -> {
+                            try {
+                                Long id = Long.parseLong(content.getContentId());
+                                titles.put(id, content.getTitle());
+                            } catch (NumberFormatException e) {
+                                // contentId가 숫자로 변환할 수 없는 경우 처리
+                                System.err.println("Cannot parse contentId to Long: " + content.getContentId());
+                            }
+                        });
+                break;
+            case "webtoon":
+                webtoonRepository.findAllById(sourceIds).forEach(
+                        webtoon -> titles.put(webtoon.getId(), webtoon.getTitle()));
+                break;
+            case "game":
+                steamGameRepository.findAllById(sourceIds).forEach(
+                        game -> titles.put(game.getId(), game.getName()));
+                break;
+        }
+
+        return titles;
     }
 
     private Field findField(Class<?> clazz, String fieldName) {
