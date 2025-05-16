@@ -15,8 +15,8 @@ import java.util.List;
 public class NetflixContent {
 
     @Id
-    @Column(name = "content_id", length = 255, nullable = false)
-    private String contentId;
+    @Column(name = "content_id", nullable = false)
+    private Long contentId;
 
     @Column(nullable = false, length = 255)
     private String title;

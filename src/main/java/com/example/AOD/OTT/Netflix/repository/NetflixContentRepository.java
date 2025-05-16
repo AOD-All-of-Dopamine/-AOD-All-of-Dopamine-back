@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface NetflixContentRepository extends JpaRepository<NetflixContent, Long> {
-    Optional<NetflixContent> findByContentId(String contentId);
+    Optional<NetflixContent> findByContentId(Long contentId);
 }
