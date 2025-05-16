@@ -23,8 +23,6 @@
         </button>
     </div>
 
-    <form th:action="@{/admin/integration/{contentType}/integrate(contentType=${contentType})}" th:object="${integrationRequest}" method="post">
-        <!-- ... 기존 폼 내용 유지 -->
 
     <form th:action="@{/admin/integration/{contentType}/integrate(contentType=${contentType})}" th:object="${integrationRequest}" method="post">
         <div class="form-group">
@@ -55,12 +53,12 @@
                         <div th:each="content : ${platformContents.get(platform.id)}" class="col-md-4 mb-3">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input content-checkbox"
-                                       th:id="${platform.id + '_content_' + content.id}"
+                                       th:id="${platform.id + '_content_' + (content instanceof T(com.example.AOD.OTT.Netflix.domain.NetflixContent) ? content.contentId : content.id)}"
                                        th:name="sourceIds"
-                                       th:value="${content.id}"
+                                       th:value="${content instanceof T(com.example.AOD.OTT.Netflix.domain.NetflixContent) ? content.contentId : content.id}"
                                        th:data-platform="${platform.id}">
                                 <label class="custom-control-label"
-                                       th:for="${platform.id + '_content_' + content.id}"
+                                       th:for="${platform.id + '_content_' + (content instanceof T(com.example.AOD.OTT.Netflix.domain.NetflixContent) ? content.contentId : content.id)}"
                                        th:text="${content.title}">콘텐츠 제목</label>
                             </div>
                         </div>
