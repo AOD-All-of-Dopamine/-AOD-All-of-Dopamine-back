@@ -32,10 +32,18 @@ public class NetflixController {
         // 환경 변수에서 인증 정보 가져오기
         String email = System.getenv("NETFLIX_EMAIL");
         String password = System.getenv("NETFLIX_PASSWORD");
+        String profileName = System.getenv("NETFLIX_PROFILE_NAME");
 
         // 인증 정보 검증
         if (isInvalidCredentials(email, password)) {
             return createErrorResponse("넷플릭스 인증 정보가 유효하지 않습니다. 환경 변수를 확인해주세요.");
+        }
+
+        // 프로필 정보 로깅
+        if (profileName != null && !profileName.isEmpty()) {
+            logger.info("환경 변수에 설정된 프로필: " + profileName);
+        } else {
+            logger.info("환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.");
         }
 
         // 비동기 크롤링 시작
@@ -49,16 +57,25 @@ public class NetflixController {
      */
     @GetMapping("/crawl/latest")
     public ResponseEntity<Map<String, Object>> startLatestCrawl() {
-        logger.info("최신 넷플릭스 콘텐츠 크롤링 요청 받음");
+        logger.info("일반 넷플릭스 콘텐츠 크롤링 요청 받음");
 
         // 환경 변수에서 인증 정보 가져오기
         String email = System.getenv("NETFLIX_EMAIL");
         String password = System.getenv("NETFLIX_PASSWORD");
+        String profileName = System.getenv("NETFLIX_PROFILE_NAME");
 
         // 인증 정보 검증
         if (isInvalidCredentials(email, password)) {
             return createErrorResponse("넷플릭스 인증 정보가 유효하지 않습니다. 환경 변수를 확인해주세요.");
         }
+
+        // 프로필 정보 로깅
+        if (profileName != null && !profileName.isEmpty()) {
+            logger.info("환경 변수에 설정된 프로필: " + profileName);
+        } else {
+            logger.info("환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.");
+        }
+
 
         // 최신 콘텐츠 크롤링 시작
         netflixCrawlerService.runLatestContentCrawler(email, password);
@@ -71,16 +88,25 @@ public class NetflixController {
      */
     @GetMapping("/crawl/all")
     public ResponseEntity<Map<String, Object>> startAllCrawl() {
-        logger.info("모든 넷플릭스 콘텐츠 크롤링 요청 받음");
+        logger.info("일반 넷플릭스 콘텐츠 크롤링 요청 받음");
 
         // 환경 변수에서 인증 정보 가져오기
         String email = System.getenv("NETFLIX_EMAIL");
         String password = System.getenv("NETFLIX_PASSWORD");
+        String profileName = System.getenv("NETFLIX_PROFILE_NAME");
 
         // 인증 정보 검증
         if (isInvalidCredentials(email, password)) {
             return createErrorResponse("넷플릭스 인증 정보가 유효하지 않습니다. 환경 변수를 확인해주세요.");
         }
+
+        // 프로필 정보 로깅
+        if (profileName != null && !profileName.isEmpty()) {
+            logger.info("환경 변수에 설정된 프로필: " + profileName);
+        } else {
+            logger.info("환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.");
+        }
+
 
         // 모든 콘텐츠 크롤링 시작
         netflixCrawlerService.runAllContentCrawler(email, password);
@@ -94,15 +120,23 @@ public class NetflixController {
      */
     @GetMapping("/crawl/this-week")
     public ResponseEntity<Map<String, Object>> startThisWeekCrawl() {
-        logger.info("이번주 공개 넷플릭스 콘텐츠 크롤링 요청 받음");
+        logger.info("일반 넷플릭스 콘텐츠 크롤링 요청 받음");
 
         // 환경 변수에서 인증 정보 가져오기
         String email = System.getenv("NETFLIX_EMAIL");
         String password = System.getenv("NETFLIX_PASSWORD");
+        String profileName = System.getenv("NETFLIX_PROFILE_NAME");
 
         // 인증 정보 검증
         if (isInvalidCredentials(email, password)) {
             return createErrorResponse("넷플릭스 인증 정보가 유효하지 않습니다. 환경 변수를 확인해주세요.");
+        }
+
+        // 프로필 정보 로깅
+        if (profileName != null && !profileName.isEmpty()) {
+            logger.info("환경 변수에 설정된 프로필: " + profileName);
+        } else {
+            logger.info("환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.");
         }
 
         // 이번주 공개 콘텐츠 크롤링 시작
