@@ -434,7 +434,7 @@ public class ContentIntegrationService {
                 netflixContentRepository.findAllById(sourceIds).forEach(
                         content -> {
                             try {
-                                Long id = Long.parseLong(content.getContentId());
+                                Long id = content.getContentId();
                                 titles.put(id, content.getTitle());
                             } catch (NumberFormatException e) {
                                 // contentId가 숫자로 변환할 수 없는 경우 처리
