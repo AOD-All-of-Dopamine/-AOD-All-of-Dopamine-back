@@ -46,13 +46,7 @@ public class NetflixCrawlerService {
         NetflixContentCrawler crawler = new NetflixContentCrawler(email, password, driver);
 
         try {
-            // 로그인
-            if (!crawler.login()) {
-                logger.error("넷플릭스 로그인 실패");
-                return;
-            }
-
-            // 크롤링 수행
+            // 크롤링 수행 - 내부적으로 쿠키 기반 로그인을 사용
             List<NetflixContentDTO> dtoList = crawler.crawl();
             logger.info("크롤링 완료: {} 개의 콘텐츠 발견", dtoList.size());
 
