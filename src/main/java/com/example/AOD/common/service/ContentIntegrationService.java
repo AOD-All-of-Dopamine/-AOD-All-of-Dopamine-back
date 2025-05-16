@@ -297,7 +297,7 @@ public class ContentIntegrationService {
     }
 
     private Object convertSpecialTypes(Object value) {
-        // NaverSeriesNovelGenre -> String 리스트로 변환
+        // NaverSeriesNovelGenre -> String 리스트 변환 (기존 코드)
         if (value instanceof List && !((List<?>) value).isEmpty()) {
             Object firstItem = ((List<?>) value).get(0);
 
@@ -317,12 +317,25 @@ public class ContentIntegrationService {
                         .collect(Collectors.toList());
             }
 
-            // 다른 특수 타입들에 대한 변환 로직 추가
+            // NaverSeriesNovelAuthor 리스트 처리 추가
+            if (firstItem.getClass().getSimpleName().equals("NaverSeriesNovelAuthor")) {
+                return ((List<?>) value).stream()
+                        .map(item -> {
+                            try {
+                                Field nameField = findField(item.getClass(), "name");
+                                nameField.setAccessible(true);
+                                return nameField.get(item);
+                            } catch (Exception e) {
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+            }
         }
 
         return value;
     }
-
     /**
      * 특정 콘텐츠의 제목이 이미 Common 테이블에 존재하는지 확인
      * @param contentType 콘텐츠 유형

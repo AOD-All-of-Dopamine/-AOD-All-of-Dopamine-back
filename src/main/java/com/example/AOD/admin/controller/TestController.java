@@ -18,13 +18,6 @@ public class TestController {
         return "admin/integration/config-form";
     }
 
-    @GetMapping("/novel-form")
-    public String testNovelForm() {
-        return "admin/integration/novel-integration-form";
-    }
 
-    @GetMapping("/novel-result")
-    public String testNovelResult() {
-        return "admin/integration/novel-integration-result";
-    }
+
 }
