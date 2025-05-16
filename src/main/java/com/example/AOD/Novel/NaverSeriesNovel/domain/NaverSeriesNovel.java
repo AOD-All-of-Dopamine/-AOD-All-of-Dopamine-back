@@ -25,6 +25,9 @@ public class NaverSeriesNovel {
     @Column(nullable = false)
     private String url;
 
+    @Column(length = 1000) // URL은 길 수 있으므로 충분한 길이 설정
+    private String imageUrl;
+
     //완결 유무
     @Column(nullable = false)
     private String status;
@@ -38,9 +41,13 @@ public class NaverSeriesNovel {
     )
     private List<NaverSeriesNovelGenre> genres;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id", nullable = true)
-    private NaverSeriesNovelAuthor author;
+    @ManyToMany
+    @JoinTable(
+            name = "novel_author_mapping",
+            joinColumns = @JoinColumn(name = "novel_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private List<NaverSeriesNovelAuthor> authors = new ArrayList<>();
     //출판사
     @Column(nullable = false)
     private String publisher;
@@ -58,8 +65,9 @@ public class NaverSeriesNovel {
         this.status = naverSeriesNovelDTO.getStatus();
         this.publisher = naverSeriesNovelDTO.getPublisher();
         this.ageRating = naverSeriesNovelDTO.getAgeRating();
+        this.imageUrl = naverSeriesNovelDTO.getImageUrl();
 
-        //작가 추가해야함
+        // 작가와 장르는 외부에서 설정
 
         this.genres = new ArrayList<>();
         for(String genre : naverSeriesNovelDTO.getGenres()) {

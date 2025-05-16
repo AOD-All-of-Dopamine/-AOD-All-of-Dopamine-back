@@ -53,7 +53,12 @@
                 </tr>
                 <tr th:if="${contentType == 'novel'}">
                     <th>작가</th>
-                    <td th:text="${result.author}"></td>
+                    <td>
+                    <span th:if="${result.authors != null && !result.authors.empty}"
+                        th:text="${#strings.listJoin(result.authors, ', ')}"></span>
+                        <span th:unless="${result.authors != null && !result.authors.empty}"
+                              class="text-muted">없음</span>
+                    </td>
                 </tr>
                 <tr th:if="${contentType == 'novel'}">
                     <th>연령 등급</th>

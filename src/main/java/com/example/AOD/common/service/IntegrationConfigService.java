@@ -96,7 +96,7 @@ public class IntegrationConfigService {
         config.setDescription(configDTO.getDescription());
         config.setActive(configDTO.isActive());
 
-        // 필드 매핑 업데이트 (기존 매핑 삭제 후 새로 추가)
+        // 필드 매핑 업데이트 (기존 매핑 삭제 후 새로 추가)]]
         List<FieldMapping> existingMappings = fieldMappingRepository.findByConfigIdOrderByPriorityAsc(id);
         fieldMappingRepository.deleteAll(existingMappings);
 

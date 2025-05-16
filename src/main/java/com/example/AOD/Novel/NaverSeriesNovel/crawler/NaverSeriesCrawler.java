@@ -156,6 +156,63 @@ public class NaverSeriesCrawler {
         String writer = "";
         String publisher = "";
         String ageRating = "";
+        String imageUrl = "";
+
+        try {
+            // 케이스 1: span.pic_area 안의 img 태그
+            Element picAreaSpan = detailDoc.selectFirst("span.pic_area");
+            if (picAreaSpan != null) {
+                Element imgElement = picAreaSpan.selectFirst("img");
+                if (imgElement != null) {
+                    imageUrl = imgElement.attr("src");
+                    System.out.println("케이스 1: 이미지 URL 찾음 (span.pic_area): " + imageUrl);
+                }
+            }
+
+            // 케이스 2: a.pic_area 안의 img 태그 (케이스 1에서 찾지 못한 경우에만)
+            if (imageUrl.isEmpty()) {
+                Element picAreaA = detailDoc.selectFirst("a.pic_area");
+                if (picAreaA != null) {
+                    Element imgElement = picAreaA.selectFirst("img");
+                    if (imgElement != null) {
+                        imageUrl = imgElement.attr("src");
+                        System.out.println("케이스 2: 이미지 URL 찾음 (a.pic_area): " + imageUrl);
+                    }
+                }
+            }
+
+            // 케이스 3: 그냥 메인 이미지 태그를 찾음 (위의 두 케이스에서 찾지 못한 경우에만)
+            if (imageUrl.isEmpty()) {
+                // 특정 위치와 상관없이 적절한 이미지 찾기
+                Elements imgElements = detailDoc.select("img[width][height][alt]:not([src*='noimg'])");
+                for (Element img : imgElements) {
+                    // width와 height가 모두 있고, alt 속성이 있으며, src가 'noimg'를 포함하지 않는 이미지
+                    if (img.hasAttr("width") && img.hasAttr("height") && img.hasAttr("alt")) {
+                        imageUrl = img.attr("src");
+                        System.out.println("케이스 3: 적합한 이미지 URL 찾음: " + imageUrl);
+                        break;
+                    }
+                }
+            }
+
+            // 이미지 URL 정리
+            if (!imageUrl.isEmpty()) {
+                // ?type=m260 같은 쿼리 파라미터가 있다면 제거 (고화질 이미지 URL 얻기)
+                if (imageUrl.contains("?")) {
+                    imageUrl = imageUrl.substring(0, imageUrl.indexOf("?"));
+                }
+
+                // 상대 경로를 절대 경로로 변환
+                if (!imageUrl.startsWith("http")) {
+                    imageUrl = "https://series.naver.com" + imageUrl;
+                }
+            }
+
+            System.out.println("최종 이미지 URL: " + imageUrl);
+        } catch (Exception e) {
+            System.out.println("이미지 URL 추출 실패: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         // info_lst 정보를 포함하는 ul 요소
         Element infoUl = detailDoc.selectFirst("li.info_lst ul");
@@ -220,6 +277,7 @@ public class NaverSeriesCrawler {
         dto.setPublisher(publisher);
         dto.setAgeRating(ageRating);
         dto.setAuthor(writer);
+        dto.setImageUrl(imageUrl);
 
         List<String> genres = new ArrayList<>();
         if (!genre.isEmpty()) {
