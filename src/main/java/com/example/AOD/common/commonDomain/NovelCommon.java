@@ -26,6 +26,10 @@ public class NovelCommon {
     private List<String> genre;
 
     private String status;
-    private String author;
+
+    @ElementCollection
+    @CollectionTable(name = "novel_common_author", joinColumns = @JoinColumn(name = "novel_id"))
+    @Column(name = "author")
+    private List<String> authors;
     private String ageRating;
 }

@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,23 +31,28 @@ public class NaverSeriesService {
     private final NaverSeriesNovelGenreRepository naverSeriesNovelGenreRepository;
 
     public NaverSeriesNovel saveNovel(NaverSeriesNovelDTO novelDTO) {
-        NaverSeriesNovelAuthor author = authorRepository.findByName(novelDTO.getAuthor())
-                .orElseGet(() -> {
-                    NaverSeriesNovelAuthor newAuthor = new NaverSeriesNovelAuthor();
-                    newAuthor.setName(novelDTO.getAuthor());
-                    return authorRepository.save(newAuthor);
-                });
+        // 작가 처리 - 현재는 단일 작가지만 리스트로 변환하여 처리
+        List<NaverSeriesNovelAuthor> authors = new ArrayList<>();
 
+        if (novelDTO.getAuthor() != null && !novelDTO.getAuthor().isEmpty()) {
+            NaverSeriesNovelAuthor author = authorRepository.findByName(novelDTO.getAuthor())
+                    .orElseGet(() -> {
+                        NaverSeriesNovelAuthor newAuthor = new NaverSeriesNovelAuthor();
+                        newAuthor.setName(novelDTO.getAuthor());
+                        return authorRepository.save(newAuthor);
+                    });
+            authors.add(author);
+        }
 
+        // 장르 처리 (기존 코드 유지)
         List<NaverSeriesNovelGenre> genres = novelDTO.getGenres().stream()
                 .map(genre -> naverSeriesNovelGenreRepository.findByName(genre)
                         .orElseGet(() -> naverSeriesNovelGenreRepository.save(new NaverSeriesNovelGenre(genre))))
                 .collect(Collectors.toList());
 
-
         NaverSeriesNovel novel = new NaverSeriesNovel(novelDTO);
         novel.setGenres(genres);
-        novel.setAuthor(author);
+        novel.setAuthors(authors);  // 복수 작가 설정
 
         return novelRepository.save(novel);
     }

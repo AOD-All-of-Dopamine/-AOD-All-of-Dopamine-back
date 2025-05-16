@@ -38,9 +38,13 @@ public class NaverSeriesNovel {
     )
     private List<NaverSeriesNovelGenre> genres;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id", nullable = true)
-    private NaverSeriesNovelAuthor author;
+    @ManyToMany
+    @JoinTable(
+            name = "novel_author_mapping",
+            joinColumns = @JoinColumn(name = "novel_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private List<NaverSeriesNovelAuthor> authors = new ArrayList<>();
     //출판사
     @Column(nullable = false)
     private String publisher;
