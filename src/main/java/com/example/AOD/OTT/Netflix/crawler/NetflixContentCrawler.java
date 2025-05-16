@@ -948,7 +948,23 @@ public class NetflixContentCrawler {
             }
 
             // DTO 필드 채우기
-            dto.setContentId(contentId);
+            try {
+                // String ID를 Long으로 변환 시도
+                Long contentIdLong;
+                try {
+                    contentIdLong = Long.parseLong(contentId);
+                } catch (NumberFormatException e) {
+                    // ID가 숫자가 아닌 경우 대체 값 생성
+                    contentIdLong = (long) contentId.hashCode();
+                    if (contentIdLong < 0) contentIdLong = Math.abs(contentIdLong);
+                }
+
+                dto.setContentId(contentIdLong);
+                // 나머지 코드는 그대로...
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "세부 정보 수집 실패", e);
+                return null;
+            }
             dto.setTitle(title);
             dto.setType(contentType);
             dto.setUrl(url);
