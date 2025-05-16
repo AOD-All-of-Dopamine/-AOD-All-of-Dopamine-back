@@ -15,4 +15,5 @@ public class NaverSeriesNovelDTO {
     private String author;
     private String publisher;
     private String ageRating;
+    private String imageUrl;
 }
