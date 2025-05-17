@@ -63,7 +63,7 @@ public class AuthController {
 
             String token = jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
 
-            return ResponseEntity.ok(new JwtResponse(token));
+            return ResponseEntity.ok(new JwtResponse(token, user.getUsername()));
         } catch (AuthenticationException e) {
             return ResponseEntity.badRequest().body("로그인에 실패했습니다.");
         }
