@@ -1,0 +1,371 @@
+2025-05-18T01:41:10.325+09:00  INFO 16816 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 16816 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
+2025-05-18T01:41:10.328+09:00 DEBUG 16816 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-18T01:41:10.328+09:00  INFO 16816 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-18T01:41:10.664+09:00  INFO 16816 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-18T01:41:10.710+09:00  INFO 16816 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 41 ms. Found 26 JPA repository interfaces.
+2025-05-18T01:41:10.969+09:00  INFO 16816 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-18T01:41:10.976+09:00  INFO 16816 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-18T01:41:10.976+09:00  INFO 16816 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-18T01:41:10.997+09:00  INFO 16816 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-18T01:41:10.997+09:00  INFO 16816 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 642 ms
+2025-05-18T01:41:11.073+09:00  INFO 16816 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-18T01:41:11.101+09:00  INFO 16816 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-18T01:41:11.117+09:00  INFO 16816 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-18T01:41:11.255+09:00  INFO 16816 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-18T01:41:11.267+09:00  INFO 16816 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-18T01:41:11.332+09:00  INFO 16816 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@7e50eeb9
+2025-05-18T01:41:11.332+09:00  INFO 16816 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-18T01:41:11.346+09:00  WARN 16816 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-18T01:41:11.354+09:00  INFO 16816 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-18T01:41:11.895+09:00  INFO 16816 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-18T01:41:12.139+09:00  INFO 16816 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T01:41:12.412+09:00  INFO 16816 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-18T01:41:12.606+09:00  WARN 16816 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-18T01:41:12.813+09:00  INFO 16816 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-18T01:41:12.818+09:00  INFO 16816 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.674 seconds (process running for 3.035)
+2025-05-18T01:41:47.799+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-18T01:41:47.800+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-18T01:41:47.802+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2025-05-18T01:41:47.820+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : CGV 영화 크롤링 작업 시작
+2025-05-18T01:41:47.820+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : CGV 전체 영화 크롤링 시작
+2025-05-18T01:41:48.790+09:00  WARN 16816 --- [AOD] [task-1] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-18T01:41:48.790+09:00  WARN 16816 --- [AOD] [task-1] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-18T01:41:51.739+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : '더보기' 버튼 클릭. 시도: 1
+2025-05-18T01:42:04.552+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : '더보기' 버튼이 더 이상 없습니다. 모든 영화 로드됨.
+2025-05-18T01:42:04.553+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 정보 추출 중...
+2025-05-18T01:42:04.781+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 총 47개 영화 발견
+2025-05-18T01:42:04.960+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 미션 임파서블: 파이널 레코닝
+2025-05-18T01:42:06.060+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 이세계 페스티벌 2025 - 이세계아이돌 Part
+2025-05-18T01:42:07.193+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 파과
+2025-05-18T01:42:08.353+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 야당
+2025-05-18T01:42:09.470+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: A MINECRAFT MOVIE 마인크래프트 무비
+2025-05-18T01:42:10.561+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 세븐 베일즈
+2025-05-18T01:42:11.693+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 파이널 데스티네이션 블러드라인
+2025-05-18T01:42:12.830+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 썬더볼츠
+2025-05-18T01:42:14.003+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 다시 만날, 조국
+2025-05-18T01:42:15.186+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 플로리다 프로젝트
+2025-05-18T01:42:16.276+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 케이 넘버
+2025-05-18T01:42:17.458+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 해피엔드
+2025-05-18T01:42:18.541+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 에이티즈 월드 투어 [투워즈 더 라이트 : 윌 투 파워] 인 시네마
+2025-05-18T01:42:19.626+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 슈가 글라스 보틀
+2025-05-18T01:42:20.745+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 그 자연이 네게 뭐라고 하니
+2025-05-18T01:42:21.832+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 나미비아의 사막
+2025-05-18T01:42:22.942+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 시크릿쥬쥬 마법의 하모니
+2025-05-18T01:42:24.313+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 거룩한 밤: 데몬 헌터스
+2025-05-18T01:42:25.487+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 보이 인 더 풀
+2025-05-18T01:42:26.706+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 아멜리에
+2025-05-18T01:42:27.998+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 귀멸의 칼날-무한열차편
+2025-05-18T01:42:29.328+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 콘클라베
+2025-05-18T01:42:30.509+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 은혼 더 파이널
+2025-05-18T01:42:31.674+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 블리치 : 다이아몬드 더스트 리벨리온
+2025-05-18T01:42:32.760+09:00  WARN 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
+2025-05-18T01:42:32.761+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: [씨네뮤지엄] 누구나 알지만 아무도 잘 모른다, 피카소
+2025-05-18T01:42:33.847+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 호랑이 소녀
+2025-05-18T01:42:34.960+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 스노우 폭스2: 몬스터타운 구하기
+2025-05-18T01:42:36.085+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 마리아
+2025-05-18T01:42:37.156+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 하보우만의 약속
+2025-05-18T01:42:38.297+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 플로우
+2025-05-18T01:42:39.381+09:00  WARN 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
+2025-05-18T01:42:39.382+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 정효빈 Fan Meeting [Oh！ Hyobbi Day！]
+2025-05-18T01:42:40.476+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 괴수 8호: 미션 리컨
+2025-05-18T01:42:41.677+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 바이러스
+2025-05-18T01:42:42.797+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 우리가 빛이라 상상하는 모든 것
+2025-05-18T01:42:43.897+09:00  WARN 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
+2025-05-18T01:42:43.897+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: [씨네뮤지엄] 광주 랩소디, 지하 4층부터 지상 10층, 245개의 흔적까지
+2025-05-18T01:42:44.983+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 블리치 : 메모리즈 오브 노바디
+2025-05-18T01:42:46.067+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 곤돌라
+2025-05-18T01:42:47.234+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 압수수색: 내란의 시작
+2025-05-18T01:42:48.329+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: [씨네뮤지엄] 내셔널갤러리, 예술의 흐름을 담다.
+2025-05-18T01:42:49.418+09:00  WARN 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
+2025-05-18T01:42:49.420+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 우리는 공산당이 싫어요
+2025-05-18T01:42:50.518+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 폴킴, 친애하는 당신께
+2025-05-18T01:42:51.673+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 달팽이의 회고록
+2025-05-18T01:42:52.811+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 사유리
+2025-05-18T01:42:53.925+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 베러맨
+2025-05-18T01:42:55.007+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 본회퍼: 목사.스파이.암살자
+2025-05-18T01:42:56.141+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 은혼 금혼편 온 씨어터
+2025-05-18T01:42:57.332+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 스파이 패밀리 코드-화이트
+2025-05-18T01:42:58.335+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : CGV 전체 영화 크롤링 완료. 47개 영화 크롤링됨
+2025-05-18T01:42:58.475+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : WebDriver 종료
+2025-05-18T01:42:58.578+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 미션 임파서블: 파이널 레코닝
+2025-05-18T01:42:58.586+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 이세계 페스티벌 2025 - 이세계아이돌 Part
+2025-05-18T01:42:58.588+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89568, 건너뜀
+2025-05-18T01:42:58.589+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89454, 건너뜀
+2025-05-18T01:42:58.589+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89528, 건너뜀
+2025-05-18T01:42:58.590+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89630, 건너뜀
+2025-05-18T01:42:58.590+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89623, 건너뜀
+2025-05-18T01:42:58.591+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89578, 건너뜀
+2025-05-18T01:42:58.591+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89554, 건너뜀
+2025-05-18T01:42:58.592+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 80500, 건너뜀
+2025-05-18T01:42:58.592+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89610, 건너뜀
+2025-05-18T01:42:58.593+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89520, 건너뜀
+2025-05-18T01:42:58.593+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89632, 건너뜀
+2025-05-18T01:42:58.594+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89657, 건너뜀
+2025-05-18T01:42:58.594+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89624, 건너뜀
+2025-05-18T01:42:58.595+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89621, 건너뜀
+2025-05-18T01:42:58.595+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89582, 건너뜀
+2025-05-18T01:42:58.596+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89548, 건너뜀
+2025-05-18T01:42:58.596+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89622, 건너뜀
+2025-05-18T01:42:58.596+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 85512, 건너뜀
+2025-05-18T01:42:58.597+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 84279, 건너뜀
+2025-05-18T01:42:58.597+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89425, 건너뜀
+2025-05-18T01:42:58.598+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 84818, 건너뜀
+2025-05-18T01:42:58.598+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89648, 건너뜀
+2025-05-18T01:42:58.599+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: [씨네뮤지엄] 누구나 알지만 아무도 잘 모른다, 피카소
+2025-05-18T01:42:58.600+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89640, 건너뜀
+2025-05-18T01:42:58.601+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89563, 건너뜀
+2025-05-18T01:42:58.601+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89513, 건너뜀
+2025-05-18T01:42:58.602+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89555, 건너뜀
+2025-05-18T01:42:58.602+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89450, 건너뜀
+2025-05-18T01:42:58.602+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 정효빈 Fan Meeting [Oh！ Hyobbi Day！]
+2025-05-18T01:42:58.604+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89571, 건너뜀
+2025-05-18T01:42:58.604+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89583, 건너뜀
+2025-05-18T01:42:58.605+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89598, 건너뜀
+2025-05-18T01:42:58.605+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89644, 건너뜀
+2025-05-18T01:42:58.606+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89647, 건너뜀
+2025-05-18T01:42:58.606+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89585, 건너뜀
+2025-05-18T01:42:58.606+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89599, 건너뜀
+2025-05-18T01:42:58.607+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: [씨네뮤지엄] 내셔널갤러리, 예술의 흐름을 담다.
+2025-05-18T01:42:58.609+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89641, 건너뜀
+2025-05-18T01:42:58.610+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89601, 건너뜀
+2025-05-18T01:42:58.610+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89595, 건너뜀
+2025-05-18T01:42:58.610+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89549, 건너뜀
+2025-05-18T01:42:58.611+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89517, 건너뜀
+2025-05-18T01:42:58.611+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89515, 건너뜀
+2025-05-18T01:42:58.612+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89491, 건너뜀
+2025-05-18T01:42:58.612+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 88080, 건너뜀
+2025-05-18T01:42:58.612+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : CGV 영화 크롤링 작업 완료. 5개 신규 영화 저장됨
+2025-05-18T01:44:37.588+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-4] c.e.A.O.N.controller.NetflixController   : 일반 넷플릭스 콘텐츠 크롤링 요청 받음
+2025-05-18T01:44:37.589+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-4] c.e.A.O.N.controller.NetflixController   : 환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.
+2025-05-18T01:44:37.590+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 모든 넷플릭스 콘텐츠 크롤링 시작 (일반 + 최신)
+2025-05-18T01:44:37.590+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 일반 넷플릭스 콘텐츠 크롤링 시작
+2025-05-18T01:44:38.294+09:00  WARN 16816 --- [AOD] [task-2] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-18T01:44:38.294+09:00  WARN 16816 --- [AOD] [task-2] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-18T01:44:38.301+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
+2025-05-18T01:44:42.765+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 쿠키 로드 완료: 7개 쿠키
+2025-05-18T01:44:49.520+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 쿠키 로드 후 URL: https://www.netflix.com/browse
+2025-05-18T01:44:49.537+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 게이트 발견 → 프로필 재선택
+2025-05-18T01:44:49.537+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 선택 페이지 대기 중...
+2025-05-18T01:44:49.558+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 선택 페이지 제목: 넷플릭스를 시청할 프로필을 선택하세요.
+2025-05-18T01:44:49.569+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 목록 찾음: 3개 항목
+2025-05-18T01:44:49.587+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 발견: 강현구 (URL: https://www.netflix.com/SwitchProfile?tkn=KQQJGPJ3XZAPHCHETQHDSFCBLU)
+2025-05-18T01:44:49.599+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 발견: 키﻿즈 (URL: https://www.netflix.com/SwitchProfile?tkn=LST24F7CW5BQPMDNL2P2TMCAAI)
+2025-05-18T01:44:49.601+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : '프로필 추가' 버튼 항목은 건너뜁니다.
+2025-05-18T01:44:49.602+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 첫 번째 프로필 '강현구'을 선택합니다.
+2025-05-18T01:44:49.602+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 클릭 실행: 강현구
+2025-05-18T01:44:49.639+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 전환 후 URL: https://www.netflix.com/browse
+2025-05-18T01:44:49.645+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 선택 성공: 강현구
+2025-05-18T01:44:49.652+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 쿠키 저장 완료: 6개 쿠키
+2025-05-18T01:44:49.654+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 쿠키 저장 완료: 6개 쿠키
+2025-05-18T01:45:07.448+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABT1VScGx1jRmiL305O3Ey9S5zdatVjQIpIkCQSDqjhfBSfssbraVHGuKBmlAbBBjNY47oXZuhb0-1Z-FLRMWwUx9kwIqLNI9EsA-.webp?r=88f
+2025-05-18T01:45:07.448+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 탄금
+2025-05-18T01:45:13.312+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABcZDa_WC8oNqpH8NGLFTslFCLxcr2AbEykgu7MxRnu3slFbmWQY5dHdAnRm2uRyPd4FEQsGYFeAJlgSypUg2eNpEAK2JyzEOtFG5.webp?r=e6c
+2025-05-18T01:45:13.312+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 언젠가는 슬기로울 전공의생활
+2025-05-18T01:45:18.317+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbkJS1y-7AfbbBnHaGg3cwGkT0u3GfmuIHNKt9QUW5_07y13uAPZqHWFAF6mhCYchAcWQ1N15-kP4cAiZ-WFBfe4q66n2bUAu8J3.webp?r=9db
+2025-05-18T01:45:18.317+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 하우스
+2025-05-18T01:45:24.767+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABU_W6MF8XSF1KAWsHdbemGSHOftSKx6Xs7VxsmNbMHikeyPxd3G9NloXBvAtfyWF3rx1APwK2lEPOxRzkT2vA0bYdrDMnXv5IQSs.webp?r=bcb
+2025-05-18T01:45:24.768+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 데블스 플랜
+2025-05-18T01:45:30.022+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABZWpbgUOpk9k2D0SMSP1iEM9wDmXp26H10fh5t5HDLXm9-VPVaDXpwQnzcCQQEx5sn0D4A8PcEODRNfWTCTOpgoP8ZqzRVsel12u.webp?r=3ea
+2025-05-18T01:45:30.022+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 태어난 김에 세계일주
+2025-05-18T01:45:31.701+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 크롤링 완료: 5 개의 콘텐츠 발견
+2025-05-18T01:45:31.921+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 저장 완료: 5 개의 콘텐츠 저장됨
+2025-05-18T01:45:32.050+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 일반 넷플릭스 콘텐츠 크롤링 종료
+2025-05-18T01:45:32.050+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 최신 넷플릭스 콘텐츠 크롤링 시작
+2025-05-18T01:45:32.700+09:00  WARN 16816 --- [AOD] [task-2] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-18T01:45:32.700+09:00  WARN 16816 --- [AOD] [task-2] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-18T01:45:32.700+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
+2025-05-18T01:45:42.100+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 로그인 성공: https://www.netflix.com/browse
+2025-05-18T01:45:51.667+09:00  WARN 16816 --- [AOD] [task-2] NetflixCrawler                           : 최신 콘텐츠 항목 없음
+2025-05-18T01:45:51.667+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 최신 콘텐츠 크롤링 완료: 0 개의 콘텐츠 발견
+2025-05-18T01:45:51.667+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 저장 완료: 0 개의 최신 콘텐츠 저장됨
+2025-05-18T01:45:51.751+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 최신 넷플릭스 콘텐츠 크롤링 종료
+2025-05-18T01:45:51.751+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 모든 넷플릭스 콘텐츠 크롤링 완료
+2025-05-18T01:46:35.944+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-6] o.apache.coyote.http11.Http11Processor   : Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+
+java.lang.IllegalArgumentException: Invalid character found in the request target [/startGameScrappingFromTo?start={10}&end={20} ]. The valid characters are defined in RFC 7230 and RFC 3986
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:484) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:270) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2025-05-18T01:48:29.422+09:00  INFO 16816 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-18T01:48:29.426+09:00  INFO 16816 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-18T01:48:29.428+09:00  INFO 16816 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T01:48:29.430+09:00  INFO 16816 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-18T01:48:29.431+09:00  INFO 16816 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-18T02:04:15.844+09:00  INFO 37231 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 37231 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
+2025-05-18T02:04:15.845+09:00 DEBUG 37231 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-18T02:04:15.845+09:00  INFO 37231 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-18T02:04:16.104+09:00  INFO 37231 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-18T02:04:16.147+09:00  INFO 37231 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 38 ms. Found 26 JPA repository interfaces.
+2025-05-18T02:04:16.356+09:00  INFO 37231 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-18T02:04:16.361+09:00  INFO 37231 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-18T02:04:16.361+09:00  INFO 37231 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-18T02:04:16.380+09:00  INFO 37231 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-18T02:04:16.380+09:00  INFO 37231 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 518 ms
+2025-05-18T02:04:16.441+09:00  INFO 37231 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-18T02:04:16.465+09:00  INFO 37231 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-18T02:04:16.476+09:00  INFO 37231 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-18T02:04:16.583+09:00  INFO 37231 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-18T02:04:16.595+09:00  INFO 37231 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-18T02:04:16.659+09:00  INFO 37231 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3eec8583
+2025-05-18T02:04:16.660+09:00  INFO 37231 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-18T02:04:16.674+09:00  WARN 37231 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-18T02:04:16.680+09:00  INFO 37231 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-18T02:04:17.123+09:00  INFO 37231 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-18T02:04:17.351+09:00  INFO 37231 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T02:04:17.607+09:00  INFO 37231 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-18T02:04:17.786+09:00  WARN 37231 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-18T02:04:17.960+09:00  INFO 37231 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-18T02:04:17.965+09:00  INFO 37231 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.267 seconds (process running for 2.504)
+2025-05-18T02:04:21.838+09:00  INFO 37231 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-18T02:04:21.838+09:00  INFO 37231 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-18T02:04:21.840+09:00  INFO 37231 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-05-18T02:12:19.591+09:00  WARN 37231 --- [AOD] [task-1] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-18T02:12:19.592+09:00  WARN 37231 --- [AOD] [task-1] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-18T02:13:54.624+09:00  INFO 37231 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-18T02:13:54.628+09:00  INFO 37231 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-18T02:13:54.631+09:00  INFO 37231 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T02:13:54.632+09:00  INFO 37231 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-18T02:13:54.633+09:00  INFO 37231 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-18T02:13:57.133+09:00  INFO 46062 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 46062 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
+2025-05-18T02:13:57.134+09:00 DEBUG 46062 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-18T02:13:57.134+09:00  INFO 46062 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-18T02:13:57.373+09:00  INFO 46062 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-18T02:13:57.418+09:00  INFO 46062 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 42 ms. Found 26 JPA repository interfaces.
+2025-05-18T02:13:57.621+09:00  INFO 46062 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-18T02:13:57.626+09:00  INFO 46062 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-18T02:13:57.626+09:00  INFO 46062 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-18T02:13:57.646+09:00  INFO 46062 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-18T02:13:57.646+09:00  INFO 46062 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 495 ms
+2025-05-18T02:13:57.702+09:00  INFO 46062 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-18T02:13:57.720+09:00  INFO 46062 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-18T02:13:57.729+09:00  INFO 46062 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-18T02:13:57.819+09:00  INFO 46062 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-18T02:13:57.828+09:00  INFO 46062 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-18T02:13:57.884+09:00  INFO 46062 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@cae2a97
+2025-05-18T02:13:57.885+09:00  INFO 46062 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-18T02:13:57.897+09:00  WARN 46062 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-18T02:13:57.903+09:00  INFO 46062 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-18T02:13:58.320+09:00  INFO 46062 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-18T02:13:58.613+09:00  INFO 46062 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T02:13:58.878+09:00  INFO 46062 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-18T02:13:59.054+09:00  WARN 46062 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-18T02:13:59.225+09:00  INFO 46062 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-18T02:13:59.230+09:00  INFO 46062 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.235 seconds (process running for 2.435)
+2025-05-18T02:14:03.271+09:00  INFO 46062 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-18T02:14:03.271+09:00  INFO 46062 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-18T02:14:03.272+09:00  INFO 46062 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-05-18T02:17:17.675+09:00  INFO 46062 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-18T02:17:17.680+09:00  INFO 46062 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-18T02:17:17.685+09:00  INFO 46062 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T02:17:17.688+09:00  INFO 46062 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-18T02:17:17.690+09:00  INFO 46062 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-18T02:18:01.816+09:00  INFO 49845 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 49845 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
+2025-05-18T02:18:01.817+09:00 DEBUG 49845 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-18T02:18:01.818+09:00  INFO 49845 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-18T02:18:02.262+09:00  INFO 49845 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-18T02:18:02.315+09:00  INFO 49845 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 26 JPA repository interfaces.
+2025-05-18T02:18:02.694+09:00  INFO 49845 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-18T02:18:02.701+09:00  INFO 49845 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-18T02:18:02.702+09:00  INFO 49845 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-18T02:18:02.734+09:00  INFO 49845 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-18T02:18:02.734+09:00  INFO 49845 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 873 ms
+2025-05-18T02:18:02.831+09:00  INFO 49845 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-18T02:18:02.866+09:00  INFO 49845 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-18T02:18:02.880+09:00  INFO 49845 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-18T02:18:03.021+09:00  INFO 49845 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-18T02:18:03.036+09:00  INFO 49845 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-18T02:18:03.095+09:00  INFO 49845 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@14656be5
+2025-05-18T02:18:03.096+09:00  INFO 49845 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-18T02:18:03.110+09:00  WARN 49845 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-18T02:18:03.117+09:00  INFO 49845 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-18T02:18:03.734+09:00  INFO 49845 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-18T02:18:03.949+09:00  INFO 49845 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T02:18:04.189+09:00  INFO 49845 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-18T02:18:04.394+09:00  WARN 49845 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-18T02:18:04.566+09:00  INFO 49845 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-18T02:18:04.572+09:00  INFO 49845 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.988 seconds (process running for 3.425)
+2025-05-18T02:18:08.211+09:00  INFO 49845 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-18T02:18:08.212+09:00  INFO 49845 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-18T02:18:08.212+09:00  INFO 49845 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2025-05-18T02:18:49.485+09:00  INFO 49845 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-18T02:18:49.490+09:00  INFO 49845 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-18T02:18:49.494+09:00  INFO 49845 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T02:18:49.496+09:00  INFO 49845 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-18T02:18:49.497+09:00  INFO 49845 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-18T02:18:53.902+09:00  INFO 50660 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 50660 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
+2025-05-18T02:18:53.902+09:00 DEBUG 50660 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-18T02:18:53.903+09:00  INFO 50660 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-18T02:18:54.154+09:00  INFO 50660 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-18T02:18:54.207+09:00  INFO 50660 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 26 JPA repository interfaces.
+2025-05-18T02:18:54.416+09:00  INFO 50660 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-18T02:18:54.421+09:00  INFO 50660 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-18T02:18:54.421+09:00  INFO 50660 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-18T02:18:54.440+09:00  INFO 50660 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-18T02:18:54.441+09:00  INFO 50660 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 520 ms
+2025-05-18T02:18:54.500+09:00  INFO 50660 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-18T02:18:54.530+09:00  INFO 50660 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-18T02:18:54.541+09:00  INFO 50660 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-18T02:18:54.637+09:00  INFO 50660 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-18T02:18:54.648+09:00  INFO 50660 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-18T02:18:54.701+09:00  INFO 50660 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@dae5e0
+2025-05-18T02:18:54.702+09:00  INFO 50660 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-18T02:18:54.715+09:00  WARN 50660 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-18T02:18:54.721+09:00  INFO 50660 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-05-18T02:18:55.148+09:00  INFO 50660 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-18T02:18:55.368+09:00  INFO 50660 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T02:18:55.614+09:00  INFO 50660 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-18T02:18:55.791+09:00  WARN 50660 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-18T02:18:55.958+09:00  INFO 50660 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-18T02:18:55.963+09:00  INFO 50660 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.194 seconds (process running for 2.41)
+2025-05-18T02:18:57.970+09:00  INFO 50660 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-18T02:18:57.970+09:00  INFO 50660 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-18T02:18:57.971+09:00  INFO 50660 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2025-05-18T02:28:19.197+09:00  INFO 50660 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-18T02:28:19.201+09:00  INFO 50660 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-18T02:28:19.205+09:00  INFO 50660 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-18T02:28:19.207+09:00  INFO 50660 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-18T02:28:19.209+09:00  INFO 50660 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
