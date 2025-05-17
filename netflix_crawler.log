@@ -430,3 +430,61 @@
 정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbkJS1y-7AfbbBnHaGg3cwGkT0u3GfmuIHNKt9QUW5_07y13uAPZqHWFAF6mhCYchAcWQ1N15-kP4cAiZ-WFBfe4q66n2bUAu8J3.webp?r=9db
 5월 16, 2025 6:10:07 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
 정보: 세부 정보 수집 완료: 하우스
+5월 18, 2025 1:44:38 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler <init>
+정보: 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
+5월 18, 2025 1:44:42 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loadCookies
+정보: 쿠키 로드 완료: 7개 쿠키
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loginWithCookies
+정보: 쿠키 로드 후 URL: https://www.netflix.com/browse
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loginWithCookies
+정보: 게이트 발견 → 프로필 재선택
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 선택 페이지 대기 중...
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 선택 페이지 제목: 넷플릭스를 시청할 프로필을 선택하세요.
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 목록 찾음: 3개 항목
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 발견: 강현구 (URL: https://www.netflix.com/SwitchProfile?tkn=KQQJGPJ3XZAPHCHETQHDSFCBLU)
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 발견: 키﻿즈 (URL: https://www.netflix.com/SwitchProfile?tkn=LST24F7CW5BQPMDNL2P2TMCAAI)
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: '프로필 추가' 버튼 항목은 건너뜁니다.
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 첫 번째 프로필 '강현구'을 선택합니다.
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 클릭 실행: 강현구
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 전환 후 URL: https://www.netflix.com/browse
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 선택 성공: 강현구
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler saveCookies
+정보: 쿠키 저장 완료: 6개 쿠키
+5월 18, 2025 1:44:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler saveCookies
+정보: 쿠키 저장 완료: 6개 쿠키
+5월 18, 2025 1:45:07 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABT1VScGx1jRmiL305O3Ey9S5zdatVjQIpIkCQSDqjhfBSfssbraVHGuKBmlAbBBjNY47oXZuhb0-1Z-FLRMWwUx9kwIqLNI9EsA-.webp?r=88f
+5월 18, 2025 1:45:07 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 탄금
+5월 18, 2025 1:45:13 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABcZDa_WC8oNqpH8NGLFTslFCLxcr2AbEykgu7MxRnu3slFbmWQY5dHdAnRm2uRyPd4FEQsGYFeAJlgSypUg2eNpEAK2JyzEOtFG5.webp?r=e6c
+5월 18, 2025 1:45:13 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 언젠가는 슬기로울 전공의생활
+5월 18, 2025 1:45:18 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbkJS1y-7AfbbBnHaGg3cwGkT0u3GfmuIHNKt9QUW5_07y13uAPZqHWFAF6mhCYchAcWQ1N15-kP4cAiZ-WFBfe4q66n2bUAu8J3.webp?r=9db
+5월 18, 2025 1:45:18 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 하우스
+5월 18, 2025 1:45:24 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABU_W6MF8XSF1KAWsHdbemGSHOftSKx6Xs7VxsmNbMHikeyPxd3G9NloXBvAtfyWF3rx1APwK2lEPOxRzkT2vA0bYdrDMnXv5IQSs.webp?r=bcb
+5월 18, 2025 1:45:24 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 데블스 플랜
+5월 18, 2025 1:45:30 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABZWpbgUOpk9k2D0SMSP1iEM9wDmXp26H10fh5t5HDLXm9-VPVaDXpwQnzcCQQEx5sn0D4A8PcEODRNfWTCTOpgoP8ZqzRVsel12u.webp?r=3ea
+5월 18, 2025 1:45:30 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 태어난 김에 세계일주
+5월 18, 2025 1:45:32 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler <init>
+정보: 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
+5월 18, 2025 1:45:42 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler login
+정보: 로그인 성공: https://www.netflix.com/browse
+5월 18, 2025 1:45:51 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+경고: 최신 콘텐츠 항목 없음
