@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
 import java.time.Duration;
 import java.util.Set;
 
@@ -31,7 +32,11 @@ public class NaverAutoLogin {
      * "key=value; key2=value2..." 형태의 쿠키 문자열로 반환
      */
     public static String loginAndGetCookies() {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\kokyungwoo\\Desktop\\chromedriver-win64\\chromedriver.exe");
+        // MacOS 경로로 변경
+        System.setProperty("webdriver.chrome.driver", "/opt/homebrew/bin/chromedriver");
+
+        // 크롬드라이버가 설치된 정확한 경로로 변경해주세요. 아래는 예시입니다.
+        // System.setProperty("webdriver.chrome.driver", "/Users/kang/Downloads/chromedriver-mac-arm64/chromedriver");
 
         ChromeOptions options = new ChromeOptions();
         // 브라우저 확인하려면 주석 처리
@@ -47,17 +52,16 @@ public class NaverAutoLogin {
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#id")));
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#pw")));
 
-            // 2) 아이디, 비번 입력
+            // 2) 아이디, 비번 입력 - MacOS에서는 Robot 클래스를 사용하여 붙여넣기
             WebElement idField = driver.findElement(By.cssSelector("#id"));
             WebElement pwField = driver.findElement(By.cssSelector("#pw"));
-            pasteText(actions, idField, "");
-            pasteText(actions, pwField, "");
+            pasteTextMacOS(idField, NAVER_ID);
+            pasteTextMacOS(pwField, NAVER_PW);
 
             // 3) 로그인 버튼 클릭
             WebElement loginBtn = driver.findElement(By.id("log.login"));
             wait.until(ExpectedConditions.elementToBeClickable(loginBtn));
             loginBtn.click();
-
 
             // 4) 로그인 직후 페이지 -> 네이버 메인(또는 시리즈 메인)으로 직접 이동
             //    (로그인 직후 페이지 구조가 달라서 gnb_my_layer가 없을 수 있으므로)
@@ -97,15 +101,23 @@ public class NaverAutoLogin {
         }
     }
 
-    private static void pasteText(Actions actions, WebElement element, String text) throws Exception {
+    // macOS용 텍스트 붙여넣기 메서드
+    private static void pasteTextMacOS(WebElement element, String text) throws Exception {
+        // 클립보드에 텍스트 복사
         StringSelection selection = new StringSelection(text);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
 
+        // 요소 클릭
         element.click();
-        actions.keyDown(org.openqa.selenium.Keys.CONTROL)
-                .sendKeys("v")
-                .keyUp(org.openqa.selenium.Keys.CONTROL)
-                .perform();
+        Thread.sleep(300);
+
+        // Robot 클래스를 사용하여 macOS에서 Command+V 실행 (붙여넣기)
+        Robot robot = new Robot();
+        robot.keyPress(KeyEvent.VK_META);  // Command 키 누르기 (macOS)
+        robot.keyPress(KeyEvent.VK_V);     // V 키 누르기
+        robot.keyRelease(KeyEvent.VK_V);   // V 키 떼기
+        robot.keyRelease(KeyEvent.VK_META); // Command 키 떼기
+
         Thread.sleep(500);
     }
 }

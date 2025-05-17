@@ -1,0 +1,593 @@
+2025-05-17T01:02:43.430+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m44s264ms).
+2025-05-17T01:18:51.196+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m37s726ms).
+2025-05-17T02:35:32.173+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m10s267ms).
+2025-05-17T02:48:02.973+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=8m30s763ms).
+2025-05-17T03:05:31.816+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m58s821ms).
+2025-05-17T03:23:58.823+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m26s990ms).
+2025-05-17T03:44:10.726+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m11s850ms).
+2025-05-17T03:48:58.533+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m47s776ms).
+2025-05-17T04:05:38.117+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m9s577ms).
+2025-05-17T04:22:14.825+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m6s697ms).
+2025-05-17T04:37:45.758+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m30s933ms).
+2025-05-17T04:50:04.744+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=11m48s976ms).
+2025-05-17T05:32:25.409+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 일일 자동 크롤링 작업 시작: 2025-05-17T05:32:25.409770
+2025-05-17T05:32:25.410+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : CGV 전체 영화 크롤링 시작
+2025-05-17T05:32:26.060+09:00  WARN 45346 --- [AOD] [scheduling-1] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-17T05:32:26.061+09:00  WARN 45346 --- [AOD] [scheduling-1] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-17T05:32:28.762+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : '더보기' 버튼 클릭. 시도: 1
+2025-05-17T05:32:41.614+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : '더보기' 버튼이 더 이상 없습니다. 모든 영화 로드됨.
+2025-05-17T05:32:41.615+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 정보 추출 중...
+2025-05-17T05:32:41.804+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 총 46개 영화 발견
+2025-05-17T05:32:42.023+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 파과
+2025-05-17T05:32:43.201+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 야당
+2025-05-17T05:32:44.350+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: A MINECRAFT MOVIE 마인크래프트 무비
+2025-05-17T05:32:45.554+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 귀멸의 칼날-무한열차편
+2025-05-17T05:32:46.653+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 세븐 베일즈
+2025-05-17T05:32:47.807+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 썬더볼츠
+2025-05-17T05:32:48.946+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 파이널 데스티네이션 블러드라인
+2025-05-17T05:32:50.068+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 다시 만날, 조국
+2025-05-17T05:32:51.240+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 플로리다 프로젝트
+2025-05-17T05:32:52.334+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 케이 넘버
+2025-05-17T05:32:53.447+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 해피엔드
+2025-05-17T05:32:54.559+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 에이티즈 월드 투어 [투워즈 더 라이트 : 윌 투 파워] 인 시네마
+2025-05-17T05:32:55.655+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 보이 인 더 풀
+2025-05-17T05:32:56.751+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 폴킴, 친애하는 당신께
+2025-05-17T05:32:57.850+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 그 자연이 네게 뭐라고 하니
+2025-05-17T05:32:58.957+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 플로우
+2025-05-17T05:33:00.059+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 시크릿쥬쥬 마법의 하모니
+2025-05-17T05:33:01.186+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 거룩한 밤: 데몬 헌터스
+2025-05-17T05:33:02.288+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 나미비아의 사막
+2025-05-17T05:33:03.395+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 슈가 글라스 보틀
+2025-05-17T05:33:04.511+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 아멜리에
+2025-05-17T05:33:05.620+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 하보우만의 약속
+2025-05-17T05:33:06.712+09:00  WARN 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
+2025-05-17T05:33:06.713+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 블리치 : 다이아몬드 더스트 리벨리온
+2025-05-17T05:33:07.836+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 콘클라베
+2025-05-17T05:33:08.963+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 바이러스
+2025-05-17T05:33:10.071+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 호랑이 소녀
+2025-05-17T05:33:11.184+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 우리가 빛이라 상상하는 모든 것
+2025-05-17T05:33:12.292+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 괴수 8호: 미션 리컨
+2025-05-17T05:33:13.409+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 스노우 폭스2: 몬스터타운 구하기
+2025-05-17T05:33:14.506+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 마리아
+2025-05-17T05:33:15.620+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 은혼 더 파이널
+2025-05-17T05:33:16.736+09:00  WARN 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
+2025-05-17T05:33:16.738+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: [씨네뮤지엄] 광주 랩소디, 지하 4층부터 지상 10층, 245개의 흔적까지
+2025-05-17T05:33:17.833+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 블리치 : 메모리즈 오브 노바디
+2025-05-17T05:33:18.934+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 압수수색: 내란의 시작
+2025-05-17T05:33:20.113+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 퇴마록
+2025-05-17T05:33:21.211+09:00  WARN 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
+2025-05-17T05:33:21.212+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 우리는 공산당이 싫어요
+2025-05-17T05:33:22.319+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 달팽이의 회고록
+2025-05-17T05:33:23.417+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 곤돌라
+2025-05-17T05:33:24.516+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 사유리
+2025-05-17T05:33:25.630+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 베러맨
+2025-05-17T05:33:26.746+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 본회퍼: 목사.스파이.암살자
+2025-05-17T05:33:27.889+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 승부
+2025-05-17T05:33:29.014+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 은혼 금혼편 온 씨어터
+2025-05-17T05:33:30.132+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 뽀로로 극장판 바닷속 대모험
+2025-05-17T05:33:31.303+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 짱구는 못말려: 우리들의 공룡일기
+2025-05-17T05:33:32.533+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 스파이 패밀리 코드-화이트
+2025-05-17T05:33:33.543+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : CGV 전체 영화 크롤링 완료. 46개 영화 크롤링됨
+2025-05-17T05:33:33.662+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : WebDriver 종료
+2025-05-17T05:33:33.687+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 파과
+2025-05-17T05:33:33.689+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 파과
+2025-05-17T05:33:33.695+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 야당
+2025-05-17T05:33:33.695+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 야당
+2025-05-17T05:33:33.700+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: A MINECRAFT MOVIE 마인크래프트 무비
+2025-05-17T05:33:33.700+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: A MINECRAFT MOVIE 마인크래프트 무비
+2025-05-17T05:33:33.703+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 극장판 귀멸의 칼날-무한열차편
+2025-05-17T05:33:33.704+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 극장판 귀멸의 칼날-무한열차편
+2025-05-17T05:33:33.705+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 세븐 베일즈
+2025-05-17T05:33:33.707+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 세븐 베일즈
+2025-05-17T05:33:33.711+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 썬더볼츠
+2025-05-17T05:33:33.712+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 썬더볼츠
+2025-05-17T05:33:33.716+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 파이널 데스티네이션 블러드라인
+2025-05-17T05:33:33.716+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 파이널 데스티네이션 블러드라인
+2025-05-17T05:33:33.718+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 다시 만날, 조국
+2025-05-17T05:33:33.718+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 다시 만날, 조국
+2025-05-17T05:33:33.720+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 플로리다 프로젝트
+2025-05-17T05:33:33.720+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 플로리다 프로젝트
+2025-05-17T05:33:33.724+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 케이 넘버
+2025-05-17T05:33:33.724+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 케이 넘버
+2025-05-17T05:33:33.727+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 해피엔드
+2025-05-17T05:33:33.727+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 해피엔드
+2025-05-17T05:33:33.728+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 에이티즈 월드 투어 [투워즈 더 라이트 : 윌 투 파워] 인 시네마
+2025-05-17T05:33:33.728+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 에이티즈 월드 투어 [투워즈 더 라이트 : 윌 투 파워] 인 시네마
+2025-05-17T05:33:33.731+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 보이 인 더 풀
+2025-05-17T05:33:33.731+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 보이 인 더 풀
+2025-05-17T05:33:33.732+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 폴킴, 친애하는 당신께
+2025-05-17T05:33:33.732+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 폴킴, 친애하는 당신께
+2025-05-17T05:33:33.735+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 그 자연이 네게 뭐라고 하니
+2025-05-17T05:33:33.736+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 그 자연이 네게 뭐라고 하니
+2025-05-17T05:33:33.739+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 플로우
+2025-05-17T05:33:33.739+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 플로우
+2025-05-17T05:33:33.742+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 시크릿쥬쥬 마법의 하모니
+2025-05-17T05:33:33.742+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 시크릿쥬쥬 마법의 하모니
+2025-05-17T05:33:33.745+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 거룩한 밤: 데몬 헌터스
+2025-05-17T05:33:33.745+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 거룩한 밤: 데몬 헌터스
+2025-05-17T05:33:33.747+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 나미비아의 사막
+2025-05-17T05:33:33.748+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 나미비아의 사막
+2025-05-17T05:33:33.749+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 슈가 글라스 보틀
+2025-05-17T05:33:33.749+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 슈가 글라스 보틀
+2025-05-17T05:33:33.751+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 아멜리에
+2025-05-17T05:33:33.752+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 아멜리에
+2025-05-17T05:33:33.752+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 하보우만의 약속
+2025-05-17T05:33:33.752+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 하보우만의 약속
+2025-05-17T05:33:33.754+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 극장판 블리치 : 다이아몬드 더스트 리벨리온
+2025-05-17T05:33:33.754+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 극장판 블리치 : 다이아몬드 더스트 리벨리온
+2025-05-17T05:33:33.758+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 콘클라베
+2025-05-17T05:33:33.758+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 콘클라베
+2025-05-17T05:33:33.761+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 바이러스
+2025-05-17T05:33:33.761+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 바이러스
+2025-05-17T05:33:33.764+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 호랑이 소녀
+2025-05-17T05:33:33.764+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 호랑이 소녀
+2025-05-17T05:33:33.766+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 우리가 빛이라 상상하는 모든 것
+2025-05-17T05:33:33.766+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 우리가 빛이라 상상하는 모든 것
+2025-05-17T05:33:33.770+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 괴수 8호: 미션 리컨
+2025-05-17T05:33:33.770+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 괴수 8호: 미션 리컨
+2025-05-17T05:33:33.771+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 스노우 폭스2: 몬스터타운 구하기
+2025-05-17T05:33:33.771+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 스노우 폭스2: 몬스터타운 구하기
+2025-05-17T05:33:33.774+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 마리아
+2025-05-17T05:33:33.774+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 마리아
+2025-05-17T05:33:33.777+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 은혼 더 파이널
+2025-05-17T05:33:33.778+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 은혼 더 파이널
+2025-05-17T05:33:33.778+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: [씨네뮤지엄] 광주 랩소디, 지하 4층부터 지상 10층, 245개의 흔적까지
+2025-05-17T05:33:33.778+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: [씨네뮤지엄] 광주 랩소디, 지하 4층부터 지상 10층, 245개의 흔적까지
+2025-05-17T05:33:33.781+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 극장판 블리치 : 메모리즈 오브 노바디
+2025-05-17T05:33:33.781+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 극장판 블리치 : 메모리즈 오브 노바디
+2025-05-17T05:33:33.785+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 압수수색: 내란의 시작
+2025-05-17T05:33:33.785+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 압수수색: 내란의 시작
+2025-05-17T05:33:33.791+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 퇴마록
+2025-05-17T05:33:33.792+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 퇴마록
+2025-05-17T05:33:33.793+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 우리는 공산당이 싫어요
+2025-05-17T05:33:33.794+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 우리는 공산당이 싫어요
+2025-05-17T05:33:33.798+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 달팽이의 회고록
+2025-05-17T05:33:33.798+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 달팽이의 회고록
+2025-05-17T05:33:33.800+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 곤돌라
+2025-05-17T05:33:33.800+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 곤돌라
+2025-05-17T05:33:33.805+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 사유리
+2025-05-17T05:33:33.805+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 사유리
+2025-05-17T05:33:33.808+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 베러맨
+2025-05-17T05:33:33.808+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 베러맨
+2025-05-17T05:33:33.812+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 본회퍼: 목사.스파이.암살자
+2025-05-17T05:33:33.812+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 본회퍼: 목사.스파이.암살자
+2025-05-17T05:33:33.817+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 승부
+2025-05-17T05:33:33.817+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 승부
+2025-05-17T05:33:33.819+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 은혼 금혼편 온 씨어터
+2025-05-17T05:33:33.819+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 은혼 금혼편 온 씨어터
+2025-05-17T05:33:33.820+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 뽀로로 극장판 바닷속 대모험
+2025-05-17T05:33:33.820+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 뽀로로 극장판 바닷속 대모험
+2025-05-17T05:33:33.823+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 극장판 짱구는 못말려: 우리들의 공룡일기
+2025-05-17T05:33:33.823+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 극장판 짱구는 못말려: 우리들의 공룡일기
+2025-05-17T05:33:33.826+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 극장판 스파이 패밀리 코드-화이트
+2025-05-17T05:33:33.827+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 새 영화 발견 및 저장: 극장판 스파이 패밀리 코드-화이트
+2025-05-17T05:33:33.827+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 일일 자동 크롤링 작업 완료. 소요 시간: 8초, 46개 신규 영화 저장됨
+2025-05-17T05:33:33.827+09:00  INFO 45346 --- [AOD] [scheduling-1] c.e.AOD.movie.CGV.service.CGVService     : 오늘 추가된 신규 영화 목록: 파과, 야당, A MINECRAFT MOVIE 마인크래프트 무비, 극장판 귀멸의 칼날-무한열차편, 세븐 베일즈, 썬더볼츠, 파이널 데스티네이션 블러드라인, 다시 만날, 조국, 플로리다 프로젝트, 케이 넘버, 해피엔드, 에이티즈 월드 투어 [투워즈 더 라이트 : 윌 투 파워] 인 시네마, 보이 인 더 풀, 폴킴, 친애하는 당신께, 그 자연이 네게 뭐라고 하니, 플로우, 시크릿쥬쥬 마법의 하모니, 거룩한 밤: 데몬 헌터스, 나미비아의 사막, 슈가 글라스 보틀, 아멜리에, 하보우만의 약속, 극장판 블리치 : 다이아몬드 더스트 리벨리온, 콘클라베, 바이러스, 호랑이 소녀, 우리가 빛이라 상상하는 모든 것, 괴수 8호: 미션 리컨, 스노우 폭스2: 몬스터타운 구하기, 마리아, 은혼 더 파이널, [씨네뮤지엄] 광주 랩소디, 지하 4층부터 지상 10층, 245개의 흔적까지, 극장판 블리치 : 메모리즈 오브 노바디, 압수수색: 내란의 시작, 퇴마록, 우리는 공산당이 싫어요, 달팽이의 회고록, 곤돌라, 사유리, 베러맨, 본회퍼: 목사.스파이.암살자, 승부, 은혼 금혼편 온 씨어터, 뽀로로 극장판 바닷속 대모험, 극장판 짱구는 못말려: 우리들의 공룡일기, 극장판 스파이 패밀리 코드-화이트
+2025-05-17T05:33:34.322+09:00  WARN 45346 --- [AOD] [task-2] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
+2025-05-17T05:33:34.322+09:00  WARN 45346 --- [AOD] [task-2] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2025-05-17T05:33:34.322+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 수동 로그인을 위해 로그인 페이지로 이동합니다. (30초 대기)
+2025-05-17T05:33:44.627+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 크롤링 시작 (최대 25개)
+2025-05-17T05:33:45.451+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 최대 25 개 신작 웹툰 URL 수집 완료. 크롤링 제한에 도달했습니다.
+2025-05-17T05:33:45.451+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 총 25 개의 신작 웹툰 URL을 수집했습니다.
+2025-05-17T05:34:01.247+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@51a6c15 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:34:01.341+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 말없는 전학생
+2025-05-17T05:34:17.179+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@5dd0539a (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:34:17.275+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 클리셰클럽
+2025-05-17T05:34:33.106+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@1b5b2691 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:34:33.192+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 렉카 드라이버
+2025-05-17T05:34:49.011+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@a3cda7a (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:34:49.096+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 거짓말쟁이 황후의 사정
+2025-05-17T05:35:04.904+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@7baec64f (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:35:04.984+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 비인기 마법소녀도 연애할 수 있나요
+2025-05-17T05:35:15.983+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 요소 찾기 시간 초과 (URL: https://comic.naver.com/webtoon/list?titleId=838572&sort=ASC): Expected condition failed: waiting for presence of element located by: By.className: EpisodeListInfo__comic_info--yRAu0 (tried for 10 second(s) with 500 milliseconds interval)
+2025-05-17T05:35:31.878+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@409844eb (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:35:31.976+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 당신이 움켜쥔 밤
+2025-05-17T05:35:47.832+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@5e87884f (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:35:47.908+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 고구려 태왕미천
+2025-05-17T05:36:03.759+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@20b82dc5 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:36:03.849+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 저승파견고용직
+2025-05-17T05:36:14.882+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 요소 찾기 시간 초과 (URL: https://comic.naver.com/webtoon/list?titleId=838507&sort=ASC): Expected condition failed: waiting for presence of element located by: By.className: EpisodeListInfo__comic_info--yRAu0 (tried for 10 second(s) with 500 milliseconds interval)
+2025-05-17T05:36:30.973+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@30764fc4 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:36:31.077+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 단둘이는 안 돼!
+2025-05-17T05:36:46.937+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@63c0a65b (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:36:47.031+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 바람 피워요, 나랑
+2025-05-17T05:36:57.992+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 요소 찾기 시간 초과 (URL: https://comic.naver.com/webtoon/list?titleId=838548&sort=ASC): Expected condition failed: waiting for presence of element located by: By.className: EpisodeListInfo__comic_info--yRAu0 (tried for 10 second(s) with 500 milliseconds interval)
+2025-05-17T05:37:13.787+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@627adc17 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:37:13.892+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 청소부 K
+2025-05-17T05:37:29.693+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@51b906c6 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:37:29.772+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 수트빨
+2025-05-17T05:37:45.542+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@363c8343 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:37:45.631+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 풀 보이
+2025-05-17T05:38:01.364+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@6bfc2463 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:38:01.476+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 경계선
+2025-05-17T05:38:17.586+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@4d6c1c19 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:38:17.662+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 괴물들의 장의사
+2025-05-17T05:38:33.516+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@ec9424c (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:38:33.597+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 김오진과 이상한 동물들
+2025-05-17T05:38:44.547+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 요소 찾기 시간 초과 (URL: https://comic.naver.com/webtoon/list?titleId=839004&sort=ASC): Expected condition failed: waiting for presence of element located by: By.className: EpisodeListInfo__comic_info--yRAu0 (tried for 10 second(s) with 500 milliseconds interval)
+2025-05-17T05:38:55.473+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 요소 찾기 시간 초과 (URL: https://comic.naver.com/webtoon/list?titleId=839098&sort=ASC): Expected condition failed: waiting for presence of element located by: By.className: EpisodeListInfo__comic_info--yRAu0 (tried for 10 second(s) with 500 milliseconds interval)
+2025-05-17T05:39:11.497+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@4850b353 (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:39:11.586+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 그랜드 피날레
+2025-05-17T05:39:27.449+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@1cc8868e (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:39:27.559+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 당골
+2025-05-17T05:39:38.462+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 요소 찾기 시간 초과 (URL: https://comic.naver.com/webtoon/list?titleId=838351&sort=ASC): Expected condition failed: waiting for presence of element located by: By.className: EpisodeListInfo__comic_info--yRAu0 (tried for 10 second(s) with 500 milliseconds interval)
+2025-05-17T05:39:54.278+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 썸네일 추출 실패: Expected condition failed: waiting for org.openqa.selenium.support.ui.ExpectedConditions$$Lambda$2063/0x000000b001bb7220@4f20598e (tried for 15 second(s) with 500 milliseconds interval)
+Build info: version: '4.25.0', revision: '8a8aea2337'
+System info: os.name: 'Mac OS X', os.arch: 'aarch64', os.version: '15.4.1', java.version: '17.0.14'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 136.0.7103.114, chrome: {chromedriverVersion: 136.0.7103.94 (fa0be0b33deb..., userDataDir: /var/folders/m1/n218hjnj0db...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54944}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: mac, proxy: Proxy(), se:cdp: ws://localhost:54944/devtoo..., se:cdpVersion: 136.0.7103.114, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 8a26af09e5f395201cfedd71c1144bc7
+2025-05-17T05:39:54.390+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 웹툰 정보 크롤링 성공: 유사품에 주의하세요
+2025-05-17T05:39:54.390+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.crawler.NaverWebtoonCrawler    : 신작 웹툰 상세 정보 크롤링 결과: 성공 25 개, 실패 0 개
+2025-05-17T05:39:54.390+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 크롤링 완료: 25개 발견
+2025-05-17T05:39:54.397+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 말없는 전학생 (ID: 26)
+2025-05-17T05:39:54.406+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.406+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(26) is not present in table "webtoon_common".
+2025-05-17T05:39:54.406+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 말없는 전학생 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(26) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.406+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(26) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.407+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 말없는 전학생 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(26) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.408+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 클리셰클럽 (ID: 27)
+2025-05-17T05:39:54.413+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.413+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(27) is not present in table "webtoon_common".
+2025-05-17T05:39:54.414+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 클리셰클럽 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(27) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.414+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(27) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.414+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 클리셰클럽 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(27) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.415+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 렉카 드라이버 (ID: 28)
+2025-05-17T05:39:54.421+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.421+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(28) is not present in table "webtoon_common".
+2025-05-17T05:39:54.421+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 렉카 드라이버 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(28) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.421+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(28) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.421+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 렉카 드라이버 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(28) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.422+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 거짓말쟁이 황후의 사정 (ID: 29)
+2025-05-17T05:39:54.428+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.428+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(29) is not present in table "webtoon_common".
+2025-05-17T05:39:54.429+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 거짓말쟁이 황후의 사정 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(29) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.429+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(29) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.429+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 거짓말쟁이 황후의 사정 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(29) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.430+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 비인기 마법소녀도 연애할 수 있나요 (ID: 30)
+2025-05-17T05:39:54.434+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.434+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(30) is not present in table "webtoon_common".
+2025-05-17T05:39:54.434+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 비인기 마법소녀도 연애할 수 있나요 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(30) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.435+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(30) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.435+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 비인기 마법소녀도 연애할 수 있나요 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(30) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.436+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 정보 수집 실패 (ID: 31)
+2025-05-17T05:39:54.437+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.437+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(31) is not present in table "webtoon_common".
+2025-05-17T05:39:54.438+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(31) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.438+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(31) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.438+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(31) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.439+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 당신이 움켜쥔 밤 (ID: 32)
+2025-05-17T05:39:54.444+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.444+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(32) is not present in table "webtoon_common".
+2025-05-17T05:39:54.444+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 당신이 움켜쥔 밤 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(32) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.444+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(32) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.444+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 당신이 움켜쥔 밤 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(32) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.445+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 고구려 태왕미천 (ID: 33)
+2025-05-17T05:39:54.449+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.449+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(33) is not present in table "webtoon_common".
+2025-05-17T05:39:54.450+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 고구려 태왕미천 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(33) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.450+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(33) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.450+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 고구려 태왕미천 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(33) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.450+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 저승파견고용직 (ID: 34)
+2025-05-17T05:39:54.455+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.455+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(34) is not present in table "webtoon_common".
+2025-05-17T05:39:54.455+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 저승파견고용직 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(34) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.455+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(34) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.455+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 저승파견고용직 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(34) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.456+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 정보 수집 실패 (ID: 35)
+2025-05-17T05:39:54.457+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.457+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(35) is not present in table "webtoon_common".
+2025-05-17T05:39:54.457+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(35) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.457+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(35) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.457+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(35) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.458+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 단둘이는 안 돼! (ID: 36)
+2025-05-17T05:39:54.462+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.462+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(36) is not present in table "webtoon_common".
+2025-05-17T05:39:54.462+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 단둘이는 안 돼! - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(36) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.462+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(36) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.462+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 단둘이는 안 돼! - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(36) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.463+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 바람 피워요, 나랑 (ID: 37)
+2025-05-17T05:39:54.467+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.467+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(37) is not present in table "webtoon_common".
+2025-05-17T05:39:54.467+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 바람 피워요, 나랑 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(37) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.467+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(37) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.467+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 바람 피워요, 나랑 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(37) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.468+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 정보 수집 실패 (ID: 38)
+2025-05-17T05:39:54.469+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.469+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(38) is not present in table "webtoon_common".
+2025-05-17T05:39:54.469+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(38) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.469+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(38) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.469+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(38) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.470+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 청소부 K (ID: 39)
+2025-05-17T05:39:54.473+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.473+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(39) is not present in table "webtoon_common".
+2025-05-17T05:39:54.473+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 청소부 K - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(39) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.473+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(39) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.473+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 청소부 K - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(39) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.474+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 수트빨 (ID: 40)
+2025-05-17T05:39:54.477+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.477+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(40) is not present in table "webtoon_common".
+2025-05-17T05:39:54.477+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 수트빨 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(40) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.478+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(40) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.478+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 수트빨 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(40) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.478+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 풀 보이 (ID: 41)
+2025-05-17T05:39:54.482+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.482+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(41) is not present in table "webtoon_common".
+2025-05-17T05:39:54.482+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 풀 보이 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(41) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.482+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(41) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.482+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 풀 보이 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(41) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.483+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 경계선 (ID: 42)
+2025-05-17T05:39:54.488+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.488+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(42) is not present in table "webtoon_common".
+2025-05-17T05:39:54.488+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 경계선 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(42) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.488+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(42) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.488+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 경계선 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(42) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.489+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 괴물들의 장의사 (ID: 43)
+2025-05-17T05:39:54.491+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.491+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(43) is not present in table "webtoon_common".
+2025-05-17T05:39:54.492+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 괴물들의 장의사 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(43) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.492+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(43) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.492+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 괴물들의 장의사 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(43) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.492+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 김오진과 이상한 동물들 (ID: 44)
+2025-05-17T05:39:54.496+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.496+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(44) is not present in table "webtoon_common".
+2025-05-17T05:39:54.496+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 김오진과 이상한 동물들 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(44) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.496+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(44) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.496+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 김오진과 이상한 동물들 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(44) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.497+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 정보 수집 실패 (ID: 45)
+2025-05-17T05:39:54.497+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.497+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(45) is not present in table "webtoon_common".
+2025-05-17T05:39:54.498+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(45) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.498+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(45) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.498+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(45) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.498+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 정보 수집 실패 (ID: 46)
+2025-05-17T05:39:54.499+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.499+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(46) is not present in table "webtoon_common".
+2025-05-17T05:39:54.499+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(46) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.499+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(46) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.499+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(46) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.500+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 그랜드 피날레 (ID: 47)
+2025-05-17T05:39:54.501+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.501+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(47) is not present in table "webtoon_common".
+2025-05-17T05:39:54.501+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 그랜드 피날레 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(47) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.502+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(47) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.502+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 그랜드 피날레 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(47) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.502+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 당골 (ID: 48)
+2025-05-17T05:39:54.506+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.506+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(48) is not present in table "webtoon_common".
+2025-05-17T05:39:54.507+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 당골 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(48) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.507+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(48) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.507+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 당골 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(48) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.507+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 정보 수집 실패 (ID: 49)
+2025-05-17T05:39:54.508+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.508+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(49) is not present in table "webtoon_common".
+2025-05-17T05:39:54.508+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(49) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.508+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(49) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.508+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 정보 수집 실패 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(49) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.509+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 기본 정보 저장 성공: 유사품에 주의하세요 (ID: 50)
+2025-05-17T05:39:54.514+09:00  WARN 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23503
+2025-05-17T05:39:54.514+09:00 ERROR 45346 --- [AOD] [task-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(50) is not present in table "webtoon_common".
+2025-05-17T05:39:54.514+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 정보 업데이트 실패: 유사품에 주의하세요 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(50) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.514+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 웹툰 저장 과정에서 예상치 못한 오류 발생: could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(50) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.514+09:00 ERROR 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 중 오류 발생: 유사품에 주의하세요 - could not execute statement [ERROR: insert or update on table "webtoon_author_mapping" violates foreign key constraint "fkm3ca7uvqedyk344x9k2j97vk4"
+  Detail: Key (webtoon_id)=(50) is not present in table "webtoon_common".] [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; SQL [insert into webtoon_author_mapping (webtoon_id,author_id) values (?,?)]; constraint [fkm3ca7uvqedyk344x9k2j97vk4]
+2025-05-17T05:39:54.514+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : 신작 웹툰 저장 완료: 0개 신규 저장, 25개 실패
+2025-05-17T05:39:54.661+09:00  INFO 45346 --- [AOD] [task-2] c.e.A.W.N.service.WebtoonService         : WebDriver 종료
+2025-05-17T06:06:23.554+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m18s294ms).
+2025-05-17T06:23:28.072+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m34s511ms).
+2025-05-17T07:39:09.959+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m11s74ms).
+2025-05-17T07:50:59.991+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=11m20s24ms).
+2025-05-17T08:08:33.101+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m33s110ms).
+2025-05-17T08:29:03.256+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Retrograde clock change detected (housekeeper delta=29s853ms), soft-evicting connections from pool.
+2025-05-17T09:25:33.788+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m30s108ms).
+2025-05-17T10:41:58.983+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m54s441ms).
+2025-05-17T10:52:02.985+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=9m33s996ms).
+2025-05-17T11:02:09.972+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=10m6s988ms).
+2025-05-17T12:18:15.243+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m34s558ms).
+2025-05-17T13:34:58.314+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m12s343ms).
+2025-05-17T13:52:46.281+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m17s963ms).
+2025-05-17T15:09:02.967+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m15s972ms).
+2025-05-17T16:25:17.725+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m13s998ms).
+2025-05-17T16:42:11.651+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m53s927ms).
+2025-05-17T16:53:40.324+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=10m58s663ms).
+2025-05-17T17:48:39.016+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Retrograde clock change detected (housekeeper delta=27s866ms), soft-evicting connections from pool.
+2025-05-17T18:09:27.587+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m48s517ms).
+2025-05-17T18:27:07.293+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m9s697ms).
+2025-05-17T19:42:42.893+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m34s844ms).
+2025-05-17T20:54:39.825+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=12m26s239ms).
+2025-05-17T21:10:59.207+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m49s371ms).
+2025-05-17T21:23:38.239+09:00  WARN 45346 --- [AOD] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=12m9s21ms).
+2025-05-17T22:32:54.855+09:00  INFO 45346 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-17T22:32:54.863+09:00  INFO 45346 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-17T22:32:54.868+09:00  INFO 45346 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-17T22:32:54.872+09:00  INFO 45346 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-17T22:32:54.872+09:00  INFO 45346 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

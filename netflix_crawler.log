@@ -1,0 +1,432 @@
+5월 16, 2025 12:39:39 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler login
+정보: 로그인 성공: https://www.netflix.com/browse
+5월 16, 2025 12:39:49 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawl
+경고: 항목 없음
+5월 16, 2025 12:40:28 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler login
+정보: 로그인 성공: https://www.netflix.com/browse
+5월 16, 2025 12:40:37 오전 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawl
+경고: 항목 없음
+5월 16, 2025 5:53:21 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler <init>
+정보: 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
+5월 16, 2025 5:53:33 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler performFullLogin
+정보: 로그인 시도 후 URL: https://www.netflix.com/browse
+5월 16, 2025 5:53:33 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler saveCookies
+정보: 쿠키 저장 완료: 6개 쿠키
+5월 16, 2025 5:53:33 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler performFullLogin
+정보: 로그인 및 프로필 선택 성공. 쿠키 저장됨.
+5월 16, 2025 5:53:46 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawl
+경고: 항목 없음
+5월 16, 2025 5:53:47 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler <init>
+정보: 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
+5월 16, 2025 5:53:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler login
+정보: 로그인 성공: https://www.netflix.com/browse
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 50개 발견
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 탄금 (ID: 81708925)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 데블스 플랜 (ID: 81653386)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 승부 (ID: 81640991)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 천국보다 아름다운 (ID: 81952837)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 귀궁 (ID: 82031211)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 당신의 맛 (ID: 81971172)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 약한영웅 (ID: 81742615)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 태어난 김에 세계일주 (ID: 81745797)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 언젠가는 슬기로울 전공의생활 (ID: 81739042)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 나는 솔로 (ID: 81551819)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 브로큰 (ID: 82048688)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 사라진 탄환 3 (ID: 81701729)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 논나 (ID: 81936724)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 임영웅│아임 히어로 더 스타디움 (ID: 81942257)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 하얼빈 (ID: 81949578)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 엑스테리토리얼 (ID: 81571720)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 미션 임파서블: 데드 레코닝 (ID: 81665878)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: Super Subbu (ID: 81660220)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 케이티 테일러 vs 아만다 세라노 3 (ID: 82035642)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: Christmas Gameday: Lions vs. Vikings (ID: 82049018)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: Christmas Gameday: Cowboys vs. Commanders (ID: 82049017)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: Akka (ID: 81772075)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 연애 실험: 블라인드 러브 이탈리아편 (ID: 81774884)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: Saare Jahan Se Accha (ID: 81281013)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 소울 메이트 (ID: 81644425)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 미지의 서울 (ID: 82024804)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 이 별에 필요한 (ID: 81664623)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 너의 밤이 되어줄게 (ID: 82050271)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: F1 아카데미 (ID: 81722244)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 사건수사대 Q (ID: 81487660)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 낙유원 (ID: 82050405)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 매드 유니콘 (ID: 81595549)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 위도우 게임 (ID: 81786479)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 아키라 (ID: 60021103)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 가는정 오는정 이민정 (ID: 82061775)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 가끔씩 툭하고 러시아어로 부끄러워하는 옆자리의 아랴 양 (ID: 81661821)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 선셋 선라이즈 (ID: 81733850)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 사이렌이 노래할 때 (ID: 81589551)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 선더버즈: 최정예 곡예비행단 (ID: 81673111)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 피어 스트리트: 프롬 퀸 (ID: 81512194)
+5월 16, 2025 5:54:06 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 발견한 최신 콘텐츠: 죽을 만큼 사랑해서 (ID: 82040335)
+5월 16, 2025 5:54:10 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABTPtBwlL8dowTvR4I47YHCLZPlcji0m1xqyJESicfxngVoLB1zp62fe0idVlxKgOscxnHImsUsRI4-26XJ3LvImXzyWt60YQUh-V.webp?r=a4f
+5월 16, 2025 5:54:10 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 탄금
+5월 16, 2025 5:54:10 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 탄금
+5월 16, 2025 5:54:16 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABUFXGu8DZkONcNTHO0bMMsS-rgtNIwglUFdeQpjPc7YbvSWqV-pQJNUOwfz9OwVfZrnd37PHV3Own-XURqpM2fU1GBaJWpDDfX53.webp?r=fbb
+5월 16, 2025 5:54:16 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 데블스 플랜
+5월 16, 2025 5:54:16 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 데블스 플랜
+5월 16, 2025 5:54:22 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABQdD0pimCiBCoi9YFwpLLwzHYb5Ry4asr1Nf9aR9OG6DkHd5fkEMLlSCe33y0zDCUE9OgVqfvG2U1sko3hVAvPp5SMlsOaHGE99e.webp?r=5d0
+5월 16, 2025 5:54:22 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 승부
+5월 16, 2025 5:54:22 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 승부
+5월 16, 2025 5:54:28 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABRMpN3WDXraScZ8sKGaBojd2YUcmJ7fTxNJDYC7tkOPAKPJhiLXRc4gKaSiQjs_IikwfIdGWehiuebC101Lg9j6fRkqiMpOlrdN5.webp?r=859
+5월 16, 2025 5:54:28 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 천국보다 아름다운
+5월 16, 2025 5:54:28 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 천국보다 아름다운
+5월 16, 2025 5:54:33 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABX_s5GSYMaOjSHsMGVUvEA-CVtCaiQx4H4UhezRS90yj-jk-O4oMcmfTNVfnPlBWpYMsI1W1p27a3gbcqi2rlLpE0lsMdgrB32hV.webp?r=3ee
+5월 16, 2025 5:54:33 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 귀궁
+5월 16, 2025 5:54:33 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 귀궁
+5월 16, 2025 5:54:39 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABXdsgMDuI3BeUoKX6AeJW5e8LVN1aukZ4ASzpOaaGkTLVQRDv1eI1_wXXh1nc1sqwII0NlicmLWlb7pR7G2DfeemF7wWgoZb8xlp.webp?r=d12
+5월 16, 2025 5:54:39 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 당신의 맛
+5월 16, 2025 5:54:39 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 당신의 맛
+5월 16, 2025 5:54:45 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABZJvdnIyNiNE8w4Ve7RvTsK7t0KA2iwhJ6TmQTnmdhFGlx1PE3nHJjTpP71LlJWXyTNP-EdRh1zJW3rqYY-bnCKZsMDpQrmrNPTy.webp?r=4b7
+5월 16, 2025 5:54:45 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 약한영웅
+5월 16, 2025 5:54:45 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 약한영웅
+5월 16, 2025 5:54:51 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABXKw51rcKJaNO8KL0WJw73GUJzO6CX7Z1yM3otRfW1ZocJYQnXsGB9sfmEhZMyELc8sxJMOjnHq01hG0EV05toc-FTdTzVh1Ii5j.webp?r=2fa
+5월 16, 2025 5:54:51 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 태어난 김에 세계일주
+5월 16, 2025 5:54:51 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 태어난 김에 세계일주
+5월 16, 2025 5:54:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABSw6uVizgDIrGiLTOkbxpNZuBZMyaCnYiVAS__v8lcGCIebvqcUTNLeURppV9Voj_dHm8WdXBJ4_XqDLlD9ikIPpO7RMCFlVo4ti.webp?r=6db
+5월 16, 2025 5:54:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 언젠가는 슬기로울 전공의생활
+5월 16, 2025 5:54:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 언젠가는 슬기로울 전공의생활
+5월 16, 2025 5:55:02 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABYBqSGm9m-disBQQqmsjrB5rgHcpnSYPiH2aoGMU3PWrQyvc3R5LMNlPdjMpxcixwpapQe6ArBj7YF4sJYMVFI5_bTgdEjm2TQGf.webp?r=f9c
+5월 16, 2025 5:55:02 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 나는 솔로
+5월 16, 2025 5:55:02 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 나는 솔로
+5월 16, 2025 5:55:07 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABZQoKCZlPZZYhI1Xe20pqIUB_ovUqjEc-0LYHTD3pQD7o3UkvRoX9kDNn2PxgC5Iy4dlmVK5gv9jhssYZM1hNi-KT6ezS0wsf3lp.webp?r=b31
+5월 16, 2025 5:55:07 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 브로큰
+5월 16, 2025 5:55:07 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 브로큰
+5월 16, 2025 5:55:13 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABQmKJkvIQMEEfubPqP-h-hkX5vnJ_ZfjjiKqMtPLrw6RCt_H3ZJiUikTGxApM5iToVi3-b8p3SgQxM3qg040xEZuHMP-aCuWrfmT.webp?r=8c3
+5월 16, 2025 5:55:13 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 사라진 탄환 3
+5월 16, 2025 5:55:13 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 사라진 탄환 3
+5월 16, 2025 5:55:18 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABTLv_rSMHNC6XE2om0_qsiwkLnM4KYnAhcXlC6pIURyHlF_uoUmI--vTthQoNIwEWU5X8u048vhX20XICpnVOCRO8alh58k3Dvz-.webp?r=36f
+5월 16, 2025 5:55:18 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 논나
+5월 16, 2025 5:55:18 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 논나
+5월 16, 2025 5:55:24 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABfqYypGX8l6q7rCuXjKY7aKCi2aBpdia0GBf-IkjRR-G2EnX4azOCtUa_--KyhjhK6htZgS_DE0C8KD0trNNsKe8EFG6rLe1R5XZ.webp?r=40e
+5월 16, 2025 5:55:24 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 임영웅│아임 히어로 더 스타디움
+5월 16, 2025 5:55:24 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 임영웅│아임 히어로 더 스타디움
+5월 16, 2025 5:55:29 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABXn64dMVfGtd-KWsgWHW9sg-zv_R_VSwo8y7hmlTs2hdRKou41IKUpad6yDuHnIPFsX_t-tCYMZp7xwyDypIN1_ttOZHs9NyjrlJ.webp?r=bff
+5월 16, 2025 5:55:29 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 하얼빈
+5월 16, 2025 5:55:29 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 하얼빈
+5월 16, 2025 5:55:34 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABU_U2Xrk9LWRpvCPmwl829-o11E8qOMBvOuCYYSrj-cX4UqLHhRL_QDKECeKMxshA0_VsKCzf6x8jrZzVYqm3296ccB0kMnZAmjr.webp?r=cbd
+5월 16, 2025 5:55:34 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 엑스테리토리얼
+5월 16, 2025 5:55:34 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 엑스테리토리얼
+5월 16, 2025 5:55:40 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABamYUW9icfS8OVVT8DSSsx2_V6Xt3dNS-mLCUsaR6AHLx1xiAoCT1dQa3YXKoxbjXtFYImviEbW0H22btZC1ynssDoXSbKPeNuB_.webp?r=4c4
+5월 16, 2025 5:55:40 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 미션 임파서블: 데드 레코닝
+5월 16, 2025 5:55:40 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 미션 임파서블: 데드 레코닝
+5월 16, 2025 5:55:45 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABSZo6Yv8FhvjF3WG26bU7oWrHIWdXVGoPzRkkH_MyLMkvu1WsL6Hq-3yZQGsc6TStLm8glAd7BzGrbgaoJD2OXrvUMNcgJmzx-po.webp?r=78b
+5월 16, 2025 5:55:45 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: Super Subbu
+5월 16, 2025 5:55:45 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: Super Subbu
+5월 16, 2025 5:55:51 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbEBIDrpUY93-eV8JnVs7hrZRY9aQOyVDXrrJuHI_gk7ZU8y9UsrU0vuwQlYKKpKncfknAbbWH3nr13AjnwbdiHtf6hktuWJfMmz.webp?r=73f
+5월 16, 2025 5:55:51 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 케이티 테일러 vs 아만다 세라노 3
+5월 16, 2025 5:55:51 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 케이티 테일러 vs 아만다 세라노 3
+5월 16, 2025 5:55:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABcmcKjrnAtz93XAxGdUMNFKEOH6y-fnPtvv4qvavFoHSsJRJQP-ETADq_3962XCrISikggDDPMlyFoBaN70c_-o7qJNdT_Wg4PFd.webp?r=a32
+5월 16, 2025 5:55:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: Christmas Gameday: Lions vs. Vikings
+5월 16, 2025 5:55:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: Christmas Gameday: Lions vs. Vikings
+5월 16, 2025 5:56:02 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABVXoZ6d8rfcybECIc5JGTdbwVh6Gy9VqTanUSv7Gy_71MKKxhdce2aJ9d_C8w-wGxUQkDYFT2NyZXBB2mBmyo9Ql31ilmIdJZCY5.webp?r=dc5
+5월 16, 2025 5:56:02 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: Christmas Gameday: Cowboys vs. Commanders
+5월 16, 2025 5:56:02 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: Christmas Gameday: Cowboys vs. Commanders
+5월 16, 2025 5:56:08 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABcPEZw9vGiQT52WWz3rLyIfF_x3qyIe2DZacr05F68ubR06hG0iFmWEZkL8V98qVKgOhyfFv3JiV2J6nkVJxrhLJzWicb6T9oh_X.webp?r=f81
+5월 16, 2025 5:56:08 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: Akka
+5월 16, 2025 5:56:08 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: Akka
+5월 16, 2025 5:56:12 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABQKjmSFTcamnBbKR5Dfaz1dPsk_Bhu6hTL_5cNnYPXt7CXyVRoMt4XtbfqAew3qfR2Rlk8AiVPoPto2ZGk7FLnzYq_cis_6ykJD2.webp?r=ce1
+5월 16, 2025 5:56:12 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 연애 실험: 블라인드 러브 이탈리아편
+5월 16, 2025 5:56:12 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 연애 실험: 블라인드 러브 이탈리아편
+5월 16, 2025 5:56:18 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABe-tjhRfGGgwoUf4_Q3ocPTL-paPvJgqhYD7Dh1eHNN5ECB9DIgqyzGOvan73d2Om6l5EHesx0RTB5bp2j1DACyhDB18CWTxFSYo.webp?r=015
+5월 16, 2025 5:56:18 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: Saare Jahan Se Accha
+5월 16, 2025 5:56:18 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: Saare Jahan Se Accha
+5월 16, 2025 5:56:24 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABW-ab7HeTH9BOXdwCTnppsw5vgl8Q61JeHXxlUac5VuHsnsdC5uuNGeWMf007zZDEqBuuuDAOKuPxMnukEU-SuOEDe1UNJncgAOv.webp?r=24f
+5월 16, 2025 5:56:24 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 소울 메이트
+5월 16, 2025 5:56:24 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 소울 메이트
+5월 16, 2025 5:56:29 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABTIZyYnSbZ33se4gyZogjTequNCRulAOEocIqTc7zoBuA69BFBfXSVPbKdJzPZBtDvMYHFn3-2WzjrYHwXvPKHqjIeHAAidC_YZI.webp?r=fbd
+5월 16, 2025 5:56:29 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 미지의 서울
+5월 16, 2025 5:56:29 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 미지의 서울
+5월 16, 2025 5:56:35 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABdOID8gcboE3F9YuAE0YhfD5Uudo6D1ZHsV8A1t1mxI9Z8qfQPmEB2UA010f9CfFaaBx8GYEgGp0M5CLJCzIIFWtPYhtmLHwT-W4.webp?r=e0b
+5월 16, 2025 5:56:35 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 이 별에 필요한
+5월 16, 2025 5:56:35 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 이 별에 필요한
+5월 16, 2025 5:56:40 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABQnQp255yJUOwVHPwkQpWyIeTbN1juHnhbl9wACxXDoqb1Bbq8mSjzM45cgRSKrralPOFiVweBHLj8XWpazKQ4-68mOZ1KXvQ4vh.webp?r=575
+5월 16, 2025 5:56:40 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 너의 밤이 되어줄게
+5월 16, 2025 5:56:40 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 너의 밤이 되어줄게
+5월 16, 2025 5:56:46 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABc0rsq59gxBk0d5iHVEj3_cpoNgaQUmZDCnGX4iGREAGMvgkU8p7wLk9J12tocz9In9TU5v-drAs-TKbv_JxVhsGoP_oO2-s8GNW.webp?r=e2d
+5월 16, 2025 5:56:46 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: F1 아카데미
+5월 16, 2025 5:56:46 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: F1 아카데미
+5월 16, 2025 5:56:52 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABcwbUUKN09ye6XVfvmN9Zr6DzBcgXGUV1pZqAL2KHEC0OTwf-od1oXvlnlcw0MWOOa81dG0jAc9YGEYqB0LV5Infsx3M4PkkDK_m.webp?r=0e7
+5월 16, 2025 5:56:52 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 사건수사대 Q
+5월 16, 2025 5:56:52 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 사건수사대 Q
+5월 16, 2025 5:56:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABYQzxHaYIsnKq-OpntiCWeye58N_byQQlk73Vg3dnhfqWp1NII_Y6KbQ0tk9E_kzM9pPcOV4GKa68uAYsOBSDHnzlk4ZuQxsgnME.webp?r=845
+5월 16, 2025 5:56:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 낙유원
+5월 16, 2025 5:56:57 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 낙유원
+5월 16, 2025 5:57:04 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABeDIHglPl4NitG6mhVIuMx7W4ozMFZ55kkVrh84pEIz_F_7mcmez1SaZsHq_0Q8lMDu50SKEIbvbtQujfNcshQcFaa26kQ9M1xiR.webp?r=e07
+5월 16, 2025 5:57:04 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 매드 유니콘
+5월 16, 2025 5:57:04 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 매드 유니콘
+5월 16, 2025 5:57:09 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABe4ykUKG4UvaEecl5ZbK5BmDR8mw7Znq1eru9dDA7juluFnrvdfA7Ue-QpTrrnddrrpnC2xuDn4D1MkE4PXWNtMKb6Kuyg3K0Ue0.webp?r=6c6
+5월 16, 2025 5:57:09 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 위도우 게임
+5월 16, 2025 5:57:09 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 위도우 게임
+5월 16, 2025 5:57:14 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABWQ1Iu2-JFKuTkOQlXIK1yoitm2RvDSHnn4tJJ_yG78UP5WT90YigLrsOUXXNYwvzlIBUPDFnFAKxypOJx9dC6S-T80kPYUIrHAx.webp?r=aa5
+5월 16, 2025 5:57:14 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 아키라
+5월 16, 2025 5:57:14 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 아키라
+5월 16, 2025 5:57:20 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABcZZqeLVVQ3BoUUko-ZTEy0k529YgFIDI605k5zbjG_UXg3WeVVAtzjTC-GmQj1uc7ABjwb3lCjlH5UGzF-xORq8UoNJW2B7ddiG.webp?r=161
+5월 16, 2025 5:57:20 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 가는정 오는정 이민정
+5월 16, 2025 5:57:20 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 가는정 오는정 이민정
+5월 16, 2025 5:57:26 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbACgHxziNaySL8AsAMaUEuM3uRme2bwVv_ilkVroIpo3vpEKReZhbYpWaqy0o46z15kMRgpYB6Huwy0r0-8815lnHlRSpxt7fJp.webp?r=b08
+5월 16, 2025 5:57:26 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 가끔씩 툭하고 러시아어로 부끄러워하는 옆자리의 아랴 양
+5월 16, 2025 5:57:26 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 가끔씩 툭하고 러시아어로 부끄러워하는 옆자리의 아랴 양
+5월 16, 2025 5:57:32 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABQppcxlU8bUEjdIBpVNZTLieXXzFOUXhfJlCrNMsZy7LKbVsiGzrmtxsgp7yjwiLuDRWY8VcTBeJda5NSM3Cu1PcqiOvLGiBzXuA.webp?r=e23
+5월 16, 2025 5:57:32 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 선셋 선라이즈
+5월 16, 2025 5:57:32 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 선셋 선라이즈
+5월 16, 2025 5:57:37 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABYYWoAyyaVJp_JznxitmkTzcPJg_fPxsgiE_ioFpFH5yJoQlLvjQ6pZbH3tGgA9VGzI0wZTXWE62tAOb5AZZoevJNbJrRiTbw_X-.webp?r=2a8
+5월 16, 2025 5:57:37 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 사이렌이 노래할 때
+5월 16, 2025 5:57:37 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 사이렌이 노래할 때
+5월 16, 2025 5:57:42 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABUUKLtXLIQyBcwqAesttFFJdntuiSHp6FLKwac9vtpnKHJhJRKWFxJP861B4VQD0bHucBEmBYOppJpXe4zWgHbCl4hkC_Eb0L-oH.webp?r=89d
+5월 16, 2025 5:57:42 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 선더버즈: 최정예 곡예비행단
+5월 16, 2025 5:57:42 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 선더버즈: 최정예 곡예비행단
+5월 16, 2025 5:57:47 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABdCPKUP88Wfb8cN8qEpzIVuaXlVJ0_Un9SMUMPe7D4Lb2jpR59lRoZasRR5wrglhhULHU7cVE1-knRSmFcNHg1_Lms_HVfZBsKVq.webp?r=5b4
+5월 16, 2025 5:57:47 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 피어 스트리트: 프롬 퀸
+5월 16, 2025 5:57:47 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 피어 스트리트: 프롬 퀸
+5월 16, 2025 5:57:53 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABRVDVbGSX4IUZGrJUzmnySyljp2q1F5j9NhRjg9vgSvAGVxGXL0zhtDTtffAocAzCet8s0RePsDOuqlLwxNEvwmnr3de31VA7z1I.webp?r=ee4
+5월 16, 2025 5:57:53 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 죽을 만큼 사랑해서
+5월 16, 2025 5:57:53 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler crawlLatestContent
+정보: 최신 콘텐츠 상세 정보 수집 완료: 죽을 만큼 사랑해서
+5월 16, 2025 6:04:32 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler <init>
+정보: 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
+5월 16, 2025 6:04:37 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loadCookies
+정보: 쿠키 로드 완료: 6개 쿠키
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loginWithCookies
+정보: 쿠키 로드 후 URL: https://www.netflix.com/browse
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loginWithCookies
+정보: 게이트 발견 → 프로필 재선택
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 선택 페이지 대기 중...
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 선택 페이지 제목: 넷플릭스를 시청할 프로필을 선택하세요.
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 목록 찾음: 3개 항목
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 발견: 강현구 (URL: https://www.netflix.com/SwitchProfile?tkn=KQQJGPJ3XZAPHCHETQHDSFCBLU)
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 발견: 키﻿즈 (URL: https://www.netflix.com/SwitchProfile?tkn=LST24F7CW5BQPMDNL2P2TMCAAI)
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: '프로필 추가' 버튼 항목은 건너뜁니다.
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 첫 번째 프로필 '강현구'을 선택합니다.
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 클릭 실행: 강현구
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 전환 후 URL: https://www.netflix.com/browse
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler selectProfile
+정보: 프로필 선택 성공: 강현구
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler saveCookies
+정보: 쿠키 저장 완료: 7개 쿠키
+5월 16, 2025 6:04:44 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler saveCookies
+정보: 쿠키 저장 완료: 7개 쿠키
+5월 16, 2025 6:05:03 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABTPtBwlL8dowTvR4I47YHCLZPlcji0m1xqyJESicfxngVoLB1zp62fe0idVlxKgOscxnHImsUsRI4-26XJ3LvImXzyWt60YQUh-V.webp?r=a4f
+5월 16, 2025 6:05:03 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 탄금
+5월 16, 2025 6:05:09 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABX-SZFEqJCjC1ZwAq8RzdycWuVOfBi3lXc_zBfFu4H_PHWPCIT56ItPiPA8Qm6M4UxdERwXkBxoa5ZE-Txn1SRQZzXfypXcg0HlB.webp?r=dd4
+5월 16, 2025 6:05:09 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 폭싹 속았수다
+5월 16, 2025 6:05:15 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABUFXGu8DZkONcNTHO0bMMsS-rgtNIwglUFdeQpjPc7YbvSWqV-pQJNUOwfz9OwVfZrnd37PHV3Own-XURqpM2fU1GBaJWpDDfX53.webp?r=fbb
+5월 16, 2025 6:05:15 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 데블스 플랜
+5월 16, 2025 6:05:21 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABSw6uVizgDIrGiLTOkbxpNZuBZMyaCnYiVAS__v8lcGCIebvqcUTNLeURppV9Voj_dHm8WdXBJ4_XqDLlD9ikIPpO7RMCFlVo4ti.webp?r=6db
+5월 16, 2025 6:05:21 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 언젠가는 슬기로울 전공의생활
+5월 16, 2025 6:05:27 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbkJS1y-7AfbbBnHaGg3cwGkT0u3GfmuIHNKt9QUW5_07y13uAPZqHWFAF6mhCYchAcWQ1N15-kP4cAiZ-WFBfe4q66n2bUAu8J3.webp?r=9db
+5월 16, 2025 6:05:27 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 하우스
+5월 16, 2025 6:09:14 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler <init>
+정보: 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
+5월 16, 2025 6:09:18 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loadCookies
+정보: 쿠키 로드 완료: 7개 쿠키
+5월 16, 2025 6:09:23 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loginWithCookies
+정보: 쿠키 로드 후 URL: https://www.netflix.com/browse
+5월 16, 2025 6:09:23 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler loginWithCookies
+정보: 저장된 쿠키로 로그인 성공(프로필 게이트 없음)
+5월 16, 2025 6:09:42 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABTPtBwlL8dowTvR4I47YHCLZPlcji0m1xqyJESicfxngVoLB1zp62fe0idVlxKgOscxnHImsUsRI4-26XJ3LvImXzyWt60YQUh-V.webp?r=a4f
+5월 16, 2025 6:09:42 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 탄금
+5월 16, 2025 6:09:47 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABX-SZFEqJCjC1ZwAq8RzdycWuVOfBi3lXc_zBfFu4H_PHWPCIT56ItPiPA8Qm6M4UxdERwXkBxoa5ZE-Txn1SRQZzXfypXcg0HlB.webp?r=dd4
+5월 16, 2025 6:09:47 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 폭싹 속았수다
+5월 16, 2025 6:09:54 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABUFXGu8DZkONcNTHO0bMMsS-rgtNIwglUFdeQpjPc7YbvSWqV-pQJNUOwfz9OwVfZrnd37PHV3Own-XURqpM2fU1GBaJWpDDfX53.webp?r=fbb
+5월 16, 2025 6:09:54 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 데블스 플랜
+5월 16, 2025 6:10:00 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABSw6uVizgDIrGiLTOkbxpNZuBZMyaCnYiVAS__v8lcGCIebvqcUTNLeURppV9Voj_dHm8WdXBJ4_XqDLlD9ikIPpO7RMCFlVo4ti.webp?r=6db
+5월 16, 2025 6:10:00 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 언젠가는 슬기로울 전공의생활
+5월 16, 2025 6:10:07 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbkJS1y-7AfbbBnHaGg3cwGkT0u3GfmuIHNKt9QUW5_07y13uAPZqHWFAF6mhCYchAcWQ1N15-kP4cAiZ-WFBfe4q66n2bUAu8J3.webp?r=9db
+5월 16, 2025 6:10:07 오후 com.example.AOD.OTT.Netflix.crawler.NetflixContentCrawler getDetailInfo
+정보: 세부 정보 수집 완료: 하우스
