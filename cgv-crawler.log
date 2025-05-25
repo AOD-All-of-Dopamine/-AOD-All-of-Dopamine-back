@@ -1,22 +1,23 @@
-2025-05-18T01:41:10.325+09:00  INFO 16816 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 16816 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
-2025-05-18T01:41:10.328+09:00 DEBUG 16816 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
-2025-05-18T01:41:10.328+09:00  INFO 16816 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
-2025-05-18T01:41:10.664+09:00  INFO 16816 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-05-18T01:41:10.710+09:00  INFO 16816 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 41 ms. Found 26 JPA repository interfaces.
-2025-05-18T01:41:10.969+09:00  INFO 16816 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2025-05-18T01:41:10.976+09:00  INFO 16816 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-05-18T01:41:10.976+09:00  INFO 16816 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
-2025-05-18T01:41:10.997+09:00  INFO 16816 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-05-18T01:41:10.997+09:00  INFO 16816 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 642 ms
-2025-05-18T01:41:11.073+09:00  INFO 16816 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-05-18T01:41:11.101+09:00  INFO 16816 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
-2025-05-18T01:41:11.117+09:00  INFO 16816 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-05-18T01:41:11.255+09:00  INFO 16816 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-05-18T01:41:11.267+09:00  INFO 16816 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-05-18T01:41:11.332+09:00  INFO 16816 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@7e50eeb9
-2025-05-18T01:41:11.332+09:00  INFO 16816 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-05-18T01:41:11.346+09:00  WARN 16816 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-05-18T01:41:11.354+09:00  INFO 16816 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2025-05-26T02:24:55.018+09:00  INFO 51196 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 51196 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
+2025-05-26T02:24:55.020+09:00 DEBUG 51196 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-26T02:24:55.020+09:00  INFO 51196 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-26T02:24:55.321+09:00  INFO 51196 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-26T02:24:55.414+09:00  INFO 51196 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 88 ms. Found 30 JPA repository interfaces.
+2025-05-26T02:24:55.674+09:00  INFO 51196 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-26T02:24:55.683+09:00  INFO 51196 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-26T02:24:55.683+09:00  INFO 51196 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-26T02:24:55.704+09:00  INFO 51196 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-26T02:24:55.704+09:00  INFO 51196 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 664 ms
+2025-05-26T02:24:55.735+09:00 DEBUG 51196 --- [AOD] [main] c.e.A.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2025-05-26T02:24:55.790+09:00  INFO 51196 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-26T02:24:55.814+09:00  INFO 51196 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-26T02:24:55.826+09:00  INFO 51196 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-26T02:24:55.941+09:00  INFO 51196 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-26T02:24:55.955+09:00  INFO 51196 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-26T02:24:56.012+09:00  INFO 51196 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@23c72128
+2025-05-26T02:24:56.013+09:00  INFO 51196 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-26T02:24:56.026+09:00  WARN 51196 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-26T02:24:56.034+09:00  INFO 51196 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
 	Database version: 17.5
@@ -24,208 +25,456 @@
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2025-05-18T01:41:11.895+09:00  INFO 16816 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-05-18T01:41:12.139+09:00  INFO 16816 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T01:41:12.412+09:00  INFO 16816 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-05-18T01:41:12.606+09:00  WARN 16816 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-05-18T01:41:12.813+09:00  INFO 16816 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2025-05-18T01:41:12.818+09:00  INFO 16816 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.674 seconds (process running for 3.035)
-2025-05-18T01:41:47.799+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-05-18T01:41:47.800+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-05-18T01:41:47.802+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
-2025-05-18T01:41:47.820+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : CGV 영화 크롤링 작업 시작
-2025-05-18T01:41:47.820+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : CGV 전체 영화 크롤링 시작
-2025-05-18T01:41:48.790+09:00  WARN 16816 --- [AOD] [task-1] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
-2025-05-18T01:41:48.790+09:00  WARN 16816 --- [AOD] [task-1] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-2025-05-18T01:41:51.739+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : '더보기' 버튼 클릭. 시도: 1
-2025-05-18T01:42:04.552+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : '더보기' 버튼이 더 이상 없습니다. 모든 영화 로드됨.
-2025-05-18T01:42:04.553+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 정보 추출 중...
-2025-05-18T01:42:04.781+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 총 47개 영화 발견
-2025-05-18T01:42:04.960+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 미션 임파서블: 파이널 레코닝
-2025-05-18T01:42:06.060+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 이세계 페스티벌 2025 - 이세계아이돌 Part
-2025-05-18T01:42:07.193+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 파과
-2025-05-18T01:42:08.353+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 야당
-2025-05-18T01:42:09.470+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: A MINECRAFT MOVIE 마인크래프트 무비
-2025-05-18T01:42:10.561+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 세븐 베일즈
-2025-05-18T01:42:11.693+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 파이널 데스티네이션 블러드라인
-2025-05-18T01:42:12.830+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 썬더볼츠
-2025-05-18T01:42:14.003+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 다시 만날, 조국
-2025-05-18T01:42:15.186+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 플로리다 프로젝트
-2025-05-18T01:42:16.276+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 케이 넘버
-2025-05-18T01:42:17.458+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 해피엔드
-2025-05-18T01:42:18.541+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 에이티즈 월드 투어 [투워즈 더 라이트 : 윌 투 파워] 인 시네마
-2025-05-18T01:42:19.626+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 슈가 글라스 보틀
-2025-05-18T01:42:20.745+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 그 자연이 네게 뭐라고 하니
-2025-05-18T01:42:21.832+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 나미비아의 사막
-2025-05-18T01:42:22.942+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 시크릿쥬쥬 마법의 하모니
-2025-05-18T01:42:24.313+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 거룩한 밤: 데몬 헌터스
-2025-05-18T01:42:25.487+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 보이 인 더 풀
-2025-05-18T01:42:26.706+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 아멜리에
-2025-05-18T01:42:27.998+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 귀멸의 칼날-무한열차편
-2025-05-18T01:42:29.328+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 콘클라베
-2025-05-18T01:42:30.509+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 은혼 더 파이널
-2025-05-18T01:42:31.674+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 블리치 : 다이아몬드 더스트 리벨리온
-2025-05-18T01:42:32.760+09:00  WARN 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
-2025-05-18T01:42:32.761+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: [씨네뮤지엄] 누구나 알지만 아무도 잘 모른다, 피카소
-2025-05-18T01:42:33.847+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 호랑이 소녀
-2025-05-18T01:42:34.960+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 스노우 폭스2: 몬스터타운 구하기
-2025-05-18T01:42:36.085+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 마리아
-2025-05-18T01:42:37.156+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 하보우만의 약속
-2025-05-18T01:42:38.297+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 플로우
-2025-05-18T01:42:39.381+09:00  WARN 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
-2025-05-18T01:42:39.382+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 정효빈 Fan Meeting [Oh！ Hyobbi Day！]
-2025-05-18T01:42:40.476+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 괴수 8호: 미션 리컨
-2025-05-18T01:42:41.677+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 바이러스
-2025-05-18T01:42:42.797+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 우리가 빛이라 상상하는 모든 것
-2025-05-18T01:42:43.897+09:00  WARN 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
-2025-05-18T01:42:43.897+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: [씨네뮤지엄] 광주 랩소디, 지하 4층부터 지상 10층, 245개의 흔적까지
-2025-05-18T01:42:44.983+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 블리치 : 메모리즈 오브 노바디
-2025-05-18T01:42:46.067+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 곤돌라
-2025-05-18T01:42:47.234+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 압수수색: 내란의 시작
-2025-05-18T01:42:48.329+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: [씨네뮤지엄] 내셔널갤러리, 예술의 흐름을 담다.
-2025-05-18T01:42:49.418+09:00  WARN 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 평점 파싱 오류: ?
-2025-05-18T01:42:49.420+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 우리는 공산당이 싫어요
-2025-05-18T01:42:50.518+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 폴킴, 친애하는 당신께
-2025-05-18T01:42:51.673+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 달팽이의 회고록
-2025-05-18T01:42:52.811+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 사유리
-2025-05-18T01:42:53.925+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 베러맨
-2025-05-18T01:42:55.007+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 본회퍼: 목사.스파이.암살자
-2025-05-18T01:42:56.141+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 은혼 금혼편 온 씨어터
-2025-05-18T01:42:57.332+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : 영화 크롤링 완료: 극장판 스파이 패밀리 코드-화이트
-2025-05-18T01:42:58.335+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : CGV 전체 영화 크롤링 완료. 47개 영화 크롤링됨
-2025-05-18T01:42:58.475+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.crawler.CgvCrawler     : WebDriver 종료
-2025-05-18T01:42:58.578+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 미션 임파서블: 파이널 레코닝
-2025-05-18T01:42:58.586+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 이세계 페스티벌 2025 - 이세계아이돌 Part
-2025-05-18T01:42:58.588+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89568, 건너뜀
-2025-05-18T01:42:58.589+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89454, 건너뜀
-2025-05-18T01:42:58.589+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89528, 건너뜀
-2025-05-18T01:42:58.590+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89630, 건너뜀
-2025-05-18T01:42:58.590+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89623, 건너뜀
-2025-05-18T01:42:58.591+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89578, 건너뜀
-2025-05-18T01:42:58.591+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89554, 건너뜀
-2025-05-18T01:42:58.592+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 80500, 건너뜀
-2025-05-18T01:42:58.592+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89610, 건너뜀
-2025-05-18T01:42:58.593+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89520, 건너뜀
-2025-05-18T01:42:58.593+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89632, 건너뜀
-2025-05-18T01:42:58.594+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89657, 건너뜀
-2025-05-18T01:42:58.594+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89624, 건너뜀
-2025-05-18T01:42:58.595+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89621, 건너뜀
-2025-05-18T01:42:58.595+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89582, 건너뜀
-2025-05-18T01:42:58.596+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89548, 건너뜀
-2025-05-18T01:42:58.596+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89622, 건너뜀
-2025-05-18T01:42:58.596+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 85512, 건너뜀
-2025-05-18T01:42:58.597+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 84279, 건너뜀
-2025-05-18T01:42:58.597+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89425, 건너뜀
-2025-05-18T01:42:58.598+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 84818, 건너뜀
-2025-05-18T01:42:58.598+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89648, 건너뜀
-2025-05-18T01:42:58.599+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: [씨네뮤지엄] 누구나 알지만 아무도 잘 모른다, 피카소
-2025-05-18T01:42:58.600+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89640, 건너뜀
-2025-05-18T01:42:58.601+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89563, 건너뜀
-2025-05-18T01:42:58.601+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89513, 건너뜀
-2025-05-18T01:42:58.602+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89555, 건너뜀
-2025-05-18T01:42:58.602+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89450, 건너뜀
-2025-05-18T01:42:58.602+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: 정효빈 Fan Meeting [Oh！ Hyobbi Day！]
-2025-05-18T01:42:58.604+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89571, 건너뜀
-2025-05-18T01:42:58.604+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89583, 건너뜀
-2025-05-18T01:42:58.605+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89598, 건너뜀
-2025-05-18T01:42:58.605+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89644, 건너뜀
-2025-05-18T01:42:58.606+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89647, 건너뜀
-2025-05-18T01:42:58.606+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89585, 건너뜀
-2025-05-18T01:42:58.606+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89599, 건너뜀
-2025-05-18T01:42:58.607+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 영화 저장 완료: [씨네뮤지엄] 내셔널갤러리, 예술의 흐름을 담다.
-2025-05-18T01:42:58.609+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89641, 건너뜀
-2025-05-18T01:42:58.610+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89601, 건너뜀
-2025-05-18T01:42:58.610+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89595, 건너뜀
-2025-05-18T01:42:58.610+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89549, 건너뜀
-2025-05-18T01:42:58.611+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89517, 건너뜀
-2025-05-18T01:42:58.611+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89515, 건너뜀
-2025-05-18T01:42:58.612+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 89491, 건너뜀
-2025-05-18T01:42:58.612+09:00 DEBUG 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : 이미 존재하는 영화 ID: 88080, 건너뜀
-2025-05-18T01:42:58.612+09:00  INFO 16816 --- [AOD] [task-1] c.e.AOD.movie.CGV.service.CGVService     : CGV 영화 크롤링 작업 완료. 5개 신규 영화 저장됨
-2025-05-18T01:44:37.588+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-4] c.e.A.O.N.controller.NetflixController   : 일반 넷플릭스 콘텐츠 크롤링 요청 받음
-2025-05-18T01:44:37.589+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-4] c.e.A.O.N.controller.NetflixController   : 환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.
-2025-05-18T01:44:37.590+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 모든 넷플릭스 콘텐츠 크롤링 시작 (일반 + 최신)
-2025-05-18T01:44:37.590+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 일반 넷플릭스 콘텐츠 크롤링 시작
-2025-05-18T01:44:38.294+09:00  WARN 16816 --- [AOD] [task-2] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
-2025-05-18T01:44:38.294+09:00  WARN 16816 --- [AOD] [task-2] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-2025-05-18T01:44:38.301+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
-2025-05-18T01:44:42.765+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 쿠키 로드 완료: 7개 쿠키
-2025-05-18T01:44:49.520+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 쿠키 로드 후 URL: https://www.netflix.com/browse
-2025-05-18T01:44:49.537+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 게이트 발견 → 프로필 재선택
-2025-05-18T01:44:49.537+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 선택 페이지 대기 중...
-2025-05-18T01:44:49.558+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 선택 페이지 제목: 넷플릭스를 시청할 프로필을 선택하세요.
-2025-05-18T01:44:49.569+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 목록 찾음: 3개 항목
-2025-05-18T01:44:49.587+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 발견: 강현구 (URL: https://www.netflix.com/SwitchProfile?tkn=KQQJGPJ3XZAPHCHETQHDSFCBLU)
-2025-05-18T01:44:49.599+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 발견: 키﻿즈 (URL: https://www.netflix.com/SwitchProfile?tkn=LST24F7CW5BQPMDNL2P2TMCAAI)
-2025-05-18T01:44:49.601+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : '프로필 추가' 버튼 항목은 건너뜁니다.
-2025-05-18T01:44:49.602+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 첫 번째 프로필 '강현구'을 선택합니다.
-2025-05-18T01:44:49.602+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 클릭 실행: 강현구
-2025-05-18T01:44:49.639+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 전환 후 URL: https://www.netflix.com/browse
-2025-05-18T01:44:49.645+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 프로필 선택 성공: 강현구
-2025-05-18T01:44:49.652+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 쿠키 저장 완료: 6개 쿠키
-2025-05-18T01:44:49.654+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 쿠키 저장 완료: 6개 쿠키
-2025-05-18T01:45:07.448+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABT1VScGx1jRmiL305O3Ey9S5zdatVjQIpIkCQSDqjhfBSfssbraVHGuKBmlAbBBjNY47oXZuhb0-1Z-FLRMWwUx9kwIqLNI9EsA-.webp?r=88f
-2025-05-18T01:45:07.448+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 탄금
-2025-05-18T01:45:13.312+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABcZDa_WC8oNqpH8NGLFTslFCLxcr2AbEykgu7MxRnu3slFbmWQY5dHdAnRm2uRyPd4FEQsGYFeAJlgSypUg2eNpEAK2JyzEOtFG5.webp?r=e6c
-2025-05-18T01:45:13.312+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 언젠가는 슬기로울 전공의생활
-2025-05-18T01:45:18.317+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbkJS1y-7AfbbBnHaGg3cwGkT0u3GfmuIHNKt9QUW5_07y13uAPZqHWFAF6mhCYchAcWQ1N15-kP4cAiZ-WFBfe4q66n2bUAu8J3.webp?r=9db
-2025-05-18T01:45:18.317+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 하우스
-2025-05-18T01:45:24.767+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABU_W6MF8XSF1KAWsHdbemGSHOftSKx6Xs7VxsmNbMHikeyPxd3G9NloXBvAtfyWF3rx1APwK2lEPOxRzkT2vA0bYdrDMnXv5IQSs.webp?r=bcb
-2025-05-18T01:45:24.768+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 데블스 플랜
-2025-05-18T01:45:30.022+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 이미지 추출 성공: https://occ-0-8124-395.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABZWpbgUOpk9k2D0SMSP1iEM9wDmXp26H10fh5t5HDLXm9-VPVaDXpwQnzcCQQEx5sn0D4A8PcEODRNfWTCTOpgoP8ZqzRVsel12u.webp?r=3ea
-2025-05-18T01:45:30.022+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 세부 정보 수집 완료: 태어난 김에 세계일주
-2025-05-18T01:45:31.701+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 크롤링 완료: 5 개의 콘텐츠 발견
-2025-05-18T01:45:31.921+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 저장 완료: 5 개의 콘텐츠 저장됨
-2025-05-18T01:45:32.050+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 일반 넷플릭스 콘텐츠 크롤링 종료
-2025-05-18T01:45:32.050+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 최신 넷플릭스 콘텐츠 크롤링 시작
-2025-05-18T01:45:32.700+09:00  WARN 16816 --- [AOD] [task-2] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
-2025-05-18T01:45:32.700+09:00  WARN 16816 --- [AOD] [task-2] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-2025-05-18T01:45:32.700+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 넷플릭스 크롤러 초기화 - 프로필: 기본값(첫 번째 프로필)
-2025-05-18T01:45:42.100+09:00  INFO 16816 --- [AOD] [task-2] NetflixCrawler                           : 로그인 성공: https://www.netflix.com/browse
-2025-05-18T01:45:51.667+09:00  WARN 16816 --- [AOD] [task-2] NetflixCrawler                           : 최신 콘텐츠 항목 없음
-2025-05-18T01:45:51.667+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 최신 콘텐츠 크롤링 완료: 0 개의 콘텐츠 발견
-2025-05-18T01:45:51.667+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 저장 완료: 0 개의 최신 콘텐츠 저장됨
-2025-05-18T01:45:51.751+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 최신 넷플릭스 콘텐츠 크롤링 종료
-2025-05-18T01:45:51.751+09:00  INFO 16816 --- [AOD] [task-2] c.e.A.O.N.service.NetflixCrawlerService  : 모든 넷플릭스 콘텐츠 크롤링 완료
-2025-05-18T01:46:35.944+09:00  INFO 16816 --- [AOD] [http-nio-8080-exec-6] o.apache.coyote.http11.Http11Processor   : Error parsing HTTP request header
- Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+2025-05-26T02:24:56.505+09:00  INFO 51196 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-26T02:24:56.550+09:00  WARN 51196 --- [AOD] [main] com.zaxxer.hikari.pool.ProxyConnection   : HikariPool-1 - Connection org.postgresql.jdbc.PgConnection@23c72128 marked as broken because of SQLSTATE(0A000), ErrorCode(0)
 
-java.lang.IllegalArgumentException: Invalid character found in the request target [/startGameScrappingFromTo?start={10}&end={20} ]. The valid characters are defined in RFC 7230 and RFC 3986
-	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:484) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:270) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.39.jar:10.1.39]
-	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+org.postgresql.util.PSQLException: ERROR: cannot alter type of a column used by a view or rule
+  Detail: rule _RETURN on view content_avg_ratings depends on column "content_title"
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2725) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2412) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:371) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:502) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:419) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:341) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:326) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:302) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:297) ~[postgresql-42.7.3.jar:42.7.3]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:576) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:516) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:334) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:233) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1859) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1808) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:601) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:347) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.4.jar:3.4.4]
+	at com.example.AOD.AodApplication.main(AodApplication.java:15) ~[main/:na]
 
-2025-05-18T01:48:29.422+09:00  INFO 16816 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-05-18T01:48:29.426+09:00  INFO 16816 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-05-18T01:48:29.428+09:00  INFO 16816 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T01:48:29.430+09:00  INFO 16816 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2025-05-18T01:48:29.431+09:00  INFO 16816 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2025-05-18T02:04:15.844+09:00  INFO 37231 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 37231 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
-2025-05-18T02:04:15.845+09:00 DEBUG 37231 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
-2025-05-18T02:04:15.845+09:00  INFO 37231 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
-2025-05-18T02:04:16.104+09:00  INFO 37231 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-05-18T02:04:16.147+09:00  INFO 37231 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 38 ms. Found 26 JPA repository interfaces.
-2025-05-18T02:04:16.356+09:00  INFO 37231 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2025-05-18T02:04:16.361+09:00  INFO 37231 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-05-18T02:04:16.361+09:00  INFO 37231 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
-2025-05-18T02:04:16.380+09:00  INFO 37231 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-05-18T02:04:16.380+09:00  INFO 37231 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 518 ms
-2025-05-18T02:04:16.441+09:00  INFO 37231 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-05-18T02:04:16.465+09:00  INFO 37231 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
-2025-05-18T02:04:16.476+09:00  INFO 37231 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-05-18T02:04:16.583+09:00  INFO 37231 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-05-18T02:04:16.595+09:00  INFO 37231 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-05-18T02:04:16.659+09:00  INFO 37231 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3eec8583
-2025-05-18T02:04:16.660+09:00  INFO 37231 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-05-18T02:04:16.674+09:00  WARN 37231 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-05-18T02:04:16.680+09:00  INFO 37231 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2025-05-26T02:24:56.552+09:00  WARN 51196 --- [AOD] [main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table if exists content_ratings 
+       alter column content_title set data type varchar(255)" via JDBC [ERROR: cannot alter type of a column used by a view or rule
+  Detail: rule _RETURN on view content_avg_ratings depends on column "content_title"]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table if exists content_ratings 
+       alter column content_title set data type varchar(255)" via JDBC [ERROR: cannot alter type of a column used by a view or rule
+  Detail: rule _RETURN on view content_avg_ratings depends on column "content_title"]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:576) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:516) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:334) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:233) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1859) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1808) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:601) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:347) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.4.jar:3.4.4]
+	at com.example.AOD.AodApplication.main(AodApplication.java:15) ~[main/:na]
+Caused by: org.postgresql.util.PSQLException: ERROR: cannot alter type of a column used by a view or rule
+  Detail: rule _RETURN on view content_avg_ratings depends on column "content_title"
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2725) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2412) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:371) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:502) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:419) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:341) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:326) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:302) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:297) ~[postgresql-42.7.3.jar:42.7.3]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	... 37 common frames omitted
+
+2025-05-26T02:24:56.552+09:00  WARN 51196 --- [AOD] [main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table if exists content_ratings 
+       alter column content_type set data type varchar(255)" via JDBC [This connection has been closed.]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table if exists content_ratings 
+       alter column content_type set data type varchar(255)" via JDBC [This connection has been closed.]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:576) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:516) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:334) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:233) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1859) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1808) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:601) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:347) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.4.jar:3.4.4]
+	at com.example.AOD.AodApplication.main(AodApplication.java:15) ~[main/:na]
+Caused by: org.postgresql.util.PSQLException: This connection has been closed.
+	at org.postgresql.jdbc.PgConnection.checkClosed(PgConnection.java:1009) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgConnection.getAutoCommit(PgConnection.java:969) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:463) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:419) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:341) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:326) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:302) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:297) ~[postgresql-42.7.3.jar:42.7.3]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	... 37 common frames omitted
+
+2025-05-26T02:24:56.553+09:00  WARN 51196 --- [AOD] [main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table if exists user_preferences 
+       alter column preferred_age_rating set data type varchar(255)" via JDBC [This connection has been closed.]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table if exists user_preferences 
+       alter column preferred_age_rating set data type varchar(255)" via JDBC [This connection has been closed.]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:576) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:516) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:334) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:233) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1859) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1808) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:601) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:347) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.4.jar:3.4.4]
+	at com.example.AOD.AodApplication.main(AodApplication.java:15) ~[main/:na]
+Caused by: org.postgresql.util.PSQLException: This connection has been closed.
+	at org.postgresql.jdbc.PgConnection.checkClosed(PgConnection.java:1009) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgConnection.getAutoCommit(PgConnection.java:969) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:463) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:419) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:341) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:326) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:302) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:297) ~[postgresql-42.7.3.jar:42.7.3]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	... 37 common frames omitted
+
+2025-05-26T02:24:56.553+09:00  WARN 51196 --- [AOD] [main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table if exists user_preferred_content_types 
+       alter column content_type set data type varchar(255)" via JDBC [This connection has been closed.]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table if exists user_preferred_content_types 
+       alter column content_type set data type varchar(255)" via JDBC [This connection has been closed.]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:576) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:516) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:334) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:233) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1859) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1808) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:601) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:347) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.4.jar:3.4.4]
+	at com.example.AOD.AodApplication.main(AodApplication.java:15) ~[main/:na]
+Caused by: org.postgresql.util.PSQLException: This connection has been closed.
+	at org.postgresql.jdbc.PgConnection.checkClosed(PgConnection.java:1009) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgConnection.getAutoCommit(PgConnection.java:969) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:463) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:419) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:341) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:326) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:302) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:297) ~[postgresql-42.7.3.jar:42.7.3]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	... 37 common frames omitted
+
+2025-05-26T02:24:56.554+09:00  WARN 51196 --- [AOD] [main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table if exists user_preferred_genres 
+       alter column genre set data type varchar(255)" via JDBC [This connection has been closed.]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table if exists user_preferred_genres 
+       alter column genre set data type varchar(255)" via JDBC [This connection has been closed.]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:576) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:516) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:334) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:233) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1859) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1808) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:601) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:347) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.4.jar:3.4.4]
+	at com.example.AOD.AodApplication.main(AodApplication.java:15) ~[main/:na]
+Caused by: org.postgresql.util.PSQLException: This connection has been closed.
+	at org.postgresql.jdbc.PgConnection.checkClosed(PgConnection.java:1009) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgConnection.getAutoCommit(PgConnection.java:969) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:463) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:419) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:341) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:326) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:302) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:297) ~[postgresql-42.7.3.jar:42.7.3]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	... 37 common frames omitted
+
+2025-05-26T02:24:56.555+09:00  WARN 51196 --- [AOD] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 08003
+2025-05-26T02:24:56.555+09:00 ERROR 51196 --- [AOD] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : This connection has been closed.
+2025-05-26T02:24:56.557+09:00 ERROR 51196 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Failed to initialize JPA EntityManagerFactory: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Error accessing column metadata: public.custom_field_calculation [This connection has been closed.] [n/a]
+2025-05-26T02:24:56.557+09:00  WARN 51196 --- [AOD] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Error accessing column metadata: public.custom_field_calculation [This connection has been closed.] [n/a]
+2025-05-26T02:24:56.558+09:00  INFO 51196 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-26T02:24:56.599+09:00  INFO 51196 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-26T02:24:56.600+09:00  INFO 51196 --- [AOD] [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2025-05-26T02:24:56.606+09:00  INFO 51196 --- [AOD] [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-05-26T02:24:56.612+09:00 ERROR 51196 --- [AOD] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Error accessing column metadata: public.custom_field_calculation [This connection has been closed.] [n/a]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1812) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:601) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:347) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.5.jar:6.2.5]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.4.jar:3.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.4.jar:3.4.4]
+	at com.example.AOD.AodApplication.main(AodApplication.java:15) ~[main/:na]
+Caused by: jakarta.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Error accessing column metadata: public.custom_field_calculation [This connection has been closed.] [n/a]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:431) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1859) ~[spring-beans-6.2.5.jar:6.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1808) ~[spring-beans-6.2.5.jar:6.2.5]
+	... 15 common frames omitted
+Caused by: org.hibernate.exception.JDBCConnectionException: Error accessing column metadata: public.custom_field_calculation [This connection has been closed.] [n/a]
+	at org.hibernate.exception.internal.SQLStateConversionDelegate.convert(SQLStateConversionDelegate.java:100) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:94) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.extract.internal.AbstractInformationExtractorImpl.convertSQLException(AbstractInformationExtractorImpl.java:124) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.extract.internal.AbstractInformationExtractorImpl.getForeignKeys(AbstractInformationExtractorImpl.java:1436) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.extract.internal.TableInformationImpl.foreignKeys(TableInformationImpl.java:97) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.extract.internal.TableInformationImpl.getForeignKeys(TableInformationImpl.java:91) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.equivalentForeignKeyExistsInDatabase(AbstractSchemaMigrator.java:485) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.checkForExistingForeignKey(AbstractSchemaMigrator.java:477) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applyForeignKeys(AbstractSchemaMigrator.java:444) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:269) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.5.jar:6.2.5]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.5.jar:6.2.5]
+	... 19 common frames omitted
+Caused by: org.postgresql.util.PSQLException: This connection has been closed.
+	at org.postgresql.jdbc.PgConnection.checkClosed(PgConnection.java:1009) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgConnection.createStatement(PgConnection.java:1852) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgConnection.createStatement(PgConnection.java:529) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgDatabaseMetaData.getMaxIndexKeys(PgDatabaseMetaData.java:65) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgDatabaseMetaData.getImportedExportedKeys(PgDatabaseMetaData.java:2436) ~[postgresql-42.7.3.jar:42.7.3]
+	at org.postgresql.jdbc.PgDatabaseMetaData.getImportedKeys(PgDatabaseMetaData.java:2491) ~[postgresql-42.7.3.jar:42.7.3]
+	at com.zaxxer.hikari.pool.ProxyDatabaseMetaData.getImportedKeys(ProxyDatabaseMetaData.java:167) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyDatabaseMetaData.getImportedKeys(HikariProxyDatabaseMetaData.java) ~[HikariCP-5.1.0.jar:na]
+	at org.hibernate.tool.schema.extract.internal.InformationExtractorJdbcDatabaseMetaDataImpl.processImportedKeysResultSet(InformationExtractorJdbcDatabaseMetaDataImpl.java:129) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	at org.hibernate.tool.schema.extract.internal.AbstractInformationExtractorImpl.getForeignKeys(AbstractInformationExtractorImpl.java:1417) ~[hibernate-core-6.6.11.Final.jar:6.6.11.Final]
+	... 38 common frames omitted
+
+2025-05-26T02:27:43.107+09:00  INFO 53730 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 53730 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
+2025-05-26T02:27:43.108+09:00 DEBUG 53730 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-05-26T02:27:43.109+09:00  INFO 53730 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-26T02:27:43.434+09:00  INFO 53730 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-26T02:27:43.532+09:00  INFO 53730 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 94 ms. Found 30 JPA repository interfaces.
+2025-05-26T02:27:43.793+09:00  INFO 53730 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-05-26T02:27:43.799+09:00  INFO 53730 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-26T02:27:43.799+09:00  INFO 53730 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-05-26T02:27:43.818+09:00  INFO 53730 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-05-26T02:27:43.819+09:00  INFO 53730 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 692 ms
+2025-05-26T02:27:43.850+09:00 DEBUG 53730 --- [AOD] [main] c.e.A.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2025-05-26T02:27:43.906+09:00  INFO 53730 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-26T02:27:43.931+09:00  INFO 53730 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-05-26T02:27:43.943+09:00  INFO 53730 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-26T02:27:44.062+09:00  INFO 53730 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-26T02:27:44.073+09:00  INFO 53730 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-26T02:27:44.118+09:00  INFO 53730 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@7ef60c02
+2025-05-26T02:27:44.119+09:00  INFO 53730 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-26T02:27:44.132+09:00  WARN 53730 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-26T02:27:44.138+09:00  INFO 53730 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
 	Database version: 17.5
@@ -233,139 +482,24 @@ java.lang.IllegalArgumentException: Invalid character found in the request targe
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2025-05-18T02:04:17.123+09:00  INFO 37231 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-05-18T02:04:17.351+09:00  INFO 37231 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T02:04:17.607+09:00  INFO 37231 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-05-18T02:04:17.786+09:00  WARN 37231 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-05-18T02:04:17.960+09:00  INFO 37231 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2025-05-18T02:04:17.965+09:00  INFO 37231 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.267 seconds (process running for 2.504)
-2025-05-18T02:04:21.838+09:00  INFO 37231 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-05-18T02:04:21.838+09:00  INFO 37231 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-05-18T02:04:21.840+09:00  INFO 37231 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2025-05-18T02:12:19.591+09:00  WARN 37231 --- [AOD] [task-1] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 136
-2025-05-18T02:12:19.592+09:00  WARN 37231 --- [AOD] [task-1] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 136.0.7103.114. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.25.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-2025-05-18T02:13:54.624+09:00  INFO 37231 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-05-18T02:13:54.628+09:00  INFO 37231 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-05-18T02:13:54.631+09:00  INFO 37231 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T02:13:54.632+09:00  INFO 37231 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2025-05-18T02:13:54.633+09:00  INFO 37231 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2025-05-18T02:13:57.133+09:00  INFO 46062 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 46062 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
-2025-05-18T02:13:57.134+09:00 DEBUG 46062 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
-2025-05-18T02:13:57.134+09:00  INFO 46062 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
-2025-05-18T02:13:57.373+09:00  INFO 46062 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-05-18T02:13:57.418+09:00  INFO 46062 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 42 ms. Found 26 JPA repository interfaces.
-2025-05-18T02:13:57.621+09:00  INFO 46062 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2025-05-18T02:13:57.626+09:00  INFO 46062 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-05-18T02:13:57.626+09:00  INFO 46062 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
-2025-05-18T02:13:57.646+09:00  INFO 46062 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-05-18T02:13:57.646+09:00  INFO 46062 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 495 ms
-2025-05-18T02:13:57.702+09:00  INFO 46062 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-05-18T02:13:57.720+09:00  INFO 46062 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
-2025-05-18T02:13:57.729+09:00  INFO 46062 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-05-18T02:13:57.819+09:00  INFO 46062 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-05-18T02:13:57.828+09:00  INFO 46062 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-05-18T02:13:57.884+09:00  INFO 46062 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@cae2a97
-2025-05-18T02:13:57.885+09:00  INFO 46062 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-05-18T02:13:57.897+09:00  WARN 46062 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-05-18T02:13:57.903+09:00  INFO 46062 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 17.5
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2025-05-18T02:13:58.320+09:00  INFO 46062 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-05-18T02:13:58.613+09:00  INFO 46062 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T02:13:58.878+09:00  INFO 46062 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-05-18T02:13:59.054+09:00  WARN 46062 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-05-18T02:13:59.225+09:00  INFO 46062 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2025-05-18T02:13:59.230+09:00  INFO 46062 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.235 seconds (process running for 2.435)
-2025-05-18T02:14:03.271+09:00  INFO 46062 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-05-18T02:14:03.271+09:00  INFO 46062 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-05-18T02:14:03.272+09:00  INFO 46062 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2025-05-18T02:17:17.675+09:00  INFO 46062 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-05-18T02:17:17.680+09:00  INFO 46062 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-05-18T02:17:17.685+09:00  INFO 46062 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T02:17:17.688+09:00  INFO 46062 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2025-05-18T02:17:17.690+09:00  INFO 46062 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2025-05-18T02:18:01.816+09:00  INFO 49845 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 49845 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
-2025-05-18T02:18:01.817+09:00 DEBUG 49845 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
-2025-05-18T02:18:01.818+09:00  INFO 49845 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
-2025-05-18T02:18:02.262+09:00  INFO 49845 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-05-18T02:18:02.315+09:00  INFO 49845 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 26 JPA repository interfaces.
-2025-05-18T02:18:02.694+09:00  INFO 49845 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2025-05-18T02:18:02.701+09:00  INFO 49845 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-05-18T02:18:02.702+09:00  INFO 49845 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
-2025-05-18T02:18:02.734+09:00  INFO 49845 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-05-18T02:18:02.734+09:00  INFO 49845 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 873 ms
-2025-05-18T02:18:02.831+09:00  INFO 49845 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-05-18T02:18:02.866+09:00  INFO 49845 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
-2025-05-18T02:18:02.880+09:00  INFO 49845 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-05-18T02:18:03.021+09:00  INFO 49845 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-05-18T02:18:03.036+09:00  INFO 49845 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-05-18T02:18:03.095+09:00  INFO 49845 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@14656be5
-2025-05-18T02:18:03.096+09:00  INFO 49845 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-05-18T02:18:03.110+09:00  WARN 49845 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-05-18T02:18:03.117+09:00  INFO 49845 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 17.5
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2025-05-18T02:18:03.734+09:00  INFO 49845 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-05-18T02:18:03.949+09:00  INFO 49845 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T02:18:04.189+09:00  INFO 49845 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-05-18T02:18:04.394+09:00  WARN 49845 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-05-18T02:18:04.566+09:00  INFO 49845 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2025-05-18T02:18:04.572+09:00  INFO 49845 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.988 seconds (process running for 3.425)
-2025-05-18T02:18:08.211+09:00  INFO 49845 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-05-18T02:18:08.212+09:00  INFO 49845 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-05-18T02:18:08.212+09:00  INFO 49845 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
-2025-05-18T02:18:49.485+09:00  INFO 49845 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-05-18T02:18:49.490+09:00  INFO 49845 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-05-18T02:18:49.494+09:00  INFO 49845 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T02:18:49.496+09:00  INFO 49845 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2025-05-18T02:18:49.497+09:00  INFO 49845 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2025-05-18T02:18:53.902+09:00  INFO 50660 --- [AOD] [main] com.example.AOD.AodApplication           : Starting AodApplication using Java 17.0.14 with PID 50660 (/Users/kang/-AOD-All-of-Dopamine-back/build/classes/java/main started by kang in /Users/kang/-AOD-All-of-Dopamine-back)
-2025-05-18T02:18:53.902+09:00 DEBUG 50660 --- [AOD] [main] com.example.AOD.AodApplication           : Running with Spring Boot v3.4.4, Spring v6.2.5
-2025-05-18T02:18:53.903+09:00  INFO 50660 --- [AOD] [main] com.example.AOD.AodApplication           : No active profile set, falling back to 1 default profile: "default"
-2025-05-18T02:18:54.154+09:00  INFO 50660 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-05-18T02:18:54.207+09:00  INFO 50660 --- [AOD] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 26 JPA repository interfaces.
-2025-05-18T02:18:54.416+09:00  INFO 50660 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2025-05-18T02:18:54.421+09:00  INFO 50660 --- [AOD] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-05-18T02:18:54.421+09:00  INFO 50660 --- [AOD] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.39]
-2025-05-18T02:18:54.440+09:00  INFO 50660 --- [AOD] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-05-18T02:18:54.441+09:00  INFO 50660 --- [AOD] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 520 ms
-2025-05-18T02:18:54.500+09:00  INFO 50660 --- [AOD] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-05-18T02:18:54.530+09:00  INFO 50660 --- [AOD] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.11.Final
-2025-05-18T02:18:54.541+09:00  INFO 50660 --- [AOD] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-05-18T02:18:54.637+09:00  INFO 50660 --- [AOD] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-05-18T02:18:54.648+09:00  INFO 50660 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-05-18T02:18:54.701+09:00  INFO 50660 --- [AOD] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@dae5e0
-2025-05-18T02:18:54.702+09:00  INFO 50660 --- [AOD] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-05-18T02:18:54.715+09:00  WARN 50660 --- [AOD] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-05-18T02:18:54.721+09:00  INFO 50660 --- [AOD] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 17.5
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2025-05-18T02:18:55.148+09:00  INFO 50660 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-05-18T02:18:55.368+09:00  INFO 50660 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T02:18:55.614+09:00  INFO 50660 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-05-18T02:18:55.791+09:00  WARN 50660 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-05-18T02:18:55.958+09:00  INFO 50660 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2025-05-18T02:18:55.963+09:00  INFO 50660 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 2.194 seconds (process running for 2.41)
-2025-05-18T02:18:57.970+09:00  INFO 50660 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-05-18T02:18:57.970+09:00  INFO 50660 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-05-18T02:18:57.971+09:00  INFO 50660 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
-2025-05-18T02:28:19.197+09:00  INFO 50660 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-05-18T02:28:19.201+09:00  INFO 50660 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-05-18T02:28:19.205+09:00  INFO 50660 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-05-18T02:28:19.207+09:00  INFO 50660 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2025-05-18T02:28:19.209+09:00  INFO 50660 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-26T02:27:44.608+09:00  INFO 53730 --- [AOD] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-26T02:27:44.861+09:00  INFO 53730 --- [AOD] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-26T02:27:45.272+09:00  INFO 53730 --- [AOD] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-05-26T02:27:45.622+09:00  WARN 53730 --- [AOD] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-26T02:27:45.635+09:00  WARN 53730 --- [AOD] [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 6c88d58e-6b2e-4103-8d1f-d74f1bcfa7fa
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-05-26T02:27:45.638+09:00  INFO 53730 --- [AOD] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2025-05-26T02:27:45.987+09:00  INFO 53730 --- [AOD] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-05-26T02:27:45.992+09:00  INFO 53730 --- [AOD] [main] com.example.AOD.AodApplication           : Started AodApplication in 3.032 seconds (process running for 3.319)
+2025-05-26T02:41:26.756+09:00  INFO 53730 --- [AOD] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-05-26T02:41:26.756+09:00  INFO 53730 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-05-26T02:41:26.760+09:00  INFO 53730 --- [AOD] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2025-05-26T02:58:33.597+09:00  INFO 53730 --- [AOD] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-26T02:58:33.601+09:00  INFO 53730 --- [AOD] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-26T02:58:33.617+09:00  INFO 53730 --- [AOD] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-26T02:58:33.619+09:00  INFO 53730 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-26T02:58:33.620+09:00  INFO 53730 --- [AOD] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

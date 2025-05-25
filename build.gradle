@@ -47,6 +47,9 @@ dependencies {
 
 	implementation 'org.postgresql:postgresql:42.7.3'
 
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'  // OpenAI API 호출용
+	implementation 'org.springframework.boot:spring-boot-starter-cache'   // 추천 결과 캐싱용
+
 }
 
 tasks.named('test') {
