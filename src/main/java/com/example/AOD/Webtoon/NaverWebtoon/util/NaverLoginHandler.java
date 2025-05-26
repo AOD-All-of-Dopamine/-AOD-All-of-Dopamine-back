@@ -10,12 +10,22 @@ import java.util.Set;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NaverLoginHandler {
 
     private final int SLEEP_TIME = 2000;
+
+    @Value("${naver.id}")
+    private String naverId;
+    @Value("${naver.pw}")
+    private String naverPw;
+
+    public void naverLogin(WebDriver driver) throws InterruptedException, AWTException{
+        naverLogin(driver, naverId, naverPw);
+    }
 
     public void naverLogin(WebDriver driver, String id, String pw) throws InterruptedException, AWTException {
         driver.get("https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com/");
@@ -30,7 +40,6 @@ public class NaverLoginHandler {
 
         driver.findElement(By.id("log.login")).click();
         Thread.sleep(SLEEP_TIME);
-
     }
 
     public String getCookieString(WebDriver driver) {
