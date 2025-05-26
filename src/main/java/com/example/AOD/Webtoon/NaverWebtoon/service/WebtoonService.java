@@ -26,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class WebtoonService {
     private final WebtoonRepository webtoonRepository;
-    private final NaverWebtoonCrawler naverWebtoonCrawler;
     private final WebtoonGenreRepository webtoonGenreRepository;
     private final WebtoonAuthorRepository webtoonAuthorRepository;
+
+    private final NaverWebtoonCrawler naverWebtoonCrawler;
+    private final NaverLoginHandler naverLoginHandler;
 
     public Webtoon saveWebtoon(NaverWebtoonDTO dto) {
         List<WebtoonAuthor> authors = dto.getAuthors().stream()
@@ -51,13 +53,9 @@ public class WebtoonService {
     @Async
     public void crawl() throws InterruptedException, AWTException {
         ChromeDriverProvider chromeDriverProvider = new ChromeDriverProvider();
-        NaverLoginHandler loginHandler = new NaverLoginHandler();
         WebDriver driver = chromeDriverProvider.getDriver();
 
-        String id = System.getenv("naverId");
-        String pw = System.getenv("naverPw");
-        System.out.println(id+" "+pw);
-        loginHandler.naverLogin(driver, id, pw);
+        naverLoginHandler.naverLogin(driver);
         //전부 DTO를 들고 한번에 처리하는걸 트랜잭션 개선이 필요해보임
         ArrayList<NaverWebtoonDTO> naverWebtoonDTOS = naverWebtoonCrawler.crawlAllOngoingWebtoons(driver);
         System.out.println("Save Webtoon Start");
@@ -75,13 +73,8 @@ public class WebtoonService {
     public void crawlNewWebtoons() throws InterruptedException, AWTException {
         ChromeDriverProvider chromeDriverProvider = new ChromeDriverProvider();
         WebDriver driver = chromeDriverProvider.getDriver();
-        NaverLoginHandler loginHandler = new NaverLoginHandler();
 
-        String id = System.getenv("naverId");
-        String pw = System.getenv("naverPw");
-        System.out.println("신작 웹툰 크롤링 시작: " + id);
-
-        loginHandler.naverLogin(driver, id, pw);
+        naverLoginHandler.naverLogin(driver);
 
         // 신작 웹툰 크롤링 실행
         ArrayList<NaverWebtoonDTO> newWebtoons = naverWebtoonCrawler.crawlNewWebtoons(driver);
@@ -102,4 +95,5 @@ public class WebtoonService {
         System.out.println("신작 웹툰 저장 완료: " + savedCount + "개 신규 저장");
         driver.quit();
     }
+
 }

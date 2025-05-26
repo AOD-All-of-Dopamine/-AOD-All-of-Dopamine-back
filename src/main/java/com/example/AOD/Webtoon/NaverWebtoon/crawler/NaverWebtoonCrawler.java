@@ -16,37 +16,48 @@ public class NaverWebtoonCrawler {
     private final String newWebtoonUrl = "https://comic.naver.com/webtoon?tab=new";
     private final int SLEEP_TIME = 300;
 
+
     public ArrayList<NaverWebtoonDTO> crawlAllOngoingWebtoons(WebDriver driver){
-        ArrayList<String> hrefList = new ArrayList<>();
+        ArrayList<String> hrefList = crawlWebtoonLinkList(driver, baseUrl, "WeekdayMainView__daily_all_wrap--UvRFc");
+        return exportWebtoonDtos(driver,hrefList);
+    }
+
+    public ArrayList<NaverWebtoonDTO> crawlNewWebtoons(WebDriver driver) {
+        ArrayList<String> hrefList = crawlWebtoonLinkList(driver, newWebtoonUrl, "ContentList__content_list--q5KXY");
+        return exportWebtoonDtos(driver,hrefList);
+    }
+
+    private ArrayList<String> crawlWebtoonLinkList(WebDriver driver, String url, String elemClassName){
+        ArrayList<String> WebtoonLinks = new ArrayList<>();
         try {
-            driver.get(baseUrl);
+            driver.get(url);
             Thread.sleep(SLEEP_TIME);
 
-            WebElement element = driver.findElement(By.className("WeekdayMainView__daily_all_wrap--UvRFc"));
+            WebElement element = driver.findElement(By.className(elemClassName));
             List<WebElement> listItems = element.findElements(By.tagName("li"));
 
             for (WebElement listItem : listItems) {
                 WebElement link = listItem.findElement(By.className("Poster__link--sopnC"));
                 String href = link.getAttribute("href");
 
-                hrefList.add(href);
+                WebtoonLinks.add(href);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return WebtoonLinks;
+    }
 
+    private ArrayList<NaverWebtoonDTO> exportWebtoonDtos(WebDriver driver, ArrayList<String> webtoonHrefList){
         ArrayList<NaverWebtoonDTO> webtoons = new ArrayList<>();
-        for(String href : hrefList){
-            NaverWebtoonDTO naverWebtoonDTO = crawlWebtoonDetails(href, driver);
-            if(naverWebtoonDTO!=null) webtoons.add(naverWebtoonDTO);
-       }
-
-        driver.quit();
-
+        for (String href : webtoonHrefList) {
+            NaverWebtoonDTO naverWebtoonDTO = crawlSingleWebtoon(driver, href);
+            if (naverWebtoonDTO != null) webtoons.add(naverWebtoonDTO);
+        }
         return webtoons;
     }
 
-    public NaverWebtoonDTO crawlWebtoonDetails(String href, WebDriver driver){
+    public NaverWebtoonDTO crawlSingleWebtoon(WebDriver driver, String href){
         href += "&sort=ASC";
         try {
             driver.get(href);
@@ -72,37 +83,6 @@ public class NaverWebtoonCrawler {
         return null;
     }
 
-    /**
-     * 네이버 웹툰 신작 탭에서 웹툰을 크롤링합니다.
-     */
-    public ArrayList<NaverWebtoonDTO> crawlNewWebtoons(WebDriver driver) {
-        ArrayList<String> hrefList = new ArrayList<>();
-        try {
-            driver.get(newWebtoonUrl);
-            Thread.sleep(SLEEP_TIME);
-
-            // 신작 탭의 리스트 컨테이너 찾기 - 클래스명만 수정
-            WebElement newWebtoonContainer = driver.findElement(By.className("ContentList__content_list--q5KXY"));
-            List<WebElement> listItems = newWebtoonContainer.findElements(By.tagName("li"));
-
-            for (WebElement listItem : listItems) {
-                WebElement link = listItem.findElement(By.className("Poster__link--sopnC"));
-                String href = link.getAttribute("href");
-
-                hrefList.add(href);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        ArrayList<NaverWebtoonDTO> webtoons = new ArrayList<>();
-        for (String href : hrefList) {
-            NaverWebtoonDTO naverWebtoonDTO = crawlWebtoonDetails(href, driver);
-            if (naverWebtoonDTO != null) webtoons.add(naverWebtoonDTO);
-        }
-
-        return webtoons;
-    }
 
     private String getThumbnail(WebElement elements) {
         return elements.findElement(By.className("Poster__image--d9XTI")).getAttribute("src");
