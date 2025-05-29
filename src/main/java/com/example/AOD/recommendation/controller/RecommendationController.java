@@ -1,4 +1,3 @@
-// 7. 추천 시스템 컨트롤러
 package com.example.AOD.recommendation.controller;
 
 import com.example.AOD.recommendation.domain.UserPreference;
@@ -6,6 +5,7 @@ import com.example.AOD.recommendation.domain.ContentRating;
 import com.example.AOD.recommendation.domain.LLMRecommendationRequest;
 import com.example.AOD.recommendation.service.TraditionalRecommendationService;
 import com.example.AOD.recommendation.service.LLMRecommendationService;
+import com.example.AOD.recommendation.service.UserPreferenceService;
 import com.example.AOD.recommendation.repository.UserPreferenceRepository;
 import com.example.AOD.recommendation.repository.ContentRatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +29,39 @@ public class RecommendationController {
     private LLMRecommendationService llmRecommendationService;
 
     @Autowired
+    private UserPreferenceService userPreferenceService;
+
+    @Autowired
     private UserPreferenceRepository userPreferenceRepository;
 
     @Autowired
     private ContentRatingRepository contentRatingRepository;
+
+    // 초기 추천 시스템 - 신규 회원용 (플랫폼별 테이블 직접 조회)
+    @GetMapping("/initial/{username}")
+    public ResponseEntity<Map<String, Object>> getInitialRecommendations(@PathVariable String username) {
+        try {
+            Map<String, List<?>> recommendations = userPreferenceService.getInitialRecommendations(username);
+
+            // 사용자가 선호도를 설정했는지 확인
+            Optional<UserPreference> preference = userPreferenceRepository.findByUsername(username);
+            boolean hasPreferences = preference.isPresent() &&
+                    (preference.get().getPreferredContentTypes() != null && !preference.get().getPreferredContentTypes().isEmpty());
+
+            Map<String, Object> response = Map.of(
+                    "recommendations", recommendations,
+                    "hasPreferences", hasPreferences,
+                    "message", hasPreferences ?
+                            username + "님의 취향에 맞는 작품들을 추천드립니다!" :
+                            "인기 작품들을 추천드립니다. 선호도를 설정하시면 더 정확한 추천을 받으실 수 있어요!"
+            );
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", "초기 추천을 불러오는 중 오류가 발생했습니다: " + e.getMessage()));
+        }
+    }
 
     // 전통적인 추천 시스템
     @GetMapping("/traditional/{username}")
@@ -83,14 +112,7 @@ public class RecommendationController {
             @PathVariable String username,
             @RequestBody UserPreference preferences) {
         try {
-            preferences.setUsername(username);
-
-            Optional<UserPreference> existingPref = userPreferenceRepository.findByUsername(username);
-            if (existingPref.isPresent()) {
-                preferences.setId(existingPref.get().getId());
-            }
-
-            UserPreference savedPreferences = userPreferenceRepository.save(preferences);
+            UserPreference savedPreferences = userPreferenceService.updateUserPreference(username, preferences);
             return ResponseEntity.ok(savedPreferences);
         } catch (Exception e) {
             e.printStackTrace();
@@ -225,6 +247,42 @@ public class RecommendationController {
             } else {
                 return ResponseEntity.notFound().build();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 장르 목록 조회 - 프론트엔드에서 선호도 설정할 때 사용
+    @GetMapping("/genres")
+    public ResponseEntity<Map<String, List<String>>> getAvailableGenres() {
+        try {
+            Map<String, List<String>> genres = Map.of(
+                    "movie", List.of("액션", "코미디", "드라마", "호러", "로맨스", "SF", "스릴러", "판타지", "애니메이션", "다큐멘터리"),
+                    "novel", List.of("로맨스", "판타지", "무협", "미스터리", "SF", "스릴러", "호러", "역사", "현대", "BL"),
+                    "webtoon", List.of("로맨스", "액션", "판타지", "일상", "개그", "스릴러", "드라마", "무협", "스포츠", "호러"),
+                    "ott", List.of("드라마", "예능", "다큐멘터리", "영화", "애니메이션", "키즈", "뮤직", "스포츠", "뉴스", "라이프스타일"),
+                    "game", List.of("액션", "RPG", "시뮬레이션", "스포츠", "레이싱", "퍼즐", "어드벤처", "전략", "FPS", "MMORPG")
+            );
+            return ResponseEntity.ok(genres);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 콘텐츠 타입 목록 조회
+    @GetMapping("/content-types")
+    public ResponseEntity<List<Map<String, String>>> getContentTypes() {
+        try {
+            List<Map<String, String>> contentTypes = List.of(
+                    Map.of("id", "movie", "name", "영화", "description", "극장에서 상영중인 최신 영화"),
+                    Map.of("id", "novel", "name", "웹소설", "description", "네이버 시리즈의 인기 웹소설"),
+                    Map.of("id", "webtoon", "name", "웹툰", "description", "네이버 웹툰의 인기 작품"),
+                    Map.of("id", "ott", "name", "OTT", "description", "넷플릭스의 인기 콘텐츠"),
+                    Map.of("id", "game", "name", "게임", "description", "스팀의 인기 게임")
+            );
+            return ResponseEntity.ok(contentTypes);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
