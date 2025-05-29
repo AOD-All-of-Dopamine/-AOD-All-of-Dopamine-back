@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,15 +32,11 @@ public class NaverLoginHandler {
         driver.get("https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com/");
         Thread.sleep(SLEEP_TIME);
 
-        driver.findElement(By.className("input_id")).click();
-        pasteString(id);
-        Thread.sleep(SLEEP_TIME/4);
-
-        driver.findElement(By.className("input_pw")).click();
-        pasteString(pw);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("document.getElementById('id').value='" + id + "'");
+        js.executeScript("document.getElementById('pw').value='" + pw + "'");
 
         driver.findElement(By.id("log.login")).click();
-        Thread.sleep(SLEEP_TIME);
     }
 
     public String getCookieString(WebDriver driver) {
