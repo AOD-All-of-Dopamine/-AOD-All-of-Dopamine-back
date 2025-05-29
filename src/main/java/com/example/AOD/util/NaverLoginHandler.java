@@ -1,4 +1,4 @@
-package com.example.AOD.Webtoon.NaverWebtoon.util;
+package com.example.AOD.util;
 
 import java.awt.AWTException;
 import java.awt.Robot;
@@ -61,19 +61,6 @@ public class NaverLoginHandler {
         }
         System.out.println("\n=== 병합된 쿠키 문자열 ===\n" + cookieString);
         return cookieString;
-    }
-
-    public static void pasteString(String str) throws AWTException {
-        //copy
-        StringSelection selection = new StringSelection(str);
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-
-        //paste
-        Robot robot = new Robot();
-        robot.keyPress(KeyEvent.VK_CONTROL);
-        robot.keyPress(KeyEvent.VK_V);
-        robot.keyRelease(KeyEvent.VK_V);
-        robot.keyRelease(KeyEvent.VK_CONTROL);
     }
 
 }

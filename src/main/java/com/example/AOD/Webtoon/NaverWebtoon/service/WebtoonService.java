@@ -9,7 +9,7 @@ import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonAuthorRepository;
 import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonGenreRepository;
 import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
 import com.example.AOD.util.ChromeDriverProvider;
-import com.example.AOD.Webtoon.NaverWebtoon.util.NaverLoginHandler;
+import com.example.AOD.util.NaverLoginHandler;
 import java.awt.AWTException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +34,7 @@ public class WebtoonService {
     private final NaverWebtoonCrawler naverWebtoonCrawler;
     private final NaverLoginHandler naverLoginHandler;
 
+    @Transactional
     public Webtoon saveWebtoon(NaverWebtoonDTO dto) {
         List<WebtoonAuthor> authors = dto.getAuthors().stream()
                 .map(name -> webtoonAuthorRepository.findByName(name)
@@ -53,18 +54,22 @@ public class WebtoonService {
     }
 
     @Async
-    public void crawl() throws InterruptedException, AWTException {
+    public void crawl() throws InterruptedException {
         ChromeDriverProvider chromeDriverProvider = new ChromeDriverProvider();
         WebDriver driver = chromeDriverProvider.getDriver();
 
         naverLoginHandler.naverLogin(driver);
         log.debug("login success");
-        //전부 DTO를 들고 한번에 처리하는걸 트랜잭션 개선이 필요해보임
+
         ArrayList<NaverWebtoonDTO> naverWebtoonDTOS = naverWebtoonCrawler.crawlAllOngoingWebtoons(driver);
+
         log.debug("Webtoon DTO conversion success");
         for (NaverWebtoonDTO naverWebtoonDTO : naverWebtoonDTOS) {
             saveWebtoon(naverWebtoonDTO);
         }
+        log.debug("Webtoon save complete!");
+
+        driver.quit();
     }
 
     /**
@@ -73,15 +78,14 @@ public class WebtoonService {
     @Async
     @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
     @Transactional
-    public void crawlNewWebtoons() throws InterruptedException, AWTException {
+    public void crawlNewWebtoons() throws InterruptedException {
         ChromeDriverProvider chromeDriverProvider = new ChromeDriverProvider();
         WebDriver driver = chromeDriverProvider.getDriver();
 
         naverLoginHandler.naverLogin(driver);
 
-        // 신작 웹툰 크롤링 실행
         ArrayList<NaverWebtoonDTO> newWebtoons = naverWebtoonCrawler.crawlNewWebtoons(driver);
-        System.out.println("신작 웹툰 크롤링 완료: " + newWebtoons.size() + "개 발견");
+        log.debug("newWebtoons DTO conversion success : {} detected", newWebtoons.size());
 
         // 이미 저장된 웹툰은 제외하고 새로운 웹툰만 저장
         int savedCount = 0;
@@ -94,8 +98,7 @@ public class WebtoonService {
                 savedCount++;
             }
         }
-
-        System.out.println("신작 웹툰 저장 완료: " + savedCount + "개 신규 저장");
+        log.debug("newWebtoons save complete! : {} saved", savedCount);
         driver.quit();
     }
 

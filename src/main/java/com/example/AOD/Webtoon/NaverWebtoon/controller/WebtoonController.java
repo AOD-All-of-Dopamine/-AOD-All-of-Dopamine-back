@@ -25,7 +25,7 @@ public class WebtoonController {
     }
 
     @GetMapping("/startCrawl")
-    public ResponseEntity<Map<String,Object>> startCrawl() throws InterruptedException, AWTException {
+    public ResponseEntity<Map<String,Object>> startCrawl() throws InterruptedException {
         webtoonService.crawl();
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
@@ -34,7 +34,7 @@ public class WebtoonController {
     }
 
     @GetMapping("/startNewWebtoonCrawl")
-    public ResponseEntity<Map<String,Object>> startNewWebtoonCrawl() throws InterruptedException, AWTException {
+    public ResponseEntity<Map<String,Object>> startNewWebtoonCrawl() throws InterruptedException {
         webtoonService.crawlNewWebtoons();
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
