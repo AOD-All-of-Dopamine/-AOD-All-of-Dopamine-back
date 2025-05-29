@@ -26,7 +26,4 @@ public class ChromeDriverProvider {
         return new ChromeDriver(options);
     }
 
-
-
-
 }
