@@ -4,17 +4,19 @@ import com.example.AOD.Webtoon.NaverWebtoon.domain.Days;
 import com.example.AOD.Webtoon.NaverWebtoon.domain.dto.NaverWebtoonDTO;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class NaverWebtoonCrawler {
 
     private final String baseUrl = "https://comic.naver.com/webtoon";
     private final String newWebtoonUrl = "https://comic.naver.com/webtoon?tab=new";
-    private final int SLEEP_TIME = 300;
+    private final int SLEEP_TIME = 500;
 
 
     public ArrayList<NaverWebtoonDTO> crawlAllOngoingWebtoons(WebDriver driver){
@@ -43,7 +45,7 @@ public class NaverWebtoonCrawler {
                 WebtoonLinks.add(href);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error - Can't crawl webtoon links");
         }
         return WebtoonLinks;
     }
@@ -73,12 +75,11 @@ public class NaverWebtoonCrawler {
 
             WebElement elem = driver.findElement(By.className("EpisodeListList__meta_info--Cgquz"));
             String publishDate = elem.findElement(By.className("date")).getText();
-
+            log.debug("webtoon save complete! : {}", title);
             return new NaverWebtoonDTO(title, href, publishDate, summary, thumbnail, days, authors, tags);
 
-
         } catch (Exception e) {
-            System.out.println("error! : "+ href);
+            log.debug("save error! : {}", href);
         }
         return null;
     }
