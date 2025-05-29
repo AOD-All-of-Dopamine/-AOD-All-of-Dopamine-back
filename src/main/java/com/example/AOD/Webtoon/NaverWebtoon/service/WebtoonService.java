@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WebtoonService {
     private final WebtoonRepository webtoonRepository;
     private final WebtoonGenreRepository webtoonGenreRepository;
@@ -56,9 +58,10 @@ public class WebtoonService {
         WebDriver driver = chromeDriverProvider.getDriver();
 
         naverLoginHandler.naverLogin(driver);
+        log.debug("login success");
         //전부 DTO를 들고 한번에 처리하는걸 트랜잭션 개선이 필요해보임
         ArrayList<NaverWebtoonDTO> naverWebtoonDTOS = naverWebtoonCrawler.crawlAllOngoingWebtoons(driver);
-        System.out.println("Save Webtoon Start");
+        log.debug("Webtoon DTO conversion success");
         for (NaverWebtoonDTO naverWebtoonDTO : naverWebtoonDTOS) {
             saveWebtoon(naverWebtoonDTO);
         }
