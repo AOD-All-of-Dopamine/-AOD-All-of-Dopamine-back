@@ -1,5 +1,6 @@
 package com.example.AOD.util;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import java.util.List;
 import lombok.Getter;
 import org.openqa.selenium.WebDriver;
@@ -10,20 +11,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ChromeDriverProvider {
 
-//    private String driver_path = "C:\\Users\\kokyungwoo\\Desktop\\chromedriver-win64\\chromedriver.exe";
-    private String driver_path = "C:\\Users\\oms01\\OneDrive\\바탕 화면\\Develop\\projects\\webtoon\\src\\main\\resources\\static\\chromedriver.exe";
-    private final String driver_id = "webdriver.chrome.driver";
-
-    @Getter
-    private WebDriver driver;
-
     public ChromeDriverProvider() {
     }
 
     public WebDriver getDriver() {
-        System.setProperty(driver_id, driver_path);
+        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
-//        options.addArguments("--headless"); 네이버 로그인 할라면 창 띄워서 하는 방법밖에 없음..
+
+        options.addArguments("--headless");
         options.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
         options.setExperimentalOption("useAutomationExtension", false);
         options.addArguments("--no-sandbox");
