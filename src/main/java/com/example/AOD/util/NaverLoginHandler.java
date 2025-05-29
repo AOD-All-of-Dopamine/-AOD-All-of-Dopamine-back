@@ -24,11 +24,11 @@ public class NaverLoginHandler {
     @Value("${naver.pw}")
     private String naverPw;
 
-    public void naverLogin(WebDriver driver) throws InterruptedException, AWTException{
+    public void naverLogin(WebDriver driver) throws InterruptedException{
         naverLogin(driver, naverId, naverPw);
     }
 
-    public void naverLogin(WebDriver driver, String id, String pw) throws InterruptedException, AWTException {
+    public void naverLogin(WebDriver driver, String id, String pw) throws InterruptedException {
         driver.get("https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com/");
         Thread.sleep(SLEEP_TIME);
 
