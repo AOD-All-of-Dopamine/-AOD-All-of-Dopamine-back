@@ -1,4 +1,4 @@
-package com.example.AOD.Webtoon.NaverWebtoon.util;
+package com.example.AOD.util;
 
 import java.awt.AWTException;
 import java.awt.Robot;
@@ -24,11 +24,11 @@ public class NaverLoginHandler {
     @Value("${naver.pw}")
     private String naverPw;
 
-    public void naverLogin(WebDriver driver) throws InterruptedException, AWTException{
+    public void naverLogin(WebDriver driver) throws InterruptedException{
         naverLogin(driver, naverId, naverPw);
     }
 
-    public void naverLogin(WebDriver driver, String id, String pw) throws InterruptedException, AWTException {
+    public void naverLogin(WebDriver driver, String id, String pw) throws InterruptedException {
         driver.get("https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com/");
         Thread.sleep(SLEEP_TIME);
 
@@ -61,19 +61,6 @@ public class NaverLoginHandler {
         }
         System.out.println("\n=== 병합된 쿠키 문자열 ===\n" + cookieString);
         return cookieString;
-    }
-
-    public static void pasteString(String str) throws AWTException {
-        //copy
-        StringSelection selection = new StringSelection(str);
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-
-        //paste
-        Robot robot = new Robot();
-        robot.keyPress(KeyEvent.VK_CONTROL);
-        robot.keyPress(KeyEvent.VK_V);
-        robot.keyRelease(KeyEvent.VK_V);
-        robot.keyRelease(KeyEvent.VK_CONTROL);
     }
 
 }

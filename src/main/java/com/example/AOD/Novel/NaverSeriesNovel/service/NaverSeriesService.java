@@ -10,7 +10,7 @@ import com.example.AOD.Novel.NaverSeriesNovel.repository.NaverSeriesNovelGenreRe
 import com.example.AOD.Novel.NaverSeriesNovel.repository.NaverSeriesNovelRepository;
 
 import com.example.AOD.util.ChromeDriverProvider;
-import com.example.AOD.Webtoon.NaverWebtoon.util.NaverLoginHandler;
+import com.example.AOD.util.NaverLoginHandler;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.WebDriver;
 import org.springframework.scheduling.annotation.Async;
