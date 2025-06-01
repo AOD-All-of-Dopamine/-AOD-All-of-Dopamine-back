@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -18,7 +19,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class NetflixLoginHandler {
+
+    private final NetflixCookieHandler cookieHandler;
 
     private final int SLEEP_TIME = 2000;
 
@@ -30,8 +34,10 @@ public class NetflixLoginHandler {
     private String netflixProfileName;
 
     public void netflixLogin(WebDriver driver) throws InterruptedException {
+        cookieHandler.loadCookies(driver);
         netflixLogin(driver, netflixId, netflixPw);
         selectProfile(driver);
+        cookieHandler.saveCookies(driver);
     }
 
     public void netflixLogin(WebDriver driver, String id, String pw) throws InterruptedException {
