@@ -23,7 +23,7 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired(required = false)  // required = false를 추가해 의존성 주입 실패를 허용
+    @Autowired(required = false)
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -31,16 +31,34 @@ public class SecurityConfig {
         http
                 // CORS 설정 활성화
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> authorize
-                        // 모든 API 엔드포인트에 대해 인증 없이 접근 허용
-                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().permitAll()  // 모든 요청 허용
-                );
 
-        // JWT 필터가 있는 경우에만 추가
+                // CSRF 완전 비활성화 (개발용이라면 이 상태로도 동작하지만, H2 콘솔만 예외로 두는 경우라면 csrf().disable() 대신 #3 참고)
+                .csrf(csrf -> csrf.disable())
+
+                // 세션을 사용하지 않도록 설정 (Stateless JWT)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 권한 설정
+                .authorizeHttpRequests(authorize -> authorize
+                        // 1) H2 콘솔 URL 예외 처리
+                        .requestMatchers("/h2-console/**").permitAll()
+
+                        // 2) 인증 없이 열어둘 API 엔드포인트
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
+
+                        // 3) 나머지 요청은 모두 허용(필요에 따라 authenticated() 등으로 변경)
+                        .anyRequest().permitAll()
+                )
+
+                // 4) H2 콘솔이 iframe으로 동작하므로 sameOrigin으로 설정
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
+
+        // 5) JWT 필터가 있다면 추가
+        ;
+
         if (jwtAuthenticationFilter != null) {
             http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         }

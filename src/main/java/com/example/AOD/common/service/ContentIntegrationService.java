@@ -126,20 +126,55 @@ public class ContentIntegrationService {
     private Object findOrCreateCommonEntity(String contentType, String title) {
         switch (contentType) {
             case "novel":
-                List<NovelCommon> novels = novelCommonRepository.findByTitleIgnoreCase(title);
-                return novels.isEmpty() ? new NovelCommon() : novels.get(0);
+                return novelCommonRepository.findByTitleIgnoreCase(title)
+                        .stream()
+                        .findFirst()
+                        .orElseGet(() -> {
+                            NovelCommon n = new NovelCommon();
+                            n.setTitle(title);                      // NOT NULL 컬럼이면 꼭 세팅
+                            return novelCommonRepository.saveAndFlush(n); // <-- INSERT + version=0
+                        });
+
             case "movie":
-                List<MovieCommon> movies = movieCommonRepository.findByTitleIgnoreCase(title);
-                return movies.isEmpty() ? new MovieCommon() : movies.get(0);
+                return movieCommonRepository.findByTitleIgnoreCase(title)
+                        .stream()
+                        .findFirst()
+                        .orElseGet(() -> {
+                            MovieCommon m = new MovieCommon();
+                            m.setTitle(title);
+                            return movieCommonRepository.saveAndFlush(m); // <-- 여기
+                        });
+
             case "ott":
-                List<OTTCommon> otts = ottCommonRepository.findByTitleIgnoreCase(title);
-                return otts.isEmpty() ? new OTTCommon() : otts.get(0);
+                return ottCommonRepository.findByTitleIgnoreCase(title)
+                        .stream()
+                        .findFirst()
+                        .orElseGet(() -> {
+                            OTTCommon o = new OTTCommon();
+                            o.setTitle(title);
+                            return ottCommonRepository.saveAndFlush(o);
+                        });
+
             case "webtoon":
-                List<WebtoonCommon> webtoons = webtoonCommonRepository.findByTitleIgnoreCase(title);
-                return webtoons.isEmpty() ? new WebtoonCommon() : webtoons.get(0);
+                return webtoonCommonRepository.findByTitleIgnoreCase(title)
+                        .stream()
+                        .findFirst()
+                        .orElseGet(() -> {
+                            WebtoonCommon w = new WebtoonCommon();
+                            w.setTitle(title);
+                            return webtoonCommonRepository.saveAndFlush(w);
+                        });
+
             case "game":
-                List<GameCommon> games = gameCommonRepository.findByTitleIgnoreCase(title);
-                return games.isEmpty() ? new GameCommon() : games.get(0);
+                return gameCommonRepository.findByTitleIgnoreCase(title)
+                        .stream()
+                        .findFirst()
+                        .orElseGet(() -> {
+                            GameCommon g = new GameCommon();
+                            g.setTitle(title);
+                            return gameCommonRepository.saveAndFlush(g);
+                        });
+
             default:
                 throw new IllegalArgumentException("Unsupported content type: " + contentType);
         }
