@@ -18,10 +18,12 @@ public class ChromeDriverProvider {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
 
-        options.addArguments("--headless");
+//        options.addArguments("--headless");
+
         options.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
         options.setExperimentalOption("useAutomationExtension", false);
         options.addArguments("--no-sandbox");
+        options.addArguments("--mute-audio");
         options.addArguments("--disable-dev-shm-usage");
         return new ChromeDriver(options);
     }
