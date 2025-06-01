@@ -98,14 +98,14 @@
                             <th style="width: 150px;">제목</th>
                             <td th:text="${result.title}"></td>
                         </tr>
-                        <tr th:if="${result.imageUrl}">
+                        <tr th:if="${result.imageUrl != null}">
                             <th>이미지</th>
                             <td>
                                 <img th:src="${result.imageUrl}" style="max-height: 100px;"
                                      onerror="this.src='https://via.placeholder.com/100x150?text=No+Image'">
                             </td>
                         </tr>
-                        <tr th:if="${result.genre != null && !result.genre.empty}">
+                        <tr th:if="${result.genre != null and !result.genre.empty}">
                             <th>장르</th>
                             <td>
                                 <span th:each="genre, iterStat : ${result.genre}"
@@ -114,11 +114,11 @@
                         </tr>
 
                         <!-- Novel 전용 필드 -->
-                        <tr th:if="${contentType == 'novel' && result.authors != null}">
+                        <tr th:if="${contentType == 'novel' and result.authors != null}">
                             <th>작가</th>
                             <td th:text="${#strings.listJoin(result.authors, ', ')}"></td>
                         </tr>
-                        <tr th:if="${contentType == 'novel' && result.status}">
+                        <tr th:if="${contentType == 'novel' and result.status != null}">
                             <th>상태</th>
                             <td>
                                 <span class="badge"
@@ -126,48 +126,48 @@
                                       th:text="${result.status}"></span>
                             </td>
                         </tr>
-                        <tr th:if="${contentType == 'novel' && result.publisher}">
+                        <tr th:if="${contentType == 'novel' and result.publisher != null}">
                             <th>출판사</th>
                             <td th:text="${result.publisher}"></td>
                         </tr>
 
                         <!-- Movie 전용 필드 -->
-                        <tr th:if="${contentType == 'movie' && result.director}">
+                        <tr th:if="${contentType == 'movie' and result.director != null}">
                             <th>감독</th>
                             <td th:text="${result.director}"></td>
                         </tr>
-                        <tr th:if="${contentType == 'movie' && result.actors != null}">
+                        <tr th:if="${contentType == 'movie' and result.actors != null}">
                             <th>출연</th>
                             <td th:text="${#strings.listJoin(result.actors, ', ')}"></td>
                         </tr>
-                        <tr th:if="${contentType == 'movie' && result.releaseDate}">
+                        <tr th:if="${contentType == 'movie' and result.releaseDate != null}">
                             <th>개봉일</th>
                             <td th:text="${result.releaseDate}"></td>
                         </tr>
-                        <tr th:if="${contentType == 'movie' && result.runningTime}">
+                        <tr th:if="${contentType == 'movie' and result.runningTime != null}">
                             <th>상영시간</th>
                             <td th:text="${result.runningTime + '분'}"></td>
                         </tr>
 
                         <!-- OTT 전용 필드 -->
-                        <tr th:if="${contentType == 'ott' && result.type}">
+                        <tr th:if="${contentType == 'ott' and result.type != null}">
                             <th>유형</th>
                             <td th:text="${result.type}"></td>
                         </tr>
-                        <tr th:if="${contentType == 'ott' && result.creator}">
+                        <tr th:if="${contentType == 'ott' and result.creator != null}">
                             <th>제작자</th>
                             <td th:text="${result.creator}"></td>
                         </tr>
 
                         <!-- Webtoon 전용 필드 -->
-                        <tr th:if="${contentType == 'webtoon' && result.author != null}">
+                        <tr th:if="${contentType == 'webtoon' and result.author != null and !result.author.empty}">
                             <th>작가</th>
                             <td>
                                 <span th:each="author : ${result.author}"
                                       th:text="${author.name + ' '}"></span>
                             </td>
                         </tr>
-                        <tr th:if="${contentType == 'webtoon' && result.uploadDay != null}">
+                        <tr th:if="${contentType == 'webtoon' and result.uploadDay != null and !result.uploadDay.empty}">
                             <th>연재요일</th>
                             <td>
                                 <span th:each="day : ${result.uploadDay}"
@@ -176,14 +176,14 @@
                         </tr>
 
                         <!-- Game 전용 필드 -->
-                        <tr th:if="${contentType == 'game' && result.developers != null}">
+                        <tr th:if="${contentType == 'game' and result.developers != null}">
                             <th>개발사</th>
                             <td th:text="${#strings.listJoin(result.developers, ', ')}"></td>
                         </tr>
-                        <tr th:if="${contentType == 'game' && result.finalPrice != null}">
+                        <tr th:if="${contentType == 'game' and result.finalPrice != null}">
                             <th>가격</th>
                             <td>
-                                <span th:if="${result.initialPrice != result.finalPrice}"
+                                <span th:if="${result.initialPrice != null and result.initialPrice != result.finalPrice}"
                                       class="text-muted text-decoration-line-through"
                                       th:text="${'₩' + #numbers.formatInteger(result.initialPrice, 0, 'COMMA')}">
                                 </span>
