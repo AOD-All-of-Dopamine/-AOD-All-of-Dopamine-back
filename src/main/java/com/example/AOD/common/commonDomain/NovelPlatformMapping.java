@@ -81,4 +81,13 @@ public class NovelPlatformMapping {
     public void removeFromRidibooks() {
         this.ridibooksId = null;
     }
+
+    @Transient                 // DB 칼럼 X
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasNaverSeries()) cnt++;
+        if (hasKakaoPage())   cnt++;
+        if (hasRidibooks())   cnt++;
+        return cnt;
+    }
 }

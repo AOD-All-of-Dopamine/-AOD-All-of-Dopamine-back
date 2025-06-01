@@ -68,4 +68,12 @@ public class WebtoonPlatformMapping {
     public void removeFromKakao() {
         this.kakaoId = null;
     }
+
+    @Transient
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasNaver()) cnt++;
+        if (hasKakao()) cnt++;
+        return cnt;
+    }
 }
