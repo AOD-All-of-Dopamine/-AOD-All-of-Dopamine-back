@@ -167,11 +167,16 @@
                                     </span>
                                     <!-- 추가 정보 표시 -->
                                     <small class="text-muted d-block">
-                                        <span th:if="${content.authors != null}"
+                                        <!-- 소설 전용: authors -->
+                                        <span th:if="${contentType == 'novel' and content.authors != null}"
                                               th:text="'작가: ' + ${#strings.listJoin(content.authors, ', ')}"></span>
-                                        <span th:if="${content.director != null}"
+
+                                        <!-- 영화 전용: director -->
+                                        <span th:if="${contentType == 'movie' and content.director != null}"
                                               th:text="'감독: ' + ${content.director}"></span>
-                                        <span th:if="${content.releaseDate != null}"
+
+                                        <!-- 영화 전용: releaseDate (필요 시) -->
+                                        <span th:if="${contentType == 'movie' and content.releaseDate != null}"
                                               th:text="' (' + ${content.releaseDate} + ')'"></span>
                                     </small>
                                 </label>
