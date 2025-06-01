@@ -36,7 +36,7 @@ public class ContentManagementController {
     /**
      * 특정 콘텐츠 타입에서 검색 (페이징)
      */
-    @GetMapping("/{contentType}/search")
+    /*@GetMapping("/{contentType}/search")
     public ResponseEntity<Page<ContentDTO>> searchContentByType(
             @PathVariable String contentType,
             @RequestParam String keyword,
@@ -50,7 +50,7 @@ public class ContentManagementController {
 
         Page<ContentDTO> results = contentManagementService.searchContentByType(contentType, keyword, pageable);
         return ResponseEntity.ok(results);
-    }
+    }*/
 
     /**
      * 콘텐츠 상세 정보 조회
