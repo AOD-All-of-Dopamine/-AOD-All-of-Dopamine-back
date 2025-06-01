@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.dto;
+package com.example.AOD.common.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,5 +17,5 @@ public class OTTTypeData extends TypeSpecificData {
     private List<String> features;
     private String description;
     private String maturityRating;
-    private String releaseYear;
+    private Integer releaseYear;
 }

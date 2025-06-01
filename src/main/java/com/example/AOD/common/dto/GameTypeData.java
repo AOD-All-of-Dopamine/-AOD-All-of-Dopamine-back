@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.dto;
+package com.example.AOD.common.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
