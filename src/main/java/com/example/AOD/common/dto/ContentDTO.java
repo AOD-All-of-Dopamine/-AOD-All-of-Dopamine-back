@@ -1,10 +1,10 @@
-package com.example.AOD.commonV2.dto;
+package com.example.AOD.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
@@ -15,7 +15,7 @@ public class ContentDTO {
     private String contentType;  // "movie", "game", "novel", "webtoon", "ott"
     private String title;
     private String thumbnailUrl;
-    private LocalDate createdAt;
-    private LocalDate updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private Map<String, Boolean> availablePlatforms;  // 각 플랫폼 존재 여부: {"netflix": true, "watcha": false}
 }

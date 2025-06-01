@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.dto;
+package com.example.AOD.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +10,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContentManageDTO {
+    private Long id;
     private String contentType;
     private String title;
     private String thumbnailUrl;
