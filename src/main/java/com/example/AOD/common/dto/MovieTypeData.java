@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.dto;
+package com.example.AOD.common.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,7 +18,9 @@ public class MovieTypeData extends TypeSpecificData {
     private Double reservationRate;
     private Integer runningTime;
     private String country;
-    private LocalDate releaseDate;
+    private String releaseDate;
     private Boolean isRerelease;
     private String ageRating;
+    private Integer totalAudience;
+    private String summary;
 }

@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.domain;
+package com.example.AOD.common.commonDomain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,12 +19,12 @@ public class NovelPlatformMapping {
     @OneToOne
     @MapsId  // ID를 공유하도록 설정
     @JoinColumn(name = "common_id")
-    private NovelCommonV2 novelCommon;
+    private NovelCommon novelCommon;
 
     // 플랫폼 ID들 (null이면 해당 플랫폼에 없음)
-    private Long naverSeriesId;  // null이면 네이버시리즈에 없음, 값이 있으면 네이버시리즈의 novel ID
-    private Long kakaoPageId;    // null이면 카카오페이지에 없음, 값이 있으면 카카오페이지의 novel ID
-    private Long ridibooksId;    // null이면 리디북스에 없음, 값이 있으면 리디북스의 novel ID
+    private Long naverSeriesId;  // 네이버시리즈의 novel ID
+    private Long kakaoPageId;    // 카카오페이지의 novel ID
+    private Long ridibooksId;    // 리디북스의 novel ID
 
     // 추후 다른 플랫폼 추가 시 여기에 추가
     // private Long munpiaId;
