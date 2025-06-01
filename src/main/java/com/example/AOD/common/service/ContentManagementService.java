@@ -74,7 +74,7 @@ public class ContentManagementService {
     /**
      * 특정 콘텐츠 타입에서 검색 (페이징 지원)
      */
-    @Transactional(readOnly = true)
+    /*@Transactional(readOnly = true)
     public Page<ContentDTO> searchContentByType(String contentType, String keyword, Pageable pageable) {
         switch (contentType.toLowerCase()) {
             case "novel":
@@ -95,7 +95,8 @@ public class ContentManagementService {
             default:
                 throw new IllegalArgumentException("Unsupported content type: " + contentType);
         }
-    }
+    }*/
+
     /**
      * 콘텐츠 상세 정보 조회
      */
@@ -372,15 +373,17 @@ public class ContentManagementService {
         }
     }
 
+    /* ====== 소설 ====== */
     private ContentDetailDTO createOrUpdateNovel(ContentManageDTO dto) {
         NovelCommon novel = contentMapper.toNovelEntity(dto);
 
-        // 기존 엔티티 확인 (업데이트의 경우)
-        if (novel.getId() != null) {
-            NovelCommon existing = novelCommonRepository.findById(novel.getId())
-                    .orElseThrow(() -> new NoSuchElementException("Novel not found with id: " + novel.getId()));
+        // 기존 엔티티 확인 (업데이트)
+        final Long novelId = novel.getId();              // ★ 람다 캡처용 final 변수
+        if (novelId != null) {
+            NovelCommon existing = novelCommonRepository.findById(novelId)
+                    .orElseThrow(() ->
+                            new NoSuchElementException("Novel not found with id: " + novelId));
 
-            // 기존 값 유지하면서 업데이트
             updateNovelFields(existing, novel);
             novel = existing;
         }
@@ -396,6 +399,28 @@ public class ContentManagementService {
         return contentMapper.toDetailDTO(novel);
     }
 
+    private void updateNovelPlatformMapping(NovelCommon novel, Map<String, Long> platformIds) {
+        NovelPlatformMapping mapping = novel.getPlatformMapping();
+        if (mapping == null) {
+            mapping = new NovelPlatformMapping();
+            mapping.setNovelCommon(novel);
+        }
+
+        // ★ 일반 for-each 루프로 변경 → 람다 캡처 문제 해결
+        for (Map.Entry<String, Long> entry : platformIds.entrySet()) {
+            String platform = entry.getKey().toLowerCase();
+            Long id = entry.getValue();
+
+            switch (platform) {
+                case "naverseries" -> mapping.setNaverSeriesNovel(id);
+                case "kakaopage"   -> mapping.setKakaoPageNovel(id);
+                case "ridibooks"   -> mapping.setRidibooksNovel(id);
+            }
+        }
+
+        novelMappingRepository.save(mapping);
+    }
+
     private void updateNovelFields(NovelCommon existing, NovelCommon updated) {
         existing.setTitle(updated.getTitle());
         existing.setImageUrl(updated.getImageUrl());
@@ -406,52 +431,51 @@ public class ContentManagementService {
         existing.setAgeRating(updated.getAgeRating());
     }
 
-    private void updateNovelPlatformMapping(NovelCommon novel, Map<String, Long> platformIds) {
-        NovelPlatformMapping mapping = novel.getPlatformMapping();
-        if (mapping == null) {
-            mapping = new NovelPlatformMapping();
-            mapping.setNovelCommon(novel);
-        }
 
-        platformIds.forEach((platform, id) -> {
-            switch (platform.toLowerCase()) {
-                case "naverseries":
-                    mapping.setNaverSeriesNovel(id);
-                    break;
-                case "kakaopage":
-                    mapping.setKakaoPageNovel(id);
-                    break;
-                case "ridibooks":
-                    mapping.setRidibooksNovel(id);
-                    break;
-            }
-        });
 
-        novelMappingRepository.save(mapping);
-    }
-
+    /* ====== 영화 ====== */
     private ContentDetailDTO createOrUpdateMovie(ContentManageDTO dto) {
         MovieCommon movie = contentMapper.toMovieEntity(dto);
 
-        // 기존 엔티티 확인 (업데이트의 경우)
-        if (movie.getId() != null) {
-            MovieCommon existing = movieCommonRepository.findById(movie.getId())
-                    .orElseThrow(() -> new NoSuchElementException("Movie not found with id: " + movie.getId()));
+        final Long movieId = movie.getId();              // ★ 람다 캡처용 final 변수
+        if (movieId != null) {
+            MovieCommon existing = movieCommonRepository.findById(movieId)
+                    .orElseThrow(() ->
+                            new NoSuchElementException("Movie not found with id: " + movieId));
 
-            // 기존 값 유지하면서 업데이트
             updateMovieFields(existing, movie);
             movie = existing;
         }
 
-        // 저장
         movie = movieCommonRepository.save(movie);
 
-        // 플랫폼 매핑 업데이트
         if (dto.getPlatformIds() != null && !dto.getPlatformIds().isEmpty()) {
             updateMoviePlatformMapping(movie, dto.getPlatformIds());
         }
 
         return contentMapper.toDetailDTO(movie);
+    }
+
+    private void updateMoviePlatformMapping(MovieCommon movie, Map<String, Long> platformIds) {
+        MoviePlatformMapping mapping = movie.getPlatformMapping();
+        if (mapping == null) {
+            mapping = new MoviePlatformMapping();
+            mapping.setMovieCommon(movie);
+        }
+
+        // ★ 일반 for-each 루프
+        for (Map.Entry<String, Long> entry : platformIds.entrySet()) {
+            String platform = entry.getKey().toLowerCase();
+            Long id = entry.getValue();
+
+            switch (platform) {
+                case "cgv"         -> mapping.setCgvMovie(id);
+                case "megabox"     -> mapping.setMegaboxMovie(id);
+                case "lottecinema" -> mapping.setLotteCinemaMovie(id);
+            }
+        }
+
+        movieMappingRepository.save(mapping);
     }
 
     private void updateMovieFields(MovieCommon existing, MovieCommon updated) {
@@ -471,29 +495,6 @@ public class ContentManagementService {
         existing.setSummary(updated.getSummary());
     }
 
-    private void updateMoviePlatformMapping(MovieCommon movie, Map<String, Long> platformIds) {
-        MoviePlatformMapping mapping = movie.getPlatformMapping();
-        if (mapping == null) {
-            mapping = new MoviePlatformMapping();
-            mapping.setMovieCommon(movie);
-        }
-
-        platformIds.forEach((platform, id) -> {
-            switch (platform.toLowerCase()) {
-                case "cgv":
-                    mapping.setCgvMovie(id);
-                    break;
-                case "megabox":
-                    mapping.setMegaboxMovie(id);
-                    break;
-                case "lottecinema":
-                    mapping.setLotteCinemaMovie(id);
-                    break;
-            }
-        });
-
-        movieMappingRepository.save(mapping);
-    }
 
     /**
      * 콘텐츠 삭제
