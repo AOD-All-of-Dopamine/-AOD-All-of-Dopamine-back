@@ -81,4 +81,14 @@ public class MoviePlatformMapping {
     public void removeFromLotteCinema() {
         this.lotteCinemaId = null;
     }
+
+
+    @Transient          // DB 컬럼 생성 안 함
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasCgv())        cnt++;
+        if (hasMegabox())    cnt++;
+        if (hasLotteCinema()) cnt++;
+        return cnt;
+    }
 }
