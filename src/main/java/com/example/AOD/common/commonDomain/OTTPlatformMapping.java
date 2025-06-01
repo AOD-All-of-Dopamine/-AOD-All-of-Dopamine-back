@@ -94,4 +94,14 @@ public class OTTPlatformMapping {
     public void removeFromWavve() {
         this.wavveId = null;
     }
+
+    @Transient
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasNetflix())    cnt++;
+        if (hasDisneyPlus()) cnt++;
+        if (hasWatcha())     cnt++;
+        if (hasWavve())      cnt++;
+        return cnt;
+    }
 }

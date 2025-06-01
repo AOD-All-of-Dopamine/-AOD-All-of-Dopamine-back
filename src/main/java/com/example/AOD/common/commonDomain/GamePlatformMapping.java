@@ -81,4 +81,13 @@ public class GamePlatformMapping {
     public void removeFromGog() {
         this.gogId = null;
     }
+
+    @Transient
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasSteam()) cnt++;
+        if (hasEpic())  cnt++;
+        if (hasGog())   cnt++;
+        return cnt;
+    }
 }
