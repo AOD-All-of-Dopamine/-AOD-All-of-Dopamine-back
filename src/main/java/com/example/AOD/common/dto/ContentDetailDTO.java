@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.dto;
+package com.example.AOD.common.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,14 +18,17 @@ public class ContentDetailDTO extends ContentDTO {
     public static class PlatformInfo {
         private Long platformId;
         private String platformUrl;  // 선택적
+        private boolean available;
 
         public PlatformInfo(Long platformId, String platformUrl) {
             this.platformId = platformId;
             this.platformUrl = platformUrl;
+            this.available = platformId != null && platformId > 0;
         }
 
         public PlatformInfo(Long platformId) {
             this.platformId = platformId;
+            this.available = platformId != null && platformId > 0;
         }
     }
 }

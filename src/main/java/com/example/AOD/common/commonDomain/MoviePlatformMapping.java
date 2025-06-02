@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.domain;
+package com.example.AOD.common.commonDomain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,12 +19,12 @@ public class MoviePlatformMapping {
     @OneToOne
     @MapsId  // ID를 공유하도록 설정
     @JoinColumn(name = "common_id")
-    private MovieCommonV2 movieCommon;
+    private MovieCommon movieCommon;
 
     // 플랫폼 ID들 (null이면 해당 플랫폼에 없음)
-    private Long cgvId;         // null이면 CGV에 없음, 값이 있으면 CGV의 movie ID
-    private Long megaboxId;     // null이면 메가박스에 없음, 값이 있으면 메가박스의 movie ID
-    private Long lotteCinemaId; // null이면 롯데시네마에 없음, 값이 있으면 롯데시네마의 movie ID
+    private Long cgvId;         // CGV의 movie ID
+    private Long megaboxId;     // 메가박스의 movie ID
+    private Long lotteCinemaId; // 롯데시네마의 movie ID
 
     // 추후 다른 플랫폼 추가 시 여기에 추가
     // private Long kmdbId;  // 한국영화데이터베이스
@@ -80,5 +80,15 @@ public class MoviePlatformMapping {
 
     public void removeFromLotteCinema() {
         this.lotteCinemaId = null;
+    }
+
+
+    @Transient          // DB 컬럼 생성 안 함
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasCgv())        cnt++;
+        if (hasMegabox())    cnt++;
+        if (hasLotteCinema()) cnt++;
+        return cnt;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.domain;
+package com.example.AOD.common.commonDomain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,19 +14,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class GamePlatformMapping {
     @Id
-    private Long id;  // Common의 ID와 동일하게 설정
+    private Long id;
 
     @OneToOne
-    @MapsId  // ID를 공유하도록 설정
+    @MapsId
     @JoinColumn(name = "common_id")
-    private GameCommonV2 gameCommon;
+    private GameCommon gameCommon;
 
-    // 플랫폼 ID들 (null이면 해당 플랫폼에 없음)
-    private Long steamId;    // null이면 스팀에 없음, 값이 있으면 스팀의 game ID
-    private Long epicId;     // null이면 에픽게임즈에 없음, 값이 있으면 에픽의 game ID
-    private Long gogId;      // null이면 GOG에 없음, 값이 있으면 GOG의 game ID
+    // 플랫폼 ID들
+    private Long steamId;
+    private Long epicId;
+    private Long gogId;
 
-    // 추후 다른 플랫폼 추가 시 여기에 추가
+    // 추후 다른 플랫폼 추가 시
     // private Long originId;
     // private Long xboxId;
 
@@ -80,5 +80,14 @@ public class GamePlatformMapping {
 
     public void removeFromGog() {
         this.gogId = null;
+    }
+
+    @Transient
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasSteam()) cnt++;
+        if (hasEpic())  cnt++;
+        if (hasGog())   cnt++;
+        return cnt;
     }
 }

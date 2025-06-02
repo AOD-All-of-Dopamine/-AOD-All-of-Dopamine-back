@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.domain;
+package com.example.AOD.common.commonDomain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,20 +14,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class OTTPlatformMapping {
     @Id
-    private Long id;  // Common의 ID와 동일하게 설정
+    private Long id;
 
     @OneToOne
-    @MapsId  // ID를 공유하도록 설정
+    @MapsId
     @JoinColumn(name = "common_id")
-    private OTTCommonV2 ottCommon;
+    private OTTCommon ottCommon;
 
-    // 플랫폼 ID들 (null이면 해당 플랫폼에 없음)
-    private Long netflixId;      // null이면 넷플릭스에 없음, 값이 있으면 넷플릭스의 content ID
-    private Long disneyPlusId;   // null이면 디즈니플러스에 없음, 값이 있으면 디즈니플러스의 content ID
-    private Long watchaId;       // null이면 왓챠에 없음, 값이 있으면 왓챠의 content ID
-    private Long wavveId;        // null이면 웨이브에 없음, 값이 있으면 웨이브의 content ID
+    // 플랫폼 ID들
+    private Long netflixId;
+    private Long disneyPlusId;
+    private Long watchaId;
+    private Long wavveId;
 
-    // 추후 다른 플랫폼 추가 시 여기에 추가
+    // 추후 다른 플랫폼 추가 시
     // private Long tvingId;
     // private Long laftelId;
 
@@ -93,5 +93,15 @@ public class OTTPlatformMapping {
 
     public void removeFromWavve() {
         this.wavveId = null;
+    }
+
+    @Transient
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasNetflix())    cnt++;
+        if (hasDisneyPlus()) cnt++;
+        if (hasWatcha())     cnt++;
+        if (hasWavve())      cnt++;
+        return cnt;
     }
 }
