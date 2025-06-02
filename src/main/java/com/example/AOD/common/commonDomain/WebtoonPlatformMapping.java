@@ -1,4 +1,4 @@
-package com.example.AOD.commonV2.domain;
+package com.example.AOD.common.commonDomain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,18 +14,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class WebtoonPlatformMapping {
     @Id
-    private Long id;  // Common의 ID와 동일하게 설정
+    private Long id;
 
     @OneToOne
-    @MapsId  // ID를 공유하도록 설정
+    @MapsId
     @JoinColumn(name = "common_id")
-    private WebtoonCommonV2 webtoonCommon;
+    private WebtoonCommon webtoonCommon;
 
-    // 플랫폼 ID들 (0 또는 null이면 해당 플랫폼에 없음)
-    private Long naverId;    // 0이면 네이버웹툰에 없음, 값이 있으면 네이버의 webtoon ID
-    private Long kakaoId;    // 0이면 카카오웹툰에 없음, 값이 있으면 카카오의 webtoon ID
+    // 플랫폼 ID들
+    private Long naverId;
+    private Long kakaoId;
 
-    // 추후 다른 플랫폼 추가 시 여기에 추가
+    // 추후 다른 플랫폼 추가 시
     // private Long lezhinId;
     // private Long bomtoonId;
 
@@ -67,5 +67,13 @@ public class WebtoonPlatformMapping {
 
     public void removeFromKakao() {
         this.kakaoId = null;
+    }
+
+    @Transient
+    public int getPlatformCount() {
+        int cnt = 0;
+        if (hasNaver()) cnt++;
+        if (hasKakao()) cnt++;
+        return cnt;
     }
 }

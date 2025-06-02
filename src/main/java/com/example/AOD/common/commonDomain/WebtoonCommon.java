@@ -4,31 +4,26 @@ import com.example.AOD.Webtoon.NaverWebtoon.domain.Days;
 import com.example.AOD.Webtoon.NaverWebtoon.domain.Webtoon;
 import com.example.AOD.Webtoon.NaverWebtoon.domain.WebtoonAuthor;
 import com.example.AOD.Webtoon.NaverWebtoon.domain.WebtoonGenre;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Entity
+@Table(name = "webtoon_common")
 @Getter
 @Setter
 @NoArgsConstructor
-public class WebtoonCommon{
+public class WebtoonCommon {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Column(nullable = false)
     private String title;
@@ -59,11 +54,31 @@ public class WebtoonCommon{
     )
     private List<WebtoonAuthor> author;
 
-    @Column(nullable = false,length = 500)
+    @Column(nullable = false, length = 500)
     private String summary;
 
     private String platform;
 
+    // 1:1 관계 설정 - PlatformMapping 추가
+    @OneToOne(mappedBy = "webtoonCommon", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private WebtoonPlatformMapping platformMapping;
+
+    // 메타 정보 추가
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // 기존 생성자는 유지 (호환성)
     public WebtoonCommon(Webtoon webtoon) {
         this.id = webtoon.getId();
         this.title = webtoon.getTitle();
@@ -74,6 +89,22 @@ public class WebtoonCommon{
         this.author = webtoon.getWebtoonAuthors();
         this.summary = webtoon.getSummary();
         this.platform = "Naver";
+    }
 
+    // 편의 메서드들
+    public boolean isOnNaver() {
+        return platformMapping != null && platformMapping.getNaverId() != null && platformMapping.getNaverId() > 0;
+    }
+
+    public boolean isOnKakao() {
+        return platformMapping != null && platformMapping.getKakaoId() != null && platformMapping.getKakaoId() > 0;
+    }
+
+    // 플랫폼 매핑 설정 헬퍼 메서드
+    public void setPlatformMapping(WebtoonPlatformMapping mapping) {
+        this.platformMapping = mapping;
+        if (mapping != null) {
+            mapping.setWebtoonCommon(this);
+        }
     }
 }
