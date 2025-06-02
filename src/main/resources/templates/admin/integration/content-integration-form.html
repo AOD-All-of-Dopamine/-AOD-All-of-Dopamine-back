@@ -24,6 +24,18 @@
             font-size: 0.8em;
             margin-left: 5px;
         }
+        .integration-mode-card {
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .integration-mode-card.selected {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .integration-mode-card:hover {
+            border-color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -53,6 +65,15 @@
         <ul class="mb-0">
             <li th:each="title : ${duplicateTitles}" th:text="${title}"></li>
         </ul>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <!-- 에러 메시지 -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong><i class="fas fa-exclamation-triangle"></i> 오류!</strong>
+        <span th:text="${error}"></span>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -90,7 +111,7 @@
     </div>
 
     <form th:action="@{/admin/integration/{contentType}/integrate(contentType=${contentType})}"
-          th:object="${integrationRequest}" method="post">
+          th:object="${integrationRequest}" method="post" id="integrationForm">
 
         <!-- 통합 설정 선택 -->
         <div class="form-group">
@@ -103,6 +124,45 @@
                 </option>
             </select>
             <small class="form-text text-muted">통합에 사용할 필드 매핑 설정을 선택하세요.</small>
+        </div>
+
+        <!-- 통합 모드 선택 -->
+        <div class="form-group mb-4">
+            <label><i class="fas fa-tools"></i> 통합 모드</label>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <div class="card integration-mode-card" data-mode="auto">
+                        <div class="card-body text-center">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="autoMode" name="integrationMode" value="auto" checked>
+                                <label class="custom-control-label" for="autoMode">
+                                    <h5><i class="fas fa-magic text-primary"></i> 자동 통합</h5>
+                                </label>
+                            </div>
+                            <p class="text-muted mt-2">
+                                설정된 필드 매핑에 따라 자동으로 통합합니다.<br>
+                                빠르고 간편하지만 세부 조정이 어렵습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card integration-mode-card" data-mode="manual">
+                        <div class="card-body text-center">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="manualMode" name="integrationMode" value="manual">
+                                <label class="custom-control-label" for="manualMode">
+                                    <h5><i class="fas fa-edit text-success"></i> 수동 통합</h5>
+                                </label>
+                            </div>
+                            <p class="text-muted mt-2">
+                                각 플랫폼의 데이터를 비교하고<br>
+                                직접 선택하거나 입력할 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- 플랫폼별 콘텐츠 선택 영역 -->
@@ -208,7 +268,9 @@
         <!-- 액션 버튼 -->
         <div class="form-group">
             <button type="submit" class="btn btn-primary" id="integrateBtn" disabled>
-                <i class="fas fa-sync-alt"></i> 콘텐츠 통합 (<span id="selectedCountText">0</span>개)
+                <i id="integrateBtnIcon" class="fas fa-sync-alt"></i>
+                <span id="integrateBtnText">콘텐츠 통합</span>
+                (<span id="selectedCountText">0</span>개)
             </button>
             <button type="button" class="btn btn-info ml-2" id="previewBtn" disabled>
                 <i class="fas fa-eye"></i> 미리보기
@@ -245,6 +307,39 @@
 
 <script>
     $(document).ready(function() {
+        // 통합 모드 카드 클릭 이벤트
+        $('.integration-mode-card').click(function() {
+            var mode = $(this).data('mode');
+            $('input[name="integrationMode"][value="' + mode + '"]').prop('checked', true);
+            updateIntegrationModeUI();
+        });
+
+        // 통합 모드 라디오 버튼 변경 이벤트
+        $('input[name="integrationMode"]').change(function() {
+            updateIntegrationModeUI();
+        });
+
+        // 통합 모드 UI 업데이트
+        function updateIntegrationModeUI() {
+            var selectedMode = $('input[name="integrationMode"]:checked').val();
+
+            // 카드 스타일 업데이트
+            $('.integration-mode-card').removeClass('selected');
+            $('.integration-mode-card[data-mode="' + selectedMode + '"]').addClass('selected');
+
+            // 버튼 텍스트 업데이트
+            if (selectedMode === 'manual') {
+                $('#integrateBtnIcon').removeClass('fa-sync-alt').addClass('fa-edit');
+                $('#integrateBtnText').text('수동 통합 시작');
+            } else {
+                $('#integrateBtnIcon').removeClass('fa-edit').addClass('fa-sync-alt');
+                $('#integrateBtnText').text('자동 통합');
+            }
+        }
+
+        // 초기 통합 모드 UI 설정
+        updateIntegrationModeUI();
+
         // 통계 업데이트
         function updateStatistics() {
             var totalCount = $('.content-checkbox').length;
