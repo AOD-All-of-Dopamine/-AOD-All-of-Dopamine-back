@@ -1,6 +1,13 @@
 package com.example.AOD.OTT.Netflix.controller;
 
 import com.example.AOD.OTT.Netflix.service.NetflixCrawlerService;
+import com.example.AOD.util.ChromeDriverProvider;
+import com.example.AOD.util.NetflixLoginHandler;
+import java.util.function.Function;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.WebDriver;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,43 +20,24 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/netflix")
+@RequiredArgsConstructor
+@Slf4j
 public class NetflixController {
-    private static final Logger logger = LoggerFactory.getLogger(NetflixController.class);
 
     private final NetflixCrawlerService netflixCrawlerService;
-
-    public NetflixController(NetflixCrawlerService netflixCrawlerService) {
-        this.netflixCrawlerService = netflixCrawlerService;
-    }
 
     /**
      * 일반 콘텐츠 크롤링 시작
      */
     @GetMapping("/crawl/regular")
     public ResponseEntity<Map<String, Object>> startRegularCrawl() {
-        logger.info("일반 넷플릭스 콘텐츠 크롤링 요청 받음");
-
-        // 환경 변수에서 인증 정보 가져오기
-        String email = System.getenv("NETFLIX_EMAIL");
-        String password = System.getenv("NETFLIX_PASSWORD");
-        String profileName = System.getenv("NETFLIX_PROFILE_NAME");
-
-        // 인증 정보 검증
-        if (isInvalidCredentials(email, password)) {
-            return createErrorResponse("넷플릭스 인증 정보가 유효하지 않습니다. 환경 변수를 확인해주세요.");
+        try{
+            netflixCrawlerService.runCrawler();
+            return createSuccessResponse("일반 넷플릭스 콘텐츠 크롤링이 백그라운드에서 시작되었습니다.");
+        }catch (Exception e){
+            return createErrorResponse("일반 넷플릭스 콘텐츠 크롤링을 실패했습니다.: "+e.getMessage());
         }
 
-        // 프로필 정보 로깅
-        if (profileName != null && !profileName.isEmpty()) {
-            logger.info("환경 변수에 설정된 프로필: " + profileName);
-        } else {
-            logger.info("환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.");
-        }
-
-        // 비동기 크롤링 시작
-        netflixCrawlerService.runCrawler(email, password);
-
-        return createSuccessResponse("일반 넷플릭스 콘텐츠 크롤링이 백그라운드에서 시작되었습니다.");
     }
 
     /**
@@ -57,30 +45,13 @@ public class NetflixController {
      */
     @GetMapping("/crawl/latest")
     public ResponseEntity<Map<String, Object>> startLatestCrawl() {
-        logger.info("일반 넷플릭스 콘텐츠 크롤링 요청 받음");
-
-        // 환경 변수에서 인증 정보 가져오기
-        String email = System.getenv("NETFLIX_EMAIL");
-        String password = System.getenv("NETFLIX_PASSWORD");
-        String profileName = System.getenv("NETFLIX_PROFILE_NAME");
-
-        // 인증 정보 검증
-        if (isInvalidCredentials(email, password)) {
-            return createErrorResponse("넷플릭스 인증 정보가 유효하지 않습니다. 환경 변수를 확인해주세요.");
+        try{
+            netflixCrawlerService.runLatestContentCrawler();
+            return createSuccessResponse("최신 넷플릭스 콘텐츠 크롤링이 백그라운드에서 시작되었습니다.");
+        }catch (Exception e){
+            return createErrorResponse("최신 넷플릭스 콘텐츠 크롤링을 실패했습니다.: "+e.getMessage());
         }
 
-        // 프로필 정보 로깅
-        if (profileName != null && !profileName.isEmpty()) {
-            logger.info("환경 변수에 설정된 프로필: " + profileName);
-        } else {
-            logger.info("환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.");
-        }
-
-
-        // 최신 콘텐츠 크롤링 시작
-        netflixCrawlerService.runLatestContentCrawler(email, password);
-
-        return createSuccessResponse("최신 넷플릭스 콘텐츠 크롤링이 백그라운드에서 시작되었습니다.");
     }
 
     /**
@@ -88,30 +59,12 @@ public class NetflixController {
      */
     @GetMapping("/crawl/all")
     public ResponseEntity<Map<String, Object>> startAllCrawl() {
-        logger.info("일반 넷플릭스 콘텐츠 크롤링 요청 받음");
-
-        // 환경 변수에서 인증 정보 가져오기
-        String email = System.getenv("NETFLIX_EMAIL");
-        String password = System.getenv("NETFLIX_PASSWORD");
-        String profileName = System.getenv("NETFLIX_PROFILE_NAME");
-
-        // 인증 정보 검증
-        if (isInvalidCredentials(email, password)) {
-            return createErrorResponse("넷플릭스 인증 정보가 유효하지 않습니다. 환경 변수를 확인해주세요.");
+        try{
+            netflixCrawlerService.runAllContentCrawler();
+            return createSuccessResponse("모든 넷플릭스 콘텐츠 크롤링이 백그라운드에서 시작되었습니다.");
+        }catch (Exception e){
+            return createErrorResponse("모든 공개 넷플릭스 콘텐츠 크롤링을 실패했습니다.: "+e.getMessage());
         }
-
-        // 프로필 정보 로깅
-        if (profileName != null && !profileName.isEmpty()) {
-            logger.info("환경 변수에 설정된 프로필: " + profileName);
-        } else {
-            logger.info("환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.");
-        }
-
-
-        // 모든 콘텐츠 크롤링 시작
-        netflixCrawlerService.runAllContentCrawler(email, password);
-
-        return createSuccessResponse("모든 넷플릭스 콘텐츠 크롤링이 백그라운드에서 시작되었습니다.");
     }
 
 
@@ -120,29 +73,12 @@ public class NetflixController {
      */
     @GetMapping("/crawl/this-week")
     public ResponseEntity<Map<String, Object>> startThisWeekCrawl() {
-        logger.info("일반 넷플릭스 콘텐츠 크롤링 요청 받음");
-
-        // 환경 변수에서 인증 정보 가져오기
-        String email = System.getenv("NETFLIX_EMAIL");
-        String password = System.getenv("NETFLIX_PASSWORD");
-        String profileName = System.getenv("NETFLIX_PROFILE_NAME");
-
-        // 인증 정보 검증
-        if (isInvalidCredentials(email, password)) {
-            return createErrorResponse("넷플릭스 인증 정보가 유효하지 않습니다. 환경 변수를 확인해주세요.");
+        try{
+            netflixCrawlerService.runThisWeekContentCrawler();
+            return createSuccessResponse("이번주 공개 넷플릭스 콘텐츠 크롤링이 백그라운드에서 시작되었습니다.");
+        }catch (Exception e){
+            return createErrorResponse("이번주 공개 넷플릭스 콘텐츠 크롤링을 실패했습니다.: "+e.getMessage());
         }
-
-        // 프로필 정보 로깅
-        if (profileName != null && !profileName.isEmpty()) {
-            logger.info("환경 변수에 설정된 프로필: " + profileName);
-        } else {
-            logger.info("환경 변수에 프로필 설정 없음, 첫 번째 프로필이 사용됩니다.");
-        }
-
-        // 이번주 공개 콘텐츠 크롤링 시작
-        netflixCrawlerService.runThisWeekContentCrawler(email, password);
-
-        return createSuccessResponse("이번주 공개 넷플릭스 콘텐츠 크롤링이 백그라운드에서 시작되었습니다.");
     }
 
     /**
@@ -150,16 +86,9 @@ public class NetflixController {
      */
     @GetMapping("/startCrawl")
     public ResponseEntity<Map<String, Object>> startCrawlLegacy() {
-        logger.info("레거시 API로 크롤링 요청 받음");
         return startAllCrawl();
     }
 
-    /**
-     * 인증 정보가 유효한지 검증
-     */
-    private boolean isInvalidCredentials(String email, String password) {
-        return email == null || email.isBlank() || password == null || password.isBlank();
-    }
 
     /**
      * 성공 응답 생성

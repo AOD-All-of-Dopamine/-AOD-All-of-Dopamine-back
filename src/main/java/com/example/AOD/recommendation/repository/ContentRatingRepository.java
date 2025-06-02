@@ -1,7 +1,6 @@
 package com.example.AOD.recommendation.repository;
 
 import com.example.AOD.recommendation.domain.ContentRating;
-import com.example.AOD.recommendation.domain.UserPreference;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +20,8 @@ public interface ContentRatingRepository extends JpaRepository<ContentRating, Lo
     // 평점 평균 계산용
     @Query("SELECT AVG(r.rating) FROM ContentRating r WHERE r.contentType = :contentType AND r.contentId = :contentId")
     Double getAverageRatingByContentTypeAndId(@Param("contentType") String contentType, @Param("contentId") Long contentId);
+
+    // 협업 필터링을 위한 추가 메서드
+    @Query("SELECT cr FROM ContentRating cr WHERE cr.contentType = :contentType")
+    List<ContentRating> findByContentType(@Param("contentType") String contentType);
 }
