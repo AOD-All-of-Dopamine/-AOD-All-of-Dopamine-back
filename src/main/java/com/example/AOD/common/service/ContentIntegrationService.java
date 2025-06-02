@@ -5,6 +5,7 @@ import com.example.AOD.common.commonDomain.*;
 import com.example.AOD.common.config.ContentIntegrationConfig;
 import com.example.AOD.common.config.CustomFieldCalculation;
 import com.example.AOD.common.config.FieldMapping;
+import com.example.AOD.common.dto.ManualIntegrationDTO;
 import com.example.AOD.common.repository.*;
 import com.example.AOD.game.StreamAPI.repository.GameRepository;
 import com.example.AOD.movie.CGV.repository.MovieRepository;
@@ -633,5 +634,311 @@ public class ContentIntegrationService {
         status.put("timestamp", new Date());
 
         return status;
+    }
+
+
+    /**
+     * 수동 통합을 위한 소스 데이터 로드
+     */
+    public Map<String, Object> loadSourceDataForManualIntegration(String contentType, List<Long> sourceIds) {
+        Map<String, Object> sourceData = new HashMap<>();
+
+        if (sourceIds == null || sourceIds.isEmpty()) {
+            return sourceData;
+        }
+
+        switch (contentType) {
+            case "novel":
+                for (Long id : sourceIds) {
+                    naverSeriesNovelRepository.findById(id).ifPresent(
+                            novel -> sourceData.put("naver_" + novel.getId(), novel));
+                }
+                break;
+            case "movie":
+                for (Long id : sourceIds) {
+                    movieRepository.findById(id).ifPresent(
+                            movie -> sourceData.put("cgv_" + movie.getId(), movie));
+                }
+                break;
+            case "ott":
+                for (Long id : sourceIds) {
+                    netflixContentRepository.findById(id).ifPresent(
+                            content -> sourceData.put("netflix_" + content.getContentId(), content));
+                }
+                break;
+            case "webtoon":
+                for (Long id : sourceIds) {
+                    webtoonRepository.findById(id).ifPresent(
+                            webtoon -> sourceData.put("naver_" + webtoon.getId(), webtoon));
+                }
+                break;
+            case "game":
+                for (Long id : sourceIds) {
+                    steamGameRepository.findById(id).ifPresent(
+                            game -> sourceData.put("steam_" + game.getId(), game));
+                }
+                break;
+        }
+
+        return sourceData;
+    }
+
+    /**
+     * 수동 통합을 위한 필드 정보 생성
+     */
+    public List<Map<String, Object>> getFieldInfoForManualIntegration(String contentType, Map<String, Object> sourceData) {
+        List<Map<String, Object>> fieldInfo = new ArrayList<>();
+
+        // 공통 필드들
+        addFieldInfo(fieldInfo, "title", "제목", "String", sourceData);
+        addFieldInfo(fieldInfo, "imageUrl", "이미지 URL", "String", sourceData);
+        addFieldInfo(fieldInfo, "genre", "장르", "List<String>", sourceData);
+
+        // 콘텐츠 타입별 필드들
+        switch (contentType) {
+            case "novel":
+                addFieldInfo(fieldInfo, "authors", "작가", "List<String>", sourceData);
+                addFieldInfo(fieldInfo, "status", "연재상태", "String", sourceData);
+                addFieldInfo(fieldInfo, "publisher", "출판사", "String", sourceData);
+                addFieldInfo(fieldInfo, "ageRating", "연령등급", "String", sourceData);
+                break;
+            case "movie":
+                addFieldInfo(fieldInfo, "director", "감독", "String", sourceData);
+                addFieldInfo(fieldInfo, "actors", "출연진", "List<String>", sourceData);
+                addFieldInfo(fieldInfo, "releaseDate", "개봉일", "String", sourceData);
+                addFieldInfo(fieldInfo, "runningTime", "상영시간", "Integer", sourceData);
+                addFieldInfo(fieldInfo, "country", "제작국가", "String", sourceData);
+                addFieldInfo(fieldInfo, "movieAgeRating", "관람등급", "String", sourceData);
+                addFieldInfo(fieldInfo, "totalAudience", "총관객수", "Integer", sourceData);
+                addFieldInfo(fieldInfo, "summary", "줄거리", "String", sourceData);
+                addFieldInfo(fieldInfo, "rating", "평점", "Double", sourceData);
+                addFieldInfo(fieldInfo, "reservationRate", "예매율", "Double", sourceData);
+                addFieldInfo(fieldInfo, "isRerelease", "재개봉여부", "Boolean", sourceData);
+                break;
+            case "ott":
+                addFieldInfo(fieldInfo, "type", "콘텐츠 유형", "String", sourceData);
+                addFieldInfo(fieldInfo, "creator", "제작자", "String", sourceData);
+                addFieldInfo(fieldInfo, "description", "설명", "String", sourceData);
+                addFieldInfo(fieldInfo, "maturityRating", "시청등급", "String", sourceData);
+                addFieldInfo(fieldInfo, "releaseYear", "출시년도", "Integer", sourceData);
+                addFieldInfo(fieldInfo, "features", "특징", "List<String>", sourceData);
+                break;
+            case "webtoon":
+                addFieldInfo(fieldInfo, "authors", "작가", "List<String>", sourceData);
+                addFieldInfo(fieldInfo, "publishDate", "연재시작일", "String", sourceData);
+                addFieldInfo(fieldInfo, "uploadDays", "연재요일", "List<String>", sourceData);
+                addFieldInfo(fieldInfo, "webtoonSummary", "줄거리", "String", sourceData);
+                break;
+            case "game":
+                addFieldInfo(fieldInfo, "developers", "개발사", "List<String>", sourceData);
+                addFieldInfo(fieldInfo, "publishers", "퍼블리셔", "List<String>", sourceData);
+                addFieldInfo(fieldInfo, "requiredAge", "이용등급", "Long", sourceData);
+                addFieldInfo(fieldInfo, "gameSummary", "게임설명", "String", sourceData);
+                addFieldInfo(fieldInfo, "initialPrice", "정가", "Integer", sourceData);
+                addFieldInfo(fieldInfo, "finalPrice", "할인가", "Integer", sourceData);
+                break;
+        }
+
+        return fieldInfo;
+    }
+
+    /**
+     * 필드 정보 추가 헬퍼 메서드
+     */
+    private void addFieldInfo(List<Map<String, Object>> fieldInfo, String fieldName, String displayName,
+                              String fieldType, Map<String, Object> sourceData) {
+        Map<String, Object> info = new HashMap<>();
+        info.put("fieldName", fieldName);
+        info.put("displayName", displayName);
+        info.put("fieldType", fieldType);
+
+        // 각 소스에서 해당 필드의 값들 추출
+        Map<String, Object> sourceValues = new HashMap<>();
+        for (Map.Entry<String, Object> entry : sourceData.entrySet()) {
+            String sourceKey = entry.getKey();
+            Object sourceObj = entry.getValue();
+
+            Object value = extractFieldValue(sourceObj, fieldName);
+            if (value != null) {
+                sourceValues.put(sourceKey, value);
+            }
+        }
+
+        info.put("sourceValues", sourceValues);
+        fieldInfo.add(info);
+    }
+
+    /**
+     * 객체에서 필드 값 추출
+     */
+    private Object extractFieldValue(Object source, String fieldName) {
+        try {
+            // 필드명 매핑 (플랫폼별로 다른 필드명을 사용할 수 있음)
+            String actualFieldName = mapFieldName(source.getClass(), fieldName);
+
+            Field field = findField(source.getClass(), actualFieldName);
+            if (field != null) {
+                field.setAccessible(true);
+                Object value = field.get(source);
+                return convertSpecialTypes(value);
+            }
+        } catch (Exception e) {
+            log.debug("Failed to extract field {} from {}: {}", fieldName, source.getClass().getSimpleName(), e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * 플랫폼별 필드명 매핑
+     */
+    private String mapFieldName(Class<?> sourceClass, String commonFieldName) {
+        // 필요에 따라 플랫폼별로 다른 필드명 매핑
+        switch (commonFieldName) {
+            case "authors":
+                if (sourceClass.getSimpleName().contains("Webtoon")) {
+                    return "webtoonAuthors";
+                }
+                return "authors";
+            case "genre":
+                if (sourceClass.getSimpleName().contains("Webtoon")) {
+                    return "webtoonGenres";
+                }
+                return "genre";
+            case "webtoonSummary":
+                return "summary";
+            case "gameSummary":
+                return "summary";
+            default:
+                return commonFieldName;
+        }
+    }
+
+    /**
+     * 수동 통합 처리
+     */
+    @Transactional
+    public Object processManualIntegration(ManualIntegrationDTO manualDTO) {
+        String contentType = manualDTO.getContentType();
+
+        // Common 엔티티 생성 또는 찾기
+        Object commonEntity = findOrCreateCommonEntity(contentType, manualDTO.getTitle());
+
+        // 수동으로 입력된 필드들 적용
+        applyManualFields(commonEntity, manualDTO, contentType);
+
+        // Common 엔티티 저장
+        Object savedCommon = saveCommonEntity(contentType, commonEntity);
+
+        // PlatformMapping 업데이트
+        updatePlatformMappingFromManual(contentType, savedCommon, manualDTO);
+
+        return savedCommon;
+    }
+
+    /**
+     * 수동 필드 적용
+     */
+    private void applyManualFields(Object target, ManualIntegrationDTO manualDTO, String contentType) {
+        try {
+            // 공통 필드 적용
+            setFieldValue(target, "title", manualDTO.getTitle());
+            setFieldValue(target, "imageUrl", manualDTO.getImageUrl());
+            setFieldValue(target, "genre", manualDTO.getGenre());
+
+            // 콘텐츠 타입별 필드 적용
+            switch (contentType) {
+                case "novel":
+                    setFieldValue(target, "authors", manualDTO.getAuthors());
+                    setFieldValue(target, "status", manualDTO.getStatus());
+                    setFieldValue(target, "publisher", manualDTO.getPublisher());
+                    setFieldValue(target, "ageRating", manualDTO.getAgeRating());
+                    break;
+                case "movie":
+                    setFieldValue(target, "director", manualDTO.getDirector());
+                    setFieldValue(target, "actors", manualDTO.getActors());
+                    setFieldValue(target, "releaseDate", manualDTO.getReleaseDate());
+                    setFieldValue(target, "runningTime", manualDTO.getRunningTime());
+                    setFieldValue(target, "country", manualDTO.getCountry());
+                    setFieldValue(target, "ageRating", manualDTO.getMovieAgeRating());
+                    setFieldValue(target, "totalAudience", manualDTO.getTotalAudience());
+                    setFieldValue(target, "summary", manualDTO.getSummary());
+                    setFieldValue(target, "rating", manualDTO.getRating());
+                    setFieldValue(target, "reservationRate", manualDTO.getReservationRate());
+                    setFieldValue(target, "isRerelease", manualDTO.getIsRerelease());
+                    break;
+                case "ott":
+                    setFieldValue(target, "type", manualDTO.getType());
+                    setFieldValue(target, "creator", manualDTO.getCreator());
+                    setFieldValue(target, "description", manualDTO.getDescription());
+                    setFieldValue(target, "maturityRating", manualDTO.getMaturityRating());
+                    setFieldValue(target, "releaseYear", manualDTO.getReleaseYear());
+                    setFieldValue(target, "features", manualDTO.getFeatures());
+                    break;
+                case "webtoon":
+                    setFieldValue(target, "publishDate", manualDTO.getPublishDate());
+                    setFieldValue(target, "uploadDay", manualDTO.getUploadDays());
+                    setFieldValue(target, "summary", manualDTO.getWebtoonSummary());
+                    break;
+                case "game":
+                    setFieldValue(target, "developers", manualDTO.getDevelopers());
+                    setFieldValue(target, "publisher", manualDTO.getPublishers());
+                    setFieldValue(target, "requiredAge", manualDTO.getRequiredAge());
+                    setFieldValue(target, "summary", manualDTO.getGameSummary());
+                    setFieldValue(target, "initialPrice", manualDTO.getInitialPrice());
+                    setFieldValue(target, "finalPrice", manualDTO.getFinalPrice());
+                    break;
+            }
+        } catch (Exception e) {
+            log.error("Error applying manual fields: {}", e.getMessage());
+            throw new RuntimeException("수동 필드 적용 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 필드 값 설정 헬퍼 메서드
+     */
+    private void setFieldValue(Object target, String fieldName, Object value) {
+        if (value == null) return;
+
+        try {
+            Field field = findField(target.getClass(), fieldName);
+            if (field != null) {
+                field.setAccessible(true);
+                field.set(target, value);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to set field {}: {}", fieldName, e.getMessage());
+        }
+    }
+
+    /**
+     * 수동 통합에서 플랫폼 매핑 업데이트
+     */
+    private void updatePlatformMappingFromManual(String contentType, Object commonEntity, ManualIntegrationDTO manualDTO) {
+        List<Long> sourceIds = manualDTO.getSourceIds();
+
+        if (sourceIds == null || sourceIds.isEmpty()) {
+            return;
+        }
+
+        // 각 소스 ID에 대해 플랫폼 매핑 업데이트
+        for (Long sourceId : sourceIds) {
+            String platform = determinePlatformFromContentType(contentType);
+            updatePlatformMapping(contentType, commonEntity, platform, sourceId);
+        }
+    }
+
+    /**
+     * 콘텐츠 타입에서 플랫폼 결정
+     */
+    private String determinePlatformFromContentType(String contentType) {
+        switch (contentType) {
+            case "novel": return "naver";
+            case "movie": return "cgv";
+            case "ott": return "netflix";
+            case "webtoon": return "naver";
+            case "game": return "steam";
+            default: return "unknown";
+        }
     }
 }
