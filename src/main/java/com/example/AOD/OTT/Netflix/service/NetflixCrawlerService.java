@@ -115,12 +115,11 @@ public class NetflixCrawlerService {
      * DTO를 엔티티로 변환하여 저장
      */
     public NetflixContent saveNetflixContent(NetflixContentDTO dto) {
-        // 기존 콘텐츠가 있는지 확인 (contentId로 검색)
-        NetflixContent content = contentRepository.findByContentId((dto.getContentId()))
+        // 기존 콘텐츠가 있는지 확인 (id로 검색)
+        NetflixContent content = contentRepository.findById((dto.getId()))
                 .orElse(new NetflixContent());
 
         // 기본 필드 매핑
-        content.setContentId(dto.getContentId());
         content.setTitle(dto.getTitle());
         content.setType(dto.getType());
         content.setUrl(dto.getUrl());

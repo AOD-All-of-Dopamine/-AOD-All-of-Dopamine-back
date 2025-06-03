@@ -15,8 +15,8 @@ import java.util.List;
 public class NetflixContent {
 
     @Id
-    @Column(name = "content_id", nullable = false)
-    private Long contentId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @Column(nullable = false, length = 255)
     private String title;
