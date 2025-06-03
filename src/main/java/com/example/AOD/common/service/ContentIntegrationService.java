@@ -521,7 +521,7 @@ public class ContentIntegrationService {
                 break;
             case "ott":
                 netflixContentRepository.findById(sourceId).ifPresent(
-                        content -> sourceData.put("netflix_" + content.getContentId(), content));
+                        content -> sourceData.put("netflix_" + content.getId(), content));
                 break;
             case "webtoon":
                 webtoonRepository.findById(sourceId).ifPresent(
@@ -569,10 +569,10 @@ public class ContentIntegrationService {
                 netflixContentRepository.findAllById(sourceIds).forEach(
                         content -> {
                             try {
-                                Long id = content.getContentId();
+                                Long id = content.getId();
                                 titles.put(id, content.getTitle());
                             } catch (NumberFormatException e) {
-                                log.error("Cannot parse contentId to Long: {}", content.getContentId());
+                                log.error("Cannot parse contentId to Long: {}", content.getId());
                             }
                         });
                 break;
@@ -663,7 +663,7 @@ public class ContentIntegrationService {
             case "ott":
                 for (Long id : sourceIds) {
                     netflixContentRepository.findById(id).ifPresent(
-                            content -> sourceData.put("netflix_" + content.getContentId(), content));
+                            content -> sourceData.put("netflix_" + content.getId(), content));
                 }
                 break;
             case "webtoon":

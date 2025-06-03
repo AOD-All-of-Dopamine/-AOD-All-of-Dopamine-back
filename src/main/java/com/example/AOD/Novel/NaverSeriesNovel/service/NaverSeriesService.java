@@ -93,8 +93,8 @@ public class NaverSeriesService {
         NaverLoginHandler loginHandler = new NaverLoginHandler();
         WebDriver driver = chromeDriverProvider.getDriver();
 
-        String id = System.getenv("naverId");
-        String pw = System.getenv("naverPw");
+        String id = System.getenv("NAVER_ID");
+        String pw = System.getenv("NAVER_PW");
         System.out.println(id + " " + pw);
 
         loginHandler.naverLogin(driver, id, pw);
