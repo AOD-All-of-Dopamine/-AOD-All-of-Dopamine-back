@@ -179,7 +179,7 @@ public class NetflixContentCrawler {
 
             // contentType 추정 (간단 로직)
             String contentType = getContentType(con);
-            Long contentId = getContentId(con.contentId);
+            Long id = getContentId(con.contentId);
             String description = getDescription(driver);
             String maturityRating = getMaturityRating(driver);
             String imageUrl = getImageUrl(driver);
@@ -216,7 +216,7 @@ public class NetflixContentCrawler {
             String releaseYear = "";
 
 
-            dto.setContentId(contentId);
+            dto.setId(id);
             dto.setTitle(con.title);
             dto.setType(contentType);
             dto.setUrl(con.url);

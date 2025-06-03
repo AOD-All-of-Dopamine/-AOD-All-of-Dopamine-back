@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class NetflixContentDTO {
-    private Long contentId;
+    private Long id;
     private String title;
     private String type;
     private String url;
