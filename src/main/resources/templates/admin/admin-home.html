@@ -1,45 +1,130 @@
-<!-- admin-home.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>관리자 페이지</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-<div class="container mt-4">
-    <h1 class="mb-4">콘텐츠 관리 시스템</h1>
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">콘텐츠 통합 관리 시스템</h1>
 
     <div class="row">
+        <!-- 통합 설정 관리 -->
         <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-header">통합 설정 관리</div>
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-cogs"></i> 통합 설정 관리
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">콘텐츠 유형 별 통합 설정</h5>
-                    <p class="card-text">각 콘텐츠 유형에 대한 통합 설정을 관리합니다.</p>
+                    <h5 class="card-title">콘텐츠 유형별 통합 설정</h5>
+                    <p class="card-text">각 콘텐츠 유형에 대한 필드 매핑 및 통합 규칙을 설정합니다.</p>
                     <div class="list-group">
-                        <a th:href="@{/admin/integration/config/list/novel}" class="list-group-item list-group-item-action">소설 통합 설정</a>
-                        <a th:href="@{/admin/integration/config/list/movie}" class="list-group-item list-group-item-action">영화 통합 설정</a>
-                        <a th:href="@{/admin/integration/config/list/ott}" class="list-group-item list-group-item-action">OTT 통합 설정</a>
-                        <a th:href="@{/admin/integration/config/list/webtoon}" class="list-group-item list-group-item-action">웹툰 통합 설정</a>
-                        <a th:href="@{/admin/integration/config/list/game}" class="list-group-item list-group-item-action">게임 통합 설정</a>
+                        <a th:href="@{/admin/integration/config/list/novel}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-book"></i> 소설 통합 설정
+                        </a>
+                        <a th:href="@{/admin/integration/config/list/movie}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-film"></i> 영화 통합 설정
+                        </a>
+                        <a th:href="@{/admin/integration/config/list/ott}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tv"></i> OTT 통합 설정
+                        </a>
+                        <a th:href="@{/admin/integration/config/list/webtoon}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-palette"></i> 웹툰 통합 설정
+                        </a>
+                        <a th:href="@{/admin/integration/config/list/game}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-gamepad"></i> 게임 통합 설정
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- 콘텐츠 통합 -->
         <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-header">콘텐츠 통합</div>
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-sync-alt"></i> 콘텐츠 통합
+                </div>
                 <div class="card-body">
                     <h5 class="card-title">플랫폼 콘텐츠 통합</h5>
                     <p class="card-text">여러 플랫폼의 콘텐츠를 통합하여 Common 엔티티를 생성합니다.</p>
                     <div class="list-group">
-                        <a th:href="@{/admin/integration/novel/integrate}" class="list-group-item list-group-item-action">소설 통합</a>
-                        <a th:href="@{/admin/integration/movie/integrate}" class="list-group-item list-group-item-action">영화 통합</a>
-                        <a th:href="@{/admin/integration/ott/integrate}" class="list-group-item list-group-item-action">OTT 통합</a>
-                        <a th:href="@{/admin/integration/webtoon/integrate}" class="list-group-item list-group-item-action">웹툰 통합</a>
-                        <a th:href="@{/admin/integration/game/integrate}" class="list-group-item list-group-item-action">게임 통합</a>
+                        <a th:href="@{/admin/integration/novel/integrate}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-book"></i> 소설 통합
+                        </a>
+                        <a th:href="@{/admin/integration/movie/integrate}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-film"></i> 영화 통합
+                        </a>
+                        <a th:href="@{/admin/integration/ott/integrate}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tv"></i> OTT 통합
+                        </a>
+                        <a th:href="@{/admin/integration/webtoon/integrate}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-palette"></i> 웹툰 통합
+                        </a>
+                        <a th:href="@{/admin/integration/game/integrate}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-gamepad"></i> 게임 통합
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 콘텐츠 관리 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-database"></i> 콘텐츠 관리
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">통합된 콘텐츠 관리</h5>
+                    <p class="card-text">통합된 Common 콘텐츠를 조회하고 관리합니다.</p>
+                    <div class="list-group">
+                        <a th:href="@{/admin/content/manage/novel}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-book"></i> 소설 관리
+                        </a>
+                        <a th:href="@{/admin/content/manage/movie}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-film"></i> 영화 관리
+                        </a>
+                        <a th:href="@{/admin/content/manage/ott}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tv"></i> OTT 관리
+                        </a>
+                        <a th:href="@{/admin/content/manage/webtoon}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-palette"></i> 웹툰 관리
+                        </a>
+                        <a th:href="@{/admin/content/manage/game}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-gamepad"></i> 게임 관리
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 통계 및 리포트 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <i class="fas fa-chart-bar"></i> 통계 및 리포트
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">통합 현황</h5>
+                    <p class="card-text">콘텐츠 통합 현황과 플랫폼별 통계를 확인합니다.</p>
+                    <div class="list-group">
+                        <a th:href="@{/admin/statistics/overview}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chart-pie"></i> 전체 통계
+                        </a>
+                        <a th:href="@{/admin/statistics/platform}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-project-diagram"></i> 플랫폼별 통계
+                        </a>
+                        <a th:href="@{/admin/statistics/multi-platform}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-layer-group"></i> 멀티플랫폼 콘텐츠
+                        </a>
+                        <a th:href="@{/admin/statistics/duplicates}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-copy"></i> 중복 콘텐츠 관리
+                        </a>
                     </div>
                 </div>
             </div>

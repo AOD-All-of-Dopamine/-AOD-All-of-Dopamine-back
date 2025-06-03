@@ -1,91 +1,305 @@
-<!-- content-integration-form.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title th:text="${contentType + ' 콘텐츠 통합'}">콘텐츠 통합</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .content-item {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .content-item:hover {
+            background-color: #f8f9fa;
+        }
+        .content-item.already-integrated {
+            background-color: #e7f3ff;
+            border-color: #b3d9ff;
+        }
+        .platform-badge {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        .integration-mode-card {
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .integration-mode-card.selected {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .integration-mode-card:hover {
+            border-color: #007bff;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-4">
-    <h1 class="mb-4" th:text="${contentType + ' 콘텐츠 통합'}">콘텐츠 통합</h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin}">관리자 홈</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${contentType + ' 콘텐츠 통합'}"></li>
+        </ol>
+    </nav>
 
-    <!-- 중복 콘텐츠 경고 메시지 추가 -->
+    <h1 class="mb-4">
+        <span th:switch="${contentType}">
+            <i th:case="'novel'" class="fas fa-book"></i>
+            <i th:case="'movie'" class="fas fa-film"></i>
+            <i th:case="'ott'" class="fas fa-tv"></i>
+            <i th:case="'webtoon'" class="fas fa-palette"></i>
+            <i th:case="'game'" class="fas fa-gamepad"></i>
+        </span>
+        <span th:text="${contentType + ' 콘텐츠 통합'}">콘텐츠 통합</span>
+    </h1>
+
+    <!-- 중복 콘텐츠 경고 메시지 -->
     <div th:if="${duplicateError}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>중복 콘텐츠 감지!</strong>
-        <p>다음 콘텐츠는 이미 통합되어 있습니다:</p>
-        <ul>
+        <strong><i class="fas fa-exclamation-triangle"></i> 중복 콘텐츠 감지!</strong>
+        <p class="mb-2">다음 콘텐츠는 이미 통합되어 있습니다:</p>
+        <ul class="mb-0">
             <li th:each="title : ${duplicateTitles}" th:text="${title}"></li>
         </ul>
-        <p>중복된 콘텐츠를 제외하고 진행하려면 선택을 변경해주세요.</p>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
 
+    <!-- 에러 메시지 -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong><i class="fas fa-exclamation-triangle"></i> 오류!</strong>
+        <span th:text="${error}"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
 
-    <form th:action="@{/admin/integration/{contentType}/integrate(contentType=${contentType})}" th:object="${integrationRequest}" method="post">
+    <!-- 통합 현황 요약 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-info-circle"></i> 통합 현황
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h5 id="totalCount">0</h5>
+                            <p class="text-muted">전체 콘텐츠</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 id="integratedCount">0</h5>
+                            <p class="text-muted">통합 완료</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 id="selectedCount">0</h5>
+                            <p class="text-muted">선택됨</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 id="remainingCount">0</h5>
+                            <p class="text-muted">미통합</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{/admin/integration/{contentType}/integrate(contentType=${contentType})}"
+          th:object="${integrationRequest}" method="post" id="integrationForm">
+
+        <!-- 통합 설정 선택 -->
         <div class="form-group">
-            <label for="configId">통합 설정</label>
+            <label for="configId"><i class="fas fa-cog"></i> 통합 설정</label>
             <select class="form-control" id="configId" th:field="*{configId}" required>
                 <option value="">-- 설정 선택 --</option>
                 <option th:each="config : ${configs}"
                         th:value="${config.id}"
-                        th:text="${config.name + ' - ' + config.description}"></option>
+                        th:text="${config.name + (config.active ? ' (활성)' : ' (비활성)')}">
+                </option>
             </select>
+            <small class="form-text text-muted">통합에 사용할 필드 매핑 설정을 선택하세요.</small>
         </div>
 
-        <!-- 플랫폼별 콘텐츠 선택 영역 -->
-        <div th:each="platform : ${platforms}" class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span th:text="${platform.name}">플랫폼 이름</span>
-                <!-- 플랫폼별 전체선택 버튼 추가 -->
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input platform-select-all"
-                           th:id="${'select-all-' + platform.id}"
-                           th:data-platform="${platform.id}">
-                    <label class="custom-control-label" th:for="${'select-all-' + platform.id}">전체선택</label>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <div class="row">
-                        <div th:each="content : ${platformContents.get(platform.id)}" class="col-md-4 mb-3">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input content-checkbox"
-                                       th:id="${platform.id + '_content_' + (content instanceof T(com.example.AOD.OTT.Netflix.domain.NetflixContent) ? content.contentId : content.id)}"
-                                       th:name="sourceIds"
-                                       th:value="${content instanceof T(com.example.AOD.OTT.Netflix.domain.NetflixContent) ? content.contentId : content.id}"
-                                       th:data-platform="${platform.id}">
-                                <label class="custom-control-label"
-                                       th:for="${platform.id + '_content_' + (content instanceof T(com.example.AOD.OTT.Netflix.domain.NetflixContent) ? content.contentId : content.id)}"
-                                       th:text="${content.title}">콘텐츠 제목</label>
+        <!-- 통합 모드 선택 -->
+        <div class="form-group mb-4">
+            <label><i class="fas fa-tools"></i> 통합 모드</label>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <div class="card integration-mode-card" data-mode="auto">
+                        <div class="card-body text-center">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="autoMode" name="integrationMode" value="auto" checked>
+                                <label class="custom-control-label" for="autoMode">
+                                    <h5><i class="fas fa-magic text-primary"></i> 자동 통합</h5>
+                                </label>
                             </div>
+                            <p class="text-muted mt-2">
+                                설정된 필드 매핑에 따라 자동으로 통합합니다.<br>
+                                빠르고 간편하지만 세부 조정이 어렵습니다.
+                            </p>
                         </div>
-                        <!-- 콘텐츠가 없는 경우 -->
-                        <div th:if="${platformContents.get(platform.id) == null || platformContents.get(platform.id).isEmpty()}" class="col-12">
-                            <p class="text-muted">이용 가능한 콘텐츠가 없습니다.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card integration-mode-card" data-mode="manual">
+                        <div class="card-body text-center">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="manualMode" name="integrationMode" value="manual">
+                                <label class="custom-control-label" for="manualMode">
+                                    <h5><i class="fas fa-edit text-success"></i> 수동 통합</h5>
+                                </label>
+                            </div>
+                            <p class="text-muted mt-2">
+                                각 플랫폼의 데이터를 비교하고<br>
+                                직접 선택하거나 입력할 수 있습니다.
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 전체 통합 버튼 위에 모든 플랫폼의 전체선택 버튼 추가 -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="select-all-platforms">
-                    <label class="custom-control-label" for="select-all-platforms">모든 플랫폼 전체선택</label>
+        <!-- 플랫폼별 콘텐츠 선택 영역 -->
+        <div th:each="platform : ${platforms}" class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i th:class="${platform.id == 'naver' ? 'fas fa-n' :
+                                  platform.id == 'cgv' ? 'fas fa-film' :
+                                  platform.id == 'netflix' ? 'fas fa-play' :
+                                  platform.id == 'steam' ? 'fab fa-steam' :
+                                  'fas fa-globe'}"></i>
+                    <span th:text="${platform.name}">플랫폼 이름</span>
+                    <span class="badge badge-secondary"
+                          th:text="${platformContents.get(platform.id) != null ? platformContents.get(platform.id).size() : 0} + '개'">
+                    </span>
+                </span>
+                <div>
+                    <button type="button" class="btn btn-sm btn-outline-primary filter-integrated"
+                            th:data-platform="${platform.id}">
+                        <i class="fas fa-filter"></i> 통합된 항목 숨기기
+                    </button>
+                    <div class="custom-control custom-checkbox d-inline-block ml-3">
+                        <input type="checkbox" class="custom-control-input platform-select-all"
+                               th:id="${'select-all-' + platform.id}"
+                               th:data-platform="${platform.id}">
+                        <label class="custom-control-label" th:for="${'select-all-' + platform.id}">전체선택</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <!-- 검색 박스 -->
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        </div>
+                        <input type="text" class="form-control content-search"
+                               th:data-platform="${platform.id}"
+                               placeholder="콘텐츠 검색...">
+                    </div>
+
+                    <!-- 콘텐츠 목록 -->
+                    <div class="content-list" th:data-platform="${platform.id}"
+                         style="max-height: 400px; overflow-y: auto;">
+                        <div th:each="content : ${platformContents.get(platform.id)}"
+                             class="content-item"
+                             th:data-title="${content.title}"
+                             th:classappend="${integratedIds != null and integratedIds.contains(content.id) ? 'already-integrated' : ''}">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input content-checkbox"
+                                       th:id="${platform.id + '_content_' + content.id}"
+                                       th:name="sourceIds"
+                                       th:value="${content.id}"
+                                       th:data-platform="${platform.id}"
+                                       th:disabled="${integratedIds != null and integratedIds.contains(content.id)}">
+                                <label class="custom-control-label"
+                                       th:for="${platform.id + '_content_' + content.id}">
+                                    <span th:text="${content.title}">콘텐츠 제목</span>
+                                    <span th:if="${integratedIds != null and integratedIds.contains(content.id)}"
+                                          class="badge badge-success platform-badge">
+                                        <i class="fas fa-check"></i> 통합됨
+                                    </span>
+                                    <!-- 추가 정보 표시 -->
+                                    <small class="text-muted d-block">
+                                        <!-- 소설 전용: authors -->
+                                        <span th:if="${contentType == 'novel' and content.authors != null}"
+                                              th:text="'작가: ' + ${#strings.listJoin(content.authors, ', ')}"></span>
+
+                                        <!-- 영화 전용: director -->
+                                        <span th:if="${contentType == 'movie' and content.director != null}"
+                                              th:text="'감독: ' + ${content.director}"></span>
+
+                                        <!-- 영화 전용: releaseDate (필요 시) -->
+                                        <span th:if="${contentType == 'movie' and content.releaseDate != null}"
+                                              th:text="' (' + ${content.releaseDate} + ')'"></span>
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
+                        <!-- 콘텐츠가 없는 경우 -->
+                        <div th:if="${platformContents.get(platform.id) == null || platformContents.get(platform.id).isEmpty()}"
+                             class="text-center text-muted p-4">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p>이용 가능한 콘텐츠가 없습니다.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- 모든 플랫폼 전체선택 -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="select-all-platforms">
+                    <label class="custom-control-label" for="select-all-platforms">
+                        <i class="fas fa-check-double"></i> 모든 플랫폼 전체선택
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
         <div class="form-group">
-            <button type="submit" class="btn btn-primary">콘텐츠 통합</button>
-            <a th:href="@{/admin}" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary" id="integrateBtn" disabled>
+                <i id="integrateBtnIcon" class="fas fa-sync-alt"></i>
+                <span id="integrateBtnText">콘텐츠 통합</span>
+                (<span id="selectedCountText">0</span>개)
+            </button>
+            <button type="button" class="btn btn-info ml-2" id="previewBtn" disabled>
+                <i class="fas fa-eye"></i> 미리보기
+            </button>
+            <a th:href="@{/admin}" class="btn btn-secondary ml-2">
+                <i class="fas fa-times"></i> 취소
+            </a>
         </div>
     </form>
+</div>
+
+<!-- 미리보기 모달 -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">통합 미리보기</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- 미리보기 내용이 여기에 표시됩니다 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -93,47 +307,169 @@
 
 <script>
     $(document).ready(function() {
-        // 플랫폼별 전체선택 체크박스 동작
+        // 통합 모드 카드 클릭 이벤트
+        $('.integration-mode-card').click(function() {
+            var mode = $(this).data('mode');
+            $('input[name="integrationMode"][value="' + mode + '"]').prop('checked', true);
+            updateIntegrationModeUI();
+        });
+
+        // 통합 모드 라디오 버튼 변경 이벤트
+        $('input[name="integrationMode"]').change(function() {
+            updateIntegrationModeUI();
+        });
+
+        // 통합 모드 UI 업데이트
+        function updateIntegrationModeUI() {
+            var selectedMode = $('input[name="integrationMode"]:checked').val();
+
+            // 카드 스타일 업데이트
+            $('.integration-mode-card').removeClass('selected');
+            $('.integration-mode-card[data-mode="' + selectedMode + '"]').addClass('selected');
+
+            // 버튼 텍스트 업데이트
+            if (selectedMode === 'manual') {
+                $('#integrateBtnIcon').removeClass('fa-sync-alt').addClass('fa-edit');
+                $('#integrateBtnText').text('수동 통합 시작');
+            } else {
+                $('#integrateBtnIcon').removeClass('fa-edit').addClass('fa-sync-alt');
+                $('#integrateBtnText').text('자동 통합');
+            }
+        }
+
+        // 초기 통합 모드 UI 설정
+        updateIntegrationModeUI();
+
+        // 통계 업데이트
+        function updateStatistics() {
+            var totalCount = $('.content-checkbox').length;
+            var integratedCount = $('.already-integrated').length;
+            var selectedCount = $('.content-checkbox:checked:not(:disabled)').length;
+            var remainingCount = totalCount - integratedCount;
+
+            $('#totalCount').text(totalCount);
+            $('#integratedCount').text(integratedCount);
+            $('#selectedCount').text(selectedCount);
+            $('#selectedCountText').text(selectedCount);
+            $('#remainingCount').text(remainingCount);
+
+            // 버튼 활성화/비활성화
+            $('#integrateBtn').prop('disabled', selectedCount === 0);
+            $('#previewBtn').prop('disabled', selectedCount === 0);
+        }
+
+        // 초기 통계 업데이트
+        updateStatistics();
+
+        // 플랫폼별 전체선택
         $('.platform-select-all').change(function() {
             var isChecked = $(this).prop('checked');
             var platformId = $(this).data('platform');
 
-            // 해당 플랫폼의 모든 콘텐츠 체크박스 상태 변경
-            $('.content-checkbox[data-platform="' + platformId + '"]').prop('checked', isChecked);
-
-            // 모든 플랫폼 전체선택 체크박스 상태 업데이트
+            $('.content-checkbox[data-platform="' + platformId + '"]:not(:disabled)').prop('checked', isChecked);
             updateGlobalSelectAllState();
+            updateStatistics();
         });
 
-        // 개별 콘텐츠 체크박스 변경 시
+        // 개별 콘텐츠 체크박스 변경
         $('.content-checkbox').change(function() {
             var platformId = $(this).data('platform');
 
-            // 해당 플랫폼의 모든 콘텐츠 체크박스 상태 확인
-            var allChecked = $('.content-checkbox[data-platform="' + platformId + '"]').length ===
-                $('.content-checkbox[data-platform="' + platformId + '"]:checked').length;
+            var allChecked = $('.content-checkbox[data-platform="' + platformId + '"]:not(:disabled)').length ===
+                $('.content-checkbox[data-platform="' + platformId + '"]:checked:not(:disabled)').length;
 
-            // 플랫폼 전체선택 체크박스 상태 변경
             $('#select-all-' + platformId).prop('checked', allChecked);
-
-            // 모든 플랫폼 전체선택 체크박스 상태 업데이트
             updateGlobalSelectAllState();
+            updateStatistics();
         });
 
-        // 모든 플랫폼 전체선택 체크박스 동작
+        // 모든 플랫폼 전체선택
         $('#select-all-platforms').change(function() {
             var isChecked = $(this).prop('checked');
 
-            // 모든 콘텐츠 체크박스와 플랫폼별 전체선택 체크박스 상태 변경
-            $('.content-checkbox').prop('checked', isChecked);
+            $('.content-checkbox:not(:disabled)').prop('checked', isChecked);
             $('.platform-select-all').prop('checked', isChecked);
+            updateStatistics();
         });
 
-        // 모든 플랫폼 전체선택 체크박스 상태 업데이트 함수
+        // 모든 플랫폼 전체선택 상태 업데이트
         function updateGlobalSelectAllState() {
-            var allContentChecked = $('.content-checkbox').length === $('.content-checkbox:checked').length;
+            var allContentChecked = $('.content-checkbox:not(:disabled)').length ===
+                $('.content-checkbox:checked:not(:disabled)').length;
             $('#select-all-platforms').prop('checked', allContentChecked);
         }
+
+        // 콘텐츠 검색
+        $('.content-search').on('keyup', function() {
+            var searchTerm = $(this).val().toLowerCase();
+            var platformId = $(this).data('platform');
+            var contentList = $('.content-list[data-platform="' + platformId + '"]');
+
+            contentList.find('.content-item').each(function() {
+                var title = $(this).data('title').toLowerCase();
+                if (title.includes(searchTerm)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        // 통합된 항목 필터링
+        $('.filter-integrated').click(function() {
+            var platformId = $(this).data('platform');
+            var contentList = $('.content-list[data-platform="' + platformId + '"]');
+            var button = $(this);
+
+            if (button.hasClass('active')) {
+                button.removeClass('active btn-primary').addClass('btn-outline-primary');
+                button.html('<i class="fas fa-filter"></i> 통합된 항목 숨기기');
+                contentList.find('.already-integrated').show();
+            } else {
+                button.addClass('active btn-primary').removeClass('btn-outline-primary');
+                button.html('<i class="fas fa-filter"></i> 통합된 항목 보기');
+                contentList.find('.already-integrated').hide();
+            }
+        });
+
+        // 미리보기
+        $('#previewBtn').click(function() {
+            var selectedItems = [];
+            $('.content-checkbox:checked:not(:disabled)').each(function() {
+                var label = $(this).next('label');
+                var title = label.find('span:first').text();
+                var platform = $(this).data('platform');
+                selectedItems.push({
+                    title: title,
+                    platform: platform
+                });
+            });
+
+            var previewHtml = '<div class="list-group">';
+            var groupedByPlatform = {};
+
+            selectedItems.forEach(function(item) {
+                if (!groupedByPlatform[item.platform]) {
+                    groupedByPlatform[item.platform] = [];
+                }
+                groupedByPlatform[item.platform].push(item.title);
+            });
+
+            Object.keys(groupedByPlatform).forEach(function(platform) {
+                previewHtml += '<div class="list-group-item">';
+                previewHtml += '<h6>' + platform + ' (' + groupedByPlatform[platform].length + '개)</h6>';
+                previewHtml += '<ul class="mb-0">';
+                groupedByPlatform[platform].forEach(function(title) {
+                    previewHtml += '<li>' + title + '</li>';
+                });
+                previewHtml += '</ul></div>';
+            });
+
+            previewHtml += '</div>';
+
+            $('#previewContent').html(previewHtml);
+            $('#previewModal').modal('show');
+        });
     });
 </script>
 </body>
