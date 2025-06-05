@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${'전체 통계'}">전체 통계</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin}">관리자 홈</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${'전체 통계'}">전체 통계</li>
+        </ol>
+    </nav>
+
+    <!-- 기존 통합 현황 카드 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-info-circle"></i> 컨텐츠 현황
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-2">
+                            <h5 id="totalCount">0</h5>
+                            <p class="text-muted">전체 콘텐츠</p>
+                        </div>
+                        <div class="col-md-2">
+                            <h5 id="movieCount">0</h5>
+                            <p class="text-muted">영화</p>
+                        </div>
+                        <div class="col-md-2">
+                            <h5 id="ottCount">0</h5>
+                            <p class="text-muted">OTT</p>
+                        </div>
+                        <div class="col-md-2">
+                            <h5 id="webtoonCount">0</h5>
+                            <p class="text-muted">웹툰</p>
+                        </div>
+                        <div class="col-md-2">
+                            <h5 id="gameCount">0</h5>
+                            <p class="text-muted">게임</p>
+                        </div>
+                        <div class="col-md-2">
+                            <h5 id="novelCount">0</h5>
+                            <p class="text-muted">소설</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 콘텐츠 수 통계 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-chart-bar"></i> 콘텐츠 수 통계
+                </div>
+                <div class="card-body text-center">
+                    <canvas id="contentChart" class="mx-auto d-block" style="max-width: 700px; height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 플랫폼별 통계 -->
+    <div class="row mb-4" id="platformChartsContainer">
+        <!-- JS로 여러 카드가 추가됨 -->
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $.get("/api/v2/content/statistics", function (data) {
+            const counts = data.contentCounts;
+            const stats = data.platformStats;
+
+            // 👉 DOM에 콘텐츠 개수 표시
+            const total = counts.movies + counts.otts + counts.webtoons + counts.games + counts.novels;
+            $('#totalCount').text(total);
+            $('#movieCount').text(counts.movies);
+            $('#ottCount').text(counts.otts);
+            $('#webtoonCount').text(counts.webtoons);
+            $('#gameCount').text(counts.games);
+            $('#novelCount').text(counts.novels);
+
+            // 👉 콘텐츠 수 차트
+            const contentCtx = document.getElementById("contentChart").getContext("2d");
+            new Chart(contentCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['영화', 'OTT', '웹툰', '게임', '소설'],
+                    datasets: [{
+                        label: '콘텐츠 수',
+                        data: [counts.movies, counts.otts, counts.webtoons, counts.games, counts.novels],
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // 👉 플랫폼별 차트
+            for (let category in stats) {
+                const chartId = `platformChart_${category}`;
+                $('#platformChartsContainer').append(`
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <i class="fas fa-layer-group"></i> ${category} 플랫폼 통계
+                        </div>
+                        <div class="card-body">
+                            <canvas id="${chartId}"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+                const ctx = document.getElementById(chartId).getContext("2d");
+                const platformData = stats[category];
+
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(platformData),
+                        datasets: [{
+                            data: Object.values(platformData),
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(255, 159, 64, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(153, 102, 255, 0.6)'
+                            ],
+                            borderColor: 'rgba(255, 255, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
