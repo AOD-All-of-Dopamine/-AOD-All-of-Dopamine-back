@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,6 +27,9 @@ public class NovelCommon {
 
     @Column(length = 1000)
     private String imageUrl;
+
+    @Column(length = 1000)
+    private String summary;
 
     @ElementCollection
     @CollectionTable(name = "novel_common_genre", joinColumns = @JoinColumn(name = "novel_id"))
@@ -63,6 +67,7 @@ public class NovelCommon {
     }
 
     // 편의 메서드들
+    // 편의 메서드들
     public boolean isOnNaverSeries() {
         return platformMapping != null && platformMapping.getNaverSeriesId() != null && platformMapping.getNaverSeriesId() > 0;
     }
@@ -80,6 +85,34 @@ public class NovelCommon {
         this.platformMapping = mapping;
         if (mapping != null) {
             mapping.setNovelCommon(this);
+        }
+    }
+
+    // 컬렉션 안전 설정 메서드들
+    public void setGenre(List<String> genre) {
+        this.genre = genre != null ? new ArrayList<>(genre) : new ArrayList<>();
+    }
+
+    public void setAuthors(List<String> authors) {
+        this.authors = authors != null ? new ArrayList<>(authors) : new ArrayList<>();
+    }
+
+    // 컬렉션 안전 추가 메서드들
+    public void addGenre(String genre) {
+        if (this.genre == null) {
+            this.genre = new ArrayList<>();
+        }
+        if (genre != null && !this.genre.contains(genre)) {
+            this.genre.add(genre);
+        }
+    }
+
+    public void addAuthor(String author) {
+        if (this.authors == null) {
+            this.authors = new ArrayList<>();
+        }
+        if (author != null && !this.authors.contains(author)) {
+            this.authors.add(author);
         }
     }
 }
