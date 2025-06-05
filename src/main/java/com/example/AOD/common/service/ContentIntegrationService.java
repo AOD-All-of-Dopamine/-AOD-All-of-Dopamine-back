@@ -84,7 +84,7 @@ public class ContentIntegrationService {
     }
 
     /**
-     * 단일 콘텐츠 통합
+     * 단일 콘텐츠 통합 - 중복 제목 처리 개선
      */
     @Transactional
     protected Object integrateSingleContent(ContentIntegrationConfig config, String contentType, Long sourceId) {
@@ -100,6 +100,12 @@ public class ContentIntegrationService {
 
         // 제목 추출
         String title = extractTitle(platformContent);
+
+        // 이미 통합된 콘텐츠인지 확인
+        if (isAlreadyIntegrated(contentType, platform, sourceId)) {
+            log.info("Content with ID {} is already integrated, skipping", sourceId);
+            return null;
+        }
 
         // 기존 Common 엔티티 확인 또는 생성
         Object commonEntity = findOrCreateCommonEntity(contentType, title);
@@ -122,59 +128,83 @@ public class ContentIntegrationService {
     }
 
     /**
+     * 이미 통합된 콘텐츠인지 확인
+     */
+    private boolean isAlreadyIntegrated(String contentType, String platform, Long sourceId) {
+        switch (contentType) {
+            case "novel":
+                return novelMappingRepository.findByNaverSeriesId(sourceId).isPresent();
+            case "movie":
+                return movieMappingRepository.findByCgvId(sourceId).isPresent();
+            case "ott":
+                return ottMappingRepository.findByNetflixId(sourceId).isPresent();
+            case "webtoon":
+                return webtoonMappingRepository.findByNaverId(sourceId).isPresent();
+            case "game":
+                return gameMappingRepository.findBySteamId(sourceId).isPresent();
+            default:
+                return false;
+        }
+    }
+
+
+
+    /**
      * Common 엔티티 찾기 또는 생성
      */
     private Object findOrCreateCommonEntity(String contentType, String title) {
         switch (contentType) {
             case "novel":
-                return novelCommonRepository.findByTitleIgnoreCase(title)
-                        .stream()
-                        .findFirst()
-                        .orElseGet(() -> {
-                            NovelCommon n = new NovelCommon();
-                            n.setTitle(title);                      // NOT NULL 컬럼이면 꼭 세팅
-                            return novelCommonRepository.saveAndFlush(n); // <-- INSERT + version=0
-                        });
+                List<NovelCommon> existingNovels = novelCommonRepository.findByTitleIgnoreCase(title);
+                if (!existingNovels.isEmpty()) {
+                    // 기존 엔티티가 있으면 첫 번째 엔티티 반환 (저장하지 않음)
+                    return existingNovels.get(0);
+                } else {
+                    // 새 엔티티 생성 및 저장
+                    NovelCommon n = new NovelCommon();
+                    n.setTitle(title);
+                    return novelCommonRepository.save(n); // saveAndFlush 대신 save 사용
+                }
 
             case "movie":
-                return movieCommonRepository.findByTitleIgnoreCase(title)
-                        .stream()
-                        .findFirst()
-                        .orElseGet(() -> {
-                            MovieCommon m = new MovieCommon();
-                            m.setTitle(title);
-                            return movieCommonRepository.saveAndFlush(m); // <-- 여기
-                        });
+                List<MovieCommon> existingMovies = movieCommonRepository.findByTitleIgnoreCase(title);
+                if (!existingMovies.isEmpty()) {
+                    return existingMovies.get(0);
+                } else {
+                    MovieCommon m = new MovieCommon();
+                    m.setTitle(title);
+                    return movieCommonRepository.save(m);
+                }
 
             case "ott":
-                return ottCommonRepository.findByTitleIgnoreCase(title)
-                        .stream()
-                        .findFirst()
-                        .orElseGet(() -> {
-                            OTTCommon o = new OTTCommon();
-                            o.setTitle(title);
-                            return ottCommonRepository.saveAndFlush(o);
-                        });
+                List<OTTCommon> existingOtts = ottCommonRepository.findByTitleIgnoreCase(title);
+                if (!existingOtts.isEmpty()) {
+                    return existingOtts.get(0);
+                } else {
+                    OTTCommon o = new OTTCommon();
+                    o.setTitle(title);
+                    return ottCommonRepository.save(o);
+                }
 
             case "webtoon":
-                return webtoonCommonRepository.findByTitleIgnoreCase(title)
-                        .stream()
-                        .findFirst()
-                        .orElseGet(() -> {
-                            WebtoonCommon w = new WebtoonCommon();
-                            w.setTitle(title);
-                            return webtoonCommonRepository.saveAndFlush(w);
-                        });
+                List<WebtoonCommon> existingWebtoons = webtoonCommonRepository.findByTitleIgnoreCase(title);
+                if (!existingWebtoons.isEmpty()) {
+                    return existingWebtoons.get(0);
+                } else {
+                    WebtoonCommon w = new WebtoonCommon();
+                    w.setTitle(title);
+                    return webtoonCommonRepository.save(w);
+                }
 
             case "game":
-                return gameCommonRepository.findByTitleIgnoreCase(title)
-                        .stream()
-                        .findFirst()
-                        .orElseGet(() -> {
-                            GameCommon g = new GameCommon();
-                            g.setTitle(title);
-                            return gameCommonRepository.saveAndFlush(g);
-                        });
+                List<GameCommon> existingGames = gameCommonRepository.findByTitleIgnoreCase(title);
+                if (!existingGames.isEmpty()) {
+                    return existingGames.get(0);
+                } else {
+                    GameCommon g = new GameCommon();
+                    g.setTitle(title);
+                    return gameCommonRepository.save(g);
+                }
 
             default:
                 throw new IllegalArgumentException("Unsupported content type: " + contentType);
@@ -404,7 +434,10 @@ public class ContentIntegrationService {
                                 Field targetField = findField(target.getClass(), fieldName);
                                 if (targetField != null && value != null) {
                                     targetField.setAccessible(true);
-                                    value = convertSpecialTypes(value);
+
+                                    // ★ 핵심: 항상 새로운 컬렉션 인스턴스 생성
+                                    value = convertSpecialTypesWithNewInstance(value);
+
                                     targetField.set(target, value);
                                     break;
                                 }
@@ -417,6 +450,57 @@ public class ContentIntegrationService {
             }
         }
     }
+
+    /**
+     * 새로운 인스턴스를 보장하는 타입 변환 메서드
+     */
+    private Object convertSpecialTypesWithNewInstance(Object value) {
+        if (value instanceof List) {
+            List<?> originalList = (List<?>) value;
+
+            if (originalList.isEmpty()) {
+                // 빈 리스트도 새 인스턴스로 생성
+                return new ArrayList<>();
+            }
+
+            Object firstItem = originalList.get(0);
+            String className = firstItem.getClass().getSimpleName();
+
+            // 엔티티 리스트를 String 리스트로 변환
+            if (className.contains("Genre") || className.contains("Author") ||
+                    className.contains("Actor") || className.contains("Publisher") ||
+                    className.contains("Developer")) {
+
+                List<String> newList = originalList.stream()
+                        .map(item -> {
+                            try {
+                                Field nameField = findField(item.getClass(), "name");
+                                if (nameField == null) {
+                                    nameField = findField(item.getClass(), "genre");
+                                }
+                                if (nameField != null) {
+                                    nameField.setAccessible(true);
+                                    return (String) nameField.get(item);
+                                }
+                            } catch (Exception e) {
+                                return null;
+                            }
+                            return item.toString();
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toCollection(ArrayList::new)); // ArrayList로 명시적 생성
+
+                return newList;
+            } else {
+                // 일반 리스트도 새 인스턴스로 복사
+                return new ArrayList<>(originalList);
+            }
+        }
+
+        return value;
+    }
+
+
 
     /**
      * 커스텀 계산 적용
@@ -895,7 +979,7 @@ public class ContentIntegrationService {
     }
 
     /**
-     * 필드 값 설정 헬퍼 메서드
+     * 필드 값 설정 헬퍼 메서드 - 컬렉션 안전 처리
      */
     private void setFieldValue(Object target, String fieldName, Object value) {
         if (value == null) return;
@@ -904,13 +988,20 @@ public class ContentIntegrationService {
             Field field = findField(target.getClass(), fieldName);
             if (field != null) {
                 field.setAccessible(true);
+
+                // 컬렉션인 경우 새 인스턴스 생성
+                if (value instanceof List) {
+                    value = new ArrayList<>((List<?>) value);
+                } else if (value instanceof Set) {
+                    value = new HashSet<>((Set<?>) value);
+                }
+
                 field.set(target, value);
             }
         } catch (Exception e) {
             log.warn("Failed to set field {}: {}", fieldName, e.getMessage());
         }
     }
-
     /**
      * 수동 통합에서 플랫폼 매핑 업데이트
      */
