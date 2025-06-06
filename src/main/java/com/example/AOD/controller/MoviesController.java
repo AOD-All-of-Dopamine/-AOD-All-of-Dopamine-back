@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -12,14 +13,225 @@ public class MoviesController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    // ===== 웹툰 관련 API =====
+    @GetMapping("/webtoons")
+    public ResponseEntity<List<Map<String, Object>>> getWebtoons() {
+        try {
+            String sql = """
+                SELECT wc.*, 
+                       STRING_AGG(DISTINCT wca.author, ', ') as authors,
+                       STRING_AGG(DISTINCT wcg.genre, ', ') as genres
+                FROM webtoon_common wc
+                LEFT JOIN webtoon_common_author wca ON wc.id = wca.webtoon_id
+                LEFT JOIN webtoon_common_genre wcg ON wc.id = wcg.webtoon_id
+                GROUP BY wc.id, wc.title, wc.summary, wc.image_url, wc.platform, wc.publish_date, wc.created_at, wc.updated_at, wc.version
+                """;
+            List<Map<String, Object>> webtoons = jdbcTemplate.queryForList(sql);
+            System.out.println("Webtoons count: " + webtoons.size());
+            return ResponseEntity.ok(webtoons);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/webtoons/genre/{genreName}")
+    public ResponseEntity<List<Map<String, Object>>> getWebtoonsByGenre(@PathVariable String genreName) {
+        try {
+            String sql = """
+                SELECT wc.*, 
+                       STRING_AGG(DISTINCT wca.author, ', ') as authors,
+                       STRING_AGG(DISTINCT wcg.genre, ', ') as genres
+                FROM webtoon_common wc
+                LEFT JOIN webtoon_common_author wca ON wc.id = wca.webtoon_id
+                LEFT JOIN webtoon_common_genre wcg ON wc.id = wcg.webtoon_id
+                WHERE wc.id IN (
+                    SELECT webtoon_id FROM webtoon_common_genre WHERE genre = ?
+                )
+                GROUP BY wc.id, wc.title, wc.summary, wc.image_url, wc.platform, wc.publish_date, wc.created_at, wc.updated_at, wc.version
+                """;
+            List<Map<String, Object>> webtoons = jdbcTemplate.queryForList(sql, genreName);
+            return ResponseEntity.ok(webtoons);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/webtoons/author/{authorName}")
+    public ResponseEntity<List<Map<String, Object>>> getWebtoonsByAuthor(@PathVariable String authorName) {
+        try {
+            String sql = """
+                SELECT wc.*, 
+                       STRING_AGG(DISTINCT wca.author, ', ') as authors,
+                       STRING_AGG(DISTINCT wcg.genre, ', ') as genres
+                FROM webtoon_common wc
+                LEFT JOIN webtoon_common_author wca ON wc.id = wca.webtoon_id
+                LEFT JOIN webtoon_common_genre wcg ON wc.id = wcg.webtoon_id
+                WHERE wc.id IN (
+                    SELECT webtoon_id FROM webtoon_common_author WHERE author = ?
+                )
+                GROUP BY wc.id, wc.title, wc.summary, wc.image_url, wc.platform, wc.publish_date, wc.created_at, wc.updated_at, wc.version
+                """;
+            List<Map<String, Object>> webtoons = jdbcTemplate.queryForList(sql, authorName);
+            return ResponseEntity.ok(webtoons);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // ===== OTT 콘텐츠 관련 API =====
+    @GetMapping("/ott-content")
+    public ResponseEntity<List<Map<String, Object>>> getOttContent() {
+        try {
+            String sql = """
+                SELECT oc.*, 
+                       STRING_AGG(DISTINCT oca.actor, ', ') as actors,
+                       STRING_AGG(DISTINCT ocg.genre, ', ') as genres
+                FROM ott_common oc
+                LEFT JOIN ott_common_actors oca ON oc.id = oca.ott_id
+                LEFT JOIN ott_common_genre ocg ON oc.id = ocg.ott_id
+                GROUP BY oc.id, oc.title, oc.description, oc.creator, oc.image_url, oc.maturity_rating, oc.thumbnail, oc.type, oc.release_year, oc.created_at, oc.updated_at, oc.version
+                """;
+            List<Map<String, Object>> ottContent = jdbcTemplate.queryForList(sql);
+            System.out.println("OTT content count: " + ottContent.size());
+            return ResponseEntity.ok(ottContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/ott-content/genre/{genreName}")
+    public ResponseEntity<List<Map<String, Object>>> getOttContentByGenre(@PathVariable String genreName) {
+        try {
+            String sql = """
+                SELECT oc.*, 
+                       STRING_AGG(DISTINCT oca.actor, ', ') as actors,
+                       STRING_AGG(DISTINCT ocg.genre, ', ') as genres
+                FROM ott_common oc
+                LEFT JOIN ott_common_actors oca ON oc.id = oca.ott_id
+                LEFT JOIN ott_common_genre ocg ON oc.id = ocg.ott_id
+                WHERE oc.id IN (
+                    SELECT ott_id FROM ott_common_genre WHERE genre = ?
+                )
+                GROUP BY oc.id, oc.title, oc.description, oc.creator, oc.image_url, oc.maturity_rating, oc.thumbnail, oc.type, oc.release_year, oc.created_at, oc.updated_at, oc.version
+                """;
+            List<Map<String, Object>> ottContent = jdbcTemplate.queryForList(sql, genreName);
+            return ResponseEntity.ok(ottContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/ott-content/actor/{actorName}")
+    public ResponseEntity<List<Map<String, Object>>> getOttContentByActor(@PathVariable String actorName) {
+        try {
+            String sql = """
+                SELECT oc.*, 
+                       STRING_AGG(DISTINCT oca.actor, ', ') as actors,
+                       STRING_AGG(DISTINCT ocg.genre, ', ') as genres
+                FROM ott_common oc
+                LEFT JOIN ott_common_actors oca ON oc.id = oca.ott_id
+                LEFT JOIN ott_common_genre ocg ON oc.id = ocg.ott_id
+                WHERE oc.id IN (
+                    SELECT ott_id FROM ott_common_actors WHERE actor = ?
+                )
+                GROUP BY oc.id, oc.title, oc.description, oc.creator, oc.image_url, oc.maturity_rating, oc.thumbnail, oc.type, oc.release_year, oc.created_at, oc.updated_at, oc.version
+                """;
+            List<Map<String, Object>> ottContent = jdbcTemplate.queryForList(sql, actorName);
+            return ResponseEntity.ok(ottContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // ===== 소설 관련 API =====
+    @GetMapping("/novels")
+    public ResponseEntity<List<Map<String, Object>>> getNovels() {
+        try {
+            String sql = """
+                SELECT nc.*, 
+                       STRING_AGG(DISTINCT nca.author, ', ') as authors,
+                       STRING_AGG(DISTINCT ncg.genre, ', ') as genres
+                FROM novel_common nc
+                LEFT JOIN novel_common_author nca ON nc.id = nca.novel_id
+                LEFT JOIN novel_common_genre ncg ON nc.id = ncg.novel_id
+                GROUP BY nc.id, nc.title, nc.summary, nc.image_url, nc.age_rating, nc.publisher, nc.status, nc.created_at, nc.updated_at, nc.version
+                """;
+            List<Map<String, Object>> novels = jdbcTemplate.queryForList(sql);
+            System.out.println("Novels count: " + novels.size());
+            return ResponseEntity.ok(novels);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/novels/genre/{genreName}")
+    public ResponseEntity<List<Map<String, Object>>> getNovelsByGenre(@PathVariable String genreName) {
+        try {
+            String sql = """
+                SELECT nc.*, 
+                       STRING_AGG(DISTINCT nca.author, ', ') as authors,
+                       STRING_AGG(DISTINCT ncg.genre, ', ') as genres
+                FROM novel_common nc
+                LEFT JOIN novel_common_author nca ON nc.id = nca.novel_id
+                LEFT JOIN novel_common_genre ncg ON nc.id = ncg.novel_id
+                WHERE nc.id IN (
+                    SELECT novel_id FROM novel_common_genre WHERE genre = ?
+                )
+                GROUP BY nc.id, nc.title, nc.summary, nc.image_url, nc.age_rating, nc.publisher, nc.status, nc.created_at, nc.updated_at, nc.version
+                """;
+            List<Map<String, Object>> novels = jdbcTemplate.queryForList(sql, genreName);
+            return ResponseEntity.ok(novels);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/novels/author/{authorName}")
+    public ResponseEntity<List<Map<String, Object>>> getNovelsByAuthor(@PathVariable String authorName) {
+        try {
+            String sql = """
+                SELECT nc.*, 
+                       STRING_AGG(DISTINCT nca.author, ', ') as authors,
+                       STRING_AGG(DISTINCT ncg.genre, ', ') as genres
+                FROM novel_common nc
+                LEFT JOIN novel_common_author nca ON nc.id = nca.novel_id
+                LEFT JOIN novel_common_genre ncg ON nc.id = ncg.novel_id
+                WHERE nc.id IN (
+                    SELECT novel_id FROM novel_common_author WHERE author = ?
+                )
+                GROUP BY nc.id, nc.title, nc.summary, nc.image_url, nc.age_rating, nc.publisher, nc.status, nc.created_at, nc.updated_at, nc.version
+                """;
+            List<Map<String, Object>> novels = jdbcTemplate.queryForList(sql, authorName);
+            return ResponseEntity.ok(novels);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // ===== 영화 관련 API =====
     @GetMapping("/movies")
     public ResponseEntity<List<Map<String, Object>>> getMovies() {
         try {
-            // 직접 SQL 쿼리를 사용하여 movies 테이블에서 데이터를 가져옴
-            String sql = "SELECT * FROM movies";
+            String sql = """
+                SELECT mc.*, 
+                       STRING_AGG(DISTINCT mca.actor, ', ') as actors,
+                       STRING_AGG(DISTINCT mcg.genre, ', ') as genres
+                FROM movie_common mc
+                LEFT JOIN movie_common_actors mca ON mc.id = mca.movie_id
+                LEFT JOIN movie_common_genre mcg ON mc.id = mcg.movie_id
+                GROUP BY mc.id, mc.title, mc.summary, mc.director, mc.image_url, mc.release_date, mc.country, mc.age_rating, mc.rating, mc.running_time, mc.total_audience, mc.is_rerelease, mc.reservation_rate, mc.created_at, mc.updated_at, mc.version
+                """;
             List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql);
             System.out.println("Movies count: " + movies.size());
-            System.out.println("First movie: " + (movies.isEmpty() ? "None" : movies.get(0)));
             return ResponseEntity.ok(movies);
         } catch (Exception e) {
             e.printStackTrace();
@@ -27,14 +239,67 @@ public class MoviesController {
         }
     }
 
-    @GetMapping("/steam-games")
-    public ResponseEntity<List<Map<String, Object>>> getSteamGames() {
+    @GetMapping("/movies/genre/{genreName}")
+    public ResponseEntity<List<Map<String, Object>>> getMoviesByGenre(@PathVariable String genreName) {
         try {
-            // 직접 SQL 쿼리를 사용하여 steam_game 테이블에서 데이터를 가져옴
-            String sql = "SELECT * FROM steam_game";
+            String sql = """
+                SELECT mc.*, 
+                       STRING_AGG(DISTINCT mca.actor, ', ') as actors,
+                       STRING_AGG(DISTINCT mcg.genre, ', ') as genres
+                FROM movie_common mc
+                LEFT JOIN movie_common_actors mca ON mc.id = mca.movie_id
+                LEFT JOIN movie_common_genre mcg ON mc.id = mcg.movie_id
+                WHERE mc.id IN (
+                    SELECT movie_id FROM movie_common_genre WHERE genre = ?
+                )
+                GROUP BY mc.id, mc.title, mc.summary, mc.director, mc.image_url, mc.release_date, mc.country, mc.age_rating, mc.rating, mc.running_time, mc.total_audience, mc.is_rerelease, mc.reservation_rate, mc.created_at, mc.updated_at, mc.version
+                """;
+            List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql, genreName);
+            return ResponseEntity.ok(movies);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/movies/actor/{actorName}")
+    public ResponseEntity<List<Map<String, Object>>> getMoviesByActor(@PathVariable String actorName) {
+        try {
+            String sql = """
+                SELECT mc.*, 
+                       STRING_AGG(DISTINCT mca.actor, ', ') as actors,
+                       STRING_AGG(DISTINCT mcg.genre, ', ') as genres
+                FROM movie_common mc
+                LEFT JOIN movie_common_actors mca ON mc.id = mca.movie_id
+                LEFT JOIN movie_common_genre mcg ON mc.id = mcg.movie_id
+                WHERE mc.id IN (
+                    SELECT movie_id FROM movie_common_actors WHERE actor = ?
+                )
+                GROUP BY mc.id, mc.title, mc.summary, mc.director, mc.image_url, mc.release_date, mc.country, mc.age_rating, mc.rating, mc.running_time, mc.total_audience, mc.is_rerelease, mc.reservation_rate, mc.created_at, mc.updated_at, mc.version
+                """;
+            List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql, actorName);
+            return ResponseEntity.ok(movies);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // ===== 게임 관련 API =====
+    @GetMapping("/games")
+    public ResponseEntity<List<Map<String, Object>>> getGames() {
+        try {
+            String sql = """
+                SELECT gc.*, 
+                       STRING_AGG(DISTINCT gcp.publisher, ', ') as publishers,
+                       STRING_AGG(DISTINCT gcd.developer, ', ') as developers
+                FROM game_common gc
+                LEFT JOIN game_common_publisher gcp ON gc.id = gcp.game_id
+                LEFT JOIN game_common_developer gcd ON gc.id = gcd.game_id
+                GROUP BY gc.id, gc.title, gc.summary, gc.image_url, gc.platform, gc.required_age, gc.final_price, gc.initial_price, gc.created_at, gc.updated_at, gc.version
+                """;
             List<Map<String, Object>> games = jdbcTemplate.queryForList(sql);
             System.out.println("Games count: " + games.size());
-            System.out.println("First game: " + (games.isEmpty() ? "None" : games.get(0)));
             return ResponseEntity.ok(games);
         } catch (Exception e) {
             e.printStackTrace();
@@ -42,141 +307,125 @@ public class MoviesController {
         }
     }
 
-    @GetMapping("/webtoons")
-    public ResponseEntity<List<Map<String, Object>>> getWebtoons() {
+    @GetMapping("/games/publisher/{publisherName}")
+    public ResponseEntity<List<Map<String, Object>>> getGamesByPublisher(@PathVariable String publisherName) {
         try {
-            // 직접 SQL 쿼리를 사용하여 webtoon 테이블에서 데이터를 가져옴
-            String sql = "SELECT * FROM webtoon";
-            List<Map<String, Object>> webtoons = jdbcTemplate.queryForList(sql);
-            System.out.println("Webtoons count: " + webtoons.size());
-            System.out.println("First webtoon: " + (webtoons.isEmpty() ? "None" : webtoons.get(0)));
-            return ResponseEntity.ok(webtoons);
+            String sql = """
+                SELECT gc.*, 
+                       STRING_AGG(DISTINCT gcp.publisher, ', ') as publishers,
+                       STRING_AGG(DISTINCT gcd.developer, ', ') as developers
+                FROM game_common gc
+                LEFT JOIN game_common_publisher gcp ON gc.id = gcp.game_id
+                LEFT JOIN game_common_developer gcd ON gc.id = gcd.game_id
+                WHERE gc.id IN (
+                    SELECT game_id FROM game_common_publisher WHERE publisher = ?
+                )
+                GROUP BY gc.id, gc.title, gc.summary, gc.image_url, gc.platform, gc.required_age, gc.final_price, gc.initial_price, gc.created_at, gc.updated_at, gc.version
+                """;
+            List<Map<String, Object>> games = jdbcTemplate.queryForList(sql, publisherName);
+            return ResponseEntity.ok(games);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
         }
     }
 
-    @GetMapping("/webtoons/genre/{genreId}")
-    public ResponseEntity<List<Map<String, Object>>> getWebtoonsByGenre(@PathVariable int genreId) {
+    @GetMapping("/games/developer/{developerName}")
+    public ResponseEntity<List<Map<String, Object>>> getGamesByDeveloper(@PathVariable String developerName) {
         try {
-            // 장르 ID를 사용하여 특정 장르의 웹툰 데이터 가져오기
-            String sql = "SELECT w.* FROM webtoon w JOIN webtoon_genre_mapping wgm ON w.id = wgm.webtoon_id WHERE wgm.genre_id = ?";
-            List<Map<String, Object>> webtoons = jdbcTemplate.queryForList(sql, genreId);
-            return ResponseEntity.ok(webtoons);
+            String sql = """
+                SELECT gc.*, 
+                       STRING_AGG(DISTINCT gcp.publisher, ', ') as publishers,
+                       STRING_AGG(DISTINCT gcd.developer, ', ') as developers
+                FROM game_common gc
+                LEFT JOIN game_common_publisher gcp ON gc.id = gcp.game_id
+                LEFT JOIN game_common_developer gcd ON gc.id = gcd.game_id
+                WHERE gc.id IN (
+                    SELECT game_id FROM game_common_developer WHERE developer = ?
+                )
+                GROUP BY gc.id, gc.title, gc.summary, gc.image_url, gc.platform, gc.required_age, gc.final_price, gc.initial_price, gc.created_at, gc.updated_at, gc.version
+                """;
+            List<Map<String, Object>> games = jdbcTemplate.queryForList(sql, developerName);
+            return ResponseEntity.ok(games);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
         }
     }
 
-    @GetMapping("/novels")
-    public ResponseEntity<List<Map<String, Object>>> getNovels() {
+    // ===== 통합 검색 API =====
+    @GetMapping("/search")
+    public ResponseEntity<List<Map<String, Object>>> searchContent(@RequestParam String keyword, @RequestParam String type) {
         try {
-            // naver_series_novel 테이블에서 데이터를 가져오도록 수정
-            String sql = "SELECT * FROM naver_series_novel";
-            List<Map<String, Object>> novels = jdbcTemplate.queryForList(sql);
-            System.out.println("Novels count: " + novels.size());
-            System.out.println("First novel: " + (novels.isEmpty() ? "None" : novels.get(0)));
-
-            // 만약 naver_series_novel 테이블에서 데이터가 없다면 novel_common 테이블도 확인
-            if (novels.isEmpty()) {
-                System.out.println("No novels found in naver_series_novel, trying novel_common table");
-                sql = "SELECT * FROM novel_common";
-                novels = jdbcTemplate.queryForList(sql);
-                System.out.println("Novels count from novel_common: " + novels.size());
-                System.out.println("First novel from novel_common: " + (novels.isEmpty() ? "None" : novels.get(0)));
+            String sql = "";
+            switch (type.toLowerCase()) {
+                case "webtoon":
+                    sql = """
+                        SELECT wc.*, 'webtoon' as content_type,
+                               STRING_AGG(DISTINCT wca.author, ', ') as authors,
+                               STRING_AGG(DISTINCT wcg.genre, ', ') as genres
+                        FROM webtoon_common wc
+                        LEFT JOIN webtoon_common_author wca ON wc.id = wca.webtoon_id
+                        LEFT JOIN webtoon_common_genre wcg ON wc.id = wcg.webtoon_id
+                        WHERE wc.title LIKE ? OR wc.summary LIKE ?
+                        GROUP BY wc.id, wc.title, wc.summary, wc.image_url, wc.platform, wc.publish_date, wc.created_at, wc.updated_at, wc.version
+                        """;
+                    break;
+                case "novel":
+                    sql = """
+                        SELECT nc.*, 'novel' as content_type,
+                               STRING_AGG(DISTINCT nca.author, ', ') as authors,
+                               STRING_AGG(DISTINCT ncg.genre, ', ') as genres
+                        FROM novel_common nc
+                        LEFT JOIN novel_common_author nca ON nc.id = nca.novel_id
+                        LEFT JOIN novel_common_genre ncg ON nc.id = ncg.novel_id
+                        WHERE nc.title LIKE ? OR nc.summary LIKE ?
+                        GROUP BY nc.id, nc.title, nc.summary, nc.image_url, nc.age_rating, nc.publisher, nc.status, nc.created_at, nc.updated_at, nc.version
+                        """;
+                    break;
+                case "movie":
+                    sql = """
+                        SELECT mc.*, 'movie' as content_type,
+                               STRING_AGG(DISTINCT mca.actor, ', ') as actors,
+                               STRING_AGG(DISTINCT mcg.genre, ', ') as genres
+                        FROM movie_common mc
+                        LEFT JOIN movie_common_actors mca ON mc.id = mca.movie_id
+                        LEFT JOIN movie_common_genre mcg ON mc.id = mcg.movie_id
+                        WHERE mc.title LIKE ? OR mc.summary LIKE ?
+                        GROUP BY mc.id, mc.title, mc.summary, mc.director, mc.image_url, mc.release_date, mc.country, mc.age_rating, mc.rating, mc.running_time, mc.total_audience, mc.is_rerelease, mc.reservation_rate, mc.created_at, mc.updated_at, mc.version
+                        """;
+                    break;
+                case "ott":
+                    sql = """
+                        SELECT oc.*, 'ott' as content_type,
+                               STRING_AGG(DISTINCT oca.actor, ', ') as actors,
+                               STRING_AGG(DISTINCT ocg.genre, ', ') as genres
+                        FROM ott_common oc
+                        LEFT JOIN ott_common_actors oca ON oc.id = oca.ott_id
+                        LEFT JOIN ott_common_genre ocg ON oc.id = ocg.ott_id
+                        WHERE oc.title LIKE ? OR oc.description LIKE ?
+                        GROUP BY oc.id, oc.title, oc.description, oc.creator, oc.image_url, oc.maturity_rating, oc.thumbnail, oc.type, oc.release_year, oc.created_at, oc.updated_at, oc.version
+                        """;
+                    break;
+                case "game":
+                    sql = """
+                        SELECT gc.*, 'game' as content_type,
+                               STRING_AGG(DISTINCT gcp.publisher, ', ') as publishers,
+                               STRING_AGG(DISTINCT gcd.developer, ', ') as developers
+                        FROM game_common gc
+                        LEFT JOIN game_common_publisher gcp ON gc.id = gcp.game_id
+                        LEFT JOIN game_common_developer gcd ON gc.id = gcd.game_id
+                        WHERE gc.title LIKE ? OR gc.summary LIKE ?
+                        GROUP BY gc.id, gc.title, gc.summary, gc.image_url, gc.platform, gc.required_age, gc.final_price, gc.initial_price, gc.created_at, gc.updated_at, gc.version
+                        """;
+                    break;
+                default:
+                    return ResponseEntity.badRequest().body(null);
             }
 
-            return ResponseEntity.ok(novels);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @GetMapping("/novels/genre/{genreId}")
-    public ResponseEntity<List<Map<String, Object>>> getNovelsByGenre(@PathVariable int genreId) {
-        try {
-            // naver_series_novel에서 장르별 데이터 조회 먼저 시도
-            String sql = "SELECT n.* FROM naver_series_novel n JOIN naver_series_novel_genre ngm ON n.id = ngm.novel_id WHERE ngm.genre_id = ?";
-            List<Map<String, Object>> novels = jdbcTemplate.queryForList(sql, genreId);
-
-            // 결과가 없으면 novel_common에서 조회
-            if (novels.isEmpty()) {
-                sql = "SELECT n.* FROM novel_common n JOIN novel_genre_mapping ngm ON n.id = ngm.novel_id WHERE ngm.genre_id = ?";
-                novels = jdbcTemplate.queryForList(sql, genreId);
-            }
-
-            return ResponseEntity.ok(novels);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @GetMapping("/netflix-content")
-    public ResponseEntity<List<Map<String, Object>>> getNetflixContent() {
-        try {
-            // 직접 SQL 쿼리를 사용하여 netflix_content 테이블에서 데이터를 가져옴
-            String sql = "SELECT * FROM netflix_content";
-            List<Map<String, Object>> netflixContent = jdbcTemplate.queryForList(sql);
-            System.out.println("Netflix content count: " + netflixContent.size());
-            System.out.println("First content: " + (netflixContent.isEmpty() ? "None" : netflixContent.get(0)));
-            return ResponseEntity.ok(netflixContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @GetMapping("/netflix-content/genre/{genreId}")
-    public ResponseEntity<List<Map<String, Object>>> getNetflixContentByGenre(@PathVariable int genreId) {
-        try {
-            // 장르 ID를 사용하여 특정 장르의 넷플릭스 컨텐츠 데이터 가져오기
-            String sql = "SELECT nc.* FROM netflix_content nc JOIN netflix_content_genre ncg ON nc.content_id = ncg.content_id WHERE ncg.genre_id = ?";
-            List<Map<String, Object>> netflixContent = jdbcTemplate.queryForList(sql, genreId);
-            return ResponseEntity.ok(netflixContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @GetMapping("/netflix-content/type/{type}")
-    public ResponseEntity<List<Map<String, Object>>> getNetflixContentByType(@PathVariable String type) {
-        try {
-            // 컨텐츠 타입(영화, 시리즈 등)으로 넷플릭스 컨텐츠 필터링
-            String sql = "SELECT * FROM netflix_content WHERE type = ?";
-            List<Map<String, Object>> netflixContent = jdbcTemplate.queryForList(sql, type);
-            return ResponseEntity.ok(netflixContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @GetMapping("/netflix-content/year/{year}")
-    public ResponseEntity<List<Map<String, Object>>> getNetflixContentByYear(@PathVariable String year) {
-        try {
-            // 출시 연도로 넷플릭스 컨텐츠 필터링
-            String sql = "SELECT * FROM netflix_content WHERE release_year = ?";
-            List<Map<String, Object>> netflixContent = jdbcTemplate.queryForList(sql, year);
-            return ResponseEntity.ok(netflixContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @GetMapping("/netflix-content/search")
-    public ResponseEntity<List<Map<String, Object>>> searchNetflixContent(@RequestParam String keyword) {
-        try {
-            // 제목이나 설명에서 키워드 검색
-            String sql = "SELECT * FROM netflix_content WHERE title LIKE ? OR description LIKE ?";
             String searchPattern = "%" + keyword + "%";
-            List<Map<String, Object>> netflixContent = jdbcTemplate.queryForList(sql, searchPattern, searchPattern);
-            return ResponseEntity.ok(netflixContent);
+            List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, searchPattern, searchPattern);
+            return ResponseEntity.ok(results);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
