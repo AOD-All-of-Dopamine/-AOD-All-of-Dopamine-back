@@ -66,6 +66,11 @@ public class MoviesController {
                 }
                 return "ORDER BY rating " + direction + " NULLS LAST ";
             case "latest":
+                if ("webtoon".equals(contentType)) {
+                    return "ORDER BY publish_date " + direction + " NULLS LAST ";
+                } else if ("movie".equals(contentType) || "ott".equals(contentType)) {
+                    return "ORDER BY COALESCE(release_date, release_year, created_at) " + direction + " NULLS LAST ";
+                }
                 return "ORDER BY COALESCE(release_date, publish_date, created_at) " + direction + " NULLS LAST ";
             case "title":
                 return "ORDER BY title " + direction + " ";
