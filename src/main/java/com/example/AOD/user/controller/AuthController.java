@@ -14,9 +14,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.HashMap;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -111,5 +114,58 @@ public class AuthController {
                 signUpRequest.getLikesNewContent() != null ||
                 signUpRequest.getLikesClassicContent() != null ||
                 signUpRequest.getAdditionalNotes() != null;
+    }
+
+    @PostMapping("/check-duplicate")
+    public ResponseEntity<?> checkDuplicate(@RequestBody Map<String, String> request) {
+        try {
+            String username = request.get("username");
+            String email = request.get("email");
+
+            boolean usernameExists = false;
+            boolean emailExists = false;
+
+            // 사용자명 중복 체크
+            if (username != null && !username.trim().isEmpty()) {
+                usernameExists = userRepository.existsByUsername(username.trim());
+            }
+
+            // 이메일 중복 체크
+            if (email != null && !email.trim().isEmpty()) {
+                emailExists = userRepository.existsByEmail(email.trim());
+            }
+
+            // 중복이 있는 경우
+            if (usernameExists || emailExists) {
+                Map<String, Object> response = new java.util.HashMap<>();
+                response.put("usernameExists", usernameExists);
+                response.put("emailExists", emailExists);
+
+                String message = "";
+                if (usernameExists && emailExists) {
+                    message = "이미 사용 중인 아이디와 이메일입니다.";
+                } else if (usernameExists) {
+                    message = "이미 사용 중인 아이디입니다.";
+                } else if (emailExists) {
+                    message = "이미 사용 중인 이메일입니다.";
+                }
+                response.put("message", message);
+
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 중복이 없는 경우
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("usernameExists", false);
+            response.put("emailExists", false);
+            response.put("message", "사용 가능합니다.");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("message", "서버 오류가 발생했습니다.");
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }
