@@ -24,4 +24,12 @@ public interface ContentRatingRepository extends JpaRepository<ContentRating, Lo
     // 협업 필터링을 위한 추가 메서드
     @Query("SELECT cr FROM ContentRating cr WHERE cr.contentType = :contentType")
     List<ContentRating> findByContentType(@Param("contentType") String contentType);
+
+    // 사용자가 평가한 모든 콘텐츠 ID 조회
+    @Query("SELECT DISTINCT cr.contentId FROM ContentRating cr WHERE cr.username = :username")
+    List<Long> findRatedContentIdsByUsername(@Param("username") String username);
+
+    // 특정 콘텐츠 타입에서 사용자가 평가한 콘텐츠 ID 조회
+    @Query("SELECT DISTINCT cr.contentId FROM ContentRating cr WHERE cr.username = :username AND cr.contentType = :contentType")
+    List<Long> findRatedContentIdsByUsernameAndContentType(@Param("username") String username, @Param("contentType") String contentType);
 }
