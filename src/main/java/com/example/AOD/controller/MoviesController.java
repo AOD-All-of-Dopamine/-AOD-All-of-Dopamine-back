@@ -62,11 +62,8 @@ public class MoviesController {
 
         switch (sort.toLowerCase()) {
             case "rating":
-                // 웹소설, 웹툰, 게임, OTT는 rating 컬럼이 없으므로 다른 컬럼으로 대체
-                if ("novel".equals(contentType) || "webtoon".equals(contentType) || "game".equals(contentType) || "ott".equals(contentType)) {
-                    return "ORDER BY created_at " + direction + " NULLS LAST ";
-                }
-                return "ORDER BY rating " + direction + " NULLS LAST ";
+                // 사용자 평점 평균으로 정렬
+                return "ORDER BY COALESCE(avg_user_rating, 0) " + direction + " NULLS LAST ";
             case "latest":
                 if ("webtoon".equals(contentType)) {
                     return "ORDER BY publish_date " + direction + " NULLS LAST ";
@@ -78,13 +75,13 @@ public class MoviesController {
                 return "ORDER BY title " + direction + " ";
             case "popular":
                 if ("novel".equals(contentType) || "webtoon".equals(contentType)) {
-                    return "ORDER BY created_at " + direction + " NULLS LAST ";
+                    return "ORDER BY COALESCE(avg_user_rating, 0) " + direction + " NULLS LAST ";
                 } else if ("game".equals(contentType)) {
-                    return "ORDER BY COALESCE(final_price, 999999) ASC, created_at " + direction + " NULLS LAST ";
+                    return "ORDER BY COALESCE(final_price, 999999) ASC, COALESCE(avg_user_rating, 0) " + direction + " NULLS LAST ";
                 } else if ("ott".equals(contentType)) {
-                    return "ORDER BY release_year " + direction + " NULLS LAST ";
+                    return "ORDER BY COALESCE(avg_user_rating, release_year, 0) " + direction + " NULLS LAST ";
                 }
-                return "ORDER BY COALESCE(total_audience, rating, 0) " + direction + " NULLS LAST ";
+                return "ORDER BY COALESCE(avg_user_rating, total_audience, 0) " + direction + " NULLS LAST ";
             case "year":
                 return "ORDER BY COALESCE(release_year, EXTRACT(YEAR FROM release_date)) " + direction + " NULLS LAST ";
             case "price":
@@ -217,34 +214,45 @@ public class MoviesController {
             String whereClause = buildWhereClause(search, genre, rating, "movie");
             String orderClause = buildOrderClause(sort, order, "movie");
 
-            String countSql = "SELECT COUNT(*) FROM movie_common mc" + whereClause;
+            String countSql = """
+            SELECT COUNT(*) 
+            FROM movie_common mc
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'MOVIE' 
+                GROUP BY content_id
+            ) ur ON mc.id = ur.content_id
+            """ + whereClause;
+
             String dataSql = """
             SELECT mc.*, 
                    STRING_AGG(DISTINCT mca.actor, ', ') as actors,
-                   STRING_AGG(DISTINCT mcg.genre, ', ') as genres
+                   STRING_AGG(DISTINCT mcg.genre, ', ') as genres,
+                   COALESCE(ur.avg_user_rating, 0) as avg_user_rating
             FROM movie_common mc
             LEFT JOIN movie_common_actors mca ON mc.id = mca.movie_id
             LEFT JOIN movie_common_genre mcg ON mc.id = mcg.movie_id
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'MOVIE' 
+                GROUP BY content_id
+            ) ur ON mc.id = ur.content_id
             """ + whereClause + """
-            GROUP BY mc.id, mc.title, mc.summary, mc.director, mc.image_url, mc.release_date, mc.country, mc.age_rating, mc.rating, mc.running_time, mc.total_audience, mc.is_rerelease, mc.reservation_rate, mc.created_at, mc.updated_at, mc.version
+            GROUP BY mc.id, mc.title, mc.summary, mc.director, mc.image_url, mc.release_date, 
+                     mc.country, mc.age_rating, mc.rating, mc.running_time, mc.total_audience, 
+                     mc.is_rerelease, mc.reservation_rate, mc.created_at, mc.updated_at, 
+                     mc.version, ur.avg_user_rating
             """ + orderClause + """ 
             LIMIT ? OFFSET ?
             """;
-
-            System.out.println("검색어: " + search);
-            System.out.println("장르: " + genre);
-            System.out.println("WHERE 절: " + whereClause);
 
             Object[] params = buildParams(search, genre, "movie");
             Object[] dataParams = new Object[params.length + 2];
             System.arraycopy(params, 0, dataParams, 0, params.length);
             dataParams[params.length] = limit;
             dataParams[params.length + 1] = offset;
-
-            System.out.println("파라미터 개수: " + params.length);
-            for (int i = 0; i < params.length; i++) {
-                System.out.println("파라미터 " + i + ": " + params[i]);
-            }
 
             long totalCount = jdbcTemplate.queryForObject(countSql, params, Long.class);
             List<Map<String, Object>> movies = jdbcTemplate.queryForList(dataSql, dataParams);
@@ -332,7 +340,7 @@ public class MoviesController {
     public ResponseEntity<PaginatedResponse> getGamesPaginated(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int limit,
-            @RequestParam(defaultValue = "popular") String sort,
+            @RequestParam(defaultValue = "rating") String sort,  // popular에서 rating으로 변경
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(required = false) String search) {
 
@@ -341,16 +349,35 @@ public class MoviesController {
             String whereClause = buildWhereClause(search, null, null, "game");
             String orderClause = buildOrderClause(sort, order, "game");
 
-            String countSql = "SELECT COUNT(*) FROM game_common gc" + whereClause;
+            String countSql = """
+            SELECT COUNT(*) 
+            FROM game_common gc
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'GAME' 
+                GROUP BY content_id
+            ) ur ON gc.id = ur.content_id
+            """ + whereClause;
+
             String dataSql = """
             SELECT gc.*, 
                    STRING_AGG(DISTINCT gcp.publisher, ', ') as publishers,
-                   STRING_AGG(DISTINCT gcd.developer, ', ') as developers
+                   STRING_AGG(DISTINCT gcd.developer, ', ') as developers,
+                   COALESCE(ur.avg_user_rating, 0) as avg_user_rating
             FROM game_common gc
             LEFT JOIN game_common_publisher gcp ON gc.id = gcp.game_id
             LEFT JOIN game_common_developer gcd ON gc.id = gcd.game_id
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'GAME' 
+                GROUP BY content_id
+            ) ur ON gc.id = ur.content_id
             """ + whereClause + """
-            GROUP BY gc.id, gc.title, gc.summary, gc.image_url, gc.platform, gc.required_age, gc.final_price, gc.initial_price, gc.created_at, gc.updated_at, gc.version
+            GROUP BY gc.id, gc.title, gc.summary, gc.image_url, gc.platform, gc.required_age, 
+                     gc.final_price, gc.initial_price, gc.created_at, gc.updated_at, 
+                     gc.version, ur.avg_user_rating
             """ + orderClause + """
             LIMIT ? OFFSET ?
             """;
@@ -446,7 +473,7 @@ public class MoviesController {
     public ResponseEntity<PaginatedResponse> getWebtoonsPaginated(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int limit,
-            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(defaultValue = "rating") String sort,  // 기본값을 rating으로 변경
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(required = false) String genre,
             @RequestParam(required = false) String search) {
@@ -456,16 +483,34 @@ public class MoviesController {
             String whereClause = buildWhereClause(search, genre, null, "webtoon");
             String orderClause = buildOrderClause(sort, order, "webtoon");
 
-            String countSql = "SELECT COUNT(*) FROM webtoon_common wc" + whereClause;
+            String countSql = """
+            SELECT COUNT(*) 
+            FROM webtoon_common wc
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'WEBTOON' 
+                GROUP BY content_id
+            ) ur ON wc.id = ur.content_id
+            """ + whereClause;
+
             String dataSql = """
             SELECT wc.*, 
                    STRING_AGG(DISTINCT wca.author, ', ') as authors,
-                   STRING_AGG(DISTINCT wcg.genre, ', ') as genres
+                   STRING_AGG(DISTINCT wcg.genre, ', ') as genres,
+                   COALESCE(ur.avg_user_rating, 0) as avg_user_rating
             FROM webtoon_common wc
             LEFT JOIN webtoon_common_author wca ON wc.id = wca.webtoon_id
             LEFT JOIN webtoon_common_genre wcg ON wc.id = wcg.webtoon_id
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'WEBTOON' 
+                GROUP BY content_id
+            ) ur ON wc.id = ur.content_id
             """ + whereClause + """
-            GROUP BY wc.id, wc.title, wc.summary, wc.image_url, wc.platform, wc.publish_date, wc.created_at, wc.updated_at, wc.version
+            GROUP BY wc.id, wc.title, wc.summary, wc.image_url, wc.platform, wc.publish_date, 
+                     wc.created_at, wc.updated_at, wc.version, ur.avg_user_rating
             """ + orderClause + """
             LIMIT ? OFFSET ?
             """;
@@ -571,16 +616,34 @@ public class MoviesController {
             String whereClause = buildWhereClause(search, genre, null, "novel");
             String orderClause = buildOrderClause(sort, order, "novel");
 
-            String countSql = "SELECT COUNT(*) FROM novel_common nc" + whereClause;
+            String countSql = """
+            SELECT COUNT(*) 
+            FROM novel_common nc
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'NOVEL' 
+                GROUP BY content_id
+            ) ur ON nc.id = ur.content_id
+            """ + whereClause;
+
             String dataSql = """
             SELECT nc.*, 
                    STRING_AGG(DISTINCT nca.author, ', ') as authors,
-                   STRING_AGG(DISTINCT ncg.genre, ', ') as genres
+                   STRING_AGG(DISTINCT ncg.genre, ', ') as genres,
+                   COALESCE(ur.avg_user_rating, 0) as avg_user_rating
             FROM novel_common nc
             LEFT JOIN novel_common_author nca ON nc.id = nca.novel_id
             LEFT JOIN novel_common_genre ncg ON nc.id = ncg.novel_id
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'NOVEL' 
+                GROUP BY content_id
+            ) ur ON nc.id = ur.content_id
             """ + whereClause + """
-            GROUP BY nc.id, nc.title, nc.summary, nc.image_url, nc.age_rating, nc.publisher, nc.status, nc.created_at, nc.updated_at, nc.version
+            GROUP BY nc.id, nc.title, nc.summary, nc.image_url, nc.age_rating, nc.publisher, 
+                     nc.status, nc.created_at, nc.updated_at, nc.version, ur.avg_user_rating
             """ + orderClause + """
             LIMIT ? OFFSET ?
             """;
@@ -676,7 +739,7 @@ public class MoviesController {
     public ResponseEntity<PaginatedResponse> getOttContentPaginated(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int limit,
-            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(defaultValue = "rating") String sort,  // 기본값을 rating으로 변경
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(required = false) String genre,
             @RequestParam(required = false) String search) {
@@ -686,16 +749,35 @@ public class MoviesController {
             String whereClause = buildWhereClause(search, genre, null, "ott");
             String orderClause = buildOrderClause(sort, order, "ott");
 
-            String countSql = "SELECT COUNT(*) FROM ott_common oc" + whereClause;
+            String countSql = """
+            SELECT COUNT(*) 
+            FROM ott_common oc
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'OTT' 
+                GROUP BY content_id
+            ) ur ON oc.id = ur.content_id
+            """ + whereClause;
+
             String dataSql = """
             SELECT oc.*, 
                    STRING_AGG(DISTINCT oca.actor, ', ') as actors,
-                   STRING_AGG(DISTINCT ocg.genre, ', ') as genres
+                   STRING_AGG(DISTINCT ocg.genre, ', ') as genres,
+                   COALESCE(ur.avg_user_rating, 0) as avg_user_rating
             FROM ott_common oc
             LEFT JOIN ott_common_actors oca ON oc.id = oca.ott_id
             LEFT JOIN ott_common_genre ocg ON oc.id = ocg.ott_id
+            LEFT JOIN (
+                SELECT content_id, AVG(rating) as avg_user_rating 
+                FROM content_ratings 
+                WHERE UPPER(content_type) = 'OTT' 
+                GROUP BY content_id
+            ) ur ON oc.id = ur.content_id
             """ + whereClause + """
-            GROUP BY oc.id, oc.title, oc.description, oc.creator, oc.image_url, oc.maturity_rating, oc.thumbnail, oc.type, oc.release_year, oc.created_at, oc.updated_at, oc.version
+            GROUP BY oc.id, oc.title, oc.description, oc.creator, oc.image_url, oc.maturity_rating, 
+                     oc.thumbnail, oc.type, oc.release_year, oc.created_at, oc.updated_at, 
+                     oc.version, ur.avg_user_rating
             """ + orderClause + """
             LIMIT ? OFFSET ?
             """;
