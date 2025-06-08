@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,18 +98,17 @@ public class MoviesController {
         StringBuilder where = new StringBuilder(" WHERE 1=1 ");
 
         if (search != null && !search.trim().isEmpty()) {
-            where.append(" AND (title LIKE ? OR ");
             switch (contentType) {
                 case "movie":
-                case "ott":
-                    where.append("summary LIKE ? OR director LIKE ?)");
+                    where.append(" AND (title LIKE ? OR summary LIKE ? OR director LIKE ?)");
                     break;
-                case "novel":
-                case "webtoon":
-                    where.append("summary LIKE ?)");
+                case "ott":
+                    where.append(" AND (title LIKE ? OR description LIKE ? OR creator LIKE ?)");
                     break;
                 case "game":
-                    where.append("summary LIKE ?)");
+                case "novel":
+                case "webtoon":
+                    where.append(" AND (title LIKE ? OR summary LIKE ?)");
                     break;
             }
         }
@@ -147,18 +148,36 @@ public class MoviesController {
     }
 
     // ===== 파라미터 빌더 헬퍼 메서드 =====
-    private Object[] buildParams(String search, String genre) {
-        if (search != null && !search.trim().isEmpty() && genre != null && !genre.equals("all")) {
+    private Object[] buildParams(String search, String genre, String contentType) {
+        List<Object> params = new ArrayList<>();
+
+        // 검색어 파라미터 추가
+        if (search != null && !search.trim().isEmpty()) {
             String searchPattern = "%" + search + "%";
-            return new Object[]{searchPattern, searchPattern, searchPattern, genre};
-        } else if (search != null && !search.trim().isEmpty()) {
-            String searchPattern = "%" + search + "%";
-            return new Object[]{searchPattern, searchPattern, searchPattern};
-        } else if (genre != null && !genre.equals("all")) {
-            return new Object[]{genre};
-        } else {
-            return new Object[]{};
+            switch (contentType) {
+                case "movie":
+                case "ott":
+                    // title, summary/description, director/creator 3개
+                    params.add(searchPattern);
+                    params.add(searchPattern);
+                    params.add(searchPattern);
+                    break;
+                case "game":
+                case "novel":
+                case "webtoon":
+                    // title, summary 2개
+                    params.add(searchPattern);
+                    params.add(searchPattern);
+                    break;
+            }
         }
+
+        // 장르 파라미터 추가
+        if (genre != null && !genre.equals("all")) {
+            params.add(genre);
+        }
+
+        return params.toArray();
     }
 
     // ===== 영화 API =====
@@ -200,26 +219,32 @@ public class MoviesController {
 
             String countSql = "SELECT COUNT(*) FROM movie_common mc" + whereClause;
             String dataSql = """
-                SELECT mc.*, 
-                       STRING_AGG(DISTINCT mca.actor, ', ') as actors,
-                       STRING_AGG(DISTINCT mcg.genre, ', ') as genres
-                FROM movie_common mc
-                LEFT JOIN movie_common_actors mca ON mc.id = mca.movie_id
-                LEFT JOIN movie_common_genre mcg ON mc.id = mcg.movie_id
-                """ + whereClause + """
-                GROUP BY mc.id, mc.title, mc.summary, mc.director, mc.image_url, mc.release_date, mc.country, mc.age_rating, mc.rating, mc.running_time, mc.total_audience, mc.is_rerelease, mc.reservation_rate, mc.created_at, mc.updated_at, mc.version
-                """ + orderClause + """ 
-                LIMIT ? OFFSET ?
-                """;
+            SELECT mc.*, 
+                   STRING_AGG(DISTINCT mca.actor, ', ') as actors,
+                   STRING_AGG(DISTINCT mcg.genre, ', ') as genres
+            FROM movie_common mc
+            LEFT JOIN movie_common_actors mca ON mc.id = mca.movie_id
+            LEFT JOIN movie_common_genre mcg ON mc.id = mcg.movie_id
+            """ + whereClause + """
+            GROUP BY mc.id, mc.title, mc.summary, mc.director, mc.image_url, mc.release_date, mc.country, mc.age_rating, mc.rating, mc.running_time, mc.total_audience, mc.is_rerelease, mc.reservation_rate, mc.created_at, mc.updated_at, mc.version
+            """ + orderClause + """ 
+            LIMIT ? OFFSET ?
+            """;
 
-            System.out.println("Order clause: [" + orderClause + "]");
-            System.out.println("Complete SQL: [" + dataSql + "]");
+            System.out.println("검색어: " + search);
+            System.out.println("장르: " + genre);
+            System.out.println("WHERE 절: " + whereClause);
 
-            Object[] params = buildParams(search, genre);
+            Object[] params = buildParams(search, genre, "movie");
             Object[] dataParams = new Object[params.length + 2];
             System.arraycopy(params, 0, dataParams, 0, params.length);
             dataParams[params.length] = limit;
             dataParams[params.length + 1] = offset;
+
+            System.out.println("파라미터 개수: " + params.length);
+            for (int i = 0; i < params.length; i++) {
+                System.out.println("파라미터 " + i + ": " + params[i]);
+            }
 
             long totalCount = jdbcTemplate.queryForObject(countSql, params, Long.class);
             List<Map<String, Object>> movies = jdbcTemplate.queryForList(dataSql, dataParams);
@@ -230,6 +255,7 @@ public class MoviesController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("에러 발생: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -317,19 +343,19 @@ public class MoviesController {
 
             String countSql = "SELECT COUNT(*) FROM game_common gc" + whereClause;
             String dataSql = """
-                SELECT gc.*, 
-                       STRING_AGG(DISTINCT gcp.publisher, ', ') as publishers,
-                       STRING_AGG(DISTINCT gcd.developer, ', ') as developers
-                FROM game_common gc
-                LEFT JOIN game_common_publisher gcp ON gc.id = gcp.game_id
-                LEFT JOIN game_common_developer gcd ON gc.id = gcd.game_id
-                """ + whereClause + """
-                GROUP BY gc.id, gc.title, gc.summary, gc.image_url, gc.platform, gc.required_age, gc.final_price, gc.initial_price, gc.created_at, gc.updated_at, gc.version
-                """ + orderClause + """
-                LIMIT ? OFFSET ?
-                """;
+            SELECT gc.*, 
+                   STRING_AGG(DISTINCT gcp.publisher, ', ') as publishers,
+                   STRING_AGG(DISTINCT gcd.developer, ', ') as developers
+            FROM game_common gc
+            LEFT JOIN game_common_publisher gcp ON gc.id = gcp.game_id
+            LEFT JOIN game_common_developer gcd ON gc.id = gcd.game_id
+            """ + whereClause + """
+            GROUP BY gc.id, gc.title, gc.summary, gc.image_url, gc.platform, gc.required_age, gc.final_price, gc.initial_price, gc.created_at, gc.updated_at, gc.version
+            """ + orderClause + """
+            LIMIT ? OFFSET ?
+            """;
 
-            Object[] params = buildParams(search, null);
+            Object[] params = buildParams(search, null, "game");
             Object[] dataParams = new Object[params.length + 2];
             System.arraycopy(params, 0, dataParams, 0, params.length);
             dataParams[params.length] = limit;
@@ -432,19 +458,19 @@ public class MoviesController {
 
             String countSql = "SELECT COUNT(*) FROM webtoon_common wc" + whereClause;
             String dataSql = """
-                SELECT wc.*, 
-                       STRING_AGG(DISTINCT wca.author, ', ') as authors,
-                       STRING_AGG(DISTINCT wcg.genre, ', ') as genres
-                FROM webtoon_common wc
-                LEFT JOIN webtoon_common_author wca ON wc.id = wca.webtoon_id
-                LEFT JOIN webtoon_common_genre wcg ON wc.id = wcg.webtoon_id
-                """ + whereClause + """
-                GROUP BY wc.id, wc.title, wc.summary, wc.image_url, wc.platform, wc.publish_date, wc.created_at, wc.updated_at, wc.version
-                """ + orderClause + """
-                LIMIT ? OFFSET ?
-                """;
+            SELECT wc.*, 
+                   STRING_AGG(DISTINCT wca.author, ', ') as authors,
+                   STRING_AGG(DISTINCT wcg.genre, ', ') as genres
+            FROM webtoon_common wc
+            LEFT JOIN webtoon_common_author wca ON wc.id = wca.webtoon_id
+            LEFT JOIN webtoon_common_genre wcg ON wc.id = wcg.webtoon_id
+            """ + whereClause + """
+            GROUP BY wc.id, wc.title, wc.summary, wc.image_url, wc.platform, wc.publish_date, wc.created_at, wc.updated_at, wc.version
+            """ + orderClause + """
+            LIMIT ? OFFSET ?
+            """;
 
-            Object[] params = buildParams(search, genre);
+            Object[] params = buildParams(search, genre, "webtoon");
             Object[] dataParams = new Object[params.length + 2];
             System.arraycopy(params, 0, dataParams, 0, params.length);
             dataParams[params.length] = limit;
@@ -547,19 +573,19 @@ public class MoviesController {
 
             String countSql = "SELECT COUNT(*) FROM novel_common nc" + whereClause;
             String dataSql = """
-                SELECT nc.*, 
-                       STRING_AGG(DISTINCT nca.author, ', ') as authors,
-                       STRING_AGG(DISTINCT ncg.genre, ', ') as genres
-                FROM novel_common nc
-                LEFT JOIN novel_common_author nca ON nc.id = nca.novel_id
-                LEFT JOIN novel_common_genre ncg ON nc.id = ncg.novel_id
-                """ + whereClause + """
-                GROUP BY nc.id, nc.title, nc.summary, nc.image_url, nc.age_rating, nc.publisher, nc.status, nc.created_at, nc.updated_at, nc.version
-                """ + orderClause + """
-                LIMIT ? OFFSET ?
-                """;
+            SELECT nc.*, 
+                   STRING_AGG(DISTINCT nca.author, ', ') as authors,
+                   STRING_AGG(DISTINCT ncg.genre, ', ') as genres
+            FROM novel_common nc
+            LEFT JOIN novel_common_author nca ON nc.id = nca.novel_id
+            LEFT JOIN novel_common_genre ncg ON nc.id = ncg.novel_id
+            """ + whereClause + """
+            GROUP BY nc.id, nc.title, nc.summary, nc.image_url, nc.age_rating, nc.publisher, nc.status, nc.created_at, nc.updated_at, nc.version
+            """ + orderClause + """
+            LIMIT ? OFFSET ?
+            """;
 
-            Object[] params = buildParams(search, genre);
+            Object[] params = buildParams(search, genre, "novel");
             Object[] dataParams = new Object[params.length + 2];
             System.arraycopy(params, 0, dataParams, 0, params.length);
             dataParams[params.length] = limit;
@@ -662,19 +688,19 @@ public class MoviesController {
 
             String countSql = "SELECT COUNT(*) FROM ott_common oc" + whereClause;
             String dataSql = """
-                SELECT oc.*, 
-                       STRING_AGG(DISTINCT oca.actor, ', ') as actors,
-                       STRING_AGG(DISTINCT ocg.genre, ', ') as genres
-                FROM ott_common oc
-                LEFT JOIN ott_common_actors oca ON oc.id = oca.ott_id
-                LEFT JOIN ott_common_genre ocg ON oc.id = ocg.ott_id
-                """ + whereClause + """
-                GROUP BY oc.id, oc.title, oc.description, oc.creator, oc.image_url, oc.maturity_rating, oc.thumbnail, oc.type, oc.release_year, oc.created_at, oc.updated_at, oc.version
-                """ + orderClause + """
-                LIMIT ? OFFSET ?
-                """;
+            SELECT oc.*, 
+                   STRING_AGG(DISTINCT oca.actor, ', ') as actors,
+                   STRING_AGG(DISTINCT ocg.genre, ', ') as genres
+            FROM ott_common oc
+            LEFT JOIN ott_common_actors oca ON oc.id = oca.ott_id
+            LEFT JOIN ott_common_genre ocg ON oc.id = ocg.ott_id
+            """ + whereClause + """
+            GROUP BY oc.id, oc.title, oc.description, oc.creator, oc.image_url, oc.maturity_rating, oc.thumbnail, oc.type, oc.release_year, oc.created_at, oc.updated_at, oc.version
+            """ + orderClause + """
+            LIMIT ? OFFSET ?
+            """;
 
-            Object[] params = buildParams(search, genre);
+            Object[] params = buildParams(search, genre, "ott");
             Object[] dataParams = new Object[params.length + 2];
             System.arraycopy(params, 0, dataParams, 0, params.length);
             dataParams[params.length] = limit;
