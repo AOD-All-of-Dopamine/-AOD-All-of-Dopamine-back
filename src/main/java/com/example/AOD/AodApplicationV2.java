@@ -16,49 +16,38 @@ import java.io.InputStream;
 import java.util.Map;
 
 @SpringBootApplication
-public class AodApplicationV2 implements CommandLineRunner {
-
+public class AodApplication implements CommandLineRunner {
     private final RuleLoader ruleLoader;
-    private final TransformEngine transformEngine;
-    private final UpsertService upsertService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final TransformEngine transform;
+    private final UpsertService upsert;
+    private final ObjectMapper om = new ObjectMapper();
 
-    public AodApplication(RuleLoader ruleLoader, TransformEngine transformEngine, UpsertService upsertService) {
-        this.ruleLoader = ruleLoader;
-        this.transformEngine = transformEngine;
-        this.upsertService = upsertService;
+    public AodApplication(RuleLoader r, TransformEngine t, UpsertService u){
+        this.ruleLoader = r; this.transform = t; this.upsert = u;
     }
 
-    public static void main(String[] args) {
-        SpringApplication.run(AodApplication.class, args);
-    }
+    public static void main(String[] args) { SpringApplication.run(AodApplication.class, args); }
 
-    @Override
-    public void run(String... args) throws Exception {
-        // 1) 규칙 로드
-        MappingRule rule = ruleLoader.load("rules/av/netflix.yml");
+    @Override public void run(String... args) throws Exception {
+        // 예시 RAW (Steam appdetails 응답 중 data 블록 형태를 약식화)
+        try (InputStream in = new ClassPathResource("sample/raw-steam.json").getInputStream()) {
+            Map<String,Object> raw = om.readValue(in, Map.class);
 
-        // 2) RAW JSON 로드(플랫폼 크롤/API 응답 가정)
-        try (InputStream in = new ClassPathResource("sample/raw-netflix.json").getInputStream()) {
-            @SuppressWarnings("unchecked")
-            Map<String,Object> raw = objectMapper.readValue(in, Map.class);
+            MappingRule rule = ruleLoader.load("rules/game/steam.yml");
+            var tri = transform.transform(raw, rule);
 
-            // 3) 변환
-            var pair = transformEngine.transform(raw, rule);
-            var master = pair.getKey();
-            var platform = pair.getValue();
+            String platformSpecificId = String.valueOf(
+                    transform.deepGet(raw, "appId") != null ? transform.deepGet(raw, "appId") :
+                            transform.deepGet(raw, "data.steam_appid")
+            );
+            String url = "https://store.steampowered.com/app/" + platformSpecificId;
 
-            // 4) 업서트(간단 매칭: domain+title+year)
-            String platformSpecificId = (String) raw.get("platformSpecificId");
-            String url = (String) raw.get("url");
-
-            Long contentId = upsertService.upsert(
+            Long contentId = upsert.upsert(
                     Domain.valueOf(rule.getDomain()),
-                    master, platform,
+                    tri.master(), tri.platform(), tri.domain(),
                     platformSpecificId, url
             );
-
-            System.out.println("UPSERT OK, content_id = " + contentId);
+            System.out.println("[GAME/Steam] UPSERT OK content_id=" + contentId);
         }
     }
 }

@@ -16,45 +16,46 @@ import java.util.Optional;
 
 @Service
 public class UpsertService {
-
     private final ContentRepository contentRepo;
     private final PlatformDataRepository platformRepo;
+    private final DomainCoreUpsertService domainCoreUpsert;
 
-    public UpsertService(ContentRepository contentRepo, PlatformDataRepository platformRepo) {
+    public UpsertService(ContentRepository contentRepo,
+                         PlatformDataRepository platformRepo,
+                         DomainCoreUpsertService domainCoreUpsert) {
         this.contentRepo = contentRepo;
         this.platformRepo = platformRepo;
+        this.domainCoreUpsert = domainCoreUpsert;
     }
 
     @Transactional
     public Long upsert(Domain domain,
                        Map<String,Object> master,
                        Map<String,Object> platform,
+                       Map<String,Object> domainDoc,
                        String platformSpecificId,
                        String url) {
 
         // 1) contents (find-or-create)
-        String masterTitle = (String) master.get("master_title");
-        Integer releaseYear = (Integer) master.get("release_year");
-
         Content content = contentRepo
-                .findFirstByDomainAndMasterTitleAndReleaseYear(domain, masterTitle, releaseYear)
+                .findFirstByDomainAndMasterTitleAndReleaseYear(domain,
+                        (String) master.get("master_title"),
+                        (Integer) master.get("release_year"))
                 .orElseGet(() -> {
                     Content c = new Content();
                     c.setDomain(domain);
-                    c.setMasterTitle(masterTitle);
+                    c.setMasterTitle((String) master.get("master_title"));
                     c.setOriginalTitle((String) master.get("original_title"));
-                    c.setReleaseYear(releaseYear);
+                    c.setReleaseYear((Integer) master.get("release_year"));
                     c.setPosterImageUrl((String) master.get("poster_image_url"));
                     c.setSynopsis((String) master.get("synopsis"));
                     return contentRepo.save(c);
                 });
-
-        // 보강 업데이트(널인 경우만 덮기 정도로 간단히)
-        if (content.getOriginalTitle() == null)
+        if (content.getOriginalTitle()==null)
             content.setOriginalTitle((String) master.getOrDefault("original_title", content.getOriginalTitle()));
-        if (content.getPosterImageUrl() == null)
+        if (content.getPosterImageUrl()==null)
             content.setPosterImageUrl((String) master.getOrDefault("poster_image_url", content.getPosterImageUrl()));
-        if (content.getSynopsis() == null)
+        if (content.getSynopsis()==null)
             content.setSynopsis((String) master.getOrDefault("synopsis", content.getSynopsis()));
 
         // 2) platform_data (UPSERT by unique (platformName, platformSpecificId))
@@ -82,6 +83,8 @@ public class UpsertService {
             pd.getAttributes().putAll(attrs);
         }
         pd.setLastSeenAt(Instant.now());
+        // 3) 도메인 코어 upsert
+        domainCoreUpsert.upsert(domain, content, domainDoc);
 
         platformRepo.save(pd);
         return content.getContentId();
