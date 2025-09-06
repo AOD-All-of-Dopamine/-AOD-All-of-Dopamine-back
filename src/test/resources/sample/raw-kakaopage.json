@@ -1,0 +1,17 @@
+{
+  "platformSpecificId": "S12345",
+  "url": "https://page.kakao.com/content/S12345",
+  "data": {
+    "title": "나 혼자만 레벨업 (개정판)",
+    "authors": [{"name": "추공"}],
+    "translators": [],
+    "isComplete": false,
+    "beginDate": "2018-03-01",
+    "categories": {"main":"판타지", "sub":["헌터","던전"]},
+    "cover": "https://res.kakao/cover.jpg",
+    "synopsis": "평범한 E급 헌터가 각성하여 성장해 나가는 이야기.",
+    "seriesId": "S12345",
+    "viewCount": 123456789,
+    "likeCount": 987654
+  }
+}

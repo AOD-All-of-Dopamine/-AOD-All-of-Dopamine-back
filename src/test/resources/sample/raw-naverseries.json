@@ -1,0 +1,16 @@
+{
+  "platformSpecificId": "123456",
+  "url": "https://series.naver.com/novel/detail.series?productNo=123456",
+  "data": {
+    "titleName": "나 혼자만 레벨업",
+    "authors": [{"name": "추공"}],
+    "finished": false,
+    "serviceStartDate": "2018-02-14",
+    "genres": {"main":"판타지", "sub":["헌터","던전"]},
+    "thumbnailUrl": "https://naver/img/cover.jpg",
+    "synopsis": "헌터 사냥 판타지 웹소설.",
+    "titleId": "123456",
+    "weekday": "수",
+    "episodeCount": 500
+  }
+}
