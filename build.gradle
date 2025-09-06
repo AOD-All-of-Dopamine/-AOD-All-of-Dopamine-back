@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(17) // 필요하면 21로 올려도 됨
 	}
 }
 
@@ -24,32 +24,48 @@ repositories {
 }
 
 dependencies {
-	implementation 'com.google.code.gson:gson:2.10.1'
+	// === Spring Boot starters ===
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'   // OpenAI API 호출용
+	implementation 'org.springframework.boot:spring-boot-starter-cache'    // 캐시
+
+	// === DB ===
+	runtimeOnly 'org.postgresql:postgresql'   // BOM으로 버전 관리 (중복/명시 버전 제거)
+	runtimeOnly 'com.h2database:h2'
+
+	// JSONB 매핑 (Hibernate Types)
+	implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
+
+	// === 유틸/라이브러리 ===
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'org.jsoup:jsoup:1.16.1'
+	implementation 'org.seleniumhq.selenium:selenium-java:4.11.0'
+	implementation 'io.github.bonigarcia:webdrivermanager:6.1.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+
+	// YAML 로더 (Spring이 transitive로 끌어오지만 명시적으로 추가해도 OK)
+	implementation 'org.yaml:snakeyaml'
+
+	// Jackson (starter-web에 포함되지만, 명시적으로 필요하면 유지)
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Dev/테스트
+	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.seleniumhq.selenium:selenium-java:4.11.0'
-	implementation 'org.jsoup:jsoup:1.16.1'
-	implementation 'org.postgresql:postgresql:42.7.3'
-
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'  // OpenAI API 호출용
-	implementation 'org.springframework.boot:spring-boot-starter-cache'   // 추천 결과 캐싱용
-
-	implementation 'io.github.bonigarcia:webdrivermanager:6.1.0'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 }
 
 tasks.named('test') {

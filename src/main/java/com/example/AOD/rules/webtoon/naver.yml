@@ -1,0 +1,23 @@
+platformName: NaverWebtoon
+domain: WEBTOON
+schemaVersion: 1
+fieldMappings:
+  data.titleName: master_title
+  data.artists[0].name: domain.author
+  data.illustrator: domain.illustrator
+  data.finished: domain.status
+  data.serviceStartDate: domain.started_at
+  data.genres: domain.genres
+  data.thumbnailUrl: poster_image_url
+  data.synopsis: synopsis
+
+  data.titleId: platform.attributes.title_id
+  data.weekday: platform.attributes.weekday
+  data.episodeCount: platform.attributes.episode_count
+normalizers:
+  - type: nfkc
+    fields: [master_title, domain.author]
+  - type: strip_brackets
+    fields: [master_title]
+  - type: strip_series_qualifiers
+    fields: [master_title]
