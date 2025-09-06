@@ -1,0 +1,25 @@
+platformName: Steam
+domain: GAME
+schemaVersion: 1
+fieldMappings:
+  data.name: master_title
+  data.release_date.date: domain.release_date
+  data.developers[0]: domain.developer
+  data.publishers[0]: domain.publisher
+  data.platforms: domain.platforms       # {windows:true, mac:false, ...}
+  data.genres: domain.genres             # [{id:...,description:"Action"}, ...]
+  data.header_image: poster_image_url
+  data.short_description: synopsis
+
+  # 플랫폼 고유 속성들
+  data.price_overview.final: platform.attributes.price_final
+  data.price_overview.currency: platform.attributes.currency
+  data.is_free: platform.attributes.is_free
+  data.metacritic.score: platform.attributes.metacritic
+normalizers:
+  - type: nfkc
+    fields: [master_title]
+  - type: strip_parentheses
+    fields: [master_title]
+  - type: collapse_spaces
+    fields: [master_title]
