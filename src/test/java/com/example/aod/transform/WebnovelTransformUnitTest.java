@@ -1,17 +1,20 @@
 package com.example.aod.transform;
 
-import com.example.aod.rules.MappingRule;
-import com.example.aod.service.RuleLoader;
-import com.example.aod.service.TransformEngine;
+
+import com.example.AOD.rules.MappingRule;
+import com.example.AOD.service.RuleLoader;
+import com.example.AOD.service.TransformEngine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.InputStream;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ActiveProfiles("test")
 public class WebnovelTransformUnitTest {
 
     private final RuleLoader ruleLoader = new RuleLoader();

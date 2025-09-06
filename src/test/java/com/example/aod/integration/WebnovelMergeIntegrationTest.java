@@ -1,19 +1,21 @@
 package com.example.aod.integration;
 
-import com.example.aod.domain.Domain;
-import com.example.aod.entity.Content;
-import com.example.aod.entity.PlatformData;
-import com.example.aod.repo.ContentRepository;
-import com.example.aod.repo.PlatformDataRepository;
-import com.example.aod.rules.MappingRule;
-import com.example.aod.service.RuleLoader;
-import com.example.aod.service.TransformEngine;
-import com.example.aod.service.UpsertService;
+
+import com.example.AOD.domain.Content;
+import com.example.AOD.domain.entity.Domain;
+import com.example.AOD.domain.entity.PlatformData;
+import com.example.AOD.repo.ContentRepository;
+import com.example.AOD.repo.PlatformDataRepository;
+import com.example.AOD.rules.MappingRule;
+import com.example.AOD.service.RuleLoader;
+import com.example.AOD.service.TransformEngine;
+import com.example.AOD.service.UpsertService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -28,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest
+@ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class WebnovelMergeIntegrationTest {
 
@@ -48,11 +51,16 @@ public class WebnovelMergeIntegrationTest {
         r.add("spring.jpa.show-sql", () -> "true");
     }
 
-    @Autowired RuleLoader ruleLoader;
-    @Autowired TransformEngine transform;
-    @Autowired UpsertService upsert;
-    @Autowired ContentRepository contentRepo;
-    @Autowired PlatformDataRepository platformRepo;
+    @Autowired
+    RuleLoader ruleLoader;
+    @Autowired
+    TransformEngine transform;
+    @Autowired
+    UpsertService upsert;
+    @Autowired
+    ContentRepository contentRepo;
+    @Autowired
+    PlatformDataRepository platformRepo;
 
     ObjectMapper om = new ObjectMapper();
     static Long contentIdAfterKakao;
