@@ -10,7 +10,7 @@ import com.example.AOD.recommendation.dto.*;
 import com.example.AOD.movie.CGV.repository.MovieRepository;
 import com.example.AOD.Novel.NaverSeriesNovel.repository.NaverSeriesNovelRepository;
 import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
-import com.example.AOD.OTT.Netflix.repository.NetflixContentRepository;
+import com.example.AOD.AV.Netflix.repository.NetflixContentRepository;
 import com.example.AOD.game.StreamAPI.repository.GameRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
