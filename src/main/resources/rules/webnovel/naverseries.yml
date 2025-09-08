@@ -1,17 +1,25 @@
 platformName: NaverSeries
 domain: WEBNOVEL
-schemaVersion: 1
+schemaVersion: 2
 fieldMappings:
-  data.titleName: master_title
-  data.authors[0].name: domain.author
-  data.serviceStartDate: domain.started_at
-  data.genres: domain.genres
-  data.thumbnailUrl: poster_image_url
-  data.synopsis: synopsis
+  # --- master 공통 ---
+  title: master_title
+  synopsis: synopsis
+  imageUrl: poster_image_url
 
-  data.titleId: platform.attributes.title_id
-  data.weekday: platform.attributes.weekday
-  data.episodeCount: platform.attributes.episode_count
+  # --- 도메인 코어(필드 보관) ---
+  author: domain.author
+  translator: domain.translator
+  startedAt: domain.started_at
+  genres: domain.genres
+  status: domain.status
+  weekday: domain.weekday
+  episodeCount: domain.episode_count
+
+  # --- 플랫폼 고유 ---
+  titleId: platform.attributes.title_id
+  productUrl: platform.attributes.product_url
+
 normalizers:
   - type: nfkc
     fields: [master_title, domain.author]

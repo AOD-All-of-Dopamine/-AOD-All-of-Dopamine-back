@@ -1,19 +1,24 @@
+# rules/webnovel/kakaopage.yml
 platformName: KakaoPage
 domain: WEBNOVEL
-schemaVersion: 1
+schemaVersion: 2
 fieldMappings:
-  data.title: master_title
-  data.authors[0].name: domain.author
-  data.translators[0].name: domain.translator
-  data.isComplete: domain.status
-  data.beginDate: domain.started_at
-  data.categories: domain.genres
-  data.cover: poster_image_url
-  data.synopsis: synopsis
+  title: master_title
+  synopsis: synopsis
+  imageUrl: poster_image_url
 
-  data.seriesId: platform.attributes.series_id
-  data.viewCount: platform.attributes.view_count
-  data.likeCount: platform.attributes.like_count
+  author: domain.author
+  translator: domain.translator
+  startedAt: domain.started_at
+  genres: domain.genres
+  status: domain.status
+  weekday: domain.weekday
+  episodeCount: domain.episode_count
+
+  seriesId: platform.attributes.series_id
+  productUrl: platform.attributes.product_url
+  viewCount: platform.attributes.view_count
+  likeCount: platform.attributes.like_count
 normalizers:
   - type: nfkc
     fields: [master_title, domain.author]

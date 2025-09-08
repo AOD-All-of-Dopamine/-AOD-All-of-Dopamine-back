@@ -1,78 +1,57 @@
 package com.example.AOD.Novel.NaverSeriesNovel.domain;
 
-import com.example.AOD.Novel.NaverSeriesNovel.dto.NaverSeriesNovelDTO;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
+@Table(name = "naver_series_novel")
 public class NaverSeriesNovel {
 
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    // ==== 기본 메타 ====
     @Column(nullable = false)
-    private String title;
+    private String title;         // ex) "나 혼자만 레벨업"
+    private String author;        // "추공"
+    private String translator;    // 없으면 null
+    @Column(columnDefinition = "text")
+    private String synopsis;
 
-    // 웹소설 상세 페이지 URL
-    @Column(nullable = false)
-    private String url;
+    private String imageUrl;      // 썸네일
+    private String productUrl;    // 네이버 시리즈 상세 URL
 
-    @Column(length = 1000) // URL은 길 수 있으므로 충분한 길이 설정
-    private String imageUrl;
+    // ==== 서비스 메타 ====
+    private String titleId;       // productNo / titleId 등
+    private String weekday;       // 연재 요일(수/토/…)
+    private Integer episodeCount; // 회차 수
+    private String status;        // 연재중/완결 등
+    private LocalDate startedAt;
 
-    //완결 유무
-    @Column(nullable = false)
-    private String status;
-
-    //장르, 한개만들어가있음
-    @ManyToMany
-    @JoinTable(
-            name = "novel_genre_mapping",
-            joinColumns = @JoinColumn(name = "novel_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
-    private List<NaverSeriesNovelGenre> genres;
-
-    @ManyToMany
-    @JoinTable(
-            name = "novel_author_mapping",
-            joinColumns = @JoinColumn(name = "novel_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id")
-    )
-    private List<NaverSeriesNovelAuthor> authors = new ArrayList<>();
-    //출판사
-    @Column(nullable = false)
     private String publisher;
-
-    @Column(nullable = false)
     private String ageRating;
 
-    public NaverSeriesNovel() {
+    // ==== 장르: 다대다 대신 JSONB ====
+    @Type(JsonType.class)
+    @Column(columnDefinition = "jsonb")
+    private List<String> genres = new ArrayList<>();
 
-    }
+    // ==== 감사 필드 ====
+    private Instant createdAt;
+    private Instant updatedAt;
 
-    public NaverSeriesNovel(NaverSeriesNovelDTO naverSeriesNovelDTO) {
-        this.title = naverSeriesNovelDTO.getTitle();
-        this.url = naverSeriesNovelDTO.getUrl();
-        this.status = naverSeriesNovelDTO.getStatus();
-        this.publisher = naverSeriesNovelDTO.getPublisher();
-        this.ageRating = naverSeriesNovelDTO.getAgeRating();
-        this.imageUrl = naverSeriesNovelDTO.getImageUrl();
+    @PrePersist
+    void onCreate() { createdAt = updatedAt = Instant.now(); }
 
-        // 작가와 장르는 외부에서 설정
-
-        this.genres = new ArrayList<>();
-        for(String genre : naverSeriesNovelDTO.getGenres()) {
-            this.genres.add(new NaverSeriesNovelGenre(genre));
-        }
-    }
-
+    @PreUpdate
+    void onUpdate() { updatedAt = Instant.now(); }
 }
