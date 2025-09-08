@@ -1,19 +1,29 @@
 package com.example.AOD.Novel.NaverSeriesNovel.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class NaverSeriesNovelDTO {
     private String title;
-    private String url;
-    private String status;
-    private List<String> genres;
     private String author;
+    private String translator;
+    private String synopsis;
+
+    private String imageUrl;
+    private String productUrl;
+
+    private String titleId;
+    private String weekday;
+    private Integer episodeCount;
+    private String status;
+    private LocalDate startedAt;
+
     private String publisher;
     private String ageRating;
-    private String imageUrl;
+
+    private List<String> genres = new ArrayList<>();
 }
