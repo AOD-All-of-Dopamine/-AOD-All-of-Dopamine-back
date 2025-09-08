@@ -49,7 +49,7 @@ public class AdminTestController {
     @PostMapping(path = "/crawl/naver-series", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> crawlNaverSeries(@RequestBody CrawlRequest req) throws Exception {
         String base = (req.baseListUrl() == null || req.baseListUrl().isBlank())
-                ? "https://series.naver.com/novel/top100List.series?rankingTypeCode=ALL&categoryCode=ALL&page="
+                ? "https://series.naver.com/novel/top100List.series?rankingTypeCode=DAILY&categoryCode=ALL&page="
                 : req.baseListUrl();
         int pages = req.pages() != null ? req.pages() : 1;
 
