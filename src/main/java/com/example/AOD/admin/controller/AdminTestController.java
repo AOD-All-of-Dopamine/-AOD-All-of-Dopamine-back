@@ -1,6 +1,6 @@
 package com.example.AOD.admin.controller;
 
-import com.example.AOD.Novel.NaverSeriesNovel.crawler.NaverSeriesCrawler;
+import com.example.AOD.Novel.NaverSeriesNovel.NaverSeriesCrawler;
 import com.example.AOD.domain.entity.Domain;
 import com.example.AOD.ingest.BatchTransformService;
 import com.example.AOD.ingest.RawItemRepository;

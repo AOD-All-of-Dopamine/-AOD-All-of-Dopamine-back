@@ -9,7 +9,7 @@
 //
 //// 플랫폼별 리포지토리 import
 //import com.example.AOD.movie.CGV.repository.MovieRepository;
-//import com.example.AOD.Novel.NaverSeriesNovel.repository.NaverSeriesNovelRepository;
+//import com.example.AOD.Novel.NaverSeriesNovel.NaverSeriesNovelRepository;
 //import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
 //import com.example.AOD.AV.Netflix.repository.NetflixContentRepository;
 //import com.example.AOD.game.StreamAPI.repository.GameRepository;

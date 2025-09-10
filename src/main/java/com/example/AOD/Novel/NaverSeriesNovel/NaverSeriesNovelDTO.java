@@ -1,4 +1,4 @@
-package com.example.AOD.Novel.NaverSeriesNovel.dto;
+package com.example.AOD.Novel.NaverSeriesNovel;
 
 import lombok.Data;
 

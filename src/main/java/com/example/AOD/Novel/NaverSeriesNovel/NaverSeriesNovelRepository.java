@@ -1,6 +1,5 @@
-package com.example.AOD.Novel.NaverSeriesNovel.repository;
+package com.example.AOD.Novel.NaverSeriesNovel;
 
-import com.example.AOD.Novel.NaverSeriesNovel.domain.NaverSeriesNovel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NaverSeriesNovelRepository extends JpaRepository<NaverSeriesNovel,Long> {

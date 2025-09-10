@@ -1,4 +1,4 @@
-package com.example.AOD.Novel.NaverSeriesNovel.domain;
+package com.example.AOD.Novel.NaverSeriesNovel;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
