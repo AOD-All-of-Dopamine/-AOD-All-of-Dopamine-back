@@ -8,14 +8,14 @@
 //
 //// 플랫폼별 리포지토리 import
 //import com.example.AOD.movie.CGV.repository.MovieRepository;
-//import com.example.AOD.Novel.NaverSeriesNovel.repository.NaverSeriesNovelRepository;
+//import com.example.AOD.Novel.NaverSeriesNovel.NaverSeriesNovelRepository;
 //import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
 //import com.example.AOD.OTT.Netflix.repository.NetflixContentRepository;
 //import com.example.AOD.game.StreamAPI.repository.GameRepository;
 //
 //// 플랫폼별 Entity import (실제 클래스명에 맞게 수정 필요)
 ////import com.example.AOD.movie.CGV.domain.Movie;
-////import com.example.AOD.Novel.NaverSeriesNovel.domain.NaverSeriesNovel;
+////import com.example.AOD.Novel.NaverSeriesNovel.NaverSeriesNovel;
 ////import com.example.AOD.Webtoon.NaverWebtoon.domain.Webtoon;
 ////import com.example.AOD.OTT.Netflix.domain.NetflixContent;
 ////import com.example.AOD.game.StreamAPI.domain.SteamGame;

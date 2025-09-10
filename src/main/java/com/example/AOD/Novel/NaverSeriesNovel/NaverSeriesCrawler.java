@@ -1,6 +1,5 @@
-package com.example.AOD.Novel.NaverSeriesNovel.crawler;
+package com.example.AOD.Novel.NaverSeriesNovel;
 
-import com.example.AOD.Novel.NaverSeriesNovel.dto.NaverSeriesNovelDTO;
 import com.example.AOD.ingest.CollectorService; // <- 프로젝트 경로에 맞게 조정
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
