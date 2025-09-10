@@ -1,29 +1,31 @@
 platformName: NaverSeries
 domain: WEBNOVEL
-schemaVersion: 2
+schemaVersion: 3
+
 fieldMappings:
-  # --- master 공통 ---
+  # 마스터(원하면 synopsis도 attributes로 내려도 됨)
   title: master_title
-  synopsis: synopsis
   imageUrl: poster_image_url
+  synopsis: synopsis
 
-  # --- 도메인 코어(필드 보관) ---
-  author: domain.author
-  translator: domain.translator
-  startedAt: domain.started_at
-  genres: domain.genres
-  status: domain.status
-  weekday: domain.weekday
-  episodeCount: domain.episode_count
+  # 플랫폼 전용(JSONB)
+  author: platform.attributes.author
+  publisher: platform.attributes.publisher
+  status: platform.attributes.status
+  ageRating: platform.attributes.age_rating
+  genres: platform.attributes.genres
 
-  # --- 플랫폼 고유 ---
-  titleId: platform.attributes.title_id
-  productUrl: platform.attributes.product_url
+  rating: platform.attributes.rating
+  downloadCount: platform.attributes.download_count
+  commentCount: platform.attributes.comment_count
+
+  productUrl: platform.url
+  titleId: platform.platform_specific_id
 
 normalizers:
-  - type: nfkc
-    fields: [master_title, domain.author]
   - type: strip_parentheses
     fields: [master_title]
   - type: collapse_spaces
     fields: [master_title]
+  - type: nfkc
+    fields: [master_title, platform.attributes.author, platform.attributes.publisher]

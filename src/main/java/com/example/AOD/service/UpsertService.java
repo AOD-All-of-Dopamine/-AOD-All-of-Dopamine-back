@@ -68,11 +68,6 @@ public class UpsertService {
         pd.setPlatformSpecificId(platformSpecificId);
         pd.setUrl(url);
 
-        // rating/reviewCount (있으면 세팅)
-        Object rating = platform.get("rating");
-        if (rating instanceof Number n) pd.setRating(new BigDecimal(n.toString()));
-        Object rc = platform.get("review_count");
-        if (rc instanceof Number n) pd.setReviewCount(n.intValue());
 
         // attributes merge
         @SuppressWarnings("unchecked")

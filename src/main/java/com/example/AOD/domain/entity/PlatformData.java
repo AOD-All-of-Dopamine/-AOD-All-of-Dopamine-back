@@ -1,3 +1,4 @@
+// src/main/java/com/example/AOD/domain/entity/PlatformData.java
 package com.example.AOD.domain.entity;
 
 import com.example.AOD.domain.Content;
@@ -7,14 +8,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @Table(name = "platform_data",
         uniqueConstraints = @UniqueConstraint(name="uk_platform_id", columnNames = {"platformName","platformSpecificId"}))
 public class PlatformData {
@@ -28,20 +27,27 @@ public class PlatformData {
     private Content content;
 
     @Column(nullable = false)
-    private String platformName;
+    private String platformName;       // 예: NAVER_SERIES
 
-    private String platformSpecificId;
-    private String url;
-
-    // 평점/리뷰수는 플랫폼 기준, 마스터와 별개
-    private BigDecimal rating;
-    private Integer reviewCount;
+    private String platformSpecificId; // 예: productNo
+    private String url;                // 작품 상세 URL
 
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb", nullable = false)
     private Map<String, Object> attributes = new HashMap<>();
+    // 예) {
+    //   "rating": 8.7,
+    //   "comment_count": 1393475,
+    //   "download_count": 724450000,     // (관심 수를 다운로드 수로 사용)
+    //   "author": "비가",
+    //   "publisher": "러프미디어",
+    //   "status": "연재중",
+    //   "age_rating": "전체 이용가",
+    //   "genres": ["무협"],
+    //   "synopsis": "...",
+    //   "image_url": "...",
+    //   ...
+    // }
 
     private Instant lastSeenAt = Instant.now();
-
-    // getters/setters ...
 }
