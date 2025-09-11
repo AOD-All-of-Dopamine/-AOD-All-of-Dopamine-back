@@ -1,28 +1,32 @@
-# rules/webnovel/kakaopage.yml
 platformName: KakaoPage
 domain: WEBNOVEL
-schemaVersion: 2
+schemaVersion: 3
+
 fieldMappings:
+  # === Contents (마스터 공통) ===
   title: master_title
-  synopsis: synopsis
   imageUrl: poster_image_url
+  synopsis: synopsis
 
-  author: domain.author
-  translator: domain.translator
-  startedAt: domain.started_at
-  genres: domain.genres
-  status: domain.status
-  weekday: domain.weekday
-  episodeCount: domain.episode_count
+  # === Platform_Data ===
+  productUrl: platform.url
+  seriesId: platform.platform_specific_id
 
-  seriesId: platform.attributes.series_id
-  productUrl: platform.attributes.product_url
+  # === Platform_Data.attributes(JSONB) ===
+  author: platform.attributes.author
+  publisher: platform.attributes.publisher
+  status: platform.attributes.status
+  ageRating: platform.attributes.age_rating
+  genres: platform.attributes.genres
+  keywords: platform.attributes.keywords
+  rating: platform.attributes.rating
   viewCount: platform.attributes.view_count
-  likeCount: platform.attributes.like_count
+  commentCount: platform.attributes.comment_count
+
 normalizers:
-  - type: nfkc
-    fields: [master_title, domain.author]
   - type: strip_parentheses
     fields: [master_title]
   - type: collapse_spaces
     fields: [master_title]
+  - type: nfkc
+    fields: [master_title, platform.attributes.author, platform.attributes.publisher]
