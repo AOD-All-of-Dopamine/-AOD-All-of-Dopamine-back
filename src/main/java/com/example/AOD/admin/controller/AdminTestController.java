@@ -83,7 +83,7 @@ public class AdminTestController {
     public Map<String, Object> crawlKakaoPageList(@RequestBody KpListRequest req) throws Exception {
         String base = (req.listUrl() == null || req.listUrl().isBlank())
                 // 웹소설 장르 전체(예시) - page 파라미터 붙는 형태
-                ? "https://page.kakao.com/menu/10/screen/94?page="
+                ? "https://page.kakao.com/landing/genre/11"
                 : req.listUrl();
         int pages = (req.pages() == null || req.pages() <= 0) ? 1 : req.pages();
 
