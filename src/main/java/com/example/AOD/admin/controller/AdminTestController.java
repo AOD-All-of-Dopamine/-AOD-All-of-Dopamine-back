@@ -1,6 +1,8 @@
 package com.example.AOD.admin.controller;
 
+import com.example.AOD.Novel.KakaoPageNovel.KakaoPageCrawler;
 import com.example.AOD.Novel.NaverSeriesNovel.NaverSeriesCrawler;
+
 import com.example.AOD.domain.entity.Domain;
 import com.example.AOD.ingest.BatchTransformService;
 import com.example.AOD.ingest.RawItemRepository;
@@ -8,10 +10,14 @@ import com.example.AOD.rules.MappingRule;
 import com.example.AOD.service.RuleLoader;
 import com.example.AOD.service.TransformEngine;
 import com.example.AOD.service.UpsertService;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,6 +25,8 @@ import java.util.Map;
 public class AdminTestController {
 
     private final NaverSeriesCrawler naverSeriesCrawler;
+    private final KakaoPageCrawler kakaoPageCrawler;
+
     private final BatchTransformService batchService;
     private final RawItemRepository rawRepo;
     private final RuleLoader ruleLoader;
@@ -26,12 +34,14 @@ public class AdminTestController {
     private final UpsertService upsertService;
 
     public AdminTestController(NaverSeriesCrawler naverSeriesCrawler,
+                               KakaoPageCrawler kakaoPageCrawler,
                                BatchTransformService batchService,
                                RawItemRepository rawRepo,
                                RuleLoader ruleLoader,
                                TransformEngine transformEngine,
                                UpsertService upsertService) {
         this.naverSeriesCrawler = naverSeriesCrawler;
+        this.kakaoPageCrawler = kakaoPageCrawler;
         this.batchService = batchService;
         this.rawRepo = rawRepo;
         this.ruleLoader = ruleLoader;
@@ -45,7 +55,9 @@ public class AdminTestController {
         return Map.of("ok", true);
     }
 
-    // 1) 네이버 시리즈 크롤 → raw_items 적재
+    /* ===================== NAVER SERIES ===================== */
+
+    // 네이버 시리즈 크롤 → raw_items 적재
     @PostMapping(path = "/crawl/naver-series", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> crawlNaverSeries(@RequestBody CrawlRequest req) throws Exception {
         String base = (req.baseListUrl() == null || req.baseListUrl().isBlank())
@@ -64,7 +76,33 @@ public class AdminTestController {
         return res;
     }
 
-    // 2) 배치 변환/업서트 실행 (raw_items → contents/platform_data)
+    /* ===================== KAKAO PAGE ===================== */
+
+    // (1) 카카오페이지 목록 URL 기반 수집 → raw_items
+    @PostMapping(path = "/crawl/kakaopage", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> crawlKakaoPageList(@RequestBody KpListRequest req) throws Exception {
+        String base = (req.listUrl() == null || req.listUrl().isBlank())
+                // 웹소설 장르 전체(예시) - page 파라미터 붙는 형태
+                ? "https://page.kakao.com/menu/10/screen/94?page="
+                : req.listUrl();
+        int pages = (req.pages() == null || req.pages() <= 0) ? 1 : req.pages();
+
+        int saved = kakaoPageCrawler.crawlToRaw(base, req.cookie(), pages);
+        long pending = rawRepo.countByProcessedFalse();
+
+        return Map.of(
+                "saved", saved,
+                "pendingRaw", pending,
+                "listUrl", base,
+                "pages", pages
+        );
+    }
+
+
+
+    /* ===================== BATCH / TRANSFORM / UPSERT ===================== */
+
+    // 배치 변환/업서트 실행 (raw_items → contents/platform_data)
     @PostMapping(path = "/batch/process", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> runBatch(@RequestBody BatchRequest req) {
         int size = (req.batchSize() == null || req.batchSize() <= 0) ? 100 : req.batchSize();
@@ -78,7 +116,7 @@ public class AdminTestController {
         );
     }
 
-    // 3) 규칙 프리뷰: payload + rulePath로 transform만 수행해 확인 (DB 반영 X)
+    // 규칙 프리뷰: payload + rulePath로 transform만 수행해 확인 (DB 반영 X)
     @PostMapping(path = "/transform/preview", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> previewTransform(@RequestBody PreviewRequest req) {
         String rulePath = (req.rulePath() != null && !req.rulePath().isBlank())
@@ -95,7 +133,7 @@ public class AdminTestController {
         );
     }
 
-    // 4) 직접 업서트 테스트: 변환 결과를 수동으로 던져 DB 반영해보기
+    // 직접 업서트 테스트: 변환 결과를 수동으로 던져 DB 반영
     @PostMapping(path = "/upsert/direct", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> upsertDirect(@RequestBody UpsertDirectRequest req) {
         Long contentId = upsertService.upsert(
@@ -117,9 +155,12 @@ public class AdminTestController {
         throw new IllegalArgumentException("No default rule for domain=" + domain + ", platform=" + platform);
     }
 
-    // ==== 요청 DTO ====
+    /* ===================== 요청 DTO ===================== */
 
     public record CrawlRequest(String baseListUrl, String cookie, Integer pages) {}
+    public record KpListRequest(String listUrl, String cookie, Integer pages) {}
+    public record KpCollectRequest(List<String> urls, String cookie) {}
+
     public record BatchRequest(Integer batchSize) {}
     public record PreviewRequest(String platformName, String domain, String rulePath, Map<String,Object> payload) {}
     public record UpsertDirectRequest(String domain,
