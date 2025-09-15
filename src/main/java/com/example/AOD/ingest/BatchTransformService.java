@@ -22,13 +22,17 @@ public class BatchTransformService {
     private final TransformEngine transform;
     private final UpsertService upsert;
 
-    // 플랫폼/도메인 → 규칙 경로 매핑(간단 버전)
+    // 플랫폼/도메인 → 규칙 경로 매핑
     private String rulePath(String domain, String platformName) {
         return switch (domain) {
             case "WEBNOVEL" -> switch (platformName) {
                 case "NaverSeries" -> "rules/webnovel/naverseries.yml";
                 case "KakaoPage"   -> "rules/webnovel/kakaopage.yml";
-                default -> throw new IllegalArgumentException("No rule for "+platformName);
+                default -> throw new IllegalArgumentException("No rule for webnovel platform: " + platformName);
+            };
+            case "AV" -> switch (platformName) { // [수정] AV 도메인 추가
+                case "TMDB" -> "rules/av/tmdb.yml";
+                default -> throw new IllegalArgumentException("No rule for AV platform: " + platformName);
             };
             case "GAME" -> /* ... */ "";
             default -> throw new IllegalArgumentException("No rule for domain "+domain);
@@ -52,14 +56,15 @@ public class BatchTransformService {
                 var tri = transform.transform(raw.getSourcePayload(), rule);
 
                 // platformSpecificId / url 은 raw에 우선, 없으면 payload에서 추정
-                String psid = firstNonNull(raw.getPlatformSpecificId(),
-                        asString(deepGet(raw.getSourcePayload(), "platformSpecificId")),
-                        asString(deepGet(raw.getSourcePayload(), "data.titleId")),
-                        asString(deepGet(raw.getSourcePayload(), "data.seriesId")),
-                        asString(deepGet(raw.getSourcePayload(), "titleId")));
-                String url = firstNonNull(raw.getUrl(),
-                        asString(deepGet(raw.getSourcePayload(), "url")),
-                        asString(deepGet(raw.getSourcePayload(), "productUrl")));
+                String psid = firstNonNull(raw.getPlatformSpecificId(), // 1순위 (공통)
+                        asString(deepGet(raw.getSourcePayload(), "platformSpecificId")), // 2순위 (공통)
+                        asString(deepGet(raw.getSourcePayload(), "movie_details.id")), // 3순위 (TMDB 영화)
+                        asString(deepGet(raw.getSourcePayload(), "tv_details.id")), // 4순위 (TMDB TV)
+                        asString(deepGet(raw.getSourcePayload(), "titleId")), // 5순위 (네이버 시리즈)
+                        asString(deepGet(raw.getSourcePayload(), "seriesId")) // 6순위 (카카오페이지)
+                );
+
+                String url = firstNonNull(raw.getUrl(), asString(deepGet(raw.getSourcePayload(), "url")));
 
                 Long contentId = upsert.upsert(
                         Domain.valueOf(rule.getDomain()),
@@ -70,7 +75,6 @@ public class BatchTransformService {
                 run.setStatus("SUCCESS");
                 run.setProducedContentId(contentId);
                 ok++;
-                // raw 마킹
                 raw.setProcessed(true);
                 raw.setProcessedAt(Instant.now());
             } catch (Exception e) {
