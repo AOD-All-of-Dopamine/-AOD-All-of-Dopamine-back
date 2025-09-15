@@ -1,3 +1,4 @@
+// src/main/java/com/example/AOD/TMDB/dto/TmdbTvShow.java
 package com.example.AOD.TMDB.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -16,10 +18,10 @@ public class TmdbTvShow {
     private int id;
 
     @JsonProperty("name")
-    private String name; // 영화의 'title'에 해당
+    private String name;
 
     @JsonProperty("original_name")
-    private String originalName; // 영화의 'original_title'에 해당
+    private String originalName;
 
     @JsonProperty("overview")
     private String overview;
@@ -31,10 +33,11 @@ public class TmdbTvShow {
     private String backdropPath;
 
     @JsonProperty("first_air_date")
-    private String firstAirDate; // 영화의 'release_date'에 해당
+    private String firstAirDate;
 
-    @JsonProperty("genre_ids")
-    private List<Integer> genreIds;
+    // --- [ 수정된 필드 ] ---
+    @JsonProperty("genres") // genre_ids -> genres (상세 API 응답)
+    private List<Map<String, Object>> genres;
 
     @JsonProperty("vote_average")
     private double voteAverage;
@@ -50,4 +53,11 @@ public class TmdbTvShow {
 
     @JsonProperty("origin_country")
     private List<String> originCountry;
+
+    // --- [ 추가된 필드 ] ---
+    @JsonProperty("number_of_seasons")
+    private Integer seasonCount;
+
+    @JsonProperty("credits")
+    private Map<String, List<Map<String, Object>>> credits;
 }

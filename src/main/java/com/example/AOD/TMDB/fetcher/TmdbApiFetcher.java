@@ -35,11 +35,13 @@ public class TmdbApiFetcher {
         String url = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/movie/" + movieId)
                 .queryParam("api_key", apiKey)
                 .queryParam("language", language)
+                // credits(출연진/제작진) 정보를 함께 요청
+                .queryParam("append_to_response", "credits")
                 .toUriString();
         try {
             return restTemplate.getForObject(url, TmdbMovie.class);
         } catch (Exception e) {
-            return null; // ID에 해당하는 영화가 없는 등 예외 발생 시 null 반환
+            return null;
         }
     }
 
@@ -53,6 +55,8 @@ public class TmdbApiFetcher {
         String url = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/tv/" + tvId)
                 .queryParam("api_key", apiKey)
                 .queryParam("language", language)
+                // credits(출연진/제작진) 정보를 함께 요청하도록 수정
+                .queryParam("append_to_response", "credits")
                 .toUriString();
         try {
             return restTemplate.getForObject(url, TmdbTvShow.class);

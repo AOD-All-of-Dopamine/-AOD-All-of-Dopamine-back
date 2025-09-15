@@ -1,36 +1,38 @@
+# src/main/resources/rules/av/tmdb.yml
+
 platformName: TMDB
 domain: AV
-schemaVersion: 1
+schemaVersion: 2
 
 fieldMappings:
   # === Contents (마스터 공통 테이블) ===
   movie_details.title: master_title
   tv_details.name: master_title
-  movie_details.originalTitle: original_title
-  tv_details.originalName: original_title
-  movie_details.posterPath: poster_image_url
-  tv_details.posterPath: poster_image_url
+  movie_details.original_title: original_title
+  tv_details.original_name: original_title
+  movie_details.poster_path: poster_image_url
+  tv_details.poster_path: poster_image_url
   movie_details.overview: synopsis
   tv_details.overview: synopsis
 
   # === av_contents (도메인 코어 테이블) ===
-  av_type: domain.av_type  # <-- 이렇게 수정하세요
+  av_type: domain.av_type
   movie_details.id: domain.tmdb_id
   tv_details.id: domain.tmdb_id
-  movie_details.releaseDate: domain.release_date
-  tv_details.firstAirDate: domain.release_date
-  movie_details.genreIds: domain.genres
-  tv_details.genreIds: domain.genres
+  movie_details.release_date: domain.release_date
+  tv_details.first_air_date: domain.release_date
+  movie_details.genres: domain.genres
+  tv_details.genres: domain.genres
+  movie_details.runtime: domain.runtime
+  movie_details.credits.cast: domain.cast
+  tv_details.credits.cast: domain.cast # TV용 cast 추가
+  movie_details.credits.crew: domain.crew
+  tv_details.credits.crew: domain.crew # TV용 crew 추가
 
-  # === platform_data (플랫폼 상세 테이블) ===
-  movie_details.voteAverage: platform.rating
-  tv_details.voteAverage: platform.rating
-  movie_details.voteCount: platform.review_count
-  tv_details.voteCount: platform.review_count
+  # --- [ 추가된 매핑 ] ---
+  tv_details.number_of_seasons: domain.season_count
 
   # === platform_data.attributes (JSONB 확장 필드) ===
-  movie_details.popularity: platform.attributes.popularity
-  tv_details.popularity: platform.attributes.popularity
   watch_providers: platform.attributes.watch_providers
 
 normalizers:

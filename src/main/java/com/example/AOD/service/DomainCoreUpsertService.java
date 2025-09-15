@@ -54,7 +54,7 @@ public class DomainCoreUpsertService {
         if (domainDoc == null || domainDoc.isEmpty()) return;
 
         switch (domain) {
-            case AV -> { // [추가] AV 도메인 처리 로직
+            case AV -> {
                 AvContent av = avRepo.findById(content.getContentId()).orElseGet(() -> {
                     AvContent x = new AvContent();
                     x.setContent(content);
@@ -64,9 +64,21 @@ public class DomainCoreUpsertService {
                 if (domainDoc.get("av_type") != null) av.setAvType(domainDoc.get("av_type").toString());
                 if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
 
-                // genre_ids (List<Integer>)를 jsonb 필드에 맞게 저장
+                // --- [ 추가된 로직 ] ---
+                if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
+                if (domainDoc.get("runtime") instanceof Number num) av.setRuntimeMin(num.intValue());
+
+                // List 타입으로 들어온 cast와 crew 데이터를 Map으로 감싸서 저장
+                if (domainDoc.get("cast") instanceof List castList) av.setCastMembers(Map.of("cast", castList));
+                if (domainDoc.get("crew") instanceof List crewList) av.setCrewMembers(Map.of("crew", crewList));
+                // --- [ 여기까지 수정 ] ---
+
+                // --- [ 추가된 로직 ] ---
+                if (domainDoc.get("season_count") instanceof Number num) av.setSeasonCount(num.intValue());
+                // ---
+
                 if (domainDoc.get("genres") instanceof List<?> list) {
-                    av.setGenres(Map.of("tmdb_ids", list));
+                    av.setGenres(Map.of("tmdb_genres", list));
                 }
                 avRepo.save(av);
             }
