@@ -1,0 +1,33 @@
+platformName: TMDB
+domain: AV
+schemaVersion: 1
+
+fieldMappings:
+  # === Contents (마스터 공통 테이블) ===
+  # TV DTO의 필드명(camelCase)과 일치하도록 작성
+  tv_details.name: master_title
+  tv_details.originalName: original_title
+  tv_details.posterPath: poster_image_url
+  tv_details.overview: synopsis
+
+  # === av_contents (도메인 코어 테이블) ===
+  tv_details.id: domain.tmdb_id
+  '"TV"': domain.av_type # TV쇼이므로 av_type을 'TV'로 고정
+  tv_details.firstAirDate: domain.release_date # YYYY-MM-DD 형식의 전체 날짜
+  tv_details.genreIds: domain.genres
+
+  # === platform_data (플랫폼 상세 테이블) ===
+  tv_details.voteAverage: platform.rating
+  tv_details.voteCount: platform.review_count
+
+  # === platform_data.attributes (JSONB 확장 필드) ===
+  tv_details.popularity: platform.attributes.popularity
+  tv_details.originalLanguage: platform.attributes.original_language
+  tv_details.backdropPath: platform.attributes.backdrop_path
+  watch_providers: platform.attributes.watch_providers
+
+normalizers:
+  - type: collapse_spaces
+    fields: [master_title, original_title]
+  - type: nfkc
+    fields: [master_title, original_title]
