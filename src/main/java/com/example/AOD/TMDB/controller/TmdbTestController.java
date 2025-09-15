@@ -49,6 +49,25 @@ public class TmdbTestController {
         return ResponseEntity.ok(Map.of("message", "TMDB 인기 TV쇼 샘플 데이터 " + pages + " 페이지 수집을 시작합니다."));
     }
 
+    // --- [신규] 연도별 샘플 데이터 수집 API ---
+    @PostMapping("/collect/movies-by-year/sample")
+    public ResponseEntity<Map<String, String>> startMoviesByYearSampleCollection(
+            @RequestParam int year,
+            @RequestParam(defaultValue = "2") int pages) {
+
+        tmdbService.collectMoviesByYearSample(year, pages, "ko-KR");
+        return ResponseEntity.ok(Map.of("message", "TMDB " + year + "년 영화 샘플 데이터 " + pages + " 페이지 수집을 시작합니다."));
+    }
+
+    @PostMapping("/collect/tv-by-year/sample")
+    public ResponseEntity<Map<String, String>> startTvShowsByYearSampleCollection(
+            @RequestParam int year,
+            @RequestParam(defaultValue = "2") int pages) {
+
+        tmdbService.collectTvShowsByYearSample(year, pages, "ko-KR");
+        return ResponseEntity.ok(Map.of("message", "TMDB " + year + "년 TV쇼 샘플 데이터 " + pages + " 페이지 수집을 시작합니다."));
+    }
+
 
     // --- API 응답 미리보기 API ---
 
