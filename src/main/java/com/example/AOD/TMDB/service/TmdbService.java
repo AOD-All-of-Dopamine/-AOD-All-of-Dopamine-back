@@ -126,27 +126,37 @@ public class TmdbService {
     }
 
     private void processMovieList(java.util.List<TmdbMovie> movies) {
-        for (TmdbMovie movie : movies) {
+        for (TmdbMovie basicMovieInfo : movies) {
             try {
-                WatchProviderResult watchProviders = tmdbApiFetcher.getWatchProviders(movie.getId());
-                Map<String, Object> payload = createPayload(movie, watchProviders);
-                collectorService.saveRaw("TMDB", "AV", payload, String.valueOf(movie.getId()), "https://www.themoviedb.org/movie/" + movie.getId());
-                Thread.sleep(100);
+                // [수정] 상세 정보(runtime, credits 포함)를 다시 조회
+                TmdbMovie detailedMovie = tmdbApiFetcher.getMovieDetails(basicMovieInfo.getId(), "ko-KR");
+                if (detailedMovie == null) continue;
+
+                WatchProviderResult watchProviders = tmdbApiFetcher.getWatchProviders(detailedMovie.getId());
+                Map<String, Object> payload = createPayload(detailedMovie, watchProviders); // 상세 정보로 payload 생성
+
+                collectorService.saveRaw("TMDB", "AV", payload, String.valueOf(detailedMovie.getId()), "https://www.themoviedb.org/movie/" + detailedMovie.getId());
+                Thread.sleep(100); // API 과부하 방지
             } catch (Exception e) {
-                log.error("Movie ID {} 처리 중 오류 발생: {}", movie.getId(), e.getMessage());
+                log.error("Movie ID {} 처리 중 오류 발생: {}", basicMovieInfo.getId(), e.getMessage());
             }
         }
     }
 
     private void processTvShowList(java.util.List<TmdbTvShow> tvShows) {
-        for (TmdbTvShow tvShow : tvShows) {
+        for (TmdbTvShow basicTvShowInfo : tvShows) {
             try {
-                WatchProviderResult watchProviders = tmdbApiFetcher.getTvShowWatchProviders(tvShow.getId());
-                Map<String, Object> payload = createTvPayload(tvShow, watchProviders);
-                collectorService.saveRaw("TMDB", "AV", payload, String.valueOf(tvShow.getId()), "https://www.themoviedb.org/tv/" + tvShow.getId());
+                // [수정] 상세 정보(season_count, credits 포함)를 다시 조회합니다.
+                TmdbTvShow detailedTvShow = tmdbApiFetcher.getTvShowDetails(basicTvShowInfo.getId(), "ko-KR");
+                if (detailedTvShow == null) continue;
+
+                WatchProviderResult watchProviders = tmdbApiFetcher.getTvShowWatchProviders(detailedTvShow.getId());
+                Map<String, Object> payload = createTvPayload(detailedTvShow, watchProviders);
+
+                collectorService.saveRaw("TMDB", "AV", payload, String.valueOf(detailedTvShow.getId()), "https://www.themoviedb.org/tv/" + detailedTvShow.getId());
                 Thread.sleep(100);
             } catch (Exception e) {
-                log.error("TV ID {} 처리 중 오류 발생: {}", tvShow.getId(), e.getMessage());
+                log.error("TV ID {} 처리 중 오류 발생: {}", basicTvShowInfo.getId(), e.getMessage());
             }
         }
     }

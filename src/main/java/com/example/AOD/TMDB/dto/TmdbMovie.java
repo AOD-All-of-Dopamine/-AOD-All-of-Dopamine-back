@@ -1,3 +1,5 @@
+// src/main/java/com/example/AOD/TMDB/dto/TmdbMovie.java
+
 package com.example.AOD.TMDB.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -33,8 +36,8 @@ public class TmdbMovie {
     @JsonProperty("release_date")
     private String releaseDate;
 
-    @JsonProperty("genre_ids")
-    private List<Integer> genreIds;
+    @JsonProperty("genres") // genre_ids -> genres (상세 API 응답)
+    private List<Map<String, Object>> genres;
 
     @JsonProperty("vote_average")
     private double voteAverage;
@@ -50,4 +53,11 @@ public class TmdbMovie {
 
     @JsonProperty("adult")
     private boolean adult;
+
+    // --- [ 추가된 필드 ] ---
+    @JsonProperty("runtime")
+    private Integer runtime;
+
+    @JsonProperty("credits")
+    private Map<String, List<Map<String, Object>>> credits; // cast와 crew 포함
 }
