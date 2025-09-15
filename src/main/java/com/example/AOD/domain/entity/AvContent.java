@@ -5,10 +5,14 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Map;
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "av_contents")
+@Getter
+@Setter
 public class AvContent {
 
     @Id
@@ -31,11 +35,11 @@ public class AvContent {
 
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb")
-    private Map<String, Object> cast;
+    private Map<String, Object> castMembers;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb")
-    private Map<String, Object> crew;
+    private Map<String, Object> crewMembers;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb")

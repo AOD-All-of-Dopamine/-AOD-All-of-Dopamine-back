@@ -1,11 +1,10 @@
 package com.example.AOD.service;
 
 
+import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
 import com.example.AOD.domain.Content;
-import com.example.AOD.domain.entity.Domain;
-import com.example.AOD.domain.entity.GameContent;
-import com.example.AOD.domain.entity.WebnovelContent;
-import com.example.AOD.domain.entity.WebtoonContent;
+import com.example.AOD.domain.entity.*;
+import com.example.AOD.repo.AvContentRepository;
 import com.example.AOD.repo.GameContentRepository;
 import com.example.AOD.repo.WebnovelContentRepository;
 import com.example.AOD.repo.WebtoonContentRepository;
@@ -14,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -22,13 +22,17 @@ public class DomainCoreUpsertService {
     private final GameContentRepository gameRepo;
     private final WebtoonContentRepository webtoonRepo;
     private final WebnovelContentRepository webnovelRepo;
+    private final AvContentRepository avRepo;
 
     public DomainCoreUpsertService(GameContentRepository gameRepo,
                                    WebtoonContentRepository webtoonRepo,
-                                   WebnovelContentRepository webnovelRepo) {
+                                   WebnovelContentRepository webnovelRepo,
+                                   AvContentRepository avRepo) {
+
         this.gameRepo = gameRepo;
         this.webtoonRepo = webtoonRepo;
         this.webnovelRepo = webnovelRepo;
+        this.avRepo = avRepo;
     }
 
     private LocalDate parseDate(Object s) {
@@ -50,6 +54,34 @@ public class DomainCoreUpsertService {
         if (domainDoc == null || domainDoc.isEmpty()) return;
 
         switch (domain) {
+            case AV -> {
+                AvContent av = avRepo.findById(content.getContentId()).orElseGet(() -> {
+                    AvContent x = new AvContent();
+                    x.setContent(content);
+                    return x;
+                });
+                if (domainDoc.get("tmdb_id") instanceof Number num) av.setTmdbId(num.intValue());
+                if (domainDoc.get("av_type") != null) av.setAvType(domainDoc.get("av_type").toString());
+                if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
+
+                // --- [ 추가된 로직 ] ---
+                if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
+                if (domainDoc.get("runtime") instanceof Number num) av.setRuntimeMin(num.intValue());
+
+                // List 타입으로 들어온 cast와 crew 데이터를 Map으로 감싸서 저장
+                if (domainDoc.get("cast") instanceof List castList) av.setCastMembers(Map.of("cast", castList));
+                if (domainDoc.get("crew") instanceof List crewList) av.setCrewMembers(Map.of("crew", crewList));
+                // --- [ 여기까지 수정 ] ---
+
+                // --- [ 추가된 로직 ] ---
+                if (domainDoc.get("season_count") instanceof Number num) av.setSeasonCount(num.intValue());
+                // ---
+
+                if (domainDoc.get("genres") instanceof List<?> list) {
+                    av.setGenres(Map.of("tmdb_genres", list));
+                }
+                avRepo.save(av);
+            }
             case GAME -> {
                 GameContent g = gameRepo.findById(content.getContentId()).orElseGet(() -> {
                     GameContent x = new GameContent();
