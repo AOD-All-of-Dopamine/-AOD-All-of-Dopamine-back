@@ -30,11 +30,15 @@ public class BatchTransformService {
                 case "KakaoPage"   -> "rules/webnovel/kakaopage.yml";
                 default -> throw new IllegalArgumentException("No rule for webnovel platform: " + platformName);
             };
-            case "AV" -> switch (platformName) { // [수정] AV 도메인 추가
+            case "AV" -> switch (platformName) {
                 case "TMDB" -> "rules/av/tmdb.yml";
                 default -> throw new IllegalArgumentException("No rule for AV platform: " + platformName);
             };
-            case "GAME" -> /* ... */ "";
+            // [신규 추가] GAME 도메인 규칙 추가
+            case "GAME" -> switch (platformName) {
+                case "Steam" -> "rules/game/steam.yml";
+                default -> throw new IllegalArgumentException("No rule for GAME platform: " + platformName);
+            };
             default -> throw new IllegalArgumentException("No rule for domain "+domain);
         };
     }
@@ -55,13 +59,14 @@ public class BatchTransformService {
                 MappingRule rule = ruleLoader.load(rp);
                 var tri = transform.transform(raw.getSourcePayload(), rule);
 
-                // platformSpecificId / url 은 raw에 우선, 없으면 payload에서 추정
-                String psid = firstNonNull(raw.getPlatformSpecificId(), // 1순위 (공통)
-                        asString(deepGet(raw.getSourcePayload(), "platformSpecificId")), // 2순위 (공통)
-                        asString(deepGet(raw.getSourcePayload(), "movie_details.id")), // 3순위 (TMDB 영화)
-                        asString(deepGet(raw.getSourcePayload(), "tv_details.id")), // 4순위 (TMDB TV)
-                        asString(deepGet(raw.getSourcePayload(), "titleId")), // 5순위 (네이버 시리즈)
-                        asString(deepGet(raw.getSourcePayload(), "seriesId")) // 6순위 (카카오페이지)
+                // [수정] Steam의 steam_appid를 가져오도록 경로 추가
+                String psid = firstNonNull(raw.getPlatformSpecificId(),
+                        asString(deepGet(raw.getSourcePayload(), "platformSpecificId")),
+                        asString(deepGet(raw.getSourcePayload(), "steam_appid")), // Steam
+                        asString(deepGet(raw.getSourcePayload(), "movie_details.id")),
+                        asString(deepGet(raw.getSourcePayload(), "tv_details.id")),
+                        asString(deepGet(raw.getSourcePayload(), "titleId")),
+                        asString(deepGet(raw.getSourcePayload(), "seriesId"))
                 );
 
                 String url = firstNonNull(raw.getUrl(), asString(deepGet(raw.getSourcePayload(), "url")));
