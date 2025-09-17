@@ -1,21 +1,39 @@
 platformName: Steam
 domain: GAME
 schemaVersion: 1
-fieldMappings:
-  data.name: master_title
-  data.release_date.date: domain.release_date
-  data.developers[0]: domain.developer
-  data.publishers[0]: domain.publisher
-  data.platforms: domain.platforms       # {windows:true, mac:false, ...}
-  data.genres: domain.genres             # [{id:...,description:"Action"}, ...]
-  data.header_image: poster_image_url
-  data.short_description: synopsis
 
-  # 플랫폼 고유 속성들
-  data.price_overview.final: platform.attributes.price_final
-  data.price_overview.currency: platform.attributes.currency
-  data.is_free: platform.attributes.is_free
-  data.metacritic.score: platform.attributes.metacritic
+fieldMappings:
+  # === 1. contents 테이블 (공통 마스터) ===
+  # 'data.' 접두사 제거
+  name: master_title
+  header_image: poster_image_url
+  short_description: synopsis
+
+  # === 2. game_contents 테이블 (게임 도메인) ===
+  # 'data.' 접두사 제거
+  release_date.date: domain.release_date
+  developers[0]: domain.developer
+  publishers[0]: domain.publisher
+  platforms: domain.platforms
+  genres: domain.genres
+
+  # === 3. platform_data 테이블 (플랫폼 고유 정보) ===
+  # (신규) steam_appid를 platform_specific_id로 매핑 (필수)
+  steam_appid: platform.platform_specific_id
+
+  # === 4. platform_data.attributes (기타 모든 Steam 전용 정보) ===
+  # (수정) 개별 필드 대신 객체 전체를 저장하여 유연성 확보
+  price_overview: platform.attributes.price_overview
+  metacritic: platform.attributes.metacritic
+
+  # (신규) 유용한 추가 정보들 매핑
+  is_free: platform.attributes.is_free
+  required_age: platform.attributes.required_age
+  detailed_description: platform.attributes.detailed_description
+  categories: platform.attributes.categories
+  recommendations.total: platform.attributes.recommendation_count
+
+# normalizers는 수정할 필요 없이 그대로 사용합니다.
 normalizers:
   - type: nfkc
     fields: [master_title]
