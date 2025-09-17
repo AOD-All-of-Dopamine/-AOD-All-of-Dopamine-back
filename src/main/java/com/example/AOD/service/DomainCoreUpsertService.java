@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -38,13 +39,15 @@ public class DomainCoreUpsertService {
     private LocalDate parseDate(Object s) {
         if (s == null) return null;
         String v = s.toString().trim();
-        // 가장 흔한 포맷만 몇 개 지원(MVP). 필요 시 확장
-        String[] patterns = {"yyyy-MM-dd","yyyy.MM.dd","yyyy/MM/dd","MMM d, yyyy"};
+        // [수정] "yyyy년 M월 d일" 패턴 추가 및 Locale.KOREAN 설정
+        String[] patterns = {"uuuu년 M월 d일", "yyyy-MM-dd","yyyy.MM.dd","yyyy/MM/dd","MMM d, yyyy"};
         for (String p : patterns) {
-            try { return LocalDate.parse(v, DateTimeFormatter.ofPattern(p)); }
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(p, Locale.KOREAN);
+                return LocalDate.parse(v, formatter);
+            }
             catch (Exception ignored) {}
         }
-        // 년도만 들어올 때
         try { return LocalDate.of(Integer.parseInt(v), 1, 1); } catch (Exception ignored) {}
         return null;
     }
@@ -64,18 +67,13 @@ public class DomainCoreUpsertService {
                 if (domainDoc.get("av_type") != null) av.setAvType(domainDoc.get("av_type").toString());
                 if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
 
-                // --- [ 추가된 로직 ] ---
                 if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
                 if (domainDoc.get("runtime") instanceof Number num) av.setRuntimeMin(num.intValue());
 
-                // List 타입으로 들어온 cast와 crew 데이터를 Map으로 감싸서 저장
                 if (domainDoc.get("cast") instanceof List castList) av.setCastMembers(Map.of("cast", castList));
                 if (domainDoc.get("crew") instanceof List crewList) av.setCrewMembers(Map.of("crew", crewList));
-                // --- [ 여기까지 수정 ] ---
 
-                // --- [ 추가된 로직 ] ---
                 if (domainDoc.get("season_count") instanceof Number num) av.setSeasonCount(num.intValue());
-                // ---
 
                 if (domainDoc.get("genres") instanceof List<?> list) {
                     av.setGenres(Map.of("tmdb_genres", list));
@@ -93,8 +91,11 @@ public class DomainCoreUpsertService {
                 if (domainDoc.get("release_date") != null) g.setReleaseDate(parseDate(domainDoc.get("release_date")));
                 if (domainDoc.get("platforms") instanceof Map<?,?> m)
                     g.setPlatforms((Map<String,Object>) m);
-                if (domainDoc.get("genres") instanceof Map<?,?> m)
-                    g.setGenres((Map<String,Object>) m);
+
+                // [수정] List 타입으로 받고 Map으로 감싸서 저장
+                if (domainDoc.get("genres") instanceof List<?> list) {
+                    g.setGenres(Map.of("steam_genres", list));
+                }
                 gameRepo.save(g);
             }
             case WEBTOON -> {
