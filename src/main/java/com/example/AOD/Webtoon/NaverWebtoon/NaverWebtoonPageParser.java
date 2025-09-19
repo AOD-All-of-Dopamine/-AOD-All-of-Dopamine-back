@@ -83,25 +83,15 @@ public class NaverWebtoonPageParser implements WebtoonPageParser {
             String status = parseStatus(detailDocument);
             String detailWeekday = parseWeekday(detailDocument, weekday);
             Integer episodeCount = parseEpisodeCount(detailDocument);
-            LocalDate startedAt = parseStartDate(detailDocument);
-            LocalDate endedAt = parseEndDate(detailDocument);
 
             // 서비스 정보 파싱
             String ageRating = parseAgeRating(detailDocument);
-            String publisher = parsePublisher(detailDocument);
-            List<String> genres = parseGenres(detailDocument);
             List<String> tags = parseTags(detailDocument);
 
             // 통계 정보 파싱
-            BigDecimal rating = parseRating(detailDocument);
-            Long viewCount = parseViewCount(detailDocument);
-            Long likeCount = parseLikeCount(detailDocument);
-            Long commentCount = parseCommentCount(detailDocument);
-            Long subscriberCount = parseSubscriberCount(detailDocument);
 
-            // 최신 에피소드 정보 파싱
-            String latestEpisodeTitle = parseLatestEpisodeTitle(detailDocument);
-            LocalDate latestEpisodeDate = parseLatestEpisodeDate(detailDocument);
+            Long likeCount = parseLikeCount(detailDocument);
+
 
             // DTO 빌드
             return NaverWebtoonDTO.builder()
@@ -114,19 +104,9 @@ public class NaverWebtoonPageParser implements WebtoonPageParser {
                     .weekday(detailWeekday)
                     .status(status)
                     .episodeCount(episodeCount)
-                    .startedAt(startedAt)
-                    .endedAt(endedAt)
                     .ageRating(ageRating)
-                    .publisher(publisher)
-                    .genres(genres)
                     .tags(tags)
-                    .rating(rating)
-                    .viewCount(viewCount)
                     .likeCount(likeCount)
-                    .commentCount(commentCount)
-                    .subscriberCount(subscriberCount)
-                    .latestEpisodeTitle(latestEpisodeTitle)
-                    .latestEpisodeDate(latestEpisodeDate)
                     .originalPlatform("NAVER_WEBTOON")
                     .crawlSource(crawlSource)
                     .build();
@@ -204,20 +184,21 @@ public class NaverWebtoonPageParser implements WebtoonPageParser {
     }
 
     private String parseStatus(Document doc) {
-        // 연재 정보에서 상태 추출 시도
         String metaInfo = getTextBySelector(doc, NaverWebtoonSelectors.DETAIL_META_INFO);
         if (!isBlank(metaInfo)) {
-            // "금요웹툰 ∙ 15세 이용가" 형태에서 상태 정보 추출
+            // "56화 완결 ∙ 15세 이용가"에서 상태 추출
             if (metaInfo.contains("완결")) {
                 return "완결";
             } else if (metaInfo.contains("휴재")) {
                 return "휴재";
-            } else if (metaInfo.contains("웹툰")) {
+            } else if (metaInfo.contains("화")) {  // "56화"가 있으면 연재중
                 return "연재중";
             }
         }
         return null;
     }
+
+
 
     private String parseWeekday(Document doc, String fallbackWeekday) {
         // 연재 정보에서 요일 정보 추출
@@ -248,26 +229,6 @@ public class NaverWebtoonPageParser implements WebtoonPageParser {
         return null;
     }
 
-    private List<String> parseGenres(Document doc) {
-        // 태그에서 장르 정보 추출
-        List<String> genres = new ArrayList<>();
-        Elements tagElements = doc.select(NaverWebtoonSelectors.DETAIL_TAGS);
-
-        for (Element tag : tagElements) {
-            String tagText = tag.text().trim();
-            // #으로 시작하는 태그에서 # 제거
-            if (tagText.startsWith("#")) {
-                tagText = tagText.substring(1);
-            }
-
-            // 장르 관련 태그만 수집 (무협/사극, 로맨스, 액션 등)
-            if (isGenreTag(tagText)) {
-                genres.add(tagText);
-            }
-        }
-
-        return genres;
-    }
 
     private List<String> parseTags(Document doc) {
         // 모든 태그 수집
@@ -294,54 +255,25 @@ public class NaverWebtoonPageParser implements WebtoonPageParser {
 
     // 나머지 파싱 메서드들 (현재 HTML에서 찾을 수 없는 정보들)
     private Integer parseEpisodeCount(Document doc) {
-        // TODO: 에피소드 목록에서 개수 계산하거나 다른 방법 필요
+        String metaInfo = getTextBySelector(doc, NaverWebtoonSelectors.DETAIL_META_INFO);
+        if (!isBlank(metaInfo)) {
+            // "56화 완결"에서 숫자 추출
+            Pattern pattern = Pattern.compile("(\\d+)화");
+            Matcher matcher = pattern.matcher(metaInfo);
+            if (matcher.find()) {
+                return Integer.parseInt(matcher.group(1));
+            }
+        }
         return null;
     }
 
-    private BigDecimal parseRating(Document doc) {
-        // TODO: 평점 정보가 있는 다른 페이지나 API 필요
-        return null;
-    }
-
-    private Long parseViewCount(Document doc) {
-        // TODO: 조회수 정보가 있는 다른 페이지나 API 필요
-        return null;
-    }
 
     private Long parseLikeCount(Document doc) {
-        // TODO: 좋아요 수 정보가 있는 다른 페이지나 API 필요
-        return null;
+        String countText = getTextBySelector(doc, NaverWebtoonSelectors.DETAIL_LIKE_COUNT);
+        return parseKoreanNumber(countText);  // "29,458" → 29458
     }
 
-    private Long parseCommentCount(Document doc) {
-        // TODO: 댓글 수 정보가 있는 다른 페이지나 API 필요
-        return null;
-    }
 
-    private Long parseSubscriberCount(Document doc) {
-        // TODO: 구독자 수 정보가 있는 다른 페이지나 API 필요
-        return null;
-    }
-
-    private String parseLatestEpisodeTitle(Document doc) {
-        // TODO: 최신 에피소드 정보가 있는 다른 페이지 필요
-        return null;
-    }
-
-    private LocalDate parseLatestEpisodeDate(Document doc) {
-        // TODO: 최신 에피소드 날짜 정보가 있는 다른 페이지 필요
-        return null;
-    }
-
-    private LocalDate parseStartDate(Document doc) {
-        // TODO: 연재 시작일 정보가 있는 다른 페이지 필요
-        return null;
-    }
-
-    private LocalDate parseEndDate(Document doc) {
-        // TODO: 완결일 정보가 있는 다른 페이지 필요
-        return null;
-    }
 
     // ===== 유틸리티 메서드들 =====
 
@@ -465,6 +397,21 @@ public class NaverWebtoonPageParser implements WebtoonPageParser {
         }
 
         return null;
+    }
+
+    private Long parseKoreanNumber(String text) {
+        if (isBlank(text)) return null;
+
+        try {
+            // 콤마 제거하고 숫자만 추출
+            String cleanText = text.replaceAll("[^0-9]", "");
+            if (cleanText.isEmpty()) return null;
+
+            return Long.parseLong(cleanText);
+        } catch (NumberFormatException e) {
+            log.debug("한국어 숫자 파싱 실패: {}", text);
+            return null;
+        }
     }
 
     private String cleanText(String text) {
