@@ -1,6 +1,7 @@
 package com.example.AOD.Webtoon.NaverWebtoon;
 
 
+import com.example.AOD.ingest.CollectorService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
