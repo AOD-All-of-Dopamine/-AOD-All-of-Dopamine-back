@@ -24,26 +24,13 @@ public class NaverWebtoonDTO {
     private String weekday;         // 연재 요일 (mon, tue, wed, thu, fri, sat, sun)
     private String status;          // 연재상태 (연재중, 완결, 휴재 등)
     private Integer episodeCount;   // 총 에피소드 수
-    private LocalDate startedAt;    // 연재 시작일
-    private LocalDate endedAt;      // 완결일 (완결작인 경우)
 
     // ==== 서비스 정보 ====
     private String ageRating;       // 연령등급 (전체이용가, 15세이용가 등)
-    private String publisher;       // 출판사/플랫폼
-    private List<String> genres;    // 장르 목록 (로맨스, 액션, 스릴러 등)
     private List<String> tags;      // 태그 목록 (hashtag 형태)
 
     // ==== 인기/평점 정보 ====
-    private BigDecimal rating;      // 평점 (10점 만점)
-    private Long viewCount;         // 조회수
     private Long likeCount;         // 좋아요 수
-    private Long commentCount;      // 댓글 수
-    private Long subscriberCount;   // 구독자 수
-
-    // ==== 최신 에피소드 정보 ====
-    private String latestEpisodeTitle;  // 최신 회차 제목
-    private String latestEpisodeUrl;    // 최신 회차 URL
-    private LocalDate latestEpisodeDate; // 최신 회차 업로드 날짜
 
     // ==== 유료/무료 정보 ====
     private Boolean isFree;         // 무료 웹툰 여부

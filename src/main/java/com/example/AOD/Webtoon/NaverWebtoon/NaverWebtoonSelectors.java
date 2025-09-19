@@ -55,21 +55,9 @@ public class NaverWebtoonSelectors {
     public static final String DETAIL_AUTHOR_ARTIST = "div.ContentMetaInfo__meta_info--GbTg4 span.ContentMetaInfo__category--WwrCp:contains('그림') a.ContentMetaInfo__link--xTtO6";
     public static final String DETAIL_AUTHOR_ORIGINAL = "div.ContentMetaInfo__meta_info--GbTg4 span.ContentMetaInfo__category--WwrCp:contains('원작') a.ContentMetaInfo__link--xTtO6";
 
-    // 현재 구조에서 찾을 수 없는 정보들 (다른 페이지나 API에서 가져와야 할 수도 있음)
-    public static final String DETAIL_EPISODE_COUNT = "TODO: PC상세_총화수_셀렉터"; // 아직 해당 정보 없음
-    public static final String DETAIL_RATING = "TODO: PC상세_평점_셀렉터"; // 아직 해당 정보 없음
-    public static final String DETAIL_VIEW_COUNT = "TODO: PC상세_조회수_셀렉터"; // 아직 해당 정보 없음
-    public static final String DETAIL_LIKE_COUNT = "TODO: PC상세_좋아요수_셀렉터"; // 아직 해당 정보 없음
-    public static final String DETAIL_COMMENT_COUNT = "TODO: PC상세_댓글수_셀렉터"; // 아직 해당 정보 없음
-    public static final String DETAIL_SUBSCRIBER_COUNT = "TODO: PC상세_구독자수_셀렉터"; // 아직 해당 정보 없음
+    public static final String DETAIL_LIKE_COUNT = "span.EpisodeListUser__count--fNEWK";  // PC 상세페이지 관심수
 
-    // 최신 에피소드 정보
-    public static final String DETAIL_LATEST_EPISODE_TITLE = "TODO: PC상세_최신화제목_셀렉터";
-    public static final String DETAIL_LATEST_EPISODE_DATE = "TODO: PC상세_최신화날짜_셀렉터";
 
-    // 날짜 정보
-    public static final String DETAIL_START_DATE = "TODO: PC상세_연재시작일_셀렉터";
-    public static final String DETAIL_END_DATE = "TODO: PC상세_완결일_셀렉터";
 
     // ===== 메타 태그 (폴백용) =====
 

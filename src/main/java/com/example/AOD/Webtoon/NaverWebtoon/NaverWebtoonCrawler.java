@@ -242,22 +242,13 @@ public class NaverWebtoonCrawler {
                 .crawlSource(basicDTO.getCrawlSource())
 
                 // PC에서만 수집 가능한 상세 정보
+                .episodeCount(detailedDTO.getEpisodeCount())  // 다시 추가
+                .likeCount(detailedDTO.getLikeCount())
                 .synopsis(detailedDTO.getSynopsis())
                 .productUrl(detailedDTO.getProductUrl()) // PC URL 사용
                 .episodeCount(detailedDTO.getEpisodeCount())
-                .startedAt(detailedDTO.getStartedAt())
-                .endedAt(detailedDTO.getEndedAt())
                 .ageRating(detailedDTO.getAgeRating())
-                .publisher(detailedDTO.getPublisher())
-                .genres(detailedDTO.getGenres())
                 .tags(detailedDTO.getTags())
-                .rating(detailedDTO.getRating())
-                .viewCount(detailedDTO.getViewCount())
-                .commentCount(detailedDTO.getCommentCount())
-                .subscriberCount(detailedDTO.getSubscriberCount())
-                .latestEpisodeTitle(detailedDTO.getLatestEpisodeTitle())
-                .latestEpisodeUrl(detailedDTO.getLatestEpisodeUrl())
-                .latestEpisodeDate(detailedDTO.getLatestEpisodeDate())
                 .build();
     }
 
@@ -278,23 +269,11 @@ public class NaverWebtoonCrawler {
         payload.put("weekday", nz(dto.getWeekday()));
         payload.put("status", nz(dto.getStatus()));
         payload.put("episodeCount", dto.getEpisodeCount());
-        payload.put("startedAt", dto.getStartedAt());
-        payload.put("endedAt", dto.getEndedAt());
 
         payload.put("ageRating", nz(dto.getAgeRating()));
-        payload.put("publisher", nz(dto.getPublisher()));
-        payload.put("genres", dto.getGenres());
         payload.put("tags", dto.getTags());
 
-        payload.put("rating", dto.getRating());
-        payload.put("viewCount", dto.getViewCount());
         payload.put("likeCount", dto.getLikeCount());
-        payload.put("commentCount", dto.getCommentCount());
-        payload.put("subscriberCount", dto.getSubscriberCount());
-
-        payload.put("latestEpisodeTitle", nz(dto.getLatestEpisodeTitle()));
-        payload.put("latestEpisodeUrl", nz(dto.getLatestEpisodeUrl()));
-        payload.put("latestEpisodeDate", dto.getLatestEpisodeDate());
 
         payload.put("isFree", dto.getIsFree());
         payload.put("hasAdult", dto.getHasAdult());
