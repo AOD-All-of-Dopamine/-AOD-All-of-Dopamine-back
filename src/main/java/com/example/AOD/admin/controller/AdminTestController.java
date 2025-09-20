@@ -3,6 +3,7 @@ package com.example.AOD.admin.controller;
 import com.example.AOD.Novel.KakaoPageNovel.KakaoPageCrawler;
 import com.example.AOD.Novel.NaverSeriesNovel.NaverSeriesCrawler;
 
+import com.example.AOD.Webtoon.NaverWebtoon.NaverWebtoonService;
 import com.example.AOD.domain.entity.Domain;
 import com.example.AOD.ingest.BatchTransformService;
 import com.example.AOD.ingest.RawItemRepository;
@@ -26,6 +27,7 @@ public class AdminTestController {
 
     private final NaverSeriesCrawler naverSeriesCrawler;
     private final KakaoPageCrawler kakaoPageCrawler;
+    private final NaverWebtoonService naverWebtoonService;
 
     private final BatchTransformService batchService;
     private final RawItemRepository rawRepo;
@@ -35,6 +37,7 @@ public class AdminTestController {
 
     public AdminTestController(NaverSeriesCrawler naverSeriesCrawler,
                                KakaoPageCrawler kakaoPageCrawler,
+                               NaverWebtoonService naverWebtoonService,  // 추가
                                BatchTransformService batchService,
                                RawItemRepository rawRepo,
                                RuleLoader ruleLoader,
@@ -42,6 +45,7 @@ public class AdminTestController {
                                UpsertService upsertService) {
         this.naverSeriesCrawler = naverSeriesCrawler;
         this.kakaoPageCrawler = kakaoPageCrawler;
+        this.naverWebtoonService = naverWebtoonService;  // 추가
         this.batchService = batchService;
         this.rawRepo = rawRepo;
         this.ruleLoader = ruleLoader;
@@ -54,6 +58,143 @@ public class AdminTestController {
     public Map<String, Object> health() {
         return Map.of("ok", true);
     }
+
+    /* ===================== NAVER WEBTOON ===================== */
+// 하이브리드 크롤링: 목록(모바일) + 상세(PC)
+
+    // 모든 요일별 웹툰 크롤링
+    @PostMapping("/crawl/naver-webtoon/all-weekdays")
+    public Map<String, Object> crawlNaverWebtoonAllWeekdays() {
+        try {
+            naverWebtoonService.crawlAllWeekdays(); // 비동기 실행
+            return Map.of(
+                    "success", true,
+                    "message", "네이버 웹툰 전체 크롤링 작업이 비동기로 시작되었습니다."
+            );
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            );
+        }
+    }
+
+    // 특정 요일 웹툰 크롤링
+    @PostMapping("/crawl/naver-webtoon/weekday")
+    public Map<String, Object> crawlNaverWebtoonWeekday(@RequestBody Map<String, Object> request) {
+        try {
+            String weekday = (String) request.get("weekday");
+            if (weekday == null || weekday.isBlank()) {
+                return Map.of(
+                        "success", false,
+                        "error", "weekday 파라미터가 필요합니다. (mon, tue, wed, thu, fri, sat, sun)"
+                );
+            }
+
+            naverWebtoonService.crawlWeekday(weekday); // 비동기 실행
+            return Map.of(
+                    "success", true,
+                    "message", weekday + " 요일 웹툰 크롤링 작업이 비동기로 시작되었습니다.",
+                    "weekday", weekday
+            );
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            );
+        }
+    }
+
+    // 완결 웹툰 크롤링
+    @PostMapping("/crawl/naver-webtoon/finished")
+    public Map<String, Object> crawlNaverWebtoonFinished(@RequestBody Map<String, Object> request) {
+        try {
+            Integer maxPages = request.get("maxPages") != null
+                    ? (Integer) request.get("maxPages")
+                    : 10; // 기본값 10페이지
+
+            naverWebtoonService.crawlFinishedWebtoons(maxPages); // 비동기 실행
+            return Map.of(
+                    "success", true,
+                    "message", "완결 웹툰 크롤링 작업이 비동기로 시작되었습니다. (최대 " + maxPages + "페이지)",
+                    "maxPages", maxPages
+            );
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            );
+        }
+    }
+
+    // 동기 버전 - 테스트용 (즉시 결과 반환)
+    @PostMapping("/crawl/naver-webtoon/weekday/sync")
+    public Map<String, Object> crawlNaverWebtoonWeekdaySync(@RequestBody Map<String, Object> request) {
+        try {
+            String weekday = (String) request.get("weekday");
+            if (weekday == null || weekday.isBlank()) {
+                return Map.of(
+                        "success", false,
+                        "error", "weekday 파라미터가 필요합니다. (mon, tue, wed, thu, fri, sat, sun)"
+                );
+            }
+
+            int saved = naverWebtoonService.crawlWeekdaySync(weekday); // 동기 실행
+            return Map.of(
+                    "success", true,
+                    "message", weekday + " 요일 웹툰 크롤링이 완료되었습니다.",
+                    "weekday", weekday,
+                    "savedCount", saved
+            );
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            );
+        }
+    }
+
+    // 동기 버전 - 전체 요일 테스트용
+    @PostMapping("/crawl/naver-webtoon/all-weekdays/sync")
+    public Map<String, Object> crawlNaverWebtoonAllWeekdaysSync() {
+        try {
+            int totalSaved = naverWebtoonService.crawlAllWeekdaysSync(); // 동기 실행
+            return Map.of(
+                    "success", true,
+                    "message", "네이버 웹툰 전체 크롤링이 완료되었습니다.",
+                    "totalSavedCount", totalSaved
+            );
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            );
+        }
+    }
+
+    // 동기 버전 - 완결 웹툰 테스트용
+    @PostMapping("/crawl/naver-webtoon/finished/sync")
+    public Map<String, Object> crawlNaverWebtoonFinishedSync(@RequestBody Map<String, Object> request) {
+        try {
+            Integer maxPages = request.get("maxPages") != null
+                    ? (Integer) request.get("maxPages")
+                    : 10; // 기본값 10페이지
+
+            int saved = naverWebtoonService.crawlFinishedWebtoonsSync(maxPages); // 동기 실행
+            return Map.of(
+                    "success", true,
+                    "message", "완결 웹툰 크롤링이 완료되었습니다.",
+                    "maxPages", maxPages,
+                    "savedCount", saved
+            );
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            );
+        }
+    }
+
 
     /* ===================== NAVER SERIES ===================== */
 
