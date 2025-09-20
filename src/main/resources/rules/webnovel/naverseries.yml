@@ -8,6 +8,10 @@ fieldMappings:
   imageUrl: poster_image_url
   synopsis: synopsis
 
+  # === Platform_Data ===
+  productUrl: platform.url
+  titleId: platform.platform_specific_id
+
   # 플랫폼 전용(JSONB)
   author: platform.attributes.author
   publisher: platform.attributes.publisher
@@ -19,8 +23,6 @@ fieldMappings:
   downloadCount: platform.attributes.download_count
   commentCount: platform.attributes.comment_count
 
-  productUrl: platform.url
-  titleId: platform.platform_specific_id
 
 normalizers:
   - type: strip_parentheses
