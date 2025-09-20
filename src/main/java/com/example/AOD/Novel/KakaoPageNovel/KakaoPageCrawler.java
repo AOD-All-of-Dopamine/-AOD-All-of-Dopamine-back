@@ -5,6 +5,7 @@ import com.example.AOD.ingest.CollectorService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -85,46 +86,149 @@ public class KakaoPageCrawler {
     // === 새 상세 파서(기존 parseDetail 유지 시 이 시그니처만 맞추면 OK) ===
     public KakaoPageNovelDTO parseDetail(Document doc, String detailUrl) {
         KakaoPageNovelDTO.KakaoPageNovelDTOBuilder b = KakaoPageNovelDTO.builder();
-        String productUrl = attr(doc.selectFirst("meta[property=og:url]"), "content");
+
+        // === productUrl & seriesId (메타 → 요청 URL) ===
+        String productUrl = meta(doc, "property", "og:url");
         if (isBlank(productUrl)) productUrl = detailUrl;
         b.productUrl(productUrl);
+        b.seriesId(extractSeriesIdFromPath(productUrl));
 
-        // /content/{id}에서 id 추출
-        String seriesId = extractSeriesIdFromPath(productUrl);
-        b.seriesId(seriesId);
+        // === 대표 이미지 (메타) ===
+        b.imageUrl(meta(doc, "property", "og:image"));
 
-        String title = attr(doc.selectFirst("meta[property=og:title]"), "content");
-        if (isBlank(title)) title = text(doc.selectFirst("h1, h2"));
+        // === 제목 (메타 → CSS) ===
+        String title = meta(doc, "property", "og:title");
+        if (isBlank(title)) {
+            title = text(selectFirstSafe(doc,
+                    "#__next > div > div.flex.w-full.grow.flex-col.px-122pxr > div.flex.h-full.flex-1.flex-col > " +
+                            "div > div.flex.flex-col.mb-28pxr.w-320pxr > div.rounded-t-12pxr.bg-bg-a-20 > div > " +
+                            "div.relative.px-18pxr.text-center.bg-bg-a-20.mt-24pxr > a > div > " +
+                            "span.font-large3-bold.mb-3pxr.text-ellipsis.break-all.text-el-70.line-clamp-2"));
+        }
         b.title(clean(title));
 
-        String imageUrl = attr(doc.selectFirst("meta[property=og:image]"), "content");
-        b.imageUrl(imageUrl);
+        // === 작가 (메타 → CSS) ===
+        String author = meta(doc, "name", "author");
+        if (isBlank(author)) {
+            author = text(selectFirstSafe(doc,
+                    "#__next > div > div.flex.w-full.grow.flex-col.px-122pxr > div.flex.h-full.flex-1.flex-col > " +
+                            "div > div.flex.flex-col.mb-28pxr.w-320pxr > div.rounded-t-12pxr.bg-bg-a-20 > div > " +
+                            "div.relative.px-18pxr.text-center.bg-bg-a-20.mt-24pxr > a > div > " +
+                            "span.font-small2.mb-6pxr.text-ellipsis.text-el-70.opacity-70.break-word-anywhere.line-clamp-2"));
+        }
+        b.author(clean(author));
 
-        // 별점 (img[alt=별점] + span)
-        b.rating(extractRating(doc));
-
-        // 뷰 수 (보이는 텍스트 없으면 null)
-        b.viewCount(extractKoreanCountNearHeader(doc));
-
-        // 댓글 수 (보이는 텍스트 없으면 null)
-        b.commentCount(extractCommentCount(doc));
-
-        // 상태/작가/출판사/이용가/장르/키워드/시놉시스
-        b.status(firstText(doc, "span:matchesOwn(완결|연재)"));
-        String author = findLabeledValue(doc, "작가");
-        if (isBlank(author)) author = findAuthorFallback(doc);
-        b.author(author);
-        b.publisher(findLabeledValue(doc, "출판사"));
-        b.ageRating(findLabeledValue(doc, "이용가|연령|등급"));
-        b.genres(extractChipsNearLabel(doc, "장르"));
-        b.keywords(extractChipsNearLabel(doc, "키워드"));
-        String synopsis = text(doc.selectFirst("div:matchesOwn(소개|시놉시스) ~ div, section:has(h3:matchesOwn(소개)) p, .synopsis, .summary"));
-        if (isBlank(synopsis)) synopsis = attr(doc.selectFirst("meta[name=description]"), "content");
+        // === 줄거리 (메타 → CSS) ===
+        String synopsis = meta(doc, "property", "og:description");
+        if (isBlank(synopsis)) synopsis = meta(doc, "name", "description");
+        if (isBlank(synopsis)) {
+            synopsis = text(selectFirstSafe(doc,
+                    "#__next > div > div.flex.w-full.grow.flex-col.px-122pxr > div.flex.h-full.flex-1.flex-col > " +
+                            "div > div.flex.flex-col.overflow-hidden.mb-28pxr.ml-4px.w-632pxr.rounded-12pxr > div.flex.flex-1.flex-col > div > div > " +
+                            "div.flex.w-full.flex-col.space-y-4pxr.rounded-b-12pxr.bg-bg-a-20 > div > div.flex.w-full.flex-col.items-center.overflow-hidden > div > div > span"));
+            if (isBlank(synopsis)) {
+                synopsis = text(selectFirstSafe(doc, "div:matchesOwn(소개|시놉시스) ~ div, section:has(h3:matchesOwn(소개)) p, .synopsis, .summary"));
+            }
+        }
         b.synopsis(clean(synopsis));
+
+        // === 키워드 (메타 → 그대로 리스트화) ===
+        List<String> keywords = new ArrayList<>();
+        String kw = meta(doc, "name", "keywords");
+        if (!isBlank(kw)) {
+            for (String s : kw.split("[,;]")) {
+                s = s.trim();
+                if (!s.isEmpty() && !keywords.contains(s)) keywords.add(s);
+            }
+        }
+        b.keywords(keywords);
+
+        // === 상세 헤더의 통계 줄(장르/조회수/별점): CSS로만 ===
+        Element statsRow = selectFirstSafe(doc,
+                "#__next > div > div.flex.w-full.grow.flex-col.px-122pxr > div.flex.h-full.flex-1.flex-col > " +
+                        "div > div.flex.flex-col.mb-28pxr.w-320pxr > div.rounded-t-12pxr.bg-bg-a-20 > div > " +
+                        "div.relative.px-18pxr.text-center.bg-bg-a-20.mt-24pxr > a > div > " +
+                        "div.flex.h-16pxr.items-center.justify-center");
+
+        // 장르: div:nth-child(1) > div > span:nth-child(3)
+        List<String> genres = new ArrayList<>();
+        if (statsRow != null) {
+            Element genreSpan = selectFirstSafe(statsRow, "> div:nth-child(1) > div > span:nth-child(3)");
+            String g = text(genreSpan);
+            if (!isBlank(g)) {
+                for (String t : g.split("[,\\s]+")) {
+                    t = t.trim();
+                    if (!t.isEmpty() && !genres.contains(t)) genres.add(t);
+                }
+            }
+        }
+        b.genres(genres);
+
+        // 조회수: div:nth-child(2) > span  (+ 숫자/한국어 단위 폴백)
+        Long viewCount = null;
+        if (statsRow != null) {
+            Element viewSpan = selectFirstSafe(statsRow, "> div:nth-child(2) > span");
+            viewCount = parseKoreanCount(text(viewSpan));
+            if (viewCount == null) {
+                for (Element sp : statsRow.select("span")) {
+                    Long v = parseKoreanCount(sp.text());
+                    if (v != null) { viewCount = v; break; }
+                }
+            }
+        }
+        b.viewCount(viewCount);
+
+        // 별점: div:nth-child(3) > span (숫자만 추출)
+        BigDecimal rating = null;
+        if (statsRow != null) {
+            Element ratingSpan = selectFirstSafe(statsRow, "> div:nth-child(3) > span");
+            String num = text(ratingSpan);
+            if (!isBlank(num)) {
+                num = num.replaceAll("[^0-9.]", "");
+                if (!isBlank(num)) {
+                    try { rating = new BigDecimal(num); } catch (Exception ignore) {}
+                }
+            }
+        }
+        b.rating(rating);
+
+        // === 연재주기(상태): CSS로만 ===
+        Element statusWrap = selectFirstSafe(doc,
+                "#__next > div > div.flex.w-full.grow.flex-col.px-122pxr > div.flex.h-full.flex-1.flex-col > " +
+                        "div > div.flex.flex-col.mb-28pxr.w-320pxr > div.rounded-t-12pxr.bg-bg-a-20 > div > " +
+                        "div.relative.px-18pxr.text-center.bg-bg-a-20.mt-24pxr > a > div > " +
+                        "div.mt-6pxr.flex.items-center");
+
+        String status = null;
+        if (statusWrap != null) {
+            Element sp = selectFirstSafe(statusWrap, "> span, span:first-of-type");
+            status = clean(text(sp));
+            if (isBlank(status)) status = clean(statusWrap.text());
+            status = normalizeStatus(status);
+        }
+        b.status(status);
+
+        // 나머지 필드(출판사/이용가/댓글수 등)는 필요 시 확장
         return b.build();
     }
 
+    /** Jsoup가 이해 못하는 CSS가 들어와도 null을 반환하게 하는 안전 헬퍼 */
+    private static Element selectFirstSafe(Element root, String css) {
+        if (root == null || isBlank(css)) return null;
+        try {
+            return root.selectFirst(css);
+        } catch (org.jsoup.select.Selector.SelectorParseException e) {
+            return null;
+        }
+    }
     /* ===================== 새로 추가/교체된 부분 ===================== */
+
+    // meta 태그 읽기: attr=name|property, 값=nameOrProp 일치하는 첫 요소의 content 반환
+    private static String meta(Document doc, String attr, String nameOrProp) {
+        Element e = doc.selectFirst("meta[" + attr + "=\"" + nameOrProp + "\"]");
+        return e != null ? e.attr("content") : null;
+    }
+
 
     /** listDoc의 __NEXT_DATA__에서 seriesId를 모아 /content/{id} URL을 만든다 */
     private Set<String> scanDetailUrlsFromNextData(Document listDoc) {
@@ -194,120 +298,6 @@ public class KakaoPageCrawler {
         return conn.get();
     }
 
-    private Set<String> scanDetailUrls(Document listDoc, String baseListUrl) {
-        Set<String> urls = new LinkedHashSet<>();
-
-        // 1) 정규표현식으로 series_id 패턴 잡기
-        Matcher m = Pattern.compile("/content\\?series_id=([0-9]{5,})").matcher(listDoc.html());
-        while (m.find()) {
-            String path = m.group(0);
-            String abs = "https://page.kakao.com" + path;
-            urls.add(abs);
-        }
-
-        // 2) a[href*='/content?series_id=']가 있으면 그대로
-        for (Element a : listDoc.select("a[href*='/content?series_id=']")) {
-            String href = a.attr("href");
-            if (!href.startsWith("http")) href = "https://page.kakao.com" + href;
-            urls.add(href);
-        }
-        return urls;
-    }
-
-    private String appendPage(String url, int page) {
-        if (url.contains("page=")) return url.replaceAll("page=\\d+", "page=" + page);
-        return url + (url.contains("?") ? "&" : "?") + "page=" + page;
-    }
-
-    private static String firstText(Document doc, String cssQuery) {
-        Element el = doc.selectFirst(cssQuery);
-        return el != null ? el.text() : null;
-        // This is just a shorthand for text(doc.selectFirst(cssQuery))
-    }
-
-    private BigDecimal extractRating(Document doc) {
-        Element el = doc.selectFirst("img[alt=별점] + span, [aria-label=별점] + span");
-        if (el == null) return null;
-        String num = el.text().replaceAll("[^0-9.]", "");
-        if (isBlank(num)) return null;
-        try { return new BigDecimal(num); } catch (Exception ignore) { return null; }
-    }
-
-    private Long extractKoreanCountNearHeader(Document doc) {
-        // 헤더의 카운트 블럭에서 '억/만' 등 한국어 단위를 처리
-        // 우선 아이콘 옆 첫 번째 숫자 후보
-        for (Element span : doc.select("div.flex.items-center span, span")) {
-            String s = span.text();
-            if (s == null) continue;
-            Long val = parseKoreanCount(s);
-            if (val != null) return val;
-        }
-        return null;
-    }
-
-    private Long extractCommentCount(Document doc) {
-        // "댓글" 이라는 텍스트 근방의 숫자
-        Element h = doc.selectFirst("*:matchesOwn(^\\s*댓글\\s*$), *:matchesOwn(댓글\\s*[0-9,.만억]+)");
-        if (h != null) {
-            Matcher m = Pattern.compile("([0-9][0-9,\\.]*)(만|억)?").matcher(h.text());
-            if (m.find()) return scaleKoreanNumber(m.group(1), m.group(2));
-        }
-        // 아이콘/버튼 근처 폴백
-        for (Element e : doc.select("*:matchesOwn(댓글) ~ *")) {
-            Long v = parseKoreanCount(e.text());
-            if (v != null) return v;
-        }
-        return null;
-    }
-
-    private List<String> extractChipsNearLabel(Document doc, String label) {
-        // "장르", "키워드" 레이블 근처의 a/chip 수집
-        List<String> out = new ArrayList<>();
-        for (Element lab : doc.select("span:matchesOwn(" + label + ")")) {
-            Element group = lab.parent();
-            if (group != null) {
-                for (Element a : group.select("a, button, span")) {
-                    String t = a.text().trim();
-                    if (!t.isEmpty() && t.length() <= 20 && !t.equals(label) && !out.contains(t)) out.add(t);
-                }
-            }
-        }
-        // 폴백: 태그/칩 공용 클래스 검색
-        if (out.isEmpty()) {
-            for (Element a : doc.select("a[href*='genre'], a[href*='category'], a[href*='keyword']")) {
-                String t = a.text().trim();
-                if (!t.isEmpty() && !out.contains(t)) out.add(t);
-            }
-        }
-        return out;
-    }
-
-    private String findLabeledValue(Document doc, String labelRegex) {
-        // "작가", "출판사", "이용가" 같은 레이블 바로 옆 값
-        for (Element sp : doc.select("span:matchesOwn(" + labelRegex + ")")) {
-            Element p = sp.parent();
-            if (p != null) {
-                Element a = p.selectFirst("a");
-                if (a != null && !isBlank(a.text())) return a.text().trim();
-                Element next = sp.nextElementSibling();
-                if (next != null && !isBlank(next.text())) return next.text().trim();
-            }
-        }
-        return null;
-    }
-
-    private String findAuthorFallback(Document doc) {
-        // 작가가 링크로 표기되지 않은 케이스 대비
-        for (Element e : doc.select("*:matchesOwn(작가)")) {
-            String s = e.parent() != null ? e.parent().text() : "";
-            if (s != null) {
-                String t = s.replaceAll(".*작가\\s*", "").replaceAll("\\s*\\|.*", "").trim();
-                if (!t.isEmpty() && t.length() < 30) return t;
-            }
-        }
-        return null;
-    }
-
     private Long parseKoreanCount(String raw) {
         if (isBlank(raw)) return null;
         raw = raw.replace(",", "").trim();
@@ -322,6 +312,16 @@ public class KakaoPageCrawler {
         else if ("만".equals(unit)) v *= 10_000d;
         else if ("천".equals(unit)) v *= 1_000d;
         return (long) Math.floor(v);
+    }
+
+    // 연재주기 문자열 정리: 중점(·), NBSP 등 제거/정규화
+    private static String normalizeStatus(String s) {
+        if (s == null) return null;
+        return s
+                .replace('\u00A0', ' ')           // NBSP → space
+                .replaceAll("\\s*·\\s*", " ")     // 중점 구분자 제거
+                .replaceAll("\\s{2,}", " ")       // 다중 공백 축소
+                .trim();
     }
 
     private static String extractQueryParam(String url, String key) {
