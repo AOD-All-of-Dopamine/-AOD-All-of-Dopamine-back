@@ -30,16 +30,8 @@ public class AvContent {
     private String avType; // MOVIE/TV/ANIME
 
     private LocalDate releaseDate;
-    private Integer runtimeMin;
-    private Integer seasonCount;
 
-    @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb")
-    private Map<String, Object> castMembers;
-
-    @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb")
-    private Map<String, Object> crewMembers;
+    // [수정] runtimeMin, seasonCount, castMembers, crewMembers 필드 제거
 
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb")

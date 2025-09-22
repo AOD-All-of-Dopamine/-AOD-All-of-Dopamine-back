@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -86,25 +86,25 @@ public class UpsertService {
             content.setSynopsis((String) master.getOrDefault("synopsis", content.getSynopsis()));
 
 
-        if (domain == Domain.AV && "TMDB".equals(platformName)) {
-            Map<String, Object> attributes = (Map<String, Object>) platform.getOrDefault("attributes", Map.of());
-            Map<String, Map<String, Object>> watchProviders = (Map<String, Map<String, Object>>) attributes.get("watch_providers");
-
+        // [수정된 로직]
+        // TMDB에서 온 데이터일 경우, watch_providers에서 "KR" 정보만 필터링하여 attributes에 저장
+        Map<String, Object> attributes = (Map<String, Object>) platform.get("attributes");
+        if ("TMDB".equals(platformName) && attributes != null && attributes.containsKey("watch_providers")) {
+            Map<String, Object> watchProviders = (Map<String, Object>) attributes.get("watch_providers");
             if (watchProviders != null && watchProviders.containsKey("KR")) {
-                Map<String, Object> krProviders = watchProviders.get("KR");
-                List<Map<String, Object>> flatrate = (List<Map<String, Object>>) krProviders.get("flatrate");
-
-                if (flatrate != null) {
-                    for (Map<String, Object> provider : flatrate) {
-                        String providerName = (String) provider.get("provider_name");
-                        String providerUrl = (String) krProviders.get("link");
-                        savePlatformData(content, providerName, platformSpecificId, providerUrl, Map.of("provider_info", provider));
-                    }
-                }
+                // 새로운 attributes 맵을 만들어 KR 정보만 담는다.
+                Map<String, Object> filteredAttributes = new HashMap<>();
+                filteredAttributes.put("watch_providers", Map.of("KR", watchProviders.get("KR")));
+                // 원본 attributes의 다른 정보들도 필요하다면 여기에 추가
+                // 예: filteredAttributes.put("another_key", attributes.get("another_key"));
+                attributes = filteredAttributes;
+            } else {
+                // KR 정보가 없으면 watch_providers를 비운다.
+                attributes.put("watch_providers", Map.of());
             }
-        } else {
-            savePlatformData(content, platformName, platformSpecificId, url, (Map<String, Object>) platform.get("attributes"));
         }
+
+        savePlatformData(content, platformName, platformSpecificId, url, attributes);
 
         domainCoreUpsert.upsert(domain, content, domainDoc);
 
@@ -130,7 +130,6 @@ public class UpsertService {
         if (dateString == null || dateString.isBlank()) {
             return null;
         }
-        // [수정] "YYYY년 MM월 dd일" 형식 또는 "YYYY-MM-DD" 형식 모두 처리
         Matcher matcher = Pattern.compile("^(\\d{4})").matcher(dateString.trim());
         if (matcher.find()) {
             try {

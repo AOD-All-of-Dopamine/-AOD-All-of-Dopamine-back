@@ -1,7 +1,7 @@
 package com.example.AOD.service;
 
 
-import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
+//import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
 import com.example.AOD.domain.Content;
 import com.example.AOD.domain.entity.*;
 import com.example.AOD.repo.AvContentRepository;
@@ -67,14 +67,7 @@ public class DomainCoreUpsertService {
                 if (domainDoc.get("av_type") != null) av.setAvType(domainDoc.get("av_type").toString());
                 if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
 
-                if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
-                if (domainDoc.get("runtime") instanceof Number num) av.setRuntimeMin(num.intValue());
-
-                if (domainDoc.get("cast") instanceof List castList) av.setCastMembers(Map.of("cast", castList));
-                if (domainDoc.get("crew") instanceof List crewList) av.setCrewMembers(Map.of("crew", crewList));
-
-                if (domainDoc.get("season_count") instanceof Number num) av.setSeasonCount(num.intValue());
-
+                // [수정] runtime, season_count, cast, crew 관련 로직 제거
                 if (domainDoc.get("genres") instanceof List<?> list) {
                     av.setGenres(Map.of("tmdb_genres", list));
                 }
@@ -92,7 +85,6 @@ public class DomainCoreUpsertService {
                 if (domainDoc.get("platforms") instanceof Map<?,?> m)
                     g.setPlatforms((Map<String,Object>) m);
 
-                // [수정] List 타입으로 받고 Map으로 감싸서 저장
                 if (domainDoc.get("genres") instanceof List<?> list) {
                     g.setGenres(Map.of("steam_genres", list));
                 }
