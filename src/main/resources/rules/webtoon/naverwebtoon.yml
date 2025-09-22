@@ -1,0 +1,39 @@
+platformName: NaverWebtoon
+domain: WEBTOON
+schemaVersion: 2
+
+fieldMappings:
+  # === Contents (마스터 공통) ===
+  title: master_title
+  imageUrl: poster_image_url
+  synopsis: synopsis
+
+  # === webtoon_contents (도메인 코어) ===
+  author: domain.author
+  status: domain.status
+  tags: domain.genres
+
+  # === Platform_Data ===
+  productUrl: platform.url
+  titleId: platform.platform_specific_id
+
+  # === Platform_Data.attributes (JSONB) ===
+  weekday: platform.attributes.weekday
+  episodeCount: platform.attributes.episode_count
+  ageRating: platform.attributes.age_rating
+  likeCount: platform.attributes.like_count
+  isFree: platform.attributes.is_free
+  hasAdult: platform.attributes.has_adult
+  serviceType: platform.attributes.service_type
+  crawlSource: platform.attributes.crawl_source
+  originalPlatform: platform.attributes.original_platform
+
+normalizers:
+  - type: nfkc
+    fields: [master_title, domain.author]
+  - type: strip_brackets
+    fields: [master_title]
+  - type: strip_series_qualifiers
+    fields: [master_title]
+  - type: collapse_spaces
+    fields: [master_title]

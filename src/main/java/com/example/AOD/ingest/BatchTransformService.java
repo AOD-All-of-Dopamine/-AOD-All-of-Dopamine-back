@@ -39,6 +39,10 @@ public class BatchTransformService {
                 case "Steam" -> "rules/game/steam.yml";
                 default -> throw new IllegalArgumentException("No rule for GAME platform: " + platformName);
             };
+            case "WEBTOON" -> switch (platformName) {
+                case "NaverWebtoon" -> "rules/webtoon/naverwebtoon.yml";
+                default -> throw new IllegalArgumentException("No rule for WEBTOON platform: " + platformName);
+            };
             default -> throw new IllegalArgumentException("No rule for domain "+domain);
         };
     }

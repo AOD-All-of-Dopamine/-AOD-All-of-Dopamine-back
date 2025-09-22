@@ -293,6 +293,15 @@ public class AdminTestController {
             if ("NaverSeries".equalsIgnoreCase(platform)) return "rules/webnovel/naverseries.yml";
             if ("KakaoPage".equalsIgnoreCase(platform))   return "rules/webnovel/kakaopage.yml";
         }
+        if ("WEBTOON".equalsIgnoreCase(domain)) {
+            if ("NaverWebtoon".equalsIgnoreCase(platform)) return "rules/webtoon/naverwebtoon.yml";
+        }
+        if ("AV".equalsIgnoreCase(domain)) {
+            if ("TMDB".equalsIgnoreCase(platform)) return "rules/av/tmdb.yml";
+        }
+        if ("GAME".equalsIgnoreCase(domain)) {
+            if ("Steam".equalsIgnoreCase(platform)) return "rules/game/steam.yml";
+        }
         throw new IllegalArgumentException("No default rule for domain=" + domain + ", platform=" + platform);
     }
 
