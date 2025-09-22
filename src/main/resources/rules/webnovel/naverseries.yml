@@ -3,26 +3,30 @@ domain: WEBNOVEL
 schemaVersion: 3
 
 fieldMappings:
-  # 마스터(원하면 synopsis도 attributes로 내려도 됨)
+  # === Contents (마스터 공통) ===
   title: master_title
   imageUrl: poster_image_url
   synopsis: synopsis
+
+  # === webnovel_contents (도메인 코어) ===
+  author: domain.author
+  # started_at은 실제 NaverSeries 데이터에 있다면 추가
+  # startedAt: domain.started_at
 
   # === Platform_Data ===
   productUrl: platform.url
   titleId: platform.platform_specific_id
 
-  # 플랫폼 전용(JSONB)
-  author: platform.attributes.author
+  # === Platform_Data.attributes (JSONB) ===
+
+  # 기존 attributes
   publisher: platform.attributes.publisher
   status: platform.attributes.status
   ageRating: platform.attributes.age_rating
   genres: platform.attributes.genres
-
   rating: platform.attributes.rating
   downloadCount: platform.attributes.download_count
   commentCount: platform.attributes.comment_count
-
 
 normalizers:
   - type: strip_parentheses
@@ -30,4 +34,4 @@ normalizers:
   - type: collapse_spaces
     fields: [master_title]
   - type: nfkc
-    fields: [master_title, platform.attributes.author, platform.attributes.publisher]
+    fields: [master_title, domain.author, platform.attributes.publisher]
