@@ -23,17 +23,16 @@ fieldMappings:
   tv_details.first_air_date: domain.release_date
   movie_details.genres: domain.genres
   tv_details.genres: domain.genres
-  movie_details.runtime: domain.runtime
-  movie_details.credits.cast: domain.cast
-  tv_details.credits.cast: domain.cast # TV용 cast 추가
-  movie_details.credits.crew: domain.crew
-  tv_details.credits.crew: domain.crew # TV용 crew 추가
-
-  # --- [ 추가된 매핑 ] ---
-  tv_details.number_of_seasons: domain.season_count
 
   # === platform_data.attributes (JSONB 확장 필드) ===
   watch_providers: platform.attributes.watch_providers
+  # [수정] 아래 필드들을 platform.attributes로 이동
+  movie_details.runtime: platform.attributes.runtime
+  tv_details.number_of_seasons: platform.attributes.season_count
+  movie_details.credits.cast: platform.attributes.cast
+  tv_details.credits.cast: platform.attributes.cast
+  movie_details.credits.crew: platform.attributes.crew
+  tv_details.credits.crew: platform.attributes.crew
 
 normalizers:
   - type: collapse_spaces

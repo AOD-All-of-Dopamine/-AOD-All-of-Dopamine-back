@@ -89,6 +89,21 @@ public class TransformEngine {
                 String src = e.getKey();
                 String dst = e.getValue();
                 Object val = deepGet(raw, src);
+
+                // [수정] 값이 null일 경우, platform.attributes 필드에 한해 기본값 설정
+                if (val == null && dst.startsWith("platform.attributes.")) {
+                    String attrName = dst.substring("platform.attributes.".length());
+                    // 필드명에 따라 적절한 기본값(0, 빈 리스트 등)을 설정
+                    if (attrName.contains("count") || attrName.contains("runtime")) {
+                        val = 0;
+                    } else if (attrName.equals("cast") || attrName.equals("crew")) {
+                        val = Collections.emptyList();
+                    } else {
+                        // 그 외의 경우는 null을 유지하거나 빈 문자열("")로 설정할 수 있음
+                        val = "";
+                    }
+                }
+
                 if (val == null) continue;
 
                 if (dst.startsWith("platform.")) {
