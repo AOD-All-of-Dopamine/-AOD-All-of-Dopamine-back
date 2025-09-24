@@ -310,3 +310,24 @@ h3 {
     border-radius: 8px;
     color: #777;
 }
+
+/* =================================== */
+/* 5. Content Detail Page Links
+/* =================================== */
+
+.content-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.ranking-item-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.ranking-item-link:hover .ranking-item {
+    background-color: #f9f9f9;
+}

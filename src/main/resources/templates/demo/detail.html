@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}">
+
+<section layout:fragment="content" class="content-detail-page">
+
+    <div class="detail-container" th:object="${content}">
+        <header class="detail-header">
+            <div class="detail-poster">
+                <img th:src="*{posterImageUrl != null ? posterImageUrl : 'https://via.placeholder.com/200x300?text=No+Image'}"
+                     alt="Content Poster">
+            </div>
+            <div class="detail-info">
+                <h2 th:text="*{title}">콘텐츠 제목</h2>
+                <p class="original-title" th:if="*{originalTitle}" th:text="*{originalTitle}">Original Title</p>
+                <ul>
+                    <li th:if="*{releaseYear}">
+                        <strong>출시/공개:</strong> <span th:text="*{releaseYear}">2025</span>
+                    </li>
+                    <li th:if="*{domainAttributes['author']}">
+                        <strong>작가/감독:</strong> <span th:text="*{domainAttributes['author']}">홍길동</span>
+                    </li>
+                    <li th:if="*{domainAttributes['developer']}">
+                        <strong>개발사:</strong> <span th:text="*{domainAttributes['developer']}">개발사</span>
+                    </li>
+                    <li th:if="*{domainAttributes['status']}">
+                        <strong>상태:</strong> <span th:text="*{domainAttributes['status']}">연재중</span>
+                    </li>
+                </ul>
+            </div>
+        </header>
+
+        <article class="detail-synopsis">
+            <h3>줄거리</h3>
+            <p th:text="*{synopsis != null and !synopsis.isEmpty() ? synopsis : '줄거리 정보가 없습니다.'}">
+                콘텐츠의 줄거리 내용이 여기에 표시됩니다.
+            </p>
+        </article>
+
+        <div class="detail-platforms">
+            <h3>서비스 플랫폼</h3>
+            <div class="platform-list">
+                <div th:each="platform : *{platforms}" class="platform-item">
+                    <h4><a th:href="${platform.url}" th:text="${platform.platformName}" target="_blank">플랫폼 이름</a></h4>
+                    <ul>
+                        <li th:each="attr : ${platform.attributes}">
+                            <strong th:text="${attr.key}">속성명</strong>: <span th:text="${attr.value}">값</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

@@ -10,16 +10,18 @@
     <p>현재 가장 인기 있는 콘텐츠 목록입니다.</p>
 
     <div class="ranking-list" th:if="${not #lists.isEmpty(contents)}">
-        <div class="ranking-item" th:each="content, iterStat : ${contents}">
-            <div class="ranking-number" th:text="${iterStat.count}">1</div>
-            <div class="ranking-thumbnail">
-                <img th:src="${content.posterImageUrl != null ? content.posterImageUrl : 'https://via.placeholder.com/100x150?text=No+Image'}"
-                     alt="Content Poster">
+        <a th:href="@{/demo/content/{id}(id=${content.id})}" class="ranking-item-link" th:each="content, iterStat : ${contents}">
+            <div class="ranking-item">
+                <div class="ranking-number" th:text="${iterStat.count}">1</div>
+                <div class="ranking-thumbnail">
+                    <img th:src="${content.posterImageUrl != null ? content.posterImageUrl : 'https://via.placeholder.com/100x150?text=No+Image'}"
+                         alt="Content Poster">
+                </div>
+                <div class="ranking-title" th:text="${content.title}">
+                    콘텐츠 제목
+                </div>
             </div>
-            <div class="ranking-title" th:text="${content.title}">
-                콘텐츠 제목
-            </div>
-        </div>
+        </a>
     </div>
 
     <div class="empty-message" th:if="${#lists.isEmpty(contents)}">

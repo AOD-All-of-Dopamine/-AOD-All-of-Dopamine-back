@@ -16,15 +16,17 @@
             <h3 class="section-title" th:text="${#strings.toUpperCase(rec.key)}">추천 카테고리</h3>
 
             <div class="content-grid horizontal-scroll">
-                <div class="content-card" th:each="content : ${rec.value}">
-                    <div class="card-thumbnail">
-                        <img th:src="${content.thumbnailUrl != null ? content.thumbnailUrl : (content.thumbnail != null ? content.thumbnail : 'https://via.placeholder.com/200x300?text=No+Image')}"
-                             alt="Content Poster">
+                <a th:href="@{/demo/content/{id}(id=${content.id})}" class="content-card-link" th:each="content : ${rec.value}">
+                    <div class="content-card">
+                        <div class="card-thumbnail">
+                            <img th:src="${content.thumbnailUrl != null ? content.thumbnailUrl : (content.thumbnail != null ? content.thumbnail : 'https://via.placeholder.com/200x300?text=No+Image')}"
+                                 alt="Content Poster">
+                        </div>
+                        <div class="card-title" th:text="${content.title}">
+                            콘텐츠 제목
+                        </div>
                     </div>
-                    <div class="card-title" th:text="${content.title}">
-                        콘텐츠 제목
-                    </div>
-                </div>
+                </a>
             </div>
         </div>
     </div>
