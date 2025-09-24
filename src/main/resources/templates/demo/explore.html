@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}">
+
+<section layout:fragment="content" class="explore-page">
+
+    <style>
+        .domain-filters {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem; /* 버튼 사이 간격 */
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 1rem;
+        }
+
+        .filter-button {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border: 1px solid #ccc;
+            background-color: #f7f7f7;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #555;
+            text-decoration: none; /* 링크 밑줄 제거 */
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .filter-button.active, .filter-button:hover {
+            background-color: #d9534f;
+            color: white;
+            border-color: #d9534f;
+            text-decoration: none;
+        }
+    </style>
+
+    <h2>🔎 콘텐츠 탐색</h2>
+    <p>원하는 콘텐츠 카테고리를 선택하여 전체 목록을 둘러볼 수 있습니다.</p>
+
+    <div class="domain-filters">
+        <a th:each="domain : ${domains}"
+           th:href="@{/demo/explore(domain=${domain.name()})}"
+           th:text="${domain.name()}"
+           th:classappend="${#strings.equals(currentDomain, domain.name()) ? 'active' : ''}"
+           class="filter-button">
+            GAME
+        </a>
+    </div>
+
+    <div class="content-grid" th:if="${!contentPage.isEmpty()}">
+        <div class="content-card" th:each="content : ${contentPage.content}">
+            <div class="card-thumbnail">
+                <img th:src="${content.posterImageUrl != null ? content.posterImageUrl : 'https://via.placeholder.com/200x300?text=No+Image'}"
+                     alt="Content Poster">
+            </div>
+            <div class="card-title" th:text="${content.title}">
+                콘텐츠 제목
+            </div>
+        </div>
+    </div>
+
+    <div class="empty-message" th:if="${contentPage.isEmpty()}">
+        <p>표시할 콘텐츠가 없습니다. 관리자 페이지에서 데이터를 먼저 수집해주세요.</p>
+    </div>
+
+    <nav class="pagination" th:if="${contentPage.totalPages > 1}">
+        <ul>
+            <li th:classappend="${contentPage.first} ? 'disabled'">
+                <a th:href="${contentPage.first} ? '#' : @{/demo/explore(domain=${currentDomain}, page=${contentPage.number - 1})}">
+                    &laquo; 이전
+                </a>
+            </li>
+            <li class="page-info">
+                <span th:text="${contentPage.number + 1}">1</span> / <span th:text="${contentPage.totalPages}">5</span>
+            </li>
+            <li th:classappend="${contentPage.last} ? 'disabled'">
+                <a th:href="${contentPage.last} ? '#' : @{/demo/explore(domain=${currentDomain}, page=${contentPage.number + 1})}">
+                    다음 &raquo;
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+</section>
+</html>

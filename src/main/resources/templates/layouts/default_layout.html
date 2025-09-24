@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>AOD - All of Dopamine</title>
+    <link rel="stylesheet" th:href="@{/css/demo-style.css(v=1.2)}">
+</head>
+<body>
+
+<div class="demo-container">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <main layout:fragment="content" class="main-content">
+        <p>페이지의 내용이 여기에 표시됩니다.</p>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</div>
+
+</body>
+</html>
