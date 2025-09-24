@@ -52,15 +52,17 @@
     </div>
 
     <div class="content-grid" th:if="${!contentPage.isEmpty()}">
-        <div class="content-card" th:each="content : ${contentPage.content}">
-            <div class="card-thumbnail">
-                <img th:src="${content.posterImageUrl != null ? content.posterImageUrl : 'https://via.placeholder.com/200x300?text=No+Image'}"
-                     alt="Content Poster">
+        <a th:href="@{/demo/content/{id}(id=${content.id})}" class="content-card-link" th:each="content : ${contentPage.content}">
+            <div class="content-card">
+                <div class="card-thumbnail">
+                    <img th:src="${content.posterImageUrl != null ? content.posterImageUrl : 'https://via.placeholder.com/200x300?text=No+Image'}"
+                         alt="Content Poster">
+                </div>
+                <div class="card-title" th:text="${content.title}">
+                    콘텐츠 제목
+                </div>
             </div>
-            <div class="card-title" th:text="${content.title}">
-                콘텐츠 제목
-            </div>
-        </div>
+        </a>
     </div>
 
     <div class="empty-message" th:if="${contentPage.isEmpty()}">

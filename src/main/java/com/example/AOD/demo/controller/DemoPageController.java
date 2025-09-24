@@ -1,6 +1,7 @@
 package com.example.AOD.demo.controller;
 
 import com.example.AOD.demo.dto.ContentDTO;
+import com.example.AOD.demo.dto.ContentDetailDTO;
 import com.example.AOD.demo.service.DemoPageService;
 import com.example.AOD.domain.entity.Domain;
 //import com.example.AOD.recommendation.service.TraditionalRecommendationService;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -101,5 +103,15 @@ public class DemoPageController {
     @GetMapping("/admin")
     public String adminDemoPage() {
         return "demo/admin";
+    }
+
+    /**
+     * 콘텐츠 상세 페이지
+     */
+    @GetMapping("/content/{id}")
+    public String contentDetailPage(@PathVariable("id") Long id, Model model) {
+        ContentDetailDTO contentDetail = demoPageService.getContentDetails(id);
+        model.addAttribute("content", contentDetail);
+        return "demo/detail";
     }
 }
