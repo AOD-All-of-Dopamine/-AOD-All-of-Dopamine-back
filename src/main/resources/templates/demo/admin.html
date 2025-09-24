@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}">
+
+<section layout:fragment="content" class="admin-page">
+
+    <h2>🛠️ 데모 데이터 관리자 페이지</h2>
+    <p>이 페이지에서 데모에 필요한 데이터를 수집하고 처리할 수 있습니다. 각 섹션에서 원하는 조건을 입력하고 수집 버튼을 누르세요.</p>
+    <div id="status-message" class="status-message"></div>
+
+    <div class="admin-section">
+        <h3>1. 데이터 수집 (Crawling)</h3>
+
+        <div class="platform-section">
+            <h4>🎬 TMDB (영화/TV쇼)</h4>
+            <div class="input-group">
+                <label for="tmdb-start-year">시작 연도:</label>
+                <input type="number" id="tmdb-start-year" value="2025" class="form-input">
+                <label for="tmdb-end-year">종료 연도:</label>
+                <input type="number" id="tmdb-end-year" value="2024" class="form-input">
+                <button onclick="callTmdbApi('/api/crawl/tmdb/movies-by-year', 'TMDB 영화 전체')">영화 전체 수집</button>
+                <button onclick="callTmdbApi('/api/crawl/tmdb/tv-by-year', 'TMDB TV쇼 전체')">TV쇼 전체 수집</button>
+            </div>
+            <p class="description">지정한 연도 사이의 모든 콘텐츠를 수집합니다. (시간이 오래 걸릴 수 있습니다)</p>
+            <hr>
+            <div class="input-group">
+                <label for="tmdb-sample-pages">인기 샘플 (페이지 수):</label>
+                <input type="number" id="tmdb-sample-pages" value="2" class="form-input">
+                <button onclick="callTmdbPopularSampleApi()">인기 영화 샘플 수집</button>
+            </div>
+            <div class="input-group">
+                <label for="tmdb-sample-year">연도별 샘플 (연도):</label>
+                <input type="number" id="tmdb-sample-year" value="2023" class="form-input">
+                <label for="tmdb-sample-year-pages">페이지 수:</label>
+                <input type="number" id="tmdb-sample-year-pages" value="2" class="form-input">
+                <button onclick="callTmdbYearSampleApi()">연도별 영화 샘플 수집</button>
+            </div>
+            <p class="description">테스트용으로 소량의 페이지만 샘플 수집합니다.</p>
+        </div>
+
+        <div class="platform-section">
+            <h4>🎮 Steam (게임)</h4>
+            <div class="input-group">
+                <label for="steam-start-index">시작 인덱스:</label>
+                <input type="number" id="steam-start-index" value="0" class="form-input">
+                <label for="steam-end-index">종료 인덱스:</label>
+                <input type="number" id="steam-end-index" value="100" class="form-input">
+                <button onclick="callSteamApi()">범위 지정 수집</button>
+                <button onclick="callApi('/api/steam/collect/all-games', 'POST', null, 'Steam 전체 게임 수집')">전체 게임 수집 (자동 분할)</button>
+            </div>
+            <p class="description">범위를 지정하거나, 전체 게임(1000개씩 자동 분할)을 수집합니다.</p>
+        </div>
+
+        <div class="platform-section">
+            <h4>📖 네이버 웹툰</h4>
+            <div class="input-group">
+                <label for="webtoon-pages">완결 (페이지 수):</label>
+                <input type="number" id="webtoon-pages" value="5" class="form-input">
+                <button onclick="callWebtoonFinishedApi()">완결 웹툰 수집</button>
+            </div>
+            <div class="input-group">
+                <label for="webtoon-weekday">요일 지정:</label>
+                <select id="webtoon-weekday" class="form-input">
+                    <option value="mon">월요일</option>
+                    <option value="tue">화요일</option>
+                    <option value="wed">수요일</option>
+                    <option value="thu">목요일</option>
+                    <option value="fri">금요일</option>
+                    <option value="sat">토요일</option>
+                    <option value="sun">일요일</option>
+                </select>
+                <button onclick="callWebtoonWeekdayApi()">요일별 수집</button>
+                <button onclick="callApi('/api/crawl/naver-webtoon/all-weekdays/sync', 'POST', null, '네이버 웹툰 전체 요일 수집')">전체 요일 수집</button>
+            </div>
+        </div>
+
+        <div class="platform-section">
+            <h4>📚 웹소설 (네이버 시리즈 / 카카오페이지)</h4>
+            <div class="input-group">
+                <label for="novel-pages">수집 페이지 수:</label>
+                <input type="number" id="novel-pages" value="2" class="form-input">
+                <button onclick="callNaverSeriesApi()">네이버 시리즈 수집</button>
+                <button onclick="callKakaoPageApi()">카카오페이지 수집</button>
+            </div>
+            <p class="description">각 플랫폼의 웹소설 인기 목록을 지정된 페이지 수만큼 수집합니다.</p>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h3>2. 수집 데이터 통합 처리 (Batch Process)</h3>
+        <div class="button-group">
+            <button onclick="callApi('/api/batch/process', 'POST', {batchSize: 100}, '데이터 통합 처리')">수집된 데이터 통합 실행</button>
+        </div>
+        <p class="description">
+            데이터 수집 후, 이 버튼을 눌러야 수집된 원본(`RawItem`) 데이터가 분석 및 정규화 과정을 거쳐 최종 콘텐츠(`Content`) DB에 저장됩니다.
+        </p>
+    </div>
+
+    <script>
+        // 범용 API 호출 함수
+        function callApi(endpoint, method, body, taskName) {
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.textContent = `⏳ '${taskName}' 작업을 시작합니다... (엔드포인트: ${endpoint})`;
+            statusDiv.className = 'status-message-processing';
+
+            const options = {
+                method: method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+
+            if (method.toUpperCase() !== 'GET' && body) {
+                options.body = JSON.stringify(body);
+            }
+
+            fetch(endpoint, options)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(`[${response.status}] ${text || response.statusText}`) });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    const message = data.message || `성공적으로 완료되었습니다.`;
+                    statusDiv.textContent = `✅ '${taskName}' 작업 성공: ${message}`;
+                    statusDiv.className = 'status-message-success';
+                })
+                .catch(error => {
+                    console.error('API Call Error:', error);
+                    statusDiv.textContent = `❌ '${taskName}' 작업 실패: ${error.message}`;
+                    statusDiv.className = 'status-message-error';
+                });
+        }
+
+        // --- 각 플랫폼별 API 호출 래퍼 함수 ---
+
+        function callTmdbApi(baseEndpoint, taskName) {
+            const startYear = document.getElementById('tmdb-start-year').value;
+            const endYear = document.getElementById('tmdb-end-year').value;
+            const endpoint = `${baseEndpoint}?startYear=${startYear}&endYear=${endYear}`;
+            callApi(endpoint, 'POST', null, taskName);
+        }
+
+        function callTmdbPopularSampleApi() {
+            const pages = document.getElementById('tmdb-sample-pages').value;
+            const endpoint = `/api/test/tmdb/collect/popular-movies?pages=${pages}`;
+            callApi(endpoint, 'POST', null, 'TMDB 인기 영화 샘플 수집');
+        }
+
+        function callTmdbYearSampleApi() {
+            const year = document.getElementById('tmdb-sample-year').value;
+            const pages = document.getElementById('tmdb-sample-year-pages').value;
+            const endpoint = `/api/test/tmdb/collect/movies-by-year/sample?year=${year}&pages=${pages}`;
+            callApi(endpoint, 'POST', null, 'TMDB 연도별 영화 샘플 수집');
+        }
+
+        function callSteamApi() {
+            const start = document.getElementById('steam-start-index').value;
+            const end = document.getElementById('steam-end-index').value;
+            const endpoint = `/api/test/steam/collect-games-by-range?start=${start}&end=${end}`;
+            callApi(endpoint, 'POST', null, 'Steam 범위 지정 수집');
+        }
+
+        function callWebtoonFinishedApi() {
+            const maxPages = document.getElementById('webtoon-pages').value;
+            const body = { maxPages: parseInt(maxPages) };
+            callApi('/api/crawl/naver-webtoon/finished/sync', 'POST', body, '네이버 완결 웹툰 수집');
+        }
+
+        function callWebtoonWeekdayApi() {
+            const weekday = document.getElementById('webtoon-weekday').value;
+            const body = { weekday: weekday };
+            callApi('/api/crawl/naver-webtoon/weekday/sync', 'POST', body, `네이버 ${weekday}요일 웹툰 수집`);
+        }
+
+        function callNaverSeriesApi() {
+            const pages = document.getElementById('novel-pages').value;
+            const body = { pages: parseInt(pages) };
+            callApi('/api/crawl/naver-series', 'POST', body, '네이버 시리즈 웹소설 수집');
+        }
+
+        function callKakaoPageApi() {
+            const pages = document.getElementById('novel-pages').value;
+            const body = { pages: parseInt(pages) };
+            callApi('/api/crawl/kakaopage', 'POST', body, '카카오페이지 웹소설 수집');
+        }
+
+    </script>
+</section>
+
+</html>

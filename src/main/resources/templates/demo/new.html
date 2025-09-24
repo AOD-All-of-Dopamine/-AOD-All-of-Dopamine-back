@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}">
+
+<section layout:fragment="content" class="new-page">
+
+    <h2>✨ 신작 콘텐츠</h2>
+    <p>가장 최근에 수집된 새로운 콘텐츠 목록입니다.</p>
+
+    <div class="content-grid" th:if="${not #lists.isEmpty(contents)}">
+        <div class="content-card" th:each="content : ${contents}">
+            <div class="card-thumbnail">
+                <img th:src="${content.posterImageUrl != null ? content.posterImageUrl : 'https://via.placeholder.com/200x300?text=No+Image'}"
+                     alt="Content Poster">
+            </div>
+            <div class="card-title" th:text="${content.title}">
+                콘텐츠 제목
+            </div>
+        </div>
+    </div>
+
+    <div class="empty-message" th:if="${#lists.isEmpty(contents)}">
+        <p>표시할 신작 콘텐츠가 없습니다. 관리자 페이지에서 데이터를 먼저 수집해주세요.</p>
+    </div>
+
+</section>
+
+</html>

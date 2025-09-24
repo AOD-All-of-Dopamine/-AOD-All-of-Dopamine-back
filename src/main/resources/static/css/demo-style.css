@@ -1,0 +1,312 @@
+/* =================================== */
+/* 1. Global & Basic Layout
+/* =================================== */
+
+/* 기본 폰트 및 배경색 설정 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    background-color: #f0f2f5; /* 밝은 회색 배경 */
+    color: #333;
+    display: flex;
+    justify-content: center;
+}
+
+/* 전체 데모 페이지를 감싸는 컨테이너 */
+.demo-container {
+    width: 100%;
+    max-width: 1200px;
+    min-height: 100vh;
+    background-color: #ffffff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+/* 메인 콘텐츠 영역 */
+.main-content {
+    flex-grow: 1;
+    padding: 2rem;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: #0056b3;
+}
+
+h2 {
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #d9534f; /* 포인트 컬러 */
+}
+
+/* =================================== */
+/* 2. Header & Footer (fragments)
+/* =================================== */
+
+.demo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.header-left h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.header-left h1 a {
+    color: #d9534f;
+    font-weight: bold;
+}
+
+.header-left span {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.header-nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.header-nav a {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #555;
+}
+.header-nav a:hover, .header-nav a.active {
+    color: #d9534f;
+}
+
+.admin-link {
+    background-color: #5bc0de;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.admin-link:hover {
+    background-color: #31b0d5;
+    color: white;
+}
+
+.demo-footer {
+    text-align: center;
+    padding: 1.5rem 2rem;
+    background-color: #343a40;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.demo-footer p {
+    margin: 0.3rem 0;
+}
+
+/* =================================== */
+/* 3. Content Grid & Cards (공통)
+/* =================================== */
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+}
+
+.content-card {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.card-thumbnail {
+    width: 100%;
+    padding-top: 150%; /* 2:3 비율 */
+    position: relative;
+    background-color: #eee;
+}
+
+.card-thumbnail img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-title {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =================================== */
+/* 4. Page-specific Styles
+/* =================================== */
+
+/* Admin Page */
+.admin-page .admin-section {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+}
+.admin-page .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.admin-page button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.admin-page button:hover {
+    background-color: #c9302c;
+}
+.admin-page .description {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+.status-message {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 5px;
+    font-weight: bold;
+    display: none; /* 초기에는 숨김 */
+}
+.status-message-processing { display: block; background-color: #f0ad4e; color: white; }
+.status-message-success { display: block; background-color: #5cb85c; color: white; }
+.status-message-error { display: block; background-color: #d9534f; color: white; }
+
+
+/* Explore Page */
+.domain-filters {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px; /* flexbox의 gap 속성으로 통일된 간격 설정 */
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1.5rem; /* 5rem에서 1.5rem으로 줄임 */
+}
+
+.filter-button {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid #ccc;
+    background-color: #f7f7f7;
+    border-radius: 20px;
+    font-weight: 500;
+    color: #555;
+    text-decoration: none;
+    white-space: nowrap; /* 버튼 텍스트가 줄바꿈되지 않도록 */
+    transition: all 0.2s ease; /* 부드러운 호버 효과 */
+}
+
+.filter-button.active,
+.filter-button:hover {
+    background-color: #d9534f;
+    color: white;
+    border-color: #d9534f;
+    transform: translateY(-1px); /* 살짝 위로 올라가는 효과 */
+}
+
+/* Ranking Page */
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.ranking-item {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+.ranking-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #d9534f;
+    width: 50px;
+    text-align: center;
+}
+.ranking-thumbnail {
+    width: 60px;
+    height: 90px;
+    margin-right: 1.5rem;
+}
+.ranking-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+.ranking-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Recommendation Page */
+.recommendation-section {
+    margin-bottom: 2.5rem;
+}
+.horizontal-scroll {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(180px, 1fr);
+    overflow-x: auto;
+    padding-bottom: 1rem; /* 스크롤바 공간 확보 */
+}
+/* 스크롤바 스타일링 (선택사항) */
+.horizontal-scroll::-webkit-scrollbar { height: 8px; }
+.horizontal-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+.horizontal-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+
+/* Common Empty Message */
+.empty-message {
+    text-align: center;
+    padding: 3rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    color: #777;
+}
