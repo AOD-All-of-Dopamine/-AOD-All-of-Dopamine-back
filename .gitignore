@@ -9,6 +9,7 @@ build/
 application.properties
 application-prod.properties
 
+
 ### STS ###
 .apt_generated
 .classpath
@@ -39,3 +40,30 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+# 환경 변수 (민감 정보)
+.env.prod
+.env
+
+
+# 로그 파일
+*.log
+logs/
+/var/log/
+
+# Docker 볼륨 데이터
+postgres-data/
+prometheus-data/
+grafana-data/
+alertmanager-data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 임시 파일
+*.tmp
+*.bak
+*.swp
+*~

@@ -1,6 +1,8 @@
 package com.example.AOD.Webtoon.NaverWebtoon;
 
 
+import com.example.AOD.monitoring.CustomMetrics;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -18,23 +20,31 @@ import java.time.LocalDateTime;
 public class NaverWebtoonService {
 
     private final NaverWebtoonCrawler naverWebtoonCrawler;
+    private final CustomMetrics customMetrics;
 
     /**
      * 모든 요일별 웹툰 크롤링 (수동 트리거)
      */
     @Async
     public void crawlAllWeekdays() {
+        String platform = "NaverWebtoon-All";
+        Timer.Sample sample = customMetrics.startTimer();
+
         LocalDateTime startTime = LocalDateTime.now();
         log.info("네이버 웹툰 전체 크롤링 작업 시작: {}", startTime);
 
         try {
             int totalSaved = naverWebtoonCrawler.crawlAllWeekdays();
 
+            customMetrics.recordCrawlerSuccess(platform);
+            customMetrics.recordItemsProcessed(platform, totalSaved);
+
             LocalDateTime endTime = LocalDateTime.now();
             log.info("네이버 웹툰 전체 크롤링 작업 완료. 소요 시간: {}초, {}개 웹툰 저장됨",
                     endTime.getSecond() - startTime.getSecond(), totalSaved);
 
         } catch (Exception e) {
+            customMetrics.recordCrawlerFailure(platform, e.getClass().getSimpleName());
             log.error("네이버 웹툰 전체 크롤링 중 오류 발생: {}", e.getMessage(), e);
         }
     }
@@ -44,18 +54,28 @@ public class NaverWebtoonService {
      */
     @Async
     public void crawlWeekday(String weekday) {
+        String platform = "NaverWebtoon-" + weekday;
+        Timer.Sample sample = customMetrics.startTimer();
+
         LocalDateTime startTime = LocalDateTime.now();
         log.info("네이버 웹툰 {} 요일 크롤링 작업 시작: {}", weekday, startTime);
 
         try {
             int saved = naverWebtoonCrawler.crawlWeekday(weekday);
 
+            customMetrics.recordCrawlerSuccess(platform);
+            customMetrics.recordItemsProcessed(platform, saved);
+
             LocalDateTime endTime = LocalDateTime.now();
             log.info("네이버 웹툰 {} 요일 크롤링 작업 완료. 소요 시간: {}초, {}개 웹툰 저장됨",
                     weekday, endTime.getSecond() - startTime.getSecond(), saved);
 
         } catch (Exception e) {
+            customMetrics.recordCrawlerFailure(platform, e.getClass().getSimpleName());
             log.error("네이버 웹툰 {} 요일 크롤링 중 오류 발생: {}", weekday, e.getMessage(), e);
+        }
+        finally {
+            customMetrics.recordDuration(sample, platform);
         }
     }
 
@@ -64,17 +84,24 @@ public class NaverWebtoonService {
      */
     @Async
     public void crawlFinishedWebtoons(int maxPages) {
+        String platform = "NaverWebtoon-Finished";
+        Timer.Sample sample = customMetrics.startTimer();
+
         LocalDateTime startTime = LocalDateTime.now();
         log.info("네이버 웹툰 완결작 크롤링 작업 시작 (최대 {}페이지): {}", maxPages, startTime);
 
         try {
             int saved = naverWebtoonCrawler.crawlFinishedWebtoons(maxPages);
 
+            customMetrics.recordCrawlerSuccess(platform);
+            customMetrics.recordItemsProcessed(platform, saved);
+
             LocalDateTime endTime = LocalDateTime.now();
             log.info("네이버 웹툰 완결작 크롤링 작업 완료. 소요 시간: {}초, {}개 웹툰 저장됨",
                     endTime.getSecond() - startTime.getSecond(), saved);
 
         } catch (Exception e) {
+            customMetrics.recordCrawlerFailure(platform, e.getClass().getSimpleName());
             log.error("네이버 웹툰 완결작 크롤링 중 오류 발생: {}", e.getMessage(), e);
         }
     }
