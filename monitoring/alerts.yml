@@ -1,0 +1,66 @@
+groups:
+  - name: crawler_alerts
+    interval: 30s
+    rules:
+      - alert: ApplicationDown
+        expr: up{job="spring-boot-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "크롤러 애플리케이션 다운"
+          description: "애플리케이션이 1분 이상 응답하지 않습니다."
+
+      - alert: HighMemoryUsage
+        expr: (jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 메모리 사용률"
+          description: "Heap 메모리 사용률이 {{ $value | humanize }}%입니다."
+
+      - alert: HighThreadCount
+        expr: jvm_threads_live_threads > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "스레드 수 과다"
+          description: "현재 스레드 수가 {{ $value }}개입니다."
+
+      - alert: HighCPUUsage
+        expr: system_cpu_usage * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 CPU 사용률"
+          description: "CPU 사용률이 {{ $value | humanize }}%입니다."
+
+      - alert: ThreadDeadlock
+        expr: jvm_threads_deadlocked_threads > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "스레드 데드락 감지"
+          description: "{{ $value }}개의 스레드가 데드락 상태입니다."
+
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 HTTP 에러율"
+          description: "5xx 에러율이 높습니다."
+
+      - alert: LongGCPause
+        expr: rate(jvm_gc_pause_seconds_sum[1m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "긴 GC 시간"
+          description: "1분당 GC 시간이 {{ $value }}초입니다."
