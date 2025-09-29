@@ -2,18 +2,18 @@
 FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+# Copy Gradle wrapper and build files
+COPY gradle gradle
+COPY gradlew build.gradle settings.gradle ./
 
 # Download dependencies
-RUN ./mvnw dependency:go-offline -B
+RUN ./gradlew dependencies --no-daemon
 
 # Copy source code
 COPY src ./src
 
 # Build application
-RUN ./mvnw package -DskipTests
+RUN ./gradlew bootJar --no-daemon
 
 # Runtime stage
 FROM eclipse-temurin:17-jre-alpine
@@ -23,7 +23,7 @@ WORKDIR /app
 RUN apk add --no-cache curl
 
 # Copy jar from build stage
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 # Create non-root user
 RUN addgroup -g 1001 appuser && \

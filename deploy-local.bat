@@ -1,11 +1,11 @@
 @echo off
 echo 🖥️ 로컬 환경 배포 시작...
 
-echo 🔨 Maven 빌드 중...
-call mvnw.cmd clean package -DskipTests
+echo 🔨 Gradle 빌드 중...
+call gradlew.bat clean bootJar
 
 if errorlevel 1 (
-    echo ❌ Maven 빌드 실패
+    echo ❌ Gradle 빌드 실패
     pause
     exit /b 1
 )

@@ -7,8 +7,8 @@ if [ -f .env.local ]; then
     export $(cat .env.local | grep -v '^#' | xargs)
 fi
 
-echo "🔨 Maven 빌드 중..."
-./mvnw clean package -DskipTests
+echo "🔨 Gradle 빌드 중..."
+./gradlew clean bootJar  # Maven 대신 Gradle
 
 echo "🐳 Docker 이미지 빌드 중..."
 docker-compose build
