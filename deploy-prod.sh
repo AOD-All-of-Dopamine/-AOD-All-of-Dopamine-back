@@ -11,8 +11,8 @@ fi
 
 export $(cat .env.prod | grep -v '^#' | xargs)
 
-echo "🔨 Maven 빌드 중..."
-./mvnw clean package -DskipTests
+echo "🔨 Gradle 빌드 중..."
+./gradlew clean bootJar  # Maven 대신 Gradle
 
 echo "🐳 Docker 이미지 빌드 중..."
 docker-compose build
@@ -51,4 +51,4 @@ echo ""
 echo "⚠️  보안그룹에서 포트 오픈 필요: 8080, 9090, 3000"
 echo ""
 echo "📜 로그: docker-compose -f docker-compose.yml -f docker-compose.prod.yml logs -f"
-echo "🛑 중지: docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+echo "🛑 중지: docker-compose -f docker-compose.yml -f docker-compose.prod.yml down"
