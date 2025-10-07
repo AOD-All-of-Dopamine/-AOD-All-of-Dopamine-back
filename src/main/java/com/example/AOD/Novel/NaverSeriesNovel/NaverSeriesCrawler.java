@@ -1,14 +1,16 @@
 package com.example.AOD.Novel.NaverSeriesNovel;
 
 import com.example.AOD.ingest.CollectorService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import com.example.AOD.util.ChromeDriverProvider;
+import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,14 +21,10 @@ import java.util.regex.Pattern;
  * - 상세 페이지에서 필요한 필드만 추출
  * - 추출 결과를 평평한 Map payload로 raw_items에 저장
  */
+@Slf4j
 @Component
 public class NaverSeriesCrawler {
 
-    private final CollectorService collector;
-
-    public NaverSeriesCrawler(CollectorService collector) {
-        this.collector = collector;
-    }
 
     /**
      * 목록 페이지 순회 → 상세 파싱 → raw_items 저장
@@ -35,7 +33,19 @@ public class NaverSeriesCrawler {
      * @param maxPages 0 또는 음수면 결과 없을 때까지
      * @return 저장 건수
      */
-    public int crawlToRaw(String baseListUrl, String cookieString, int maxPages) throws Exception {
+    private final CollectorService collector;
+    private final ChromeDriverProvider chromeDriverProvider;
+    private final int SLEEP_TIME = 500; // 페이지 로딩 대기 시간
+
+    public NaverSeriesCrawler(CollectorService collector, ChromeDriverProvider chromeDriverProvider) {
+        this.collector = collector;
+        this.chromeDriverProvider = chromeDriverProvider;
+    }
+
+    /**
+     * 목록 페이지 순회 → 상세 파싱 → raw_items 저장
+     */
+    public int crawlToRaw(String baseListUrl, int maxPages) throws Exception {
         int saved = 0;
         int page = 1;
 
@@ -43,237 +53,405 @@ public class NaverSeriesCrawler {
             if (maxPages > 0 && page > maxPages) break;
 
             String url = baseListUrl + page;
-            Document listDoc = get(url, cookieString);
 
-            // 상세 링크 직접 수집 (li 구조 무시)
-            Set<String> detailUrls = new LinkedHashSet<>();
-            for (Element a : listDoc.select("a[href*='/novel/detail.series'][href*='productNo=']")) {
-                String href = a.attr("href");
-                if (!href.startsWith("http")) href = "https://series.naver.com" + href;
-                detailUrls.add(href);
-            }
-            // 폴백
-            if (detailUrls.isEmpty()) {
-                for (Element a : listDoc.select("a[href*='/novel/detail.series']")) {
-                    String href = a.attr("href");
-                    if (!href.startsWith("http")) href = "https://series.naver.com" + href;
-                    detailUrls.add(href);
+            WebDriver driver = null;
+            try {
+                driver = chromeDriverProvider.getDriver();
+                driver.get(url);
+                Thread.sleep(SLEEP_TIME);
+
+                // 상세 링크 수집
+                Set<String> detailUrls = extractDetailUrls(driver);
+
+                if (detailUrls.isEmpty()) {
+                    log.info("{}페이지에서 더 이상 작품을 찾을 수 없습니다.", page);
+                    break;
                 }
-            }
 
-            if (detailUrls.isEmpty()) break;
+                log.info("{}페이지에서 {}개 작품 링크 수집", page, detailUrls.size());
 
-            for (String detailUrl : detailUrls) {
-                // ===== 상세 파싱 =====
-                Document doc = get(detailUrl, cookieString);
-
-                String productUrl = attr(doc.selectFirst("meta[property=og:url]"), "content");
-                if (productUrl == null || productUrl.isBlank()) productUrl = detailUrl;
-
-                String rawTitle = attr(doc.selectFirst("meta[property=og:title]"), "content");
-                String title = cleanTitle(rawTitle != null ? rawTitle : text(doc.selectFirst("h2")));
-
-                String imageUrl = attr(doc.selectFirst("meta[property=og:image]"), "content");
-
-                // 상단 헤더 블럭
-                Element head = doc.selectFirst("div.end_head");
-
-                // ⭐ 별점: div.score_area 안의 숫자
-                BigDecimal rating = extractRating(doc);
-
-                // ⬇️ 다운로드(=관심) 수: "관심 7억 2,445만 ..." 패턴
-                Long downloadCount = extractInterestCountFromHead(head);
-
-                // 💬 댓글 수: h3:matchesOwn(댓글) → span 숫자, 폴백으로 head의 "공유" 앞 숫자
-                Long commentCount = extractCommentCount(doc, head);
-
-                // 📚 상세정보 블럭
-                Element infoUl = doc.selectFirst("ul.end_info li.info_lst > ul");
-
-                // 📚 연재 상태
-                String status = firstText(infoUl, "li.ing > span"); // "연재중"/"완결" 등
-
-                // ✍️ 글/출판사
-                String author = findInfoValue(infoUl, "글");
-                String publisher = findInfoValue(infoUl, "출판사");
-
-                // 🔞 이용가
-                String ageRating = findAge(infoUl);
-
-                // 🏷 장르
-                List<String> genres = new ArrayList<>();
-                if (infoUl != null) {
-                    for (Element li : infoUl.select("> li")) {
-                        String label = text(li.selectFirst("> span"));
-                        if ("글".equals(label) || "출판사".equals(label) || "이용가".equals(label) || "연재중".equals(label)) {
-                            continue;
+                // 각 상세 페이지 크롤링
+                for (String detailUrl : detailUrls) {
+                    try {
+                        Map<String, Object> payload = crawlDetailPage(detailUrl);
+                        if (payload != null) {
+                            collector.saveRaw("NaverSeries", "WEBNOVEL", payload, (String) payload.get("titleId"), (String) payload.get("productUrl"));
+                            saved++;
+                            log.debug("저장 완료: {}", payload.get("title"));
                         }
-                        Element a = li.selectFirst("a");
-                        if (a != null) {
-                            String g = a.text().trim();
-                            if (!g.isEmpty() && !genres.contains(g)) genres.add(g);
-                        }
+                    } catch (Exception e) {
+                        log.error("상세 페이지 크롤링 실패: {}, 오류: {}", detailUrl, e.getMessage());
                     }
                 }
 
-                // 📝 시놉시스
-                String synopsis = text(doc.selectFirst("div.end_dsc ._synopsis"));
-
-                // productNo
-                String titleId = extractQueryParam(productUrl, "productNo");
-
-                // ===== raw payload 구성 =====
-                Map<String,Object> payload = new LinkedHashMap<>();
-                payload.put("title", nz(title));
-                payload.put("author", nz(author));
-                payload.put("publisher", nz(publisher));
-                payload.put("status", nz(status));
-                payload.put("ageRating", nz(ageRating));
-                payload.put("synopsis", nz(synopsis));
-                payload.put("imageUrl", nz(imageUrl));
-                payload.put("productUrl", nz(productUrl));
-                payload.put("titleId", nz(titleId));
-                payload.put("genres", genres);
-
-                payload.put("rating", rating);
-                payload.put("downloadCount", downloadCount);
-                payload.put("commentCount", commentCount);
-
-                // 저장 (hash로 중복 자동 스킵)
-                collector.saveRaw(
-                        "NaverSeries",
-                        "WEBNOVEL",
-                        payload,
-                        titleId,
-                        productUrl
-                );
-                saved++;
+            } finally {
+                if (driver != null) {
+                    driver.quit();
+                }
             }
 
             page++;
+            Thread.sleep(1000); // 페이지 간 딜레이
         }
 
+        log.info("크롤링 완료: 총 {}개 작품 저장", saved);
         return saved;
     }
 
-    /* ================= helpers ================ */
+    /**
+     * 목록 페이지에서 상세 링크 추출
+     */
+    private Set<String> extractDetailUrls(WebDriver driver) {
+        Set<String> urls = new LinkedHashSet<>();
 
-    private Document get(String url, String cookieString) throws Exception {
-        var conn = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
-                .referrer("https://series.naver.com/")
-                .header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
-                .timeout(15000);
-        if (cookieString != null && !cookieString.isBlank()) {
-            conn.header("Cookie", cookieString);
+        try {
+            List<WebElement> links = driver.findElements(
+                    By.cssSelector("a[href*='/novel/detail.series'][href*='productNo=']")
+            );
+
+            for (WebElement link : links) {
+                String href = link.getAttribute("href");
+                if (href != null && !href.isEmpty()) {
+                    if (!href.startsWith("http")) {
+                        href = "https://series.naver.com" + href;
+                    }
+                    urls.add(href);
+                }
+            }
+
+            log.debug("추출된 링크 수: {}", urls.size());
+
+        } catch (Exception e) {
+            log.error("링크 추출 중 오류: {}", e.getMessage());
         }
-        return conn.get();
+
+        return urls;
     }
 
-    private static String text(Element e) {
-        return e == null ? "" : e.text().replace('\u00A0', ' ').trim();
-    }
-    private static String attr(Element e, String name) {
-        return e == null ? null : e.attr(name);
-    }
-    private static String firstText(Element root, String css) {
-        if (root == null) return null;
-        Element el = root.selectFirst(css);
-        return el == null ? null : el.text().trim();
-    }
+    /**
+     * 상세 페이지 크롤링 (Selenium 사용)
+     */
+    private Map<String, Object> crawlDetailPage(String detailUrl) {
+        WebDriver driver = null;
+        try {
+            driver = chromeDriverProvider.getDriver();
+            driver.get(detailUrl);
+            Thread.sleep(SLEEP_TIME);
 
-    private static String findInfoValue(Element infoUl, String label) {
-        if (infoUl == null) return null;
-        for (Element li : infoUl.select("> li")) {
-            Element span = li.selectFirst("> span");
-            if (span != null && label.equals(span.text().trim())) {
-                Element a = li.selectFirst("a");
-                return a != null ? a.text().trim() : li.ownText().trim();
+            log.debug("상세 페이지 파싱 시작: {}", detailUrl);
+
+            // 기본 정보
+            String title = parseTitle(driver);
+            if (title == null || title.isBlank()) {
+                log.warn("제목을 찾을 수 없음: {}", detailUrl);
+                return null;
+            }
+
+            String imageUrl = parseImageUrl(driver);
+
+            // ⭐ 핵심: 더보기 버튼 클릭 후 시놉시스 로드
+            String synopsis = parseSynopsisWithMoreButton(driver);
+
+            // 상세 정보
+            String author = parseAuthor(driver);
+            String publisher = parsePublisher(driver);
+            String status = parseStatus(driver);
+            String ageRating = parseAgeRating(driver);
+            List<String> genres = parseGenres(driver);
+
+            // 통계 정보
+            BigDecimal rating = parseRating(driver);
+            Long downloadCount = parseDownloadCount(driver);
+            Long commentCount = parseCommentCount(driver);
+
+            // productNo 추출
+            String titleId = extractProductNo(detailUrl);
+
+            // Payload 구성
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("title", nz(title));
+            payload.put("author", nz(author));
+            payload.put("publisher", nz(publisher));
+            payload.put("status", nz(status));
+            payload.put("ageRating", nz(ageRating));
+            payload.put("synopsis", nz(synopsis));
+            payload.put("imageUrl", nz(imageUrl));
+            payload.put("productUrl", nz(detailUrl));
+            payload.put("titleId", nz(titleId));
+
+            if (rating != null) payload.put("rating", rating.toString());
+            if (downloadCount != null) payload.put("downloadCount", downloadCount);
+            if (commentCount != null) payload.put("commentCount", commentCount);
+            if (!genres.isEmpty()) payload.put("genres", String.join(",", genres));
+
+            return payload;
+
+        } catch (Exception e) {
+            log.error("상세 페이지 파싱 중 오류: {}, {}", detailUrl, e.getMessage());
+            return null;
+        } finally {
+            if (driver != null) {
+                driver.quit();
             }
         }
-        return null;
     }
 
-    private static String findAge(Element infoUl) {
-        if (infoUl == null) return null;
-        for (Element li : infoUl.select("> li")) {
-            String t = text(li);
-            if (t.contains("이용가")) return t;
-        }
-        return null;
-    }
+    /**
+     * 🎯 더보기 버튼 클릭 후 시놉시스 파싱
+     */
+    private String parseSynopsisWithMoreButton(WebDriver driver) {
+        try {
+            // 더보기 버튼 찾기 및 클릭
+            try {
+                WebElement moreButton = driver.findElement(
+                        By.cssSelector("a.lk_more._toggleMore")
+                );
 
-    private static BigDecimal extractRating(Document doc) {
-        Element score = doc.selectFirst("div.score_area");
-        if (score == null) return null;
-        Matcher m = Pattern.compile("(\\d+(?:\\.\\d+)?)").matcher(score.text());
-        return m.find() ? new BigDecimal(m.group(1)) : null;
-    }
+                // JavaScript로 클릭 (일반 클릭이 안 될 경우 대비)
+                JavascriptExecutor js = (JavascriptExecutor) driver;
+                js.executeScript("arguments[0].click();", moreButton);
 
-    private static Long extractInterestCountFromHead(Element head) {
-        if (head == null) return null;
-        String t = head.text();
-        // "관심 7억 2,445만 139.3만 공유" → 관심 수만 파싱
-        Matcher m = Pattern.compile("관심\\s*(\\d+(?:\\.\\d+)?\\s*억(?:\\s*[\\d,\\.]+\\s*만)?|\\d+(?:\\.\\d+)?\\s*만|[\\d,]+)")
-                .matcher(t);
-        if (m.find()) return parseKoreanCount(m.group(1));
-        return null;
-    }
+                log.debug("더보기 버튼 클릭 완료");
+                Thread.sleep(300); // 확장 대기
 
-    private static Long extractCommentCount(Document doc, Element head) {
-        Element h3 = doc.selectFirst("h3:matchesOwn(댓글)");
-        if (h3 != null) {
-            Element span = h3.selectFirst("span");
-            if (span != null) {
-                Long n = parseKoreanCount(span.text());
-                if (n != null) return n;
+            } catch (NoSuchElementException e) {
+                log.debug("더보기 버튼 없음 (전체 텍스트 표시 상태)");
             }
+
+            // 시놉시스 텍스트 추출
+            WebElement synopsisElement = driver.findElement(
+                    By.cssSelector("div.end_dsc ._synopsis")
+            );
+
+            String synopsis = synopsisElement.getText().trim();
+            log.debug("시놉시스 추출 완료: {}자", synopsis.length());
+
+            return synopsis;
+
+        } catch (Exception e) {
+            log.warn("시놉시스 파싱 실패: {}", e.getMessage());
+            return null;
         }
-        // 폴백: 헤더 텍스트 내 "공유" 앞 숫자
-        if (head != null) {
-            String t = head.text();
-            Matcher m = Pattern.compile("관심\\s*(?:\\S+)\\s*(\\d+(?:\\.\\d+)?\\s*만|[\\d,]+)\\s*공유").matcher(t);
-            if (m.find()) return parseKoreanCount(m.group(1));
-        }
-        return null;
     }
 
-    /** "7억 2,445만", "139.3만", "1,393,475" 지원 */
-    private static Long parseKoreanCount(String s) {
-        if (s == null) return null;
-        s = s.trim().replace(",", "");
-        Matcher m = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*억(?:\\s*(\\d+(?:\\.\\d+)?)\\s*만)?").matcher(s);
-        if (m.find()) {
-            double eok = Double.parseDouble(m.group(1));
-            double man = (m.group(2) != null) ? Double.parseDouble(m.group(2)) : 0.0;
-            return Math.round(eok * 100_000_000 + man * 10_000);
+    private String parseTitle(WebDriver driver) {
+        try {
+            WebElement element = driver.findElement(By.cssSelector("meta[property='og:title']"));
+            String rawTitle = element.getAttribute("content");
+            return cleanTitle(rawTitle);
+        } catch (Exception e) {
+            log.debug("제목 파싱 실패: {}", e.getMessage());
+            return null;
         }
-        m = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*만").matcher(s);
-        if (m.find()) return Math.round(Double.parseDouble(m.group(1)) * 10_000);
-        try { return Long.parseLong(s); } catch (Exception ignored) { return null; }
     }
 
-    private static String extractQueryParam(String url, String key) {
-        if (url == null) return null;
-        int idx = url.indexOf('?');
-        if (idx < 0) return null;
-        String qs = url.substring(idx + 1);
-        for (String p : qs.split("&")) {
-            String[] kv = p.split("=", 2);
-            if (kv.length == 2 && kv[0].equals(key)) {
-                return URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+    private String parseImageUrl(WebDriver driver) {
+        try {
+            WebElement element = driver.findElement(By.cssSelector("meta[property='og:image']"));
+            return element.getAttribute("content");
+        } catch (Exception e) {
+            log.debug("이미지 URL 파싱 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String parseAuthor(WebDriver driver) {
+        try {
+            WebElement infoUl = driver.findElement(By.cssSelector("ul.end_info li.info_lst > ul"));
+            return findInfoValue(infoUl, "글");
+        } catch (Exception e) {
+            log.debug("작가 파싱 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String parsePublisher(WebDriver driver) {
+        try {
+            WebElement infoUl = driver.findElement(By.cssSelector("ul.end_info li.info_lst > ul"));
+            return findInfoValue(infoUl, "출판사");
+        } catch (Exception e) {
+            log.debug("출판사 파싱 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String parseStatus(WebDriver driver) {
+        try {
+            WebElement statusElement = driver.findElement(By.cssSelector("ul.end_info li.ing > span"));
+            return statusElement.getText().trim();
+        } catch (Exception e) {
+            log.debug("상태 파싱 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String parseAgeRating(WebDriver driver) {
+        try {
+            WebElement infoUl = driver.findElement(By.cssSelector("ul.end_info li.info_lst > ul"));
+
+            List<WebElement> items = infoUl.findElements(By.cssSelector("> li"));
+            for (WebElement li : items) {
+                WebElement labelSpan = li.findElement(By.cssSelector("> span"));
+                if (labelSpan != null && "이용가".equals(labelSpan.getText().trim())) {
+                    WebElement valueSpan = li.findElement(By.cssSelector("span:nth-of-type(2)"));
+                    if (valueSpan != null) {
+                        return valueSpan.getText().trim();
+                    }
+                }
             }
+        } catch (Exception e) {
+            log.debug("이용가 파싱 실패: {}", e.getMessage());
         }
         return null;
     }
 
-    private static String cleanTitle(String raw) {
-        if (raw == null) return null;
-        // [독점], [완결] 등 태그 제거
-        return raw.replaceAll("\\s*\\[[^\\]]+\\]\\s*", " ").replaceAll("\\s+", " ").trim();
+    private List<String> parseGenres(WebDriver driver) {
+        List<String> genres = new ArrayList<>();
+        try {
+            WebElement infoUl = driver.findElement(By.cssSelector("ul.end_info li.info_lst > ul"));
+            List<WebElement> items = infoUl.findElements(By.cssSelector("> li"));
+
+            for (WebElement li : items) {
+                String label = "";
+                try {
+                    WebElement labelSpan = li.findElement(By.cssSelector("> span"));
+                    label = labelSpan.getText().trim();
+                } catch (Exception ignored) {}
+
+                if ("글".equals(label) || "출판사".equals(label) || "이용가".equals(label)) {
+                    continue;
+                }
+
+                List<WebElement> genreLinks = li.findElements(By.cssSelector("a"));
+                for (WebElement a : genreLinks) {
+                    String genre = a.getText().trim();
+                    if (!genre.isEmpty() && !genres.contains(genre)) {
+                        genres.add(genre);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("장르 파싱 실패: {}", e.getMessage());
+        }
+        return genres;
     }
 
-    private static String nz(String s) {
-        return (s == null || s.isBlank()) ? null : s;
+    private BigDecimal parseRating(WebDriver driver) {
+        try {
+            WebElement ratingElement = driver.findElement(By.cssSelector("div.score_area em.num"));
+            String ratingText = ratingElement.getText().trim();
+            return new BigDecimal(ratingText);
+        } catch (Exception e) {
+            log.debug("별점 파싱 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private Long parseDownloadCount(WebDriver driver) {
+        try {
+            WebElement headDiv = driver.findElement(By.cssSelector("div.end_head"));
+            String headText = headDiv.getText();
+
+            Pattern pattern = Pattern.compile("관심\\s+([0-9억만,]+)");
+            Matcher matcher = pattern.matcher(headText);
+
+            if (matcher.find()) {
+                String countStr = matcher.group(1);
+                return parseKoreanNumber(countStr);
+            }
+        } catch (Exception e) {
+            log.debug("다운로드 수 파싱 실패: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    private Long parseCommentCount(WebDriver driver) {
+        try {
+
+            WebElement commentCountSpan = driver.findElement(By.id("commentCount"));
+            String countText = commentCountSpan.getText().trim();
+
+            log.debug("댓글 수 추출: {}", countText);
+            return parseKoreanNumber(countText);
+
+        } catch (NoSuchElementException e) {
+            log.debug("댓글 수 요소를 찾을 수 없음 (commentCount ID 없음)");
+            return null;
+        } catch (Exception e) {
+            log.debug("댓글 수 파싱 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // ===== Helper Methods =====
+
+    private String findInfoValue(WebElement infoUl, String label) {
+        try {
+            List<WebElement> items = infoUl.findElements(By.cssSelector("> li"));
+            for (WebElement li : items) {
+                WebElement labelSpan = li.findElement(By.cssSelector("> span"));
+                if (labelSpan != null && label.equals(labelSpan.getText().trim())) {
+                    WebElement valueSpan = li.findElement(By.cssSelector("span:nth-of-type(2)"));
+                    if (valueSpan != null) {
+                        return valueSpan.getText().trim();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("{} 값 찾기 실패: {}", label, e.getMessage());
+        }
+        return null;
+    }
+
+    private String extractProductNo(String url) {
+        Pattern pattern = Pattern.compile("productNo=(\\d+)");
+        Matcher matcher = pattern.matcher(url);
+        return matcher.find() ? matcher.group(1) : null;
+    }
+
+    private String cleanTitle(String title) {
+        if (title == null) return null;
+
+        // 괄호 제거
+        title = title.replaceAll("\\([^)]*\\)", "").trim();
+        // 다중 공백 정리
+        title = title.replaceAll("\\s+", " ").trim();
+
+        return title;
+    }
+
+    private Long parseKoreanNumber(String text) {
+        if (text == null || text.isEmpty()) return null;
+
+        try {
+            text = text.replaceAll("[^0-9억만,]", "");
+
+            long result = 0;
+            if (text.contains("억")) {
+                String[] parts = text.split("억");
+                result += Long.parseLong(parts[0].replaceAll(",", "")) * 100000000L;
+                if (parts.length > 1 && !parts[1].isEmpty()) {
+                    String remainder = parts[1].replaceAll("만", "").replaceAll(",", "");
+                    if (!remainder.isEmpty()) {
+                        result += Long.parseLong(remainder) * 10000L;
+                    }
+                }
+            } else if (text.contains("만")) {
+                String num = text.replaceAll("만", "").replaceAll(",", "");
+                result = Long.parseLong(num) * 10000L;
+            } else {
+                result = Long.parseLong(text.replaceAll(",", ""));
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            log.debug("숫자 파싱 실패: {}", text);
+            return null;
+        }
+    }
+
+    private String nz(String s) {
+        return s == null ? "" : s;
     }
 }
