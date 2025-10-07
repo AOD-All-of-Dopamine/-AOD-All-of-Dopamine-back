@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 > nul
 echo 🖥️ 로컬 환경 배포 시작...
 
 echo 🔨 Gradle 빌드 중...
@@ -7,7 +8,7 @@ call gradlew.bat clean bootJar
 if errorlevel 1 (
     echo ❌ Gradle 빌드 실패
     pause
-    exit /b 1
+    exit
 )
 
 echo 🐳 Docker 이미지 빌드 중...
