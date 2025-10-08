@@ -4,7 +4,7 @@ import com.example.AOD.ingest.CollectorService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements; // Elements 임포트 추가
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -91,8 +91,18 @@ public class NaverSeriesCrawler {
                 // 📚 상세정보 블럭
                 Element infoUl = doc.selectFirst("ul.end_info li.info_lst > ul");
 
-                // 📚 연재 상태
-                String status = firstText(infoUl, "li.ing > span"); // "연재중"/"완결" 등
+                // 📚 연재 상태 ("연재중", "완결" 모두 처리)
+                String status = null;
+                if (infoUl != null) {
+                    // 보통 첫번째 li에 상태값이 위치함
+                    Element statusLi = infoUl.selectFirst("> li");
+                    if (statusLi != null) {
+                        String statusText = statusLi.text().trim();
+                        if ("연재중".equals(statusText) || "완결".equals(statusText)) {
+                            status = statusText;
+                        }
+                    }
+                }
 
                 // ✍️ 글/출판사
                 String author = findInfoValue(infoUl, "글");
@@ -106,7 +116,8 @@ public class NaverSeriesCrawler {
                 if (infoUl != null) {
                     for (Element li : infoUl.select("> li")) {
                         String label = text(li.selectFirst("> span"));
-                        if ("글".equals(label) || "출판사".equals(label) || "이용가".equals(label) || "연재중".equals(label)) {
+                        // 상태, 글, 출판사, 이용가 정보는 장르에서 제외
+                        if ("연재중".equals(li.text()) || "완결".equals(li.text()) || "글".equals(label) || "출판사".equals(label) || "이용가".equals(label)) {
                             continue;
                         }
                         Element a = li.selectFirst("a");
@@ -117,16 +128,14 @@ public class NaverSeriesCrawler {
                     }
                 }
 
-                // ==================== [수정된 부분 시작] ====================
                 // 📝 시놉시스
-                // "더보기"가 있는 경우, 숨겨진 전체 줄거리가 담긴 div와 짧은 줄거리가 담긴 div가 모두 존재합니다.
-                // ._synopsis 클래스를 가진 요소가 여러 개일 수 있으므로, 마지막 요소를 선택하여 항상 전체 줄거리를 가져오도록 합니다.
                 String synopsis = "";
                 Elements synopsisElements = doc.select("div.end_dsc ._synopsis");
                 if (!synopsisElements.isEmpty()) {
-                    synopsis = text(synopsisElements.last());
+                    // "더보기"가 있는 경우를 대비해 항상 마지막 요소를 사용하고, 끝에 붙는 "접기" 단어를 제거
+                    synopsis = text(synopsisElements.last()).replaceAll("\\s*접기$", "").trim();
                 }
-                // ==================== [수정된 부분 끝] ======================
+
 
                 // productNo
                 String titleId = extractQueryParam(productUrl, "productNo");
@@ -241,26 +250,37 @@ public class NaverSeriesCrawler {
         // 폴백: 헤더 텍스트 내 "공유" 앞 숫자
         if (head != null) {
             String t = head.text();
-            Matcher m = Pattern.compile("관심\\s*(?:\\S+)\\s*(\\d+(?:\\.\\d+)?\\s*만|[\\d,]+)\\s*공유").matcher(t);
+            // [수정된 부분] 정규식에 '천' 단위를 추가하여 안정성 확보
+            Matcher m = Pattern.compile("관심\\s*(?:\\S+)\\s*(\\d+(?:\\.\\d+)?\\s*(?:만|천)|[\\d,]+)\\s*공유").matcher(t);
             if (m.find()) return parseKoreanCount(m.group(1));
         }
         return null;
     }
 
-    /** "7억 2,445만", "139.3만", "1,393,475" 지원 */
+    // ==================== [수정된 부분: parseKoreanCount] ====================
+    /** "7억 2,445만", "139.3만", "2.5천", "1,393,475" 지원 */
     private static Long parseKoreanCount(String s) {
         if (s == null) return null;
+        // 쉼표(,)를 제거하여 "1,234" 같은 천 단위 숫자도 처리 가능
         s = s.trim().replace(",", "");
+
         Matcher m = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*억(?:\\s*(\\d+(?:\\.\\d+)?)\\s*만)?").matcher(s);
         if (m.find()) {
             double eok = Double.parseDouble(m.group(1));
             double man = (m.group(2) != null) ? Double.parseDouble(m.group(2)) : 0.0;
             return Math.round(eok * 100_000_000 + man * 10_000);
         }
+
         m = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*만").matcher(s);
         if (m.find()) return Math.round(Double.parseDouble(m.group(1)) * 10_000);
+
+        // '천' 단위 처리 로직 추가
+        m = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*천").matcher(s);
+        if (m.find()) return Math.round(Double.parseDouble(m.group(1)) * 1_000);
+
         try { return Long.parseLong(s); } catch (Exception ignored) { return null; }
     }
+    // =======================================================================
 
     private static String extractQueryParam(String url, String key) {
         if (url == null) return null;
