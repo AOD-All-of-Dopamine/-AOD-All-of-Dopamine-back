@@ -206,7 +206,7 @@ public class AdminTestController {
                 : req.baseListUrl();
         int pages = req.pages() != null ? req.pages() : 1;
 
-        int saved = naverSeriesCrawler.crawlToRaw(base, pages);
+        int saved = naverSeriesCrawler.crawlToRaw(base, req.cookie(), pages);
         long pending = rawRepo.countByProcessedFalse();
 
         Map<String, Object> res = new HashMap<>();
