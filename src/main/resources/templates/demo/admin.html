@@ -78,13 +78,45 @@
 
         <div class="platform-section">
             <h4>📚 웹소설 (네이버 시리즈 / 카카오페이지)</h4>
-            <div class="input-group">
-                <label for="novel-pages">수집 페이지 수:</label>
-                <input type="number" id="novel-pages" value="2" class="form-input">
-                <button onclick="callNaverSeriesApi()">네이버 시리즈 수집</button>
-                <button onclick="callKakaoPageApi()">카카오페이지 수집</button>
+
+            <div class="input-group-sub">
+                <h5>네이버 시리즈</h5>
+                <label for="ns-novel-pages">수집 페이지 수:</label>
+                <input type="number" id="ns-novel-pages" value="2" class="form-input">
+                <button onclick="callNaverSeriesApi()">네이버 시리즈 인기작 수집</button>
             </div>
-            <p class="description">각 플랫폼의 웹소설 인기 목록을 지정된 페이지 수만큼 수집합니다.</p>
+            <hr>
+            <div class="input-group-sub">
+                <h5>카카오페이지</h5>
+                <div class="input-row">
+                    <label for="kp-genre">장르:</label>
+                    <select id="kp-genre" class="form-input">
+                        <option value="0">전체</option>
+                        <option value="86">판타지</option>
+                        <option value="120">현대판타지</option>
+                        <option value="117">로맨스판타지</option>
+                        <option value="89">로맨스</option>
+                        <option value="87">무협</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="kp-sort-type">정렬:</label>
+                    <select id="kp-sort-type" class="form-input">
+                        <option value="UPDATE">업데이트 순</option>
+                        <option value="PRODUCT_LATEST">등록일 순</option>
+                    </select>
+                    <label for="kp-is-complete">완결 여부:</label>
+                    <select id="kp-is-complete" class="form-input">
+                        <option value="false">연재중</option>
+                        <option value="true">완결</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="kp-novel-pages">수집 페이지 수:</label>
+                    <input type="number" id="kp-novel-pages" value="2" class="form-input">
+                    <button onclick="callKakaoPageApi()">카카오페이지 조건별 수집</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -175,16 +207,37 @@
             callApi('/api/crawl/naver-webtoon/weekday/sync', 'POST', body, `네이버 ${weekday}요일 웹툰 수집`);
         }
 
+        // 네이버 시리즈 API 호출 함수 (ID 충돌 방지를 위해 ns-novel-pages로 변경)
         function callNaverSeriesApi() {
-            const pages = document.getElementById('novel-pages').value;
+            const pages = document.getElementById('ns-novel-pages').value;
             const body = { pages: parseInt(pages) };
             callApi('/api/crawl/naver-series', 'POST', body, '네이버 시리즈 웹소설 수집');
         }
 
+        // 카카오페이지 API 호출 함수 (새로운 컨트롤러에 맞게 대폭 수정)
         function callKakaoPageApi() {
-            const pages = document.getElementById('novel-pages').value;
-            const body = { pages: parseInt(pages) };
-            callApi('/api/crawl/kakaopage', 'POST', body, '카카오페이지 웹소설 수집');
+            // 새로 추가된 UI에서 값들을 읽어옵니다.
+            const categoryUid = 11; // 11: 웹소설 (고정)
+            const subcategoryUid = document.getElementById('kp-genre').value;
+            const sortType = document.getElementById('kp-sort-type').value;
+            const isComplete = document.getElementById('kp-is-complete').value;
+            const pages = document.getElementById('kp-novel-pages').value;
+
+            // sectionId를 조합하여 생성합니다. (컨트롤러의 기본값 생성 로직과 유사)
+            const sectionId = `static-landing-Genre-section-Landing-${categoryUid}-${subcategoryUid}-${sortType}-${isComplete}`;
+
+            // 새로운 API DTO 형식에 맞는 body 객체를 생성합니다.
+            const body = {
+                sectionId: sectionId,
+                categoryUid: parseInt(categoryUid),
+                subcategoryUid: subcategoryUid,
+                sortType: sortType,
+                isComplete: (isComplete === 'true'), // 문자열 'true'를 boolean true로 변환
+                pages: parseInt(pages)
+            };
+
+            // 새로운 엔드포인트를 호출합니다.
+            callApi('/api/crawl/kakaopage/api', 'POST', body, '카카오페이지 웹소설 수집');
         }
 
     </script>

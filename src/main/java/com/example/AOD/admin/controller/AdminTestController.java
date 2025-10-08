@@ -220,23 +220,38 @@ public class AdminTestController {
     /* ===================== KAKAO PAGE ===================== */
 
     // (1) 카카오페이지 목록 URL 기반 수집 → raw_items
-    @PostMapping(path = "/crawl/kakaopage", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> crawlKakaoPageList(@RequestBody KpListRequest req) throws Exception {
-        String base = (req.listUrl() == null || req.listUrl().isBlank())
-                // 웹소설 장르 전체(예시) - page 파라미터 붙는 형태
-                ? "https://page.kakao.com/landing/genre/11"
-                : req.listUrl();
-        int pages = (req.pages() == null || req.pages() <= 0) ? 1 : req.pages();
+    @PostMapping(path = "/crawl/kakaopage/api", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> crawlKakaoPageByApi(@RequestBody KpApiRequest req) {
+        try {
+            // 요청 파라미터가 null일 경우 기본값 설정
+            String sectionId = (req.sectionId() == null || req.sectionId().isBlank())
+                    ? "static-landing-Genre-section-Landing-11-0-UPDATE-false" : req.sectionId();
+            int categoryUid = (req.categoryUid() == null) ? 11 : req.categoryUid(); // 11: 웹소설
+            String subcategoryUid = (req.subcategoryUid() == null) ? "0" : req.subcategoryUid(); // 0: 전체
+            String sortType = (req.sortType() == null || req.sortType().isBlank()) ? "UPDATE" : req.sortType(); // UPDATE: 업데이트순
+            boolean isComplete = (req.isComplete() == null) ? false : req.isComplete(); // false: 연재중
+            int pages = (req.pages() == null || req.pages() <= 0) ? 10 : req.pages(); // 기본 10페이지
 
-        int saved = kakaoPageCrawler.crawlToRaw(base, req.cookie(), pages);
-        long pending = rawRepo.countByProcessedFalse();
+            int saved = kakaoPageCrawler.crawlToRaw(
+                    sectionId, categoryUid, subcategoryUid, sortType, isComplete, req.cookie(), pages
+            );
+            long pending = rawRepo.countByProcessedFalse();
 
-        return Map.of(
-                "saved", saved,
-                "pendingRaw", pending,
-                "listUrl", base,
-                "pages", pages
-        );
+            Map<String, Object> usedParams = Map.of(
+                    "sectionId", sectionId, "categoryUid", categoryUid, "subcategoryUid", subcategoryUid,
+                    "sortType", sortType, "isComplete", isComplete, "pages", pages
+            );
+
+            return Map.of(
+                    "success", true,
+                    "message", "KakaoPage API crawling completed.",
+                    "saved", saved,
+                    "pendingRaw", pending,
+                    "parameters", usedParams
+            );
+        } catch (Exception e) {
+            return Map.of("success", false, "error", e.getMessage());
+        }
     }
 
 
@@ -308,6 +323,20 @@ public class AdminTestController {
     /* ===================== 요청 DTO ===================== */
 
     public record CrawlRequest(String baseListUrl, String cookie, Integer pages) {}
+
+    // 카카오페이지 API 요청을 위한 새로운 DTO
+    public record KpApiRequest(
+            String sectionId,
+            Integer categoryUid,
+            String subcategoryUid,
+            String sortType,
+            Boolean isComplete,
+            String cookie,
+            Integer pages
+    ) {}
+
+
+    //public record CrawlRequest(String baseListUrl, String cookie, Integer pages) {}
     public record KpListRequest(String listUrl, String cookie, Integer pages) {}
     public record KpCollectRequest(List<String> urls, String cookie) {}
 
