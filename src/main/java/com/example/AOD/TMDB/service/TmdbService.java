@@ -81,7 +81,7 @@ public class TmdbService {
 
     // --- Private Helper Methods ---
 
-    private void collectMoviesForPeriod(String startDate, String endDate, String language, int maxPages) {
+    public void collectMoviesForPeriod(String startDate, String endDate, String language, int maxPages) {
         int currentPage = 1;
         int effectiveMaxPages = Math.min(maxPages, 500); // TMDB API는 최대 500페이지까지만 지원
 
@@ -114,7 +114,7 @@ public class TmdbService {
         }
     }
 
-    private void collectTvShowsForPeriod(String startDate, String endDate, String language, int maxPages) {
+    public void collectTvShowsForPeriod(String startDate, String endDate, String language, int maxPages) {
         int currentPage = 1;
         int effectiveMaxPages = Math.min(maxPages, 500);
 
