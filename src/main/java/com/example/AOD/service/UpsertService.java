@@ -41,6 +41,9 @@ public class UpsertService {
                        String url) {
 
         String platformName = (String) platform.get("platformName");
+
+        // [개선] TMDB 이미지 URL 처리 로직
+        // TMDB API는 이미지 파일 경로만 제공하므로, 전체 URL로 조합해주는 과정이 필요합니다.
         if (domain == Domain.AV && "TMDB".equals(platformName)) {
             String posterPath = (String) master.get("poster_image_url");
             if (posterPath != null && !posterPath.isBlank() && !posterPath.startsWith("http")) {
@@ -51,7 +54,7 @@ public class UpsertService {
         String masterTitle = (String) master.get("master_title");
         if (masterTitle == null || masterTitle.isBlank()) {
             log.warn("Master title이 비어있어 해당 항목을 건너뜁니다. PlatformSpecificId: {}", platformSpecificId);
-            return null;
+            return null; // 제목이 없으면 처리하지 않음
         }
 
         Integer initialYear = (master.get("release_year") instanceof Number) ? ((Number) master.get("release_year")).intValue() : null;
@@ -60,10 +63,9 @@ public class UpsertService {
         }
         final Integer finalReleaseYear = initialYear;
 
+        // 동일 콘텐츠 판단: 도메인, 정규화된 제목, 출시 연도를 기준으로 찾습니다.
         Content content = contentRepo
-                .findFirstByDomainAndMasterTitleAndReleaseYear(domain,
-                        masterTitle,
-                        finalReleaseYear)
+                .findFirstByDomainAndMasterTitleAndReleaseYear(domain, masterTitle, finalReleaseYear)
                 .orElseGet(() -> {
                     Content c = new Content();
                     c.setDomain(domain);
@@ -75,6 +77,7 @@ public class UpsertService {
                     return contentRepo.save(c);
                 });
 
+        // 기존 콘텐츠 정보 업데이트 (null인 필드만)
         if (content.getReleaseYear() == null && finalReleaseYear != null) {
             content.setReleaseYear(finalReleaseYear);
         }
@@ -86,26 +89,24 @@ public class UpsertService {
             content.setSynopsis((String) master.getOrDefault("synopsis", content.getSynopsis()));
 
 
-        // [수정된 로직]
-        // TMDB에서 온 데이터일 경우, watch_providers에서 "KR" 정보만 필터링하여 attributes에 저장
+        // [개선] TMDB의 watch_providers에서 "KR" 정보만 필터링하여 attributes에 저장
         Map<String, Object> attributes = (Map<String, Object>) platform.get("attributes");
         if ("TMDB".equals(platformName) && attributes != null && attributes.containsKey("watch_providers")) {
             Map<String, Object> watchProviders = (Map<String, Object>) attributes.get("watch_providers");
             if (watchProviders != null && watchProviders.containsKey("KR")) {
-                // 새로운 attributes 맵을 만들어 KR 정보만 담는다.
+                // 새로운 attributes 맵을 만들어 KR(한국) 정보만 담습니다.
                 Map<String, Object> filteredAttributes = new HashMap<>();
                 filteredAttributes.put("watch_providers", Map.of("KR", watchProviders.get("KR")));
-                // 원본 attributes의 다른 정보들도 필요하다면 여기에 추가
-                // 예: filteredAttributes.put("another_key", attributes.get("another_key"));
                 attributes = filteredAttributes;
             } else {
-                // KR 정보가 없으면 watch_providers를 비운다.
+                // KR 정보가 없으면 watch_providers 정보를 비웁니다.
                 attributes.put("watch_providers", Map.of());
             }
         }
 
         savePlatformData(content, platformName, platformSpecificId, url, attributes);
 
+        // 도메인별 상세 정보 저장
         domainCoreUpsert.upsert(domain, content, domainDoc);
 
         return content.getContentId();
@@ -130,6 +131,7 @@ public class UpsertService {
         if (dateString == null || dateString.isBlank()) {
             return null;
         }
+        // "YYYY-MM-DD" 형식에서 연도만 추출
         Matcher matcher = Pattern.compile("^(\\d{4})").matcher(dateString.trim());
         if (matcher.find()) {
             try {

@@ -49,7 +49,6 @@ public class TmdbTestController {
         return ResponseEntity.ok(Map.of("message", "TMDB 인기 TV쇼 샘플 데이터 " + pages + " 페이지 수집을 시작합니다."));
     }
 
-    // --- [신규] 연도별 샘플 데이터 수집 API ---
     @PostMapping("/collect/movies-by-year/sample")
     public ResponseEntity<Map<String, String>> startMoviesByYearSampleCollection(
             @RequestParam int year,
@@ -69,16 +68,30 @@ public class TmdbTestController {
     }
 
 
-    // --- API 응답 미리보기 API ---
+    // --- API 응답 미리보기 API (개선된 부분) ---
 
     @GetMapping("/preview/discover/movie")
-    public ResponseEntity<TmdbDiscoveryResult> previewDiscoverMovies(@RequestParam(defaultValue = "1") int page) {
-        return ResponseEntity.ok(tmdbApiFetcher.discoverPopularMovies(page, "ko-KR"));
+    public ResponseEntity<TmdbDiscoveryResult> previewDiscoverMovies(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) String year) {
+
+        String startDate = (year != null) ? year + "-01-01" : null;
+        String endDate = (year != null) ? year + "-12-31" : null;
+
+        // [개선] 통합된 discoverMovies 메서드 사용
+        return ResponseEntity.ok(tmdbApiFetcher.discoverMovies("ko-KR", page, startDate, endDate));
     }
 
     @GetMapping("/preview/discover/tv")
-    public ResponseEntity<TmdbTvDiscoveryResult> previewDiscoverTvShows(@RequestParam(defaultValue = "1") int page) {
-        return ResponseEntity.ok(tmdbApiFetcher.discoverPopularTvShows(page, "ko-KR"));
+    public ResponseEntity<TmdbTvDiscoveryResult> previewDiscoverTvShows(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) String year) {
+
+        String startDate = (year != null) ? year + "-01-01" : null;
+        String endDate = (year != null) ? year + "-12-31" : null;
+
+        // [개선] 통합된 discoverTvShows 메서드 사용
+        return ResponseEntity.ok(tmdbApiFetcher.discoverTvShows("ko-KR", page, startDate, endDate));
     }
 
     @GetMapping("/preview/movie/{movieId}/providers")
