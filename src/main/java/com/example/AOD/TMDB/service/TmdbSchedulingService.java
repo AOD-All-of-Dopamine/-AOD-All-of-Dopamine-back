@@ -22,11 +22,11 @@ public class TmdbSchedulingService {
     private static final int OLDEST_YEAR = 1980; // 업데이트할 가장 오래된 연도
 
     /**
-     * 신규 콘텐츠 수집을 위해 매일 새벽 4시에 실행됩니다.
+     * [개선] 신규 콘텐츠 수집을 위해 매일 새벽 4시에 비동기로 실행됩니다.
      * 최근 7일간의 영화 및 TV쇼 데이터를 수집합니다.
      */
-    //@Async
-    @Scheduled(cron = "0 0 0 * * *") // 매일 새벽 4시
+    @Async
+    @Scheduled(cron = "0 0 4 * * *") // 매일 새벽 4시
     public void collectNewContentDaily() {
         LocalDate today = LocalDate.now();
         LocalDate sevenDaysAgo = today.minusDays(7);
@@ -38,7 +38,7 @@ public class TmdbSchedulingService {
 
         log.info("🚀 [정기 스케줄] 신규 콘텐츠 수집을 시작합니다. (기간: {} ~ {})", startDate, endDate);
 
-        // 최근 7일간의 영화와 TV쇼 데이터를 10페이지까지 수집 (신규 콘텐츠는 양이 많지 않으므로)
+        // 최근 7일간의 영화와 TV쇼 데이터를 10페이지까지 수집
         tmdbService.collectMoviesForPeriod(startDate, endDate, language, 10);
         tmdbService.collectTvShowsForPeriod(startDate, endDate, language, 10);
 
@@ -46,12 +46,17 @@ public class TmdbSchedulingService {
     }
 
     /**
-     * 과거 콘텐츠 최신화를 위해 매주 일요일 새벽 5시에 실행됩니다.
+     * 과거 콘텐츠 최신화를 위해 매주 일요일 새벽 5시에 비동기로 실행됩니다.
      * 지정된 연도의 모든 영화 및 TV쇼 데이터를 수집하고, 다음 실행을 위해 연도를 1씩 감소시킵니다.
      */
     @Async
     @Scheduled(cron = "0 0 5 * * SUN") // 매주 일요일 새벽 5시
     public void updatePastContentWeekly() {
+        if (yearToUpdate < OLDEST_YEAR) {
+            log.info("모든 과거 콘텐츠 순환 업데이트가 1회 완료되었습니다. 다음 주부터 다시 현재 연도부터 시작합니다.");
+            yearToUpdate = Year.now().getValue(); // 가장 오래된 연도까지 갔으면 다시 현재 연도로 리셋
+        }
+
         log.info("🚀 [정기 스케줄] 과거 콘텐츠 최신화 작업을 시작합니다. (대상 연도: {})", yearToUpdate);
         String language = "ko-KR";
 
@@ -63,9 +68,5 @@ public class TmdbSchedulingService {
 
         // 다음 주에 업데이트할 연도 설정
         yearToUpdate--;
-        if (yearToUpdate < OLDEST_YEAR) {
-            log.info("모든 과거 콘텐츠 순환 업데이트가 1회 완료되었습니다. 다음 주부터 다시 현재 연도부터 시작합니다.");
-            yearToUpdate = Year.now().getValue(); // 가장 오래된 연도까지 갔으면 다시 현재 연도로 리셋
-        }
     }
 }
