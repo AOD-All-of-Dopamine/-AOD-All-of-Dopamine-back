@@ -89,15 +89,13 @@ public class UpsertService {
             content.setSynopsis((String) master.getOrDefault("synopsis", content.getSynopsis()));
 
 
-        // [개선] TMDB의 watch_providers에서 "KR" 정보만 필터링하여 attributes에 저장
+        // [수정된 부분]
         Map<String, Object> attributes = (Map<String, Object>) platform.get("attributes");
         if ("TMDB".equals(platformName) && attributes != null && attributes.containsKey("watch_providers")) {
             Map<String, Object> watchProviders = (Map<String, Object>) attributes.get("watch_providers");
             if (watchProviders != null && watchProviders.containsKey("KR")) {
-                // 새로운 attributes 맵을 만들어 KR(한국) 정보만 담습니다.
-                Map<String, Object> filteredAttributes = new HashMap<>();
-                filteredAttributes.put("watch_providers", Map.of("KR", watchProviders.get("KR")));
-                attributes = filteredAttributes;
+                // 기존 attributes 맵에서 "watch_providers" 키의 값만 수정합니다.
+                attributes.put("watch_providers", Map.of("KR", watchProviders.get("KR")));
             } else {
                 // KR 정보가 없으면 watch_providers 정보를 비웁니다.
                 attributes.put("watch_providers", Map.of());
