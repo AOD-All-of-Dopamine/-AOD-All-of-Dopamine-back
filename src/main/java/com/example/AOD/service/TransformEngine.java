@@ -85,21 +85,33 @@ public class TransformEngine {
 
         Map<String,String> fm = rule.getFieldMappings();
         if (fm != null) {
+            boolean isMovie = raw.containsKey("movie_details");
+            boolean isTv = raw.containsKey("tv_details");
+
             for (var e : fm.entrySet()) {
                 String src = e.getKey();
                 String dst = e.getValue();
+
+                // [✨ 핵심 수정] TMDB 규칙일 경우, 데이터 타입에 맞는 규칙만 적용
+                if ("TMDB".equals(rule.getPlatformName())) {
+                    if (isMovie && src.startsWith("tv_details")) {
+                        continue; // 영화 데이터일 때 TV 규칙 건너뛰기
+                    }
+                    if (isTv && src.startsWith("movie_details")) {
+                        continue; // TV 데이터일 때 영화 규칙 건너뛰기
+                    }
+                }
+
                 Object val = deepGet(raw, src);
 
-                // [수정] 값이 null일 경우, platform.attributes 필드에 한해 기본값 설정
+                // 값이 null일 경우, platform.attributes 필드에 한해 기본값 설정
                 if (val == null && dst.startsWith("platform.attributes.")) {
                     String attrName = dst.substring("platform.attributes.".length());
-                    // 필드명에 따라 적절한 기본값(0, 빈 리스트 등)을 설정
                     if (attrName.contains("count") || attrName.contains("runtime")) {
                         val = 0;
                     } else if (attrName.equals("cast") || attrName.equals("crew")) {
                         val = Collections.emptyList();
                     } else {
-                        // 그 외의 경우는 null을 유지하거나 빈 문자열("")로 설정할 수 있음
                         val = "";
                     }
                 }
