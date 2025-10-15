@@ -30,6 +30,9 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
@@ -83,12 +86,17 @@ jobs:
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-          # docker-compose 파일들과 배포 스크립트 전송
+          # docker-compose 파일들 전송
           scp -i private_key.pem -o StrictHostKeyChecking=no \
-            docker-compose.yml \
             docker-compose.bluegreen.yml \
-            deploy-bluegreen.sh \
             ${USER}@${HOST}:~/
+          
+          # deploy-bluegreen.sh가 프로젝트에 있으면 전송
+          if [ -f deploy-bluegreen.sh ]; then
+            scp -i private_key.pem -o StrictHostKeyChecking=no \
+              deploy-bluegreen.sh \
+              ${USER}@${HOST}:~/
+          fi
           
           # monitoring 폴더 전송
           scp -i private_key.pem -o StrictHostKeyChecking=no -r \
