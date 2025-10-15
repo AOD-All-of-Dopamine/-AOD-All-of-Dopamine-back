@@ -1,3 +1,6 @@
+# This workflow builds the application, pushes it to ECR, and deploys it to EC2.
+# It now includes Naver and Netflix credentials from GitHub Secrets.
+
 name: CI/CD Pipeline
 
 on:
@@ -14,8 +17,10 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    
     outputs:
       image: ${{ steps.build-image.outputs.image }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,7 +34,7 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
-
+        
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
@@ -59,72 +64,94 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    
     steps:
+      - name: Check for required secrets
+        run: |
+          if [ -z "${{ secrets.EC2_HOST }}" ]; then echo "EC2_HOST secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.POSTGRES_HOST }}" ]; then echo "POSTGRES_HOST secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.POSTGRES_USER }}" ]; then echo "POSTGRES_USER secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.POSTGRES_PASSWORD }}" ]; then echo "POSTGRES_PASSWORD secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.TMDB_API_KEY }}" ]; then echo "TMDB_API_KEY secret is missing!"; exit 1; fi
+          # ✨ [추가됨] Naver/Netflix Secrets 확인
+          if [ -z "${{ secrets.NAVER_ID }}" ]; then echo "NAVER_ID secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.NAVER_PW }}" ]; then echo "NAVER_PW secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.NETFLIX_ID }}" ]; then echo "NETFLIX_ID secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.NETFLIX_PW }}" ]; then echo "NETFLIX_PW secret is missing!"; exit 1; fi
+
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check for required secrets
-        run: |
-          if [ -z "${{ secrets.EC2_HOST }}" ]; then echo "❌ EC2_HOST secret is not set."; exit 1; fi
-          if [ -z "${{ secrets.EC2_USER }}" ]; then echo "❌ EC2_USER secret is not set."; exit 1; fi
-          if [ -z "${{ secrets.EC2_SSH_PRIVATE_KEY }}" ]; then echo "❌ EC2_SSH_PRIVATE_KEY secret is not set."; exit 1; fi
-          if [ -z "${{ secrets.POSTGRES_HOST }}" ]; then echo "❌ POSTGRES_HOST secret is not set."; exit 1; fi
-          if [ -z "${{ secrets.POSTGRES_USER }}" ]; then echo "❌ POSTGRES_USER secret is not set."; exit 1; fi
-          if [ -z "${{ secrets.POSTGRES_PASSWORD }}" ]; then echo "❌ POSTGRES_PASSWORD secret is not set."; exit 1; fi
-          echo "✅ All required secrets are present."
-
       - name: Deploy to EC2 using Docker Compose
         env:
-          # SSH 접속 정보
+          # SSH connection secrets
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          # 애플리케이션 환경변수
+          
+          # Application environment variables from secrets
           APP_IMAGE_URI: ${{ needs.build-and-push.outputs.image }}
           SPRING_PROFILE: prod
-          APP_PORT: 8080
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT || '5432' }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB || 'aodDB' }}
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: aodDB
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           SELENIUM_URL: ${{ secrets.SELENIUM_URL }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          # ✨ [추가됨] Naver/Netflix 로그인 정보를 Secrets에서 가져옵니다.
+          NAVER_ID: ${{ secrets.NAVER_ID }}
+          NAVER_PW: ${{ secrets.NAVER_PW }}
+          NETFLIX_ID: ${{ secrets.NETFLIX_ID }}
+          NETFLIX_PW: ${{ secrets.NETFLIX_PW }}
+
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
+
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-app"
-          scp -i private_key.pem -o StrictHostKeyChecking=no docker-compose.yml ${USER}@${HOST}:/home/${USER}/aod-app/
-          
+
+          scp -i private_key.pem -o StrictHostKeyChecking=no \
+            ./docker-compose.yml \
+            ${USER}@${HOST}:/home/${USER}/aod-app/
+
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
             cd /home/${USER}/aod-app
-            
-            export APP_IMAGE_URI="${APP_IMAGE_URI}"
-            export SPRING_PROFILE="${SPRING_PROFILE}"
-            export APP_PORT="${APP_PORT}"
-            export POSTGRES_HOST="${POSTGRES_HOST}"
-            export POSTGRES_PORT="${POSTGRES_PORT}"
-            export POSTGRES_DB="${POSTGRES_DB}"
-            export POSTGRES_USER="${POSTGRES_USER}"
-            export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-            export SELENIUM_URL="${SELENIUM_URL}"
-            
-            docker pull ${APP_IMAGE_URI}
+
+            # Export all necessary environment variables
+            export APP_IMAGE_URI='${APP_IMAGE_URI}'
+            export SPRING_PROFILE='${SPRING_PROFILE}'
+            export POSTGRES_HOST='${POSTGRES_HOST}'
+            export POSTGRES_PORT='${POSTGRES_PORT}'
+            export POSTGRES_DB='${POSTGRES_DB}'
+            export POSTGRES_USER='${POSTGRES_USER}'
+            export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
+            export SELENIUM_URL='${SELENIUM_URL}'
+            export TMDB_API_KEY='${TMDB_API_KEY}'
+            # ✨ [추가됨] Naver/Netflix 변수를 export 합니다.
+            export NAVER_ID='${NAVER_ID}'
+            export NAVER_PW='${NAVER_PW}'
+            export NETFLIX_ID='${NETFLIX_ID}'
+            export NETFLIX_PW='${NETFLIX_PW}'
+
+            docker pull \${APP_IMAGE_URI}
+
             docker-compose up -d --remove-orphans
-            
+
             echo "Sleeping for 40 seconds to allow the application to start..."
             sleep 40
             
-            if curl -f http://localhost:${APP_PORT}/actuator/health > /dev/null 2>&1; then
+            # Health check
+            if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
               echo "✅ Health check successful!"
-              docker image prune -af
             else
               echo "❌ Health check failed! Please check the container logs."
-              docker-compose logs --tail 100
+              docker-compose logs --tail 50
               exit 1
             fi
             
-            echo "✅ Deployment successful! Container status:"
-            docker-compose ps
+            docker image prune -af
           EOF
           
           rm -f private_key.pem
+
