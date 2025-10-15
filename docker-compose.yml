@@ -18,31 +18,20 @@ services:
   postgres:
     image: postgres:16
     container_name: aod-postgres
-    # 컨테이너 이름 지정 (docker ps에서 보이는 이름)
     environment:
-      # 환경 변수 설정
       POSTGRES_DB: ${POSTGRES_DB:-aodDB}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      # ${변수명:-기본값} 형식
-      # .env 파일에 POSTGRES_DB가 있으면 그 값 사용
-      # 없으면 aodDB 사용
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-      # 호스트:컨테이너 포트 매핑
-      # 호스트의 5432 → 컨테이너의 5432
-      # 로컬에서 localhost:5432로 접속 가능
+      - "${POSTGRES_PORT:-5432}:5432"  # ← 5433:5432로 수정!
+      # 외부(호스트)에서는 5433 포트로 접속
+      # 내부(컨테이너)에서는 5432 포트 사용
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      # Named Volume 사용
-      # 컨테이너를 삭제해도 데이터는 유지됨
-      # 실제 데이터는 Docker가 관리하는 특수 디렉토리에 저장
     networks:
       - aod-network
-      # 이 컨테이너가 속할 네트워크
-      # 같은 네트워크의 컨테이너끼리는 이름으로 통신 가능
-
     restart: unless-stopped
+
     # 컨테이너 재시작 정책
     # unless-stopped: 수동으로 중지하지 않는 한 항상 재시작
 
@@ -58,25 +47,16 @@ services:
       # JVM의 시간대를 한국으로 강제 설정 (가장 확실한 방법)
       JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul"
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-prod}
-      # Spring Boot 프로파일 설정
-      # local/prod에 따라 다른 application-*.properties 사용
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-aodDB}
-      # jdbc:postgresql://postgres:5432/aodDB
-      # ↑ 여기서 'postgres'는 컨테이너 이름!
-      # Docker 네트워크 내부 DNS로 자동 해석됨
+      # ↑ postgres:5432로 수정! (컨테이너 내부 포트)
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
       SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
     depends_on:
       - postgres
       - selenium
-      # postgres 컨테이너가 먼저 시작되어야 함
-      # 주의: postgres가 "완전히 준비"될 때까지 기다리진 않음
-      # 단지 "시작"만 기다림
     networks:
       - aod-network
-      # postgres와 같은 네트워크
-      # 'postgres'라는 이름으로 DB 접속 가능
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
