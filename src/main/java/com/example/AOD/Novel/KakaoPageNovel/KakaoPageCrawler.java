@@ -1,7 +1,6 @@
 package com.example.AOD.Novel.KakaoPageNovel;
 
 import com.example.AOD.ingest.CollectorService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Connection;
@@ -22,7 +21,6 @@ public class KakaoPageCrawler {
     private static final ObjectMapper OM = new ObjectMapper();
     private static final String GRAPHQL_API_URL = "https://bff-page.kakao.com/graphql";
 
-    // API 요청에 필요한 GraphQL 쿼리 (필요한 최소 정보만 요청하도록 간소화 가능)
     private static final String GRAPHQL_QUERY = """
     query staticLandingGenreSection($sectionId: ID!, $param: StaticLandingGenreParamInput!) {
       staticLandingGenreSection(sectionId: $sectionId, param: $param) {
@@ -44,18 +42,6 @@ public class KakaoPageCrawler {
         this.collector = collector;
     }
 
-    /**
-     * GraphQL API를 사용하여 목록을 크롤링하는 최신 메소드.
-     * @param sectionId 고정된 섹션 ID (예: "static-landing-Genre-section-Landing-11-0-UPDATE-false")
-     * @param categoryUid 카테고리 ID (예: 11)
-     * @param subcategoryUid 서브카테고리 ID (예: "0")
-     * @param sortType 정렬 타입 (예: "UPDATE")
-     * @param isComplete 완결 여부
-     * @param cookieString 로그인 쿠키 (필요 시)
-     * @param maxPages 최대 크롤링할 페이지 수
-     * @return 저장된 아이템 개수
-     * @throws Exception
-     */
     public int crawlToRaw(
             String sectionId, int categoryUid, String subcategoryUid,
             String sortType, boolean isComplete, String cookieString, int maxPages) throws Exception {
@@ -66,7 +52,7 @@ public class KakaoPageCrawler {
         while (true) {
             if (maxPages > 0 && page > maxPages) break;
 
-            // 1. GraphQL 요청 Payload 생성
+            // ... (1, 2, 3 단계는 변경 없음) ...
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("categoryUid", categoryUid);
             paramMap.put("subcategoryUid", subcategoryUid);
@@ -85,7 +71,6 @@ public class KakaoPageCrawler {
             );
             String jsonPayload = OM.writeValueAsString(payload);
 
-            // 2. Jsoup으로 POST 요청
             Connection.Response response = Jsoup.connect(GRAPHQL_API_URL)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
                     .referrer("https://page.kakao.com/")
@@ -99,7 +84,6 @@ public class KakaoPageCrawler {
 
             String jsonResponse = response.body();
 
-            // 3. 응답 JSON에서 seriesId 추출
             Set<String> detailUrls = new LinkedHashSet<>();
             JsonNode root = OM.readTree(jsonResponse);
             JsonNode itemsNode = root.at("/data/staticLandingGenreSection/groups/0/items");
@@ -125,7 +109,8 @@ public class KakaoPageCrawler {
             for (String detailUrl : detailUrls) {
                 try {
                     Document doc = get(detailUrl, cookieString);
-                    KakaoPageNovelDTO dto = parseDetail(doc, detailUrl);
+                    // ★★★★★ 수정된 부분: parseDetail에 cookieString을 전달 ★★★★★
+                    KakaoPageNovelDTO dto = parseDetail(doc, detailUrl, cookieString);
 
                     Map<String, Object> dataToSave = new LinkedHashMap<>();
                     dataToSave.put("title", nz(dto.getTitle()));
@@ -146,11 +131,10 @@ public class KakaoPageCrawler {
                     collector.saveRaw("KakaoPage", "WEBNOVEL", dataToSave, dto.getSeriesId(), dto.getProductUrl());
                     saved++;
                 } catch (Exception e) {
-                    System.err.println("상세 페이지 처리 중 오류: " + detailUrl);
+                    System.err.println("상세 페이지 처리 중 오류: " + detailUrl + " - " + e.getMessage());
                 }
             }
 
-            // 5. 종료 조건 확인
             boolean isEnd = root.at("/data/staticLandingGenreSection/isEnd").asBoolean(true);
             if (isEnd) {
                 System.out.println("API가 마지막 페이지라고 응답하여 종료합니다.");
@@ -158,89 +142,86 @@ public class KakaoPageCrawler {
             }
 
             page++;
-            Thread.sleep(1000); // 서버 부하 방지를 위한 대기 시간
+            Thread.sleep(1000);
         }
         return saved;
     }
 
     /**
-     * 상세 페이지 HTML을 파싱하여 DTO 객체를 생성하는 메소드.
+     * 상세 페이지 HTML을 파싱하여 DTO 객체를 생성하는 메소드. (수정됨)
      */
-    public KakaoPageNovelDTO parseDetail(Document doc, String detailUrl) {
+    public KakaoPageNovelDTO parseDetail(Document doc, String detailUrl, String cookieString) throws Exception {
         KakaoPageNovelDTO.KakaoPageNovelDTOBuilder b = KakaoPageNovelDTO.builder();
 
+        // --- 1. 기본 페이지('홈' 탭) 정보 파싱 ---
         String productUrl = meta(doc, "property", "og:url");
         if (isBlank(productUrl)) productUrl = detailUrl;
         b.productUrl(productUrl);
         b.seriesId(extractSeriesIdFromPath(productUrl));
 
         b.imageUrl(meta(doc, "property", "og:image"));
-
-        String title = meta(doc, "property", "og:title");
-        if (isBlank(title)) {
-            title = text(selectFirstSafe(doc, "span.font-large3-bold"));
-        }
-        b.title(clean(title));
-
-        String author = meta(doc, "name", "author");
-        if (isBlank(author)) {
-            author = text(selectFirstSafe(doc, "span.font-small2.mb-6pxr"));
-        }
-        b.author(clean(author));
+        b.title(clean(meta(doc, "property", "og:title")));
+        b.author(clean(meta(doc, "name", "author")));
 
         String synopsis = meta(doc, "property", "og:description");
         if (isBlank(synopsis)) synopsis = meta(doc, "name", "description");
-        if (isBlank(synopsis)) {
-            synopsis = text(selectFirstSafe(doc, "div > div > div > div > span[class*='whitespace-pre-wrap']"));
-        }
         b.synopsis(clean(synopsis));
 
         List<String> keywords = new ArrayList<>();
         String kw = meta(doc, "name", "keywords");
         if (!isBlank(kw)) {
-            keywords.addAll(Arrays.asList(kw.split("[,;]")));
+            keywords.addAll(Arrays.stream(kw.split("[,;]")).map(String::trim).toList());
         }
         b.keywords(keywords);
 
         Element statsRow = selectFirstSafe(doc, "div.flex.h-16pxr.items-center.justify-center");
-        List<String> genres = new ArrayList<>();
-        Long viewCount = null;
-        BigDecimal rating = null;
         if (statsRow != null) {
             Element genreSpan = selectFirstSafe(statsRow, "> div:nth-child(1) > div > span:nth-child(3)");
-            String g = text(genreSpan);
-            if (!isBlank(g)) {
-                genres.addAll(Arrays.asList(g.split("[,\\s]+")));
-            }
+            b.genres(Arrays.stream(text(genreSpan).split("[,\\s]+")).map(String::trim).toList());
 
             Element viewSpan = selectFirstSafe(statsRow, "> div:nth-child(2) > span");
-            viewCount = parseKoreanCount(text(viewSpan));
+            b.viewCount(parseKoreanCount(text(viewSpan)));
 
             Element ratingSpan = selectFirstSafe(statsRow, "> div:nth-child(3) > span");
             String num = text(ratingSpan).replaceAll("[^0-9.]", "");
             if (!isBlank(num)) {
-                try {
-                    rating = new BigDecimal(num);
-                } catch (Exception ignored) {
-                }
+                try { b.rating(new BigDecimal(num)); } catch (Exception ignored) {}
             }
         }
-        b.genres(genres);
-        b.viewCount(viewCount);
-        b.rating(rating);
-
         Element statusWrap = selectFirstSafe(doc, "div.mt-6pxr.flex.items-center");
-        String status = null;
-        if (statusWrap != null) {
-            status = normalizeStatus(statusWrap.text());
+        b.status(normalizeStatus(text(statusWrap)));
+
+
+        // ★★★★★ '정보' 탭 추가 정보 파싱 (새로 추가된 부분) ★★★★★
+        try {
+            // 1. '정보' 탭 URL 생성 (기존 URL에서 쿼리 파라미터 제거 후 추가)
+            String aboutUrl = detailUrl.split("\\?")[0] + "?tab_type=about";
+
+            // 2. '정보' 탭 페이지를 새로 요청하여 HTML 가져오기
+            Document aboutDoc = get(aboutUrl, cookieString);
+
+            // 3. '정보' 탭에서 발행자, 연령등급 파싱
+            // '발행자'라는 텍스트를 가진 span을 포함하는 div를 찾고, 그 안의 두 번째 span의 텍스트를 가져옴
+            Element publisherDiv = selectFirstSafe(aboutDoc, "div:has(span:containsOwn(발행자))");
+            if (publisherDiv != null) {
+                b.publisher(clean(text(selectFirstSafe(publisherDiv, "span:last-of-type, span.text-el-70"))));
+            }
+
+            // '연령등급'이라는 텍스트를 가진 span을 포함하는 div를 찾고, 그 안의 두 번째 span의 텍스트를 가져옴
+            Element ageRatingDiv = selectFirstSafe(aboutDoc, "div:has(span:containsOwn(연령등급))");
+            if (ageRatingDiv != null) {
+                b.ageRating(clean(text(selectFirstSafe(ageRatingDiv, "span:last-of-type, span.text-el-70"))));
+            }
+
+        } catch (Exception e) {
+            System.err.println("'정보' 탭 파싱 중 오류 발생: " + detailUrl + " - " + e.getMessage());
+            // '정보' 탭 파싱에 실패하더라도 이미 수집한 기본 정보는 유지됨
         }
-        b.status(status);
 
         return b.build();
     }
 
-    // ===================== Helper Methods =====================
-
+    // ===================== Helper Methods (변경 없음) =====================
     private Document get(String url, String cookieString) throws Exception {
         var conn = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
@@ -272,10 +253,7 @@ public class KakaoPageCrawler {
 
     private static String normalizeStatus(String s) {
         if (s == null) return null;
-        return s.replace('\u00A0', ' ')
-                .replaceAll("\\s*·\\s*", " ")
-                .replaceAll("\\s{2,}", " ")
-                .trim();
+        return s.replace('\u00A0', ' ').replaceAll("\\s*·\\s*", " ").replaceAll("\\s{2,}", " ").trim();
     }
 
     private static Element selectFirstSafe(Element root, String css) {
@@ -292,19 +270,8 @@ public class KakaoPageCrawler {
         return e != null ? e.attr("content") : null;
     }
 
-    private static String text(Element e) {
-        return e == null ? null : e.text();
-    }
-
-    private static boolean isBlank(String s) {
-        return s == null || s.isBlank();
-    }
-
-    private static String clean(String s) {
-        return s == null ? null : s.replaceAll("\\s+", " ").trim();
-    }
-
-    private static String nz(String s) {
-        return s == null ? "" : s;
-    }
+    private static String text(Element e) { return e == null ? null : e.text(); }
+    private static boolean isBlank(String s) { return s == null || s.isBlank(); }
+    private static String clean(String s) { return s == null ? null : s.replaceAll("\\s+", " ").trim(); }
+    private static String nz(String s) { return s == null ? "" : s; }
 }
