@@ -114,6 +114,9 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
         docker-compose --env-file "$ENV_FILE" -f docker-compose.bluegreen.yml stop app-$CURRENT_COLOR
         docker-compose --env-file "$ENV_FILE" -f docker-compose.bluegreen.yml rm -f app-$CURRENT_COLOR
 
+        echo "🧹 사용하지 않는 Docker 이미지를 정리합니다..."
+        docker image prune -a -f
+
         echo ""
         echo "✅ 배포 성공!"
         echo "🌐 활성 환경: $NEW_COLOR (포트 $NEW_PORT)"
