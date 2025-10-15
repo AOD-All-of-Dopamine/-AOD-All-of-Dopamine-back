@@ -12,13 +12,14 @@ import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;  // ✅ 추가
 import java.net.URL;  // ✅
+import java.util.List;
 
 @Slf4j
 @Component
 public class ChromeDriverProvider {
 
 
-    @Value("${SELENIUM_REMOTE_URL:}")
+    /*@Value("${SELENIUM_REMOTE_URL:}")
     private String seleniumRemoteUrl;
 
     public WebDriver getDriver() {
@@ -43,24 +44,24 @@ public class ChromeDriverProvider {
             WebDriverManager.chromedriver().setup();
             return new ChromeDriver(options);
         }
+    }*/
+
+
+    public ChromeDriverProvider() {
     }
 
-    //레거시 코드
-//    public ChromeDriverProvider() {
-//    }
-//
-//    public WebDriver getDriver() {
-//        WebDriverManager.chromedriver().setup();
-//        ChromeOptions options = new ChromeOptions();
-//
-//        options.addArguments("--headless");
-//
-//        options.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
-//        options.setExperimentalOption("useAutomationExtension", false);
-//        options.addArguments("--no-sandbox");
-//        options.addArguments("--mute-audio");
-//        options.addArguments("--disable-dev-shm-usage");
-//        return new ChromeDriver(options);
-//    }
+    public WebDriver getDriver() {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+
+        options.addArguments("--headless");
+
+        options.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
+        options.setExperimentalOption("useAutomationExtension", false);
+        options.addArguments("--no-sandbox");
+        options.addArguments("--mute-audio");
+        options.addArguments("--disable-dev-shm-usage");
+        return new ChromeDriver(options);
+    }
 
 }

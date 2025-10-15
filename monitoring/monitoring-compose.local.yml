@@ -1,0 +1,14 @@
+version: '3.8'
+# 모니터링 스택 로컬 환경 전용 설정
+
+services:
+  prometheus:
+    restart: "no"
+    # 로컬에서는 개발 중 수동 제어를 위해 자동 재시작 안함
+
+  grafana:
+    restart: "no"
+
+  alertmanager:
+    restart: "no"
+
