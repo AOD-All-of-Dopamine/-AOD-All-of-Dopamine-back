@@ -1,5 +1,3 @@
-// src/main/java/com/example/AOD/TMDB/service/TmdbService.java
-
 package com.example.AOD.TMDB.service;
 
 import com.example.AOD.TMDB.dto.TmdbDiscoveryResult;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -81,32 +80,28 @@ public class TmdbService {
 
     // --- Private Helper Methods ---
 
-    private void collectMoviesForPeriod(String startDate, String endDate, String language, int maxPages) {
+    public void collectMoviesForPeriod(String startDate, String endDate, String language, int maxPages) {
         int currentPage = 1;
         int effectiveMaxPages = Math.min(maxPages, 500); // TMDB API는 최대 500페이지까지만 지원
 
         while (currentPage <= effectiveMaxPages) {
             try {
-                TmdbDiscoveryResult result;
-                // startDate가 null이면 인기 영화, 아니면 연도별 영화 조회
-                if (startDate != null && endDate != null) {
-                    result = tmdbApiFetcher.discoverMoviesByDateRange(currentPage, language, startDate, endDate);
-                } else {
-                    result = tmdbApiFetcher.discoverPopularMovies(currentPage, language);
-                }
+                // [개선] 통합된 API 호출 메서드 사용
+                TmdbDiscoveryResult result = tmdbApiFetcher.discoverMovies(language, currentPage, startDate, endDate);
 
                 if (result == null || result.getResults() == null || result.getResults().isEmpty()) {
                     log.info("해당 조건의 {} 페이지에 더 이상 영화 데이터가 없어 수집을 종료합니다.", currentPage);
                     break;
                 }
                 log.info("영화 {}/{} 페이지 수집 중... ({}개)", currentPage, result.getTotalPages(), result.getResults().size());
-                processMovieList(result.getResults());
+                processMovieList(result.getResults(), language);
 
                 if (currentPage >= result.getTotalPages()) {
                     log.info("마지막 페이지({})에 도달하여 수집을 종료합니다.", currentPage);
                     break;
                 }
                 currentPage++;
+                TimeUnit.MILLISECONDS.sleep(200); // 페이지 간 간격
             } catch (Exception e) {
                 log.error("{} 페이지 수집 중 오류 발생: {}", currentPage, e.getMessage());
                 break;
@@ -114,31 +109,28 @@ public class TmdbService {
         }
     }
 
-    private void collectTvShowsForPeriod(String startDate, String endDate, String language, int maxPages) {
+    public void collectTvShowsForPeriod(String startDate, String endDate, String language, int maxPages) {
         int currentPage = 1;
         int effectiveMaxPages = Math.min(maxPages, 500);
 
         while (currentPage <= effectiveMaxPages) {
             try {
-                TmdbTvDiscoveryResult result;
-                if (startDate != null && endDate != null) {
-                    result = tmdbApiFetcher.discoverTvShowsByDateRange(currentPage, language, startDate, endDate);
-                } else {
-                    result = tmdbApiFetcher.discoverPopularTvShows(currentPage, language);
-                }
+                // [개선] 통합된 API 호출 메서드 사용
+                TmdbTvDiscoveryResult result = tmdbApiFetcher.discoverTvShows(language, currentPage, startDate, endDate);
 
                 if (result == null || result.getResults() == null || result.getResults().isEmpty()) {
                     log.info("해당 조건의 {} 페이지에 더 이상 TV쇼 데이터가 없어 수집을 종료합니다.", currentPage);
                     break;
                 }
                 log.info("TV쇼 {}/{} 페이지 수집 중... ({}개)", currentPage, result.getTotalPages(), result.getResults().size());
-                processTvShowList(result.getResults());
+                processTvShowList(result.getResults(), language);
 
                 if (currentPage >= result.getTotalPages()) {
                     log.info("마지막 페이지({})에 도달하여 수집을 종료합니다.", currentPage);
                     break;
                 }
                 currentPage++;
+                TimeUnit.MILLISECONDS.sleep(200); // 페이지 간 간격
             } catch (Exception e) {
                 log.error("{} 페이지 수집 중 오류 발생: {}", currentPage, e.getMessage());
                 break;
@@ -146,34 +138,38 @@ public class TmdbService {
         }
     }
 
-    private void processMovieList(java.util.List<TmdbMovie> movies) {
+    private void processMovieList(java.util.List<TmdbMovie> movies, String language) {
         for (TmdbMovie basicMovieInfo : movies) {
             try {
-                TmdbMovie detailedMovie = tmdbApiFetcher.getMovieDetails(basicMovieInfo.getId(), "ko-KR");
+                // 상세 정보 조회 (출연진 등 추가 정보 획득)
+                TmdbMovie detailedMovie = tmdbApiFetcher.getMovieDetails(basicMovieInfo.getId(), language);
                 if (detailedMovie == null) continue;
 
+                // 스트리밍 정보 조회
                 WatchProviderResult watchProviders = tmdbApiFetcher.getWatchProviders(detailedMovie.getId());
                 Map<String, Object> payload = createPayload(detailedMovie, watchProviders);
 
                 collectorService.saveRaw("TMDB", "AV", payload, String.valueOf(detailedMovie.getId()), "https://www.themoviedb.org/movie/" + detailedMovie.getId());
-                Thread.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(100); // API 호출 간격
             } catch (Exception e) {
                 log.error("Movie ID {} 처리 중 오류 발생: {}", basicMovieInfo.getId(), e.getMessage());
             }
         }
     }
 
-    private void processTvShowList(java.util.List<TmdbTvShow> tvShows) {
+    private void processTvShowList(java.util.List<TmdbTvShow> tvShows, String language) {
         for (TmdbTvShow basicTvShowInfo : tvShows) {
             try {
-                TmdbTvShow detailedTvShow = tmdbApiFetcher.getTvShowDetails(basicTvShowInfo.getId(), "ko-KR");
+                // 상세 정보 조회
+                TmdbTvShow detailedTvShow = tmdbApiFetcher.getTvShowDetails(basicTvShowInfo.getId(), language);
                 if (detailedTvShow == null) continue;
 
+                // 스트리밍 정보 조회
                 WatchProviderResult watchProviders = tmdbApiFetcher.getTvShowWatchProviders(detailedTvShow.getId());
                 Map<String, Object> payload = createTvPayload(detailedTvShow, watchProviders);
 
                 collectorService.saveRaw("TMDB", "AV", payload, String.valueOf(detailedTvShow.getId()), "https://www.themoviedb.org/tv/" + detailedTvShow.getId());
-                Thread.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(100); // API 호출 간격
             } catch (Exception e) {
                 log.error("TV ID {} 처리 중 오류 발생: {}", basicTvShowInfo.getId(), e.getMessage());
             }
