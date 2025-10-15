@@ -1,3 +1,6 @@
+# This workflow builds the application, pushes it to ECR, and deploys it to EC2.
+# It now includes Naver and Netflix credentials from GitHub Secrets.
+
 name: CI/CD Pipeline
 
 on:
@@ -12,14 +15,12 @@ env:
   ECR_REPOSITORY: aod-app
 
 jobs:
-  # =================================================================
-  # 1. 빌드 및 ECR 푸시 잡 (변경 없음)
-  # =================================================================
   build-and-push:
     runs-on: ubuntu-latest
+    
     outputs:
       image: ${{ steps.build-image.outputs.image }}
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +34,7 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
-      
+        
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
@@ -60,92 +61,97 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-  # =================================================================
-  # 2. EC2 배포 잡 (단일 docker-compose.yml 사용)
-  # =================================================================
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     
     steps:
+      - name: Check for required secrets
+        run: |
+          if [ -z "${{ secrets.EC2_HOST }}" ]; then echo "EC2_HOST secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.POSTGRES_HOST }}" ]; then echo "POSTGRES_HOST secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.POSTGRES_USER }}" ]; then echo "POSTGRES_USER secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.POSTGRES_PASSWORD }}" ]; then echo "POSTGRES_PASSWORD secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.TMDB_API_KEY }}" ]; then echo "TMDB_API_KEY secret is missing!"; exit 1; fi
+          # ✨ [추가됨] Naver/Netflix Secrets 확인
+          if [ -z "${{ secrets.NAVER_ID }}" ]; then echo "NAVER_ID secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.NAVER_PW }}" ]; then echo "NAVER_PW secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.NETFLIX_ID }}" ]; then echo "NETFLIX_ID secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.NETFLIX_PW }}" ]; then echo "NETFLIX_PW secret is missing!"; exit 1; fi
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Deploy to EC2 using Docker Compose
         env:
-          # SSH 접속 정보
+          # SSH connection secrets
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
           
-          # Docker Compose에 주입될 환경 변수들
+          # Application environment variables from secrets
           APP_IMAGE_URI: ${{ needs.build-and-push.outputs.image }}
           SPRING_PROFILE: prod
-          POSTGRES_DB: aodDB # 고정값 또는 secrets.POSTGRES_DB 로 변경 가능
-          POSTGRES_USER: postgres # 고정값 또는 secrets.POSTGRES_USER 로 변경 가능
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          GRAFANA_USER: admin # 고정값
-          GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
-          
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: aodDB
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          SELENIUM_URL: ${{ secrets.SELENIUM_URL }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          # ✨ [추가됨] Naver/Netflix 로그인 정보를 Secrets에서 가져옵니다.
+          NAVER_ID: ${{ secrets.NAVER_ID }}
+          NAVER_PW: ${{ secrets.NAVER_PW }}
+          NETFLIX_ID: ${{ secrets.NETFLIX_ID }}
+          NETFLIX_PW: ${{ secrets.NETFLIX_PW }}
+
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          
-          # EC2에 배포용 디렉토리 생성
+
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-app"
 
-          # 1. docker-compose.yml과 monitoring 디렉토리만 전송
-          scp -i private_key.pem -o StrictHostKeyChecking=no -r \
-            docker-compose.yml \
-            monitoring \
+          scp -i private_key.pem -o StrictHostKeyChecking=no \
+            ./docker-compose.yml \
             ${USER}@${HOST}:/home/${USER}/aod-app/
 
-          # 2. EC2에 접속하여 환경변수를 직접 주입하며 docker-compose 실행
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
             cd /home/${USER}/aod-app
-            
-            echo "🚀 서버 환경 배포 시작..."
-            
-            # GitHub Secrets에서 받아온 변수들을 export하여 docker-compose가 사용하도록 함
-            export APP_IMAGE_URI=${APP_IMAGE_URI}
-            export SPRING_PROFILE=${SPRING_PROFILE}
-            export POSTGRES_DB=${POSTGRES_DB}
-            export POSTGRES_USER=${POSTGRES_USER}
-            export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            export GRAFANA_USER=${GRAFANA_USER}
-            export GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
-            export GRAFANA_ROOT_URL=http://${HOST}:3000
-            
-            # ECR에서 최신 이미지 pull
-            echo "🐳 최신 이미지 다운로드 중... (${APP_IMAGE_URI})"
+
+            # Export all necessary environment variables
+            export APP_IMAGE_URI='${APP_IMAGE_URI}'
+            export SPRING_PROFILE='${SPRING_PROFILE}'
+            export POSTGRES_HOST='${POSTGRES_HOST}'
+            export POSTGRES_PORT='${POSTGRES_PORT}'
+            export POSTGRES_DB='${POSTGRES_DB}'
+            export POSTGRES_USER='${POSTGRES_USER}'
+            export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
+            export SELENIUM_URL='${SELENIUM_URL}'
+            export TMDB_API_KEY='${TMDB_API_KEY}'
+            # ✨ [추가됨] Naver/Netflix 변수를 export 합니다.
+            export NAVER_ID='${NAVER_ID}'
+            export NAVER_PW='${NAVER_PW}'
+            export NETFLIX_ID='${NETFLIX_ID}'
+            export NETFLIX_PW='${NETFLIX_PW}'
+
             docker pull \${APP_IMAGE_URI}
+
+            docker-compose up -d --remove-orphans
+
+            echo "Sleeping for 40 seconds to allow the application to start..."
+            sleep 40
             
-            # 기존 컨테이너 중지 및 삭제
-            echo "🛑 기존 컨테이너 중지..."
-            docker-compose down
-            
-            # 새 버전 컨테이너 시작 (오직 docker-compose.yml만 사용)
-            echo "✅ 서버 환경 시작..."
-            docker-compose up -d
-            
-            echo "🏥 헬스체크 중..."
-            sleep 25
-            
+            # Health check
             if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
-              echo "✅ 애플리케이션 OK"
+              echo "✅ Health check successful!"
             else
-              echo "❌ 애플리케이션 시작 실패"
-              docker-compose logs --tail 50 app
+              echo "❌ Health check failed! Please check the container logs."
+              docker-compose logs --tail 50
               exit 1
             fi
             
-            echo ""
-            echo "📋 컨테이너 상태:"
-            docker-compose ps
-            
             docker image prune -af
-
-            echo "✅ 서버 배포 완료!"
           EOF
           
           rm -f private_key.pem
+
