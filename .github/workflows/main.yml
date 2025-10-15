@@ -111,8 +111,9 @@ jobs:
 
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-app"
 
-          scp -i private_key.pem -o StrictHostKeyChecking=no \
+          scp -i private_key.pem -r -o StrictHostKeyChecking=no \
             ./docker-compose.yml \
+            ./monitoring \
             ${USER}@${HOST}:/home/${USER}/aod-app/
 
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
@@ -128,7 +129,6 @@ jobs:
             export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
             export SELENIUM_URL='${SELENIUM_URL}'
             export TMDB_API_KEY='${TMDB_API_KEY}'
-            # ✨ [추가됨] Naver/Netflix 변수를 export 합니다.
             export NAVER_ID='${NAVER_ID}'
             export NAVER_PW='${NAVER_PW}'
             export NETFLIX_ID='${NETFLIX_ID}'
