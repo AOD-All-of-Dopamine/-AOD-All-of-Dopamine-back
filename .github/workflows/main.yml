@@ -12,13 +12,14 @@ env:
   ECR_REPOSITORY: aod-app
 
 jobs:
+  # =================================================================
+  # 1. 빌드 및 ECR 푸시 잡 (변경 없음)
+  # =================================================================
   build-and-push:
     runs-on: ubuntu-latest
-    
     outputs:
       image: ${{ steps.build-image.outputs.image }}
-      image_tag: ${{ steps.build-image.outputs.image_tag }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,8 +32,8 @@ jobs:
           cache: gradle
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-        
+        run: chmod +x ./gradlew
+      
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
@@ -58,8 +59,10 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+  # =================================================================
+  # 2. EC2 배포 잡 (단일 docker-compose.yml 사용)
+  # =================================================================
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
@@ -68,55 +71,81 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Deploy to EC2 with Blue-Green
+      - name: Deploy to EC2 using Docker Compose
         env:
+          # SSH 접속 정보
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          IMAGE: ${{ needs.build-and-push.outputs.image }}
-          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          
+          # Docker Compose에 주입될 환경 변수들
+          APP_IMAGE_URI: ${{ needs.build-and-push.outputs.image }}
+          SPRING_PROFILE: prod
+          POSTGRES_DB: aodDB # 고정값 또는 secrets.POSTGRES_DB 로 변경 가능
+          POSTGRES_USER: postgres # 고정값 또는 secrets.POSTGRES_USER 로 변경 가능
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          GRAFANA_USER: admin # 고정값
+          GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
+          
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-          # docker-compose 파일들 전송
-          scp -i private_key.pem -o StrictHostKeyChecking=no \
-            docker-compose.bluegreen.yml \
-            ${USER}@${HOST}:~/
-          
-          # deploy-bluegreen.sh가 프로젝트에 있으면 전송
-          if [ -f deploy-bluegreen.sh ]; then
-            scp -i private_key.pem -o StrictHostKeyChecking=no \
-              deploy-bluegreen.sh \
-              ${USER}@${HOST}:~/
-          fi
-          
-          # monitoring 폴더 전송
+          # EC2에 배포용 디렉토리 생성
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-app"
+
+          # 1. docker-compose.yml과 monitoring 디렉토리만 전송
           scp -i private_key.pem -o StrictHostKeyChecking=no -r \
+            docker-compose.yml \
             monitoring \
-            ${USER}@${HOST}:~/
-          
-          # EC2에서 배포 실행
+            ${USER}@${HOST}:/home/${USER}/aod-app/
+
+          # 2. EC2에 접속하여 환경변수를 직접 주입하며 docker-compose 실행
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
-            chmod +x deploy-bluegreen.sh
-            export IMAGE_TAG=${IMAGE_TAG}
-            ./deploy-bluegreen.sh
+            cd /home/${USER}/aod-app
+            
+            echo "🚀 서버 환경 배포 시작..."
+            
+            # GitHub Secrets에서 받아온 변수들을 export하여 docker-compose가 사용하도록 함
+            export APP_IMAGE_URI=${APP_IMAGE_URI}
+            export SPRING_PROFILE=${SPRING_PROFILE}
+            export POSTGRES_DB=${POSTGRES_DB}
+            export POSTGRES_USER=${POSTGRES_USER}
+            export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            export GRAFANA_USER=${GRAFANA_USER}
+            export GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
+            export GRAFANA_ROOT_URL=http://${HOST}:3000
+            
+            # ECR에서 최신 이미지 pull
+            echo "🐳 최신 이미지 다운로드 중... (${APP_IMAGE_URI})"
+            docker pull \${APP_IMAGE_URI}
+            
+            # 기존 컨테이너 중지 및 삭제
+            echo "🛑 기존 컨테이너 중지..."
+            docker-compose down
+            
+            # 새 버전 컨테이너 시작 (오직 docker-compose.yml만 사용)
+            echo "✅ 서버 환경 시작..."
+            docker-compose up -d
+            
+            echo "🏥 헬스체크 중..."
+            sleep 25
+            
+            if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+              echo "✅ 애플리케이션 OK"
+            else
+              echo "❌ 애플리케이션 시작 실패"
+              docker-compose logs --tail 50 app
+              exit 1
+            fi
+            
+            echo ""
+            echo "📋 컨테이너 상태:"
+            docker-compose ps
+            
+            docker image prune -af
+
+            echo "✅ 서버 배포 완료!"
           EOF
           
           rm -f private_key.pem
-
-      - name: Notify deployment status
-        if: always()
-        run: |
-          if [ ${{ job.status }} == 'success' ]; then
-            echo "✅ 배포 성공: ${{ needs.build-and-push.outputs.image }}"
-          else
-            echo "❌ 배포 실패"
-          fi
