@@ -114,6 +114,8 @@ jobs:
           scp -i private_key.pem -r -o StrictHostKeyChecking=no \
             ./docker-compose.yml \
             ./monitoring \
+            ./monitoring-compose.base.yml \
+            ./monitoring-compose.prod.yml \
             ${USER}@${HOST}:/home/${USER}/aod-app/
 
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
