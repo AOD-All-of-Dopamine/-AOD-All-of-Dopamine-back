@@ -88,7 +88,6 @@ jobs:
             docker-compose.yml \
             docker-compose.bluegreen.yml \
             deploy-bluegreen.sh \
-            .env.prod \
             ${USER}@${HOST}:~/
           
           # monitoring 폴더 전송
