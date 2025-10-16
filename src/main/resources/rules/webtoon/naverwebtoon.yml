@@ -1,32 +1,33 @@
 platformName: NaverWebtoon
 domain: WEBTOON
-schemaVersion: 2
+schemaVersion: 3
 
 fieldMappings:
-  # === Contents (마스터 공통) ===
+  # === Master & Platform Mappings ===
   title: master_title
   imageUrl: poster_image_url
   synopsis: synopsis
-
-  # === webtoon_contents (도메인 코어) ===
-  author: domain.author
-  status: domain.status
-  tags: domain.genres
-
-  # === Platform_Data ===
   productUrl: platform.url
   titleId: platform.platform_specific_id
 
-  # === Platform_Data.attributes (JSONB) ===
-  weekday: platform.attributes.weekday
-  episodeCount: platform.attributes.episode_count
-  ageRating: platform.attributes.age_rating
-  likeCount: platform.attributes.like_count
-  isFree: platform.attributes.is_free
-  hasAdult: platform.attributes.has_adult
-  serviceType: platform.attributes.service_type
-  crawlSource: platform.attributes.crawl_source
-  originalPlatform: platform.attributes.original_platform
+  # === Domain Mappings (for domainDoc) ===
+  author: domain.author
+  status: domain.status
+  tags: domain.genres
+  # weekday, episodeCount etc. are platform attributes, not domain core fields.
+
+# [ ✨ 핵심 수정 ]
+# domainDoc의 키를 실제 Entity의 필드(속성)에 매핑하는 규칙
+domainObjectMappings:
+  author:
+    targetField: author
+    type: string
+  status:
+    targetField: status
+    type: string
+  genres:
+    targetField: genres
+    type: map # Assuming genres is a Map<String, Object>
 
 normalizers:
   - type: nfkc

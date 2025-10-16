@@ -23,6 +23,13 @@ public class GameContent {
             foreignKey=@ForeignKey(name="fk_game_content_content"))
     private Content content;
 
+    public GameContent() {}
+
+    public GameContent(Content content) {
+        this.content = content;
+        this.contentId = content.getContentId();
+    }
+
     private String developer;
     private String publisher;
     private LocalDate releaseDate;

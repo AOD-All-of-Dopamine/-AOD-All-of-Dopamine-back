@@ -25,6 +25,13 @@ public class AvContent {
             foreignKey = @ForeignKey(name = "fk_av_content_content"))
     private Content content;
 
+    public AvContent() {}
+
+    public AvContent(Content content) {
+        this.content = content;
+        this.contentId = content.getContentId();
+    }
+
     private Integer tmdbId;
 
     @Column(length = 16)

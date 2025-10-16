@@ -6,31 +6,25 @@ import com.example.AOD.domain.entity.Domain;
 import com.example.AOD.domain.entity.PlatformData;
 import com.example.AOD.repo.ContentRepository;
 import com.example.AOD.repo.PlatformDataRepository;
+import com.example.AOD.rules.MappingRule;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
+@RequiredArgsConstructor // 생성자 주입을 위해 변경
 @Service
 public class UpsertService {
     private final ContentRepository contentRepo;
     private final PlatformDataRepository platformRepo;
     private final DomainCoreUpsertService domainCoreUpsert;
-
-    public UpsertService(ContentRepository contentRepo,
-                         PlatformDataRepository platformRepo,
-                         DomainCoreUpsertService domainCoreUpsert) {
-        this.contentRepo = contentRepo;
-        this.platformRepo = platformRepo;
-        this.domainCoreUpsert = domainCoreUpsert;
-    }
 
     @Transactional
     public Long upsert(Domain domain,
@@ -38,7 +32,8 @@ public class UpsertService {
                        Map<String,Object> platform,
                        Map<String,Object> domainDoc,
                        String platformSpecificId,
-                       String url) {
+                       String url,
+                       MappingRule rule) { // [ ✨ 수정 ] MappingRule 파라미터 추가
 
         String platformName = (String) platform.get("platformName");
 
@@ -105,7 +100,8 @@ public class UpsertService {
         savePlatformData(content, platformName, platformSpecificId, url, attributes);
 
         // 도메인별 상세 정보 저장
-        domainCoreUpsert.upsert(domain, content, domainDoc);
+        // [ ✨ 수정 ] rule 객체를 넘겨줌
+        domainCoreUpsert.upsert(domain, content, domainDoc, rule);
 
         return content.getContentId();
     }

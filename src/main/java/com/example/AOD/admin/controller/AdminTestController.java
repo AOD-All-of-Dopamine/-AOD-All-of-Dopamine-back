@@ -289,20 +289,6 @@ public class AdminTestController {
         );
     }
 
-    // 직접 업서트 테스트: 변환 결과를 수동으로 던져 DB 반영
-    @PostMapping(path = "/upsert/direct", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> upsertDirect(@RequestBody UpsertDirectRequest req) {
-        Long contentId = upsertService.upsert(
-                Domain.valueOf(req.domain()),
-                req.master(),
-                req.platform(),
-                req.domainDoc(),
-                req.platformSpecificId(),
-                req.url()
-        );
-        return Map.of("contentId", contentId);
-    }
-
     private String defaultRulePath(String domain, String platform) {
         if ("WEBNOVEL".equalsIgnoreCase(domain)) {
             if ("NaverSeries".equalsIgnoreCase(platform)) return "rules/webnovel/naverseries.yml";

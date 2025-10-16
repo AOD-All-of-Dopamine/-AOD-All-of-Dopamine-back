@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Map;
 
+//Raw Item 으로 저장하는 로직
 @Service @RequiredArgsConstructor
 public class CollectorService {
 

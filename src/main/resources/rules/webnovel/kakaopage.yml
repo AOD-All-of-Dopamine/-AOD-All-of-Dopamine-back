@@ -8,6 +8,9 @@ fieldMappings:
   imageUrl: poster_image_url
   synopsis: synopsis
   author: domain.author
+  publisher: domain.publisher
+  ageRating: domain.age_rating
+  genres: domain.genres
 
   # === Platform_Data ===
   productUrl: platform.url
@@ -15,10 +18,7 @@ fieldMappings:
 
   # === Platform_Data.attributes(JSONB) ===
 
-  publisher: platform.attributes.publisher
   status: platform.attributes.status
-  ageRating: platform.attributes.age_rating
-  genres: platform.attributes.genres
   keywords: platform.attributes.keywords
   rating: platform.attributes.rating
   viewCount: platform.attributes.view_count

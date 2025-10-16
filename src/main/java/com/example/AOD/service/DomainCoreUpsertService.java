@@ -1,123 +1,60 @@
 package com.example.AOD.service;
 
-
-//import com.example.AOD.Webtoon.NaverWebtoon.repository.WebtoonRepository;
 import com.example.AOD.domain.Content;
 import com.example.AOD.domain.entity.*;
-import com.example.AOD.repo.AvContentRepository;
-import com.example.AOD.repo.GameContentRepository;
-import com.example.AOD.repo.WebnovelContentRepository;
-import com.example.AOD.repo.WebtoonContentRepository;
+import com.example.AOD.repo.*;
+import com.example.AOD.rules.MappingRule;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class DomainCoreUpsertService {
 
+    // 범용 Upserter 주입
+    private final GenericDomainUpserter genericUpserter;
+
+    // 엔티티를 찾기 위한 각 도메인의 Repository는 여전히 필요
     private final GameContentRepository gameRepo;
     private final WebtoonContentRepository webtoonRepo;
     private final WebnovelContentRepository webnovelRepo;
     private final AvContentRepository avRepo;
 
-    public DomainCoreUpsertService(GameContentRepository gameRepo,
-                                   WebtoonContentRepository webtoonRepo,
-                                   WebnovelContentRepository webnovelRepo,
-                                   AvContentRepository avRepo) {
-
-        this.gameRepo = gameRepo;
-        this.webtoonRepo = webtoonRepo;
-        this.webnovelRepo = webnovelRepo;
-        this.avRepo = avRepo;
-    }
-
-    private LocalDate parseDate(Object s) {
-        if (s == null) return null;
-        String v = s.toString().trim();
-        // [수정] "yyyy년 M월 d일" 패턴 추가 및 Locale.KOREAN 설정
-        String[] patterns = {"uuuu년 M월 d일", "yyyy-MM-dd","yyyy.MM.dd","yyyy/MM/dd","MMM d, yyyy"};
-        for (String p : patterns) {
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(p, Locale.KOREAN);
-                return LocalDate.parse(v, formatter);
-            }
-            catch (Exception ignored) {}
-        }
-        try { return LocalDate.of(Integer.parseInt(v), 1, 1); } catch (Exception ignored) {}
-        return null;
-    }
-
     @Transactional
-    public void upsert(Domain domain, Content content, Map<String,Object> domainDoc) {
+    public void upsert(Domain domain, Content content, Map<String, Object> domainDoc, MappingRule rule) {
         if (domainDoc == null || domainDoc.isEmpty()) return;
 
+        // 1. 도메인에 맞는 엔티티를 찾거나 새로 생성 (이 부분은 하드코딩이 불가피)
+        Object domainEntity = findOrCreateDomainEntity(domain, content);
+        if (domainEntity == null) return; // 지원하지 않는 도메인
+
+        // 2. Generic Upserter를 호출하여 필드 값을 동적으로 채움
+        genericUpserter.upsert(domainEntity, domainDoc, rule.getDomainObjectMappings());
+
+        // 3. 엔티티 저장
+        saveDomainEntity(domain, domainEntity);
+    }
+
+    private Object findOrCreateDomainEntity(Domain domain, Content content) {
+        Long contentId = content.getContentId();
+        return switch (domain) {
+            case AV -> avRepo.findById(contentId).orElseGet(() -> new AvContent(content));
+            case GAME -> gameRepo.findById(contentId).orElseGet(() -> new GameContent(content));
+            case WEBTOON -> webtoonRepo.findById(contentId).orElseGet(() -> new WebtoonContent(content));
+            case WEBNOVEL -> webnovelRepo.findById(contentId).orElseGet(() -> new WebnovelContent(content));
+            default -> null;
+        };
+    }
+
+    private void saveDomainEntity(Domain domain, Object entity) {
         switch (domain) {
-            case AV -> {
-                AvContent av = avRepo.findById(content.getContentId()).orElseGet(() -> {
-                    AvContent x = new AvContent();
-                    x.setContent(content);
-                    return x;
-                });
-                if (domainDoc.get("tmdb_id") instanceof Number num) av.setTmdbId(num.intValue());
-                if (domainDoc.get("av_type") != null) av.setAvType(domainDoc.get("av_type").toString());
-                if (domainDoc.get("release_date") != null) av.setReleaseDate(parseDate(domainDoc.get("release_date")));
-
-                // [수정] runtime, season_count, cast, crew 관련 로직 제거
-                if (domainDoc.get("genres") instanceof List<?> list) {
-                    av.setGenres(Map.of("tmdb_genres", list));
-                }
-                avRepo.save(av);
-            }
-            case GAME -> {
-                GameContent g = gameRepo.findById(content.getContentId()).orElseGet(() -> {
-                    GameContent x = new GameContent();
-                    x.setContent(content);
-                    return x;
-                });
-                if (domainDoc.get("developer") != null) g.setDeveloper(domainDoc.get("developer").toString());
-                if (domainDoc.get("publisher") != null) g.setPublisher(domainDoc.get("publisher").toString());
-                if (domainDoc.get("release_date") != null) g.setReleaseDate(parseDate(domainDoc.get("release_date")));
-                if (domainDoc.get("platforms") instanceof Map<?,?> m)
-                    g.setPlatforms((Map<String,Object>) m);
-
-                if (domainDoc.get("genres") instanceof List<?> list) {
-                    g.setGenres(Map.of("steam_genres", list));
-                }
-                gameRepo.save(g);
-            }
-            case WEBTOON -> {
-                WebtoonContent w = webtoonRepo.findById(content.getContentId()).orElseGet(() -> {
-                    WebtoonContent x = new WebtoonContent();
-                    x.setContent(content);
-                    return x;
-                });
-                if (domainDoc.get("author") != null) w.setAuthor(domainDoc.get("author").toString());
-                if (domainDoc.get("illustrator") != null) w.setIllustrator(domainDoc.get("illustrator").toString());
-                if (domainDoc.get("status") != null) w.setStatus(domainDoc.get("status").toString());
-                if (domainDoc.get("started_at") != null) w.setStartedAt(parseDate(domainDoc.get("started_at")));
-                if (domainDoc.get("genres") instanceof Map<?,?> m)
-                    w.setGenres((Map<String,Object>) m);
-                webtoonRepo.save(w);
-            }
-            case WEBNOVEL -> {
-                WebnovelContent wn = webnovelRepo.findById(content.getContentId()).orElseGet(() -> {
-                    WebnovelContent x = new WebnovelContent();
-                    x.setContent(content);
-                    return x;
-                });
-                if (domainDoc.get("author") != null) wn.setAuthor(domainDoc.get("author").toString());
-                if (domainDoc.get("translator") != null) wn.setTranslator(domainDoc.get("translator").toString());
-                if (domainDoc.get("started_at") != null) wn.setStartedAt(parseDate(domainDoc.get("started_at")));
-                if (domainDoc.get("genres") instanceof Map<?,?> m)
-                    wn.setGenres((Map<String,Object>) m);
-                webnovelRepo.save(wn);
-            }
-            default -> { /* AV는 TMDB로 처리 */ }
+            case AV -> avRepo.save((AvContent) entity);
+            case GAME -> gameRepo.save((GameContent) entity);
+            case WEBTOON -> webtoonRepo.save((WebtoonContent) entity);
+            case WEBNOVEL -> webnovelRepo.save((WebnovelContent) entity);
         }
     }
 }

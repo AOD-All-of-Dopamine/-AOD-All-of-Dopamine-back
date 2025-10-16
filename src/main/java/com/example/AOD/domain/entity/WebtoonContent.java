@@ -24,6 +24,13 @@ public class WebtoonContent {
             foreignKey=@ForeignKey(name="fk_webtoon_content_content"))
     private Content content;
 
+    public WebtoonContent() {}
+
+    public WebtoonContent(Content content) {
+        this.content = content;
+        this.contentId = content.getContentId();
+    }
+
     private String author;
     private String illustrator;
     private String status;      // 연재중/완결

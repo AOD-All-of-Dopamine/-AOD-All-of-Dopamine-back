@@ -78,7 +78,8 @@ public class BatchTransformService {
                 Long contentId = upsert.upsert(
                         Domain.valueOf(rule.getDomain()),
                         tri.master(), tri.platform(), tri.domain(),
-                        psid, url
+                        psid, url,
+                        rule // [ ✨ 수정 ] 로드한 rule 객체를 upsert 메서드에 전달
                 );
 
                 run.setStatus("SUCCESS");

@@ -1,39 +1,47 @@
 platformName: Steam
 domain: GAME
-schemaVersion: 1
+schemaVersion: 2
 
 fieldMappings:
-  # === 1. contents 테이블 (공통 마스터) ===
-  # 'data.' 접두사 제거
+  # === Master & Platform Mappings ===
   name: master_title
   header_image: poster_image_url
   short_description: synopsis
+  steam_appid: platform.platform_specific_id
 
-  # === 2. game_contents 테이블 (게임 도메인) ===
-  # 'data.' 접두사 제거
+  # === Domain Mappings (for domainDoc) ===
   release_date.date: domain.release_date
   developers[0]: domain.developer
   publishers[0]: domain.publisher
   platforms: domain.platforms
   genres: domain.genres
 
-  # === 3. platform_data 테이블 (플랫폼 고유 정보) ===
-  # (신규) steam_appid를 platform_specific_id로 매핑 (필수)
-  steam_appid: platform.platform_specific_id
-
-  # === 4. platform_data.attributes (기타 모든 Steam 전용 정보) ===
-  # (수정) 개별 필드 대신 객체 전체를 저장하여 유연성 확보
+  # === Platform Attributes ===
   price_overview: platform.attributes.price_overview
   metacritic: platform.attributes.metacritic
-
-  # (신규) 유용한 추가 정보들 매핑
   is_free: platform.attributes.is_free
   required_age: platform.attributes.required_age
   detailed_description: platform.attributes.detailed_description
   categories: platform.attributes.categories
   recommendations.total: platform.attributes.recommendation_count
 
-# normalizers는 수정할 필요 없이 그대로 사용합니다.
+domainObjectMappings:
+  release_date:
+    targetField: releaseDate
+    type: date
+  developer:
+    targetField: developer
+    type: string
+  publisher:
+    targetField: publisher
+    type: string
+  platforms:
+    targetField: platforms
+    type: map
+  genres:
+    targetField: genres
+    type: map
+
 normalizers:
   - type: nfkc
     fields: [master_title]

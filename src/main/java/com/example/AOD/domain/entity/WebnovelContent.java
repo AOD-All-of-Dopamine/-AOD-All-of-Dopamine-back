@@ -22,14 +22,21 @@ public class WebnovelContent {
             foreignKey=@ForeignKey(name="fk_webnovel_content_content"))
     private Content content;
 
+    public WebnovelContent() {}
+
+    public WebnovelContent(Content content) {
+        this.content = content;
+        this.contentId = content.getContentId();
+    }
+
     private String author;
-    private String translator;
     private LocalDate startedAt;
+    private String publisher;
+    private String ageRating;
 
     @Type(JsonType.class)
     @Column(columnDefinition="jsonb")
     private Map<String,Object> genres;
 
-    // getters/setters...
 }
 

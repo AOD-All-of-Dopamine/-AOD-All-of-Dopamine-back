@@ -15,6 +15,9 @@ public class MappingRule {
     private int schemaVersion;
     private Map<String, String> fieldMappings; // src -> dst
     private List<NormalizerStep> normalizers;
+
+    // [ ✨ 핵심 추가 ] YAML의 domainObjectMappings를 담을 필드
+    private Map<String, DomainObjectMapping> domainObjectMappings;
     // getters/setters
 }
 

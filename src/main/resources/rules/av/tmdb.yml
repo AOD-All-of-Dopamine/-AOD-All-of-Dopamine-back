@@ -2,10 +2,10 @@
 
 platformName: TMDB
 domain: AV
-schemaVersion: 2
+schemaVersion: 3
 
 fieldMappings:
-  # === Contents (마스터 공통 테이블) ===
+  # === Master & Platform Mappings ===
   movie_details.title: master_title
   tv_details.name: master_title
   movie_details.original_title: original_title
@@ -15,7 +15,7 @@ fieldMappings:
   movie_details.overview: synopsis
   tv_details.overview: synopsis
 
-  # === av_contents (도메인 코어 테이블) ===
+  # === Domain Mappings (for domainDoc) ===
   av_type: domain.av_type
   movie_details.id: domain.tmdb_id
   tv_details.id: domain.tmdb_id
@@ -24,15 +24,28 @@ fieldMappings:
   movie_details.genres: domain.genres
   tv_details.genres: domain.genres
 
-  # === platform_data.attributes (JSONB 확장 필드) ===
+  # === Platform Attributes ===
   watch_providers: platform.attributes.watch_providers
-  # [수정] 아래 필드들을 platform.attributes로 이동
   movie_details.runtime: platform.attributes.runtime
   tv_details.number_of_seasons: platform.attributes.season_count
   movie_details.credits.cast: platform.attributes.cast
   tv_details.credits.cast: platform.attributes.cast
   movie_details.credits.crew: platform.attributes.crew
   tv_details.credits.crew: platform.attributes.crew
+
+domainObjectMappings:
+  av_type:
+    targetField: avType
+    type: string
+  tmdb_id:
+    targetField: tmdbId
+    type: integer
+  release_date:
+    targetField: releaseDate
+    type: date
+  genres:
+    targetField: genres
+    type: map
 
 normalizers:
   - type: collapse_spaces
