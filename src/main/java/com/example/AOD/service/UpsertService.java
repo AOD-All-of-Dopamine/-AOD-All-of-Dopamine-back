@@ -59,9 +59,11 @@ public class UpsertService {
         final Integer finalReleaseYear = initialYear;
 
         // 동일 콘텐츠 판단: 도메인, 정규화된 제목, 출시 연도를 기준으로 찾습니다.
+        final var isNewContent = new Object() { boolean value = false; };
         Content content = contentRepo
                 .findFirstByDomainAndMasterTitleAndReleaseYear(domain, masterTitle, finalReleaseYear)
                 .orElseGet(() -> {
+                    isNewContent.value = true;
                     Content c = new Content();
                     c.setDomain(domain);
                     c.setMasterTitle(masterTitle);
@@ -69,7 +71,7 @@ public class UpsertService {
                     c.setReleaseYear(finalReleaseYear);
                     c.setPosterImageUrl((String) master.get("poster_image_url"));
                     c.setSynopsis((String) master.get("synopsis"));
-                    return contentRepo.save(c);
+                    return c; // save는 나중에 한번만 호출
                 });
 
         // 기존 콘텐츠 정보 업데이트 (null인 필드만)
@@ -83,6 +85,9 @@ public class UpsertService {
         if (content.getSynopsis() == null)
             content.setSynopsis((String) master.getOrDefault("synopsis", content.getSynopsis()));
 
+        if (isNewContent.value) {
+            content = contentRepo.save(content);
+        }
 
         // [수정된 부분]
         Map<String, Object> attributes = (Map<String, Object>) platform.get("attributes");

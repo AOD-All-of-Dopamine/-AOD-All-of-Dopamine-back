@@ -34,29 +34,28 @@ public class DomainCoreUpsertService {
         // 2. Generic Upserter를 호출하여 필드 값을 동적으로 채움
         genericUpserter.upsert(domainEntity, domainDoc, rule.getDomainObjectMappings());
 
-        // 3. 엔티티 저장은 Dirty Checking에 의해 자동으로 처리되므로 명시적 save 호출 제거
+        // 3. 엔티티 저장 -> @Transactional에 의해 dirty checking으로 자동 처리되므로 명시적 save 호출 제거
+        // saveDomainEntity(domain, domainEntity);
     }
 
     private Object findOrCreateDomainEntity(Domain domain, Content content) {
         Long contentId = content.getContentId();
-        return switch (domain) {
-            case AV -> avRepo.findById(contentId).orElseGet(() -> {
-                AvContent entity = new AvContent(content);
-                return avRepo.save(entity);
-            });
-            case GAME -> gameRepo.findById(contentId).orElseGet(() -> {
-                GameContent entity = new GameContent(content);
-                return gameRepo.save(entity);
-            });
-            case WEBTOON -> webtoonRepo.findById(contentId).orElseGet(() -> {
-                WebtoonContent entity = new WebtoonContent(content);
-                return webtoonRepo.save(entity);
-            });
-            case WEBNOVEL -> webnovelRepo.findById(contentId).orElseGet(() -> {
-                WebnovelContent entity = new WebnovelContent(content);
-                return webnovelRepo.save(entity);
-            });
-            default -> null;
-        };
+        // contentId가 null일 수 있으므로 Optional로 감싸서 처리
+        return java.util.Optional.ofNullable(contentId)
+                .flatMap(id -> switch (domain) {
+                    case AV -> avRepo.findById(id).map(Object.class::cast);
+                    case GAME -> gameRepo.findById(id).map(Object.class::cast);
+                    case WEBTOON -> webtoonRepo.findById(id).map(Object.class::cast);
+                    case WEBNOVEL -> webnovelRepo.findById(id).map(Object.class::cast);
+                    default -> java.util.Optional.empty();
+                })
+                .orElseGet(() -> switch (domain) {
+                    // ID가 없거나 DB에 엔티티가 없으면 새로 생성 (메모리에서만)
+                    case AV -> new AvContent(content);
+                    case GAME -> new GameContent(content);
+                    case WEBTOON -> new WebtoonContent(content);
+                    case WEBNOVEL -> new WebnovelContent(content);
+                    default -> null;
+                });
     }
 }

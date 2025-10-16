@@ -51,6 +51,8 @@ public class BatchTransformService {
     public int processBatch(int batchSize) {
         List<RawItem> batch = rawRepo.lockNextBatch(batchSize);
         int ok = 0;
+        Set<Long> processedContentIds = new HashSet<>(); // 처리된 콘텐츠 ID를 추적하기 위한 Set
+
         for (RawItem raw : batch) {
             TransformRun run = new TransformRun();
             run.setRawId(raw.getRawId());
@@ -82,6 +84,18 @@ public class BatchTransformService {
                         rule // [ ✨ 수정 ] 로드한 rule 객체를 upsert 메서드에 전달
                 );
 
+                // 중복 처리 방지 로직
+                if (processedContentIds.contains(contentId)) {
+                    // 이미 처리된 콘텐츠 ID인 경우, 성공으로 간주하고 다음 항목으로 넘어감
+                    run.setStatus("SUCCESS_DUPLICATE");
+                    run.setProducedContentId(contentId);
+                    ok++;
+                    raw.setProcessed(true);
+                    raw.setProcessedAt(Instant.now());
+                    continue; // 루프의 다음 반복으로 이동
+                }
+                processedContentIds.add(contentId); // 새로 처리된 콘텐츠 ID 추가
+
                 run.setStatus("SUCCESS");
                 run.setProducedContentId(contentId);
                 ok++;
@@ -90,6 +104,7 @@ public class BatchTransformService {
             } catch (Exception e) {
                 run.setStatus("FAILED");
                 run.setError(e.toString());
+                throw e; // 디버깅을 위해 예외를 다시 던져서 트랜잭션 롤백의 근본 원인을 확인합니다.
             } finally {
                 run.setFinishedAt(Instant.now());
                 runRepo.save(run);
