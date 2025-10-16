@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -35,13 +36,26 @@ public class GenericDomainUpserter {
             if (mapping != null && value != null) {
                 String targetField = mapping.getTargetField(); // 엔티티의 필드명 (e.g., "author")
                 try {
-                    // 특수 타입 변환 로직 (예시)
                     Object convertedValue = convertType(value, mapping.getType());
+
+                    // 대상 필드 타입 확인 및 변환
+                    Class<?> propertyType = accessor.getPropertyType(targetField);
+                    if (propertyType != null && propertyType.equals(String.class)) {
+                        if (convertedValue instanceof Map || convertedValue instanceof List) {
+                            // 필드가 String인데 값이 Map이나 List인 경우, 문자열로 변환
+                            if (convertedValue instanceof Map mapValue && mapValue.containsKey("name")) {
+                                convertedValue = mapValue.get("name").toString();
+                            } else {
+                                convertedValue = convertedValue.toString();
+                            }
+                        }
+                    }
+
                     // accessor를 통해 targetField에 변환된 값을 설정합니다.
                     accessor.setPropertyValue(targetField, convertedValue);
                 } catch (Exception e) {
-                    log.error("Failed to set property '{}' on {} with value '{}'",
-                              targetField, domainEntity.getClass().getSimpleName(), value, e);
+                    log.error("Failed to set property '{}' on {} with value '{}' (type: {})",
+                            targetField, domainEntity.getClass().getSimpleName(), value, value.getClass().getSimpleName(), e);
                 }
             }
         }
