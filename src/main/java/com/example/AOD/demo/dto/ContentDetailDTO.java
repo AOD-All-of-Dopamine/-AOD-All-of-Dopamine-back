@@ -68,7 +68,8 @@ public class ContentDetailDTO {
             }
 
             Map<String, Object> processedAttributes = new LinkedHashMap<>();
-            List<String> displayKeys = List.of("status", "rating", "view_count", "download_count", "like_count", "price_overview", "genres", "cast", "crew", "developer", "developers", "publisher", "publishers", "author", "runtime", "season_count", "age_rating", "is_free");
+            // ✅ 핵심 수정 1: 'recommendation_count'를 처리할 키 목록에 추가/수정
+            List<String> displayKeys = List.of("status", "rating", "view_count", "download_count", "like_count", "price_overview", "genres", "cast", "crew", "developer", "developers", "publisher", "publishers", "author", "runtime", "season_count", "age_rating", "is_free", "recommendation_count", "categories");
 
             for (String key : displayKeys) {
                 if (originalAttributes.containsKey(key)) {
@@ -85,34 +86,28 @@ public class ContentDetailDTO {
                                         .limit(5)
                                         .map(p -> (String) p.get("name"))
                                         .collect(Collectors.joining(", "));
-                                processedAttributes.put(key, names);
+                                processedAttributes.put("출연", names);
                             }
                             break;
 
                         case "crew":
                             if (value instanceof List) {
                                 List<Map<String, Object>> crewList = (List<Map<String, Object>>) value;
-
-                                // 감독 필터링
+                                // 감독
                                 String directors = crewList.stream()
                                         .filter(p -> "Director".equals(p.get("job")) && "Directing".equals(p.get("department")))
                                         .map(p -> (String) p.get("name"))
                                         .distinct()
                                         .collect(Collectors.joining(", "));
-
                                 if (!directors.isEmpty()) {
                                     processedAttributes.put("감독", directors);
                                 }
-
-                                // ✅ 핵심 수정: "Story" 직책을 작가 필터링 조건에 추가
+                                // 작가
                                 String writers = crewList.stream()
-                                        .filter(p -> "Writer".equals(p.get("job"))
-                                                || "Screenplay".equals(p.get("job"))
-                                                || "Story".equals(p.get("job"))) // "Story" 조건 추가
+                                        .filter(p -> "Writer".equals(p.get("job")) || "Screenplay".equals(p.get("job")) || "Story".equals(p.get("job")))
                                         .map(p -> (String) p.get("name"))
                                         .distinct()
                                         .collect(Collectors.joining(", "));
-
                                 if (!writers.isEmpty()) {
                                     processedAttributes.put("작가", writers);
                                 }
@@ -130,6 +125,20 @@ public class ContentDetailDTO {
                                     processedAttributes.put(key, String.join(", ", (List<String>) value));
                                 }
                             }
+                            break;
+
+                        case "categories":
+                            if (value instanceof List) {
+                                String descriptions = ((List<Map<String, Object>>) value).stream()
+                                        .map(c -> (String) c.get("description"))
+                                        .collect(Collectors.joining(", "));
+                                processedAttributes.put("카테고리", descriptions);
+                            }
+                            break;
+
+                        // ✅ 핵심 수정 2: 'recommendation_count' 처리 로직으로 변경
+                        case "recommendation_count":
+                            processedAttributes.put("추천 수", value);
                             break;
 
                         case "price_overview":
