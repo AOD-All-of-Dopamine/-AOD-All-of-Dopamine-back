@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
@@ -52,8 +55,27 @@ public class GenericDomainUpserter {
             case "integer" -> (value instanceof Number n) ? n.intValue() : Integer.parseInt(value.toString());
             case "long" -> (value instanceof Number n) ? n.longValue() : Long.parseLong(value.toString());
             case "webtoon_status" -> "true".equalsIgnoreCase(value.toString()) ? "완결" : "연재중";
-            // TODO: date, double 등 필요한 타입 변환 로직 추가
+            case "date" -> parseDate(value);
+            // TODO: double 등 필요한 타입 변환 로직 추가
             default -> value;
         };
+    }
+
+    private LocalDate parseDate(Object s) {
+        if (s == null) return null;
+        String v = s.toString().trim();
+        String[] patterns = {"uuuu년 M월 d일", "yyyy-MM-dd", "yyyy.MM.dd", "yyyy/MM/dd", "MMM d, yyyy"};
+        for (String p : patterns) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(p, Locale.KOREAN);
+                return LocalDate.parse(v, formatter);
+            } catch (Exception ignored) {
+            }
+        }
+        try {
+            return LocalDate.of(Integer.parseInt(v), 1, 1);
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 }
