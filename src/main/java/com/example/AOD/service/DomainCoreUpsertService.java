@@ -34,27 +34,29 @@ public class DomainCoreUpsertService {
         // 2. Generic Upserter를 호출하여 필드 값을 동적으로 채움
         genericUpserter.upsert(domainEntity, domainDoc, rule.getDomainObjectMappings());
 
-        // 3. 엔티티 저장
-        saveDomainEntity(domain, domainEntity);
+        // 3. 엔티티 저장은 Dirty Checking에 의해 자동으로 처리되므로 명시적 save 호출 제거
     }
 
     private Object findOrCreateDomainEntity(Domain domain, Content content) {
         Long contentId = content.getContentId();
         return switch (domain) {
-            case AV -> avRepo.findById(contentId).orElseGet(() -> new AvContent(content));
-            case GAME -> gameRepo.findById(contentId).orElseGet(() -> new GameContent(content));
-            case WEBTOON -> webtoonRepo.findById(contentId).orElseGet(() -> new WebtoonContent(content));
-            case WEBNOVEL -> webnovelRepo.findById(contentId).orElseGet(() -> new WebnovelContent(content));
+            case AV -> avRepo.findById(contentId).orElseGet(() -> {
+                AvContent entity = new AvContent(content);
+                return avRepo.save(entity);
+            });
+            case GAME -> gameRepo.findById(contentId).orElseGet(() -> {
+                GameContent entity = new GameContent(content);
+                return gameRepo.save(entity);
+            });
+            case WEBTOON -> webtoonRepo.findById(contentId).orElseGet(() -> {
+                WebtoonContent entity = new WebtoonContent(content);
+                return webtoonRepo.save(entity);
+            });
+            case WEBNOVEL -> webnovelRepo.findById(contentId).orElseGet(() -> {
+                WebnovelContent entity = new WebnovelContent(content);
+                return webnovelRepo.save(entity);
+            });
             default -> null;
         };
-    }
-
-    private void saveDomainEntity(Domain domain, Object entity) {
-        switch (domain) {
-            case AV -> avRepo.save((AvContent) entity);
-            case GAME -> gameRepo.save((GameContent) entity);
-            case WEBTOON -> webtoonRepo.save((WebtoonContent) entity);
-            case WEBNOVEL -> webnovelRepo.save((WebnovelContent) entity);
-        }
     }
 }
