@@ -45,9 +45,9 @@
         <div class="platform-section">
             <h4>🎮 Steam (게임)</h4>
             <div class="input-group">
-                <label for="steam-start-index">시작 인덱스:</label>
+                <label for="steam-start-index">시작 지점:</label>
                 <input type="number" id="steam-start-index" value="0" class="form-input">
-                <label for="steam-end-index">종료 인덱스:</label>
+                <label for="steam-end-index">종료 지점:</label>
                 <input type="number" id="steam-end-index" value="100" class="form-input">
                 <button onclick="callSteamApi()">범위 지정 수집</button>
                 <button onclick="callApi('/api/steam/collect/all-games', 'POST', null, 'Steam 전체 게임 수집')">전체 게임 수집 (자동 분할)</button>
