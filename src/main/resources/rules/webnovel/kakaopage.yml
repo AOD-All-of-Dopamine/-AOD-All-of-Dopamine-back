@@ -7,13 +7,14 @@ fieldMappings:
   title: master_title
   imageUrl: poster_image_url
   synopsis: synopsis
+  author: domain.author
 
   # === Platform_Data ===
   productUrl: platform.url
   seriesId: platform.platform_specific_id
 
   # === Platform_Data.attributes(JSONB) ===
-  author: platform.attributes.author
+
   publisher: platform.attributes.publisher
   status: platform.attributes.status
   ageRating: platform.attributes.age_rating
