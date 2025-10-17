@@ -11,11 +11,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.springframework.data.domain.Persistable;
 
 @Entity @Table(name="webtoon_contents")
 @Setter
 @Getter
-public class WebtoonContent {
+public class WebtoonContent implements Persistable<Long> {
     @Id
     private Long contentId;
 
@@ -23,6 +24,9 @@ public class WebtoonContent {
     @JoinColumn(name="content_id",
             foreignKey=@ForeignKey(name="fk_webtoon_content_content"))
     private Content content;
+
+    @Transient
+    private boolean isNew = true;
 
     public WebtoonContent() {}
 
@@ -41,4 +45,20 @@ public class WebtoonContent {
     private Map<String,Object> genres;
 
     // getters/setters...
+
+    @Override
+    public Long getId() {
+        return contentId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    private void markNotNew() {
+        this.isNew = false;
+    }
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.Map;
 @Table(name = "av_contents")
 @Getter
 @Setter
-public class AvContent {
+public class AvContent implements Persistable<Long> {
 
     @Id
     private Long contentId; // contents PK와 동일
@@ -24,6 +25,9 @@ public class AvContent {
     @JoinColumn(name = "content_id",
             foreignKey = @ForeignKey(name = "fk_av_content_content"))
     private Content content;
+
+    @Transient
+    private boolean isNew = true;
 
     public AvContent() {}
 
@@ -46,4 +50,19 @@ public class AvContent {
     @Column(columnDefinition = "jsonb")
     private Map<String, Object> genres;
 
+    @Override
+    public Long getId() {
+        return contentId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    private void markNotNew() {
+        this.isNew = false;
+    }
 }

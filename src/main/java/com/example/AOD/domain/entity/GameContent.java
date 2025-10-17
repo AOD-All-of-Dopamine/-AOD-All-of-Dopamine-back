@@ -10,11 +10,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.springframework.data.domain.Persistable;
 
 @Entity @Table(name="game_contents")
 @Getter
 @Setter
-public class GameContent {
+public class GameContent implements Persistable<Long> {
     @Id
     private Long contentId;
 
@@ -22,6 +23,9 @@ public class GameContent {
     @JoinColumn(name="content_id",
             foreignKey=@ForeignKey(name="fk_game_content_content"))
     private Content content;
+
+    @Transient
+    private boolean isNew = true;
 
     public GameContent() {}
 
@@ -43,4 +47,20 @@ public class GameContent {
     private Map<String,Object> genres;    // 자유 형식
 
     // getters/setters...
+
+    @Override
+    public Long getId() {
+        return contentId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    private void markNotNew() {
+        this.isNew = false;
+    }
 }

@@ -70,6 +70,7 @@ public class GenericDomainUpserter {
             case "long" -> (value instanceof Number n) ? n.longValue() : Long.parseLong(value.toString());
             case "webtoon_status" -> "true".equalsIgnoreCase(value.toString()) ? "완결" : "연재중";
             case "date" -> parseDate(value);
+            case "list" -> (value instanceof List<?> list) ? list : List.of(value);
             // TODO: double 등 필요한 타입 변환 로직 추가
             default -> value;
         };

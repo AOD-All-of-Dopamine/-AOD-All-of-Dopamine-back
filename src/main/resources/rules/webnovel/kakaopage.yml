@@ -24,6 +24,20 @@ fieldMappings:
   viewCount: platform.attributes.view_count
   commentCount: platform.attributes.comment_count
 
+domainObjectMappings:
+  author:
+    targetField: author
+    type: string
+  publisher:
+    targetField: publisher
+    type: string
+  age_rating:
+    targetField: ageRating
+    type: string
+  genres:
+    targetField: genres
+    type: list
+
 normalizers:
   - type: strip_parentheses
     fields: [master_title]
