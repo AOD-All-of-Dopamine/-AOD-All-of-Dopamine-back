@@ -62,11 +62,18 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     Page<Content> findUpcomingReleases(@Param("startDate") LocalDate startDate, 
                                        Pageable pageable);
     
-    // 특정 날짜 범위의 신작 조회
+    // 특정 날짜 범위의 신작 조회 - 도메인별
     @Query("SELECT c FROM Content c WHERE c.domain = :domain AND c.releaseDate BETWEEN :startDate AND :endDate " +
            "ORDER BY c.releaseDate DESC")
     Page<Content> findReleasesInDateRange(@Param("domain") Domain domain,
                                           @Param("startDate") LocalDate startDate,
+                                          @Param("endDate") LocalDate endDate,
+                                          Pageable pageable);
+    
+    // 특정 날짜 범위의 신작 조회 - 전체 도메인
+    @Query("SELECT c FROM Content c WHERE c.releaseDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY c.releaseDate DESC")
+    Page<Content> findReleasesInDateRange(@Param("startDate") LocalDate startDate,
                                           @Param("endDate") LocalDate endDate,
                                           Pageable pageable);
 }

@@ -201,16 +201,17 @@ public class WorkApiService {
     }
 
     /**
-     * 최근 출시작 조회 (이미 출시된 작품들)
+     * 최근 출시작 조회 (최근 3개월 이내 출시된 작품들)
      */
     public PageResponse<WorkSummaryDTO> getRecentReleases(Domain domain, Pageable pageable) {
         LocalDate now = LocalDate.now();
+        LocalDate threeMonthsAgo = now.minusMonths(3);
         Page<Content> contentPage;
 
         if (domain != null) {
-            contentPage = contentRepository.findRecentReleases(domain, now, pageable);
+            contentPage = contentRepository.findReleasesInDateRange(domain, threeMonthsAgo, now, pageable);
         } else {
-            contentPage = contentRepository.findRecentReleases(now, pageable);
+            contentPage = contentRepository.findReleasesInDateRange(threeMonthsAgo, now, pageable);
         }
 
         List<WorkSummaryDTO> content = contentPage.getContent().stream()
