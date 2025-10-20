@@ -23,7 +23,7 @@ public class ContentDetailDTO {
     private String posterImageUrl;
     private String synopsis;
     private String originalTitle;
-    private Integer releaseYear;
+    private String releaseDate; // ISO 8601 format: yyyy-MM-dd
     private String domain;
 
     // 플랫폼별 고유 데이터
@@ -39,7 +39,7 @@ public class ContentDetailDTO {
         this.posterImageUrl = content.getPosterImageUrl();
         this.synopsis = content.getSynopsis();
         this.originalTitle = content.getOriginalTitle();
-        this.releaseYear = content.getReleaseYear();
+        this.releaseDate = content.getReleaseDate() != null ? content.getReleaseDate().toString() : null;
         this.domain = content.getDomain().name();
         this.domainAttributes = domainAttributes;
         this.platforms = platformData.stream().map(PlatformInfo::new).collect(Collectors.toList());

@@ -37,8 +37,8 @@ public class DomainCoreUpsertService {
         // 2. Generic Upserter를 호출하여 필드 값을 동적으로 채움
         genericUpserter.upsert(domainEntity, domainDoc, rule.getDomainObjectMappings());
 
-    // 3. 변경된 내용을 저장 (새로 생성된 엔티티는 선행 save 덕분에 INSERT 되었고, 이후 변경분은 UPDATE로 반영)
-    saveDomainEntity(domain, domainEntity);
+        // 3. 변경된 내용을 저장 (새로 생성된 엔티티는 선행 save 덕분에 INSERT 되었고, 이후 변경분은 UPDATE로 반영)
+        saveDomainEntity(domain, domainEntity);
     }
 
     private Object findOrCreateDomainEntity(Domain domain, Content content) {

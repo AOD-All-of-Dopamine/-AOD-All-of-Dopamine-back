@@ -6,12 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
 @Setter
 @Getter
 @Table(name = "contents",
-        indexes = @Index(name = "idx_contents_lookup", columnList = "domain,masterTitle,releaseYear"))
+        indexes = @Index(name = "idx_contents_lookup", columnList = "domain,masterTitle,releaseDate"))
 public class Content {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +26,7 @@ public class Content {
     private String masterTitle;
 
     private String originalTitle;
-    private Integer releaseYear;
+    private LocalDate releaseDate;
     private String posterImageUrl;
 
     @Column(columnDefinition = "text")

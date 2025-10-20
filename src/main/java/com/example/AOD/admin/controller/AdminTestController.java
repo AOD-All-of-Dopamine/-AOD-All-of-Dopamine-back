@@ -1,10 +1,9 @@
 package com.example.AOD.admin.controller;
 
-import com.example.AOD.Novel.KakaoPageNovel.KakaoPageCrawler;
-import com.example.AOD.Novel.NaverSeriesNovel.NaverSeriesCrawler;
+import com.example.AOD.contents.Novel.KakaoPageNovel.KakaoPageCrawler;
+import com.example.AOD.contents.Novel.NaverSeriesNovel.NaverSeriesCrawler;
 
-import com.example.AOD.Webtoon.NaverWebtoon.NaverWebtoonService;
-import com.example.AOD.domain.entity.Domain;
+import com.example.AOD.contents.Webtoon.NaverWebtoon.NaverWebtoonService;
 import com.example.AOD.ingest.BatchTransformService;
 import com.example.AOD.ingest.RawItemRepository;
 import com.example.AOD.rules.MappingRule;
@@ -14,9 +13,7 @@ import com.example.AOD.service.UpsertService;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

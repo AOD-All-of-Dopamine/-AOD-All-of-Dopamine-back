@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @Service
@@ -18,10 +19,10 @@ public class ContentUpsertService {
     @Transactional
     public Content findOrCreateContent(Domain domain, Map<String, Object> master) {
         String masterTitle = (String) master.get("master_title");
-        Integer releaseYear = master.get("release_year") instanceof Number ? ((Number) master.get("release_year")).intValue() : null;
+        LocalDate releaseDate = parseReleaseDate(master.get("release_date"));
 
         Content content = contentRepo
-                .findFirstByDomainAndMasterTitleAndReleaseYear(domain, masterTitle, releaseYear)
+                .findFirstByDomainAndMasterTitleAndReleaseDate(domain, masterTitle, releaseDate)
                 .orElseGet(() -> {
                     Content newContent = new Content();
                     newContent.setDomain(domain);
@@ -33,8 +34,8 @@ public class ContentUpsertService {
         if (content.getOriginalTitle() == null) {
             content.setOriginalTitle((String) master.get("original_title"));
         }
-        if (content.getReleaseYear() == null) {
-            content.setReleaseYear(releaseYear);
+        if (content.getReleaseDate() == null) {
+            content.setReleaseDate(releaseDate);
         }
         if (content.getPosterImageUrl() == null) {
             content.setPosterImageUrl((String) master.get("poster_image_url"));
@@ -44,5 +45,23 @@ public class ContentUpsertService {
         }
 
         return contentRepo.save(content);
+    }
+
+    private LocalDate parseReleaseDate(Object value) {
+        if (value == null) return null;
+        if (value instanceof LocalDate) return (LocalDate) value;
+        if (value instanceof String) {
+            try {
+                return LocalDate.parse((String) value);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        if (value instanceof Number) {
+            // year만 있는 경우 1월 1일로 변환
+            int year = ((Number) value).intValue();
+            return LocalDate.of(year, 1, 1);
+        }
+        return null;
     }
 }
