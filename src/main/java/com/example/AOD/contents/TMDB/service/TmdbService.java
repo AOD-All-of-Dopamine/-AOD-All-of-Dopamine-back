@@ -1,5 +1,6 @@
 package com.example.AOD.contents.TMDB.service;
 
+import com.example.AOD.contents.TMDB.processor.TmdbPayloadProcessor;
 import com.example.AOD.contents.TMDB.dto.TmdbDiscoveryResult;
 import com.example.AOD.contents.TMDB.dto.TmdbMovie;
 import com.example.AOD.contents.TMDB.dto.TmdbTvDiscoveryResult;
@@ -7,12 +8,10 @@ import com.example.AOD.contents.TMDB.dto.TmdbTvShow;
 import com.example.AOD.contents.TMDB.dto.WatchProviderResult;
 import com.example.AOD.contents.TMDB.fetcher.TmdbApiFetcher;
 import com.example.AOD.ingest.CollectorService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +22,7 @@ public class TmdbService {
 
     private final TmdbApiFetcher tmdbApiFetcher;
     private final CollectorService collectorService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final TmdbPayloadProcessor payloadProcessor;
 
     // --- 연도별 전체 수집 로직 ---
     public void collectAllMoviesByYear(int startYear, int endYear, String language) {
@@ -109,6 +108,20 @@ public class TmdbService {
         }
     }
 
+    private void processMovieList(java.util.List<TmdbMovie> movies, String language) throws InterruptedException {
+        for (TmdbMovie movie : movies) {
+            try {
+                Map<String, Object> detailedData = tmdbApiFetcher.getMovieDetails(movie.getId(), language);
+                Map<String, Object> processedData = payloadProcessor.process(detailedData);
+                processedData.put("av_type", "movie");
+                collectorService.saveRaw("TMDB_MOVIE", "AV", processedData, String.valueOf(movie.getId()), "https://www.themoviedb.org/movie/" + movie.getId());
+                TimeUnit.MILLISECONDS.sleep(100); // 개별 상세 조회에 대한 Rate Limiting
+            } catch (Exception e) {
+                log.error("영화 상세 정보 처리 중 오류 발생 (ID: {}): {}", movie.getId(), e.getMessage());
+            }
+        }
+    }
+
     public void collectTvShowsForPeriod(String startDate, String endDate, String language, int maxPages) {
         int currentPage = 1;
         int effectiveMaxPages = Math.min(maxPages, 500);
@@ -138,61 +151,17 @@ public class TmdbService {
         }
     }
 
-    private void processMovieList(java.util.List<TmdbMovie> movies, String language) {
-        for (TmdbMovie basicMovieInfo : movies) {
+    private void processTvShowList(java.util.List<TmdbTvShow> tvShows, String language) throws InterruptedException {
+        for (TmdbTvShow tvShow : tvShows) {
             try {
-                // 상세 정보 조회 (출연진 등 추가 정보 획득)
-                TmdbMovie detailedMovie = tmdbApiFetcher.getMovieDetails(basicMovieInfo.getId(), language);
-                if (detailedMovie == null) continue;
-
-                // 스트리밍 정보 조회
-                WatchProviderResult watchProviders = tmdbApiFetcher.getWatchProviders(detailedMovie.getId());
-                Map<String, Object> payload = createPayload(detailedMovie, watchProviders);
-
-                collectorService.saveRaw("TMDB", "AV", payload, String.valueOf(detailedMovie.getId()), "https://www.themoviedb.org/movie/" + detailedMovie.getId());
-                TimeUnit.MILLISECONDS.sleep(100); // API 호출 간격
+                Map<String, Object> detailedData = tmdbApiFetcher.getTvShowDetails(tvShow.getId(), language);
+                Map<String, Object> processedData = payloadProcessor.process(detailedData);
+                processedData.put("av_type", "tv");
+                collectorService.saveRaw("TMDB_TV", "AV", processedData, String.valueOf(tvShow.getId()), "https://www.themoviedb.org/tv/" + tvShow.getId());
+                TimeUnit.MILLISECONDS.sleep(100);
             } catch (Exception e) {
-                log.error("Movie ID {} 처리 중 오류 발생: {}", basicMovieInfo.getId(), e.getMessage());
+                log.error("TV쇼 상세 정보 처리 중 오류 발생 (ID: {}): {}", tvShow.getId(), e.getMessage());
             }
         }
-    }
-
-    private void processTvShowList(java.util.List<TmdbTvShow> tvShows, String language) {
-        for (TmdbTvShow basicTvShowInfo : tvShows) {
-            try {
-                // 상세 정보 조회
-                TmdbTvShow detailedTvShow = tmdbApiFetcher.getTvShowDetails(basicTvShowInfo.getId(), language);
-                if (detailedTvShow == null) continue;
-
-                // 스트리밍 정보 조회
-                WatchProviderResult watchProviders = tmdbApiFetcher.getTvShowWatchProviders(detailedTvShow.getId());
-                Map<String, Object> payload = createTvPayload(detailedTvShow, watchProviders);
-
-                collectorService.saveRaw("TMDB", "AV", payload, String.valueOf(detailedTvShow.getId()), "https://www.themoviedb.org/tv/" + detailedTvShow.getId());
-                TimeUnit.MILLISECONDS.sleep(100); // API 호출 간격
-            } catch (Exception e) {
-                log.error("TV ID {} 처리 중 오류 발생: {}", basicTvShowInfo.getId(), e.getMessage());
-            }
-        }
-    }
-
-    private Map<String, Object> createPayload(TmdbMovie movie, WatchProviderResult providers) {
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("av_type", "MOVIE");
-        payload.put("movie_details", objectMapper.convertValue(movie, Map.class));
-        if (providers != null && providers.getResults() != null) {
-            payload.put("watch_providers", providers.getResults());
-        }
-        return payload;
-    }
-
-    private Map<String, Object> createTvPayload(TmdbTvShow tvShow, WatchProviderResult providers) {
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("av_type", "TV");
-        payload.put("tv_details", objectMapper.convertValue(tvShow, Map.class));
-        if (providers != null && providers.getResults() != null) {
-            payload.put("watch_providers", providers.getResults());
-        }
-        return payload;
     }
 }

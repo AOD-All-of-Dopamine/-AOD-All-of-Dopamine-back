@@ -4,7 +4,6 @@ package com.example.AOD.contents.TMDB.controller;
 
 import com.example.AOD.contents.TMDB.dto.TmdbDiscoveryResult;
 import com.example.AOD.contents.TMDB.dto.TmdbTvDiscoveryResult;
-import com.example.AOD.contents.TMDB.dto.WatchProviderResult.CountryProviders;
 import com.example.AOD.contents.TMDB.fetcher.TmdbApiFetcher;
 import com.example.AOD.contents.TMDB.service.TmdbService;
 import lombok.RequiredArgsConstructor;
@@ -95,19 +94,25 @@ public class TmdbTestController {
     }
 
     @GetMapping("/preview/movie/{movieId}/providers")
-    public ResponseEntity<CountryProviders> previewKoreanWatchProviders(@PathVariable int movieId) {
-        var fullResult = tmdbApiFetcher.getWatchProviders(movieId);
-        if (fullResult != null && fullResult.getResults() != null) {
-            return ResponseEntity.ok(fullResult.getResults().get("KR"));
-        }
-        return ResponseEntity.ok(null);
+    public ResponseEntity<Object> previewKoreanWatchProviders(@PathVariable int movieId) {
+        Map<String, Object> movieDetails = tmdbApiFetcher.getMovieDetails(movieId, "ko-KR");
+        return extractKoreanProviders(movieDetails);
     }
 
     @GetMapping("/preview/tv/{tvId}/providers")
-    public ResponseEntity<CountryProviders> previewKoreanTvShowWatchProviders(@PathVariable int tvId) {
-        var fullResult = tmdbApiFetcher.getTvShowWatchProviders(tvId);
-        if (fullResult != null && fullResult.getResults() != null) {
-            return ResponseEntity.ok(fullResult.getResults().get("KR"));
+    public ResponseEntity<Object> previewKoreanTvShowWatchProviders(@PathVariable int tvId) {
+        Map<String, Object> tvShowDetails = tmdbApiFetcher.getTvShowDetails(tvId, "ko-KR");
+        return extractKoreanProviders(tvShowDetails);
+    }
+
+    @SuppressWarnings("unchecked")
+    private ResponseEntity<Object> extractKoreanProviders(Map<String, Object> details) {
+        if (details != null && details.containsKey("watch/providers")) {
+            Map<String, Object> providers = (Map<String, Object>) details.get("watch/providers");
+            if (providers != null && providers.containsKey("results")) {
+                Map<String, Object> results = (Map<String, Object>) providers.get("results");
+                return ResponseEntity.ok(results.get("KR"));
+            }
         }
         return ResponseEntity.ok(null);
     }

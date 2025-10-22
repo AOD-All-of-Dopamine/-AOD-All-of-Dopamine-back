@@ -128,7 +128,7 @@ public class WorkApiService {
         switch (domain) {
             case AV:
                 avContentRepository.findById(content.getContentId()).ifPresent(av -> {
-                    if (av.getGenres() != null) info.putAll(av.getGenres());
+                    if (av.getGenres() != null) info.put("genres", av.getGenres());
                     info.put("tmdbId", av.getTmdbId());
                     info.put("avType", av.getAvType());
                     if (av.getReleaseDate() != null) {
