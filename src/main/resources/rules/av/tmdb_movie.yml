@@ -1,30 +1,25 @@
-# src/main/resources/rules/av/tmdb.yml
+# src/main/resources/rules/av/tmdb_movie.yml
 
-platformName: TMDB
+platformName: TMDB_MOVIE
 domain: AV
 schemaVersion: 3
 
 fieldMappings:
   # === Master & Platform Mappings ===
-  title: master_title              # 영화용
-  name: master_title               # TV쇼용
-  original_title: original_title   # 영화용
-  original_name: original_title    # TV쇼용
+  title: master_title
+  original_title: original_title
   poster_image_url: poster_image_url
   overview: synopsis
 
   # === Domain Mappings (for domainDoc) ===
   av_type: domain.av_type
   id: domain.tmdb_id
-  release_date: domain.release_date      # 영화용
-  first_air_date: domain.release_date    # TV쇼용
+  release_date: domain.release_date
   genres: domain.genres
 
   # === Platform Attributes ===
   watch_providers: platform.attributes.watch_providers
-  runtime: platform.attributes.runtime                 # 영화용
-  episode_run_time: platform.attributes.runtime        # TV쇼용
-  number_of_seasons: platform.attributes.season_count
+  runtime: platform.attributes.runtime
   cast: platform.attributes.cast
   crew: platform.attributes.crew
 

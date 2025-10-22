@@ -114,7 +114,7 @@ public class TmdbService {
                 Map<String, Object> detailedData = tmdbApiFetcher.getMovieDetails(movie.getId(), language);
                 Map<String, Object> processedData = payloadProcessor.process(detailedData);
                 processedData.put("av_type", "movie");
-                collectorService.saveRaw("TMDB", "AV", processedData, String.valueOf(movie.getId()), "https://www.themoviedb.org/movie/" + movie.getId());
+                collectorService.saveRaw("TMDB_MOVIE", "AV", processedData, String.valueOf(movie.getId()), "https://www.themoviedb.org/movie/" + movie.getId());
                 TimeUnit.MILLISECONDS.sleep(100); // 개별 상세 조회에 대한 Rate Limiting
             } catch (Exception e) {
                 log.error("영화 상세 정보 처리 중 오류 발생 (ID: {}): {}", movie.getId(), e.getMessage());
@@ -157,7 +157,7 @@ public class TmdbService {
                 Map<String, Object> detailedData = tmdbApiFetcher.getTvShowDetails(tvShow.getId(), language);
                 Map<String, Object> processedData = payloadProcessor.process(detailedData);
                 processedData.put("av_type", "tv");
-                collectorService.saveRaw("TMDB", "AV", processedData, String.valueOf(tvShow.getId()), "https://www.themoviedb.org/tv/" + tvShow.getId());
+                collectorService.saveRaw("TMDB_TV", "AV", processedData, String.valueOf(tvShow.getId()), "https://www.themoviedb.org/tv/" + tvShow.getId());
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch (Exception e) {
                 log.error("TV쇼 상세 정보 처리 중 오류 발생 (ID: {}): {}", tvShow.getId(), e.getMessage());

@@ -31,7 +31,8 @@ public class BatchTransformService {
                 default -> throw new IllegalArgumentException("No rule for webnovel platform: " + platformName);
             };
             case "AV" -> switch (platformName) {
-                case "TMDB" -> "rules/av/tmdb.yml";
+                case "TMDB_MOVIE" -> "rules/av/tmdb_movie.yml";
+                case "TMDB_TV" -> "rules/av/tmdb_tv.yml";
                 default -> throw new IllegalArgumentException("No rule for AV platform: " + platformName);
             };
             // [신규 추가] GAME 도메인 규칙 추가

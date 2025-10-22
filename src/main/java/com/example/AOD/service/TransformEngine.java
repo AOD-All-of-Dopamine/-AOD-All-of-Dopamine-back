@@ -85,22 +85,9 @@ public class TransformEngine {
 
         Map<String,String> fm = rule.getFieldMappings();
         if (fm != null) {
-            boolean isMovie = raw.containsKey("movie_details");
-            boolean isTv = raw.containsKey("tv_details");
-
             for (var e : fm.entrySet()) {
                 String src = e.getKey();
                 String dst = e.getValue();
-
-                // [✨ 핵심 수정] TMDB 규칙일 경우, 데이터 타입에 맞는 규칙만 적용
-                if ("TMDB".equals(rule.getPlatformName())) {
-                    if (isMovie && src.startsWith("tv_details")) {
-                        continue; // 영화 데이터일 때 TV 규칙 건너뛰기
-                    }
-                    if (isTv && src.startsWith("movie_details")) {
-                        continue; // TV 데이터일 때 영화 규칙 건너뛰기
-                    }
-                }
 
                 Object val = deepGet(raw, src);
 
