@@ -6,32 +6,27 @@ schemaVersion: 3
 
 fieldMappings:
   # === Master & Platform Mappings ===
-  movie_details.title: master_title
-  tv_details.name: master_title
-  movie_details.original_title: original_title
-  tv_details.original_name: original_title
-  movie_details.poster_path: poster_image_url
-  tv_details.poster_path: poster_image_url
-  movie_details.overview: synopsis
-  tv_details.overview: synopsis
+  title: master_title              # 영화용
+  name: master_title               # TV쇼용
+  original_title: original_title   # 영화용
+  original_name: original_title    # TV쇼용
+  poster_image_url: poster_image_url
+  overview: synopsis
 
   # === Domain Mappings (for domainDoc) ===
   av_type: domain.av_type
-  movie_details.id: domain.tmdb_id
-  tv_details.id: domain.tmdb_id
-  movie_details.release_date: domain.release_date
-  tv_details.first_air_date: domain.release_date
-  movie_details.genres: domain.genres
-  tv_details.genres: domain.genres
+  id: domain.tmdb_id
+  release_date: domain.release_date      # 영화용
+  first_air_date: domain.release_date    # TV쇼용
+  genres: domain.genres
 
   # === Platform Attributes ===
   watch_providers: platform.attributes.watch_providers
-  movie_details.runtime: platform.attributes.runtime
-  tv_details.number_of_seasons: platform.attributes.season_count
-  movie_details.credits.cast: platform.attributes.cast
-  tv_details.credits.cast: platform.attributes.cast
-  movie_details.credits.crew: platform.attributes.crew
-  tv_details.credits.crew: platform.attributes.crew
+  runtime: platform.attributes.runtime                 # 영화용
+  episode_run_time: platform.attributes.runtime        # TV쇼용
+  number_of_seasons: platform.attributes.season_count
+  cast: platform.attributes.cast
+  crew: platform.attributes.crew
 
 domainObjectMappings:
   av_type:
@@ -45,7 +40,7 @@ domainObjectMappings:
     type: date
   genres:
     targetField: genres
-    type: map
+    type: list
 
 normalizers:
   - type: collapse_spaces

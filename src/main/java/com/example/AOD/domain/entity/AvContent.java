@@ -9,7 +9,7 @@ import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 
 @Entity
 @Table(name = "av_contents")
@@ -43,12 +43,9 @@ public class AvContent implements Persistable<Long> {
 
     private LocalDate releaseDate;
 
-    // [개선] runtimeMin, seasonCount, castMembers, crewMembers 필드 제거.
-    // 이 정보들은 PlatformData의 attributes에 저장되므로 Entity에 중복으로 정의할 필요가 없습니다.
-
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb")
-    private Map<String, Object> genres;
+    private List<String> genres;
 
     @Override
     public Long getId() {
