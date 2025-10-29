@@ -40,7 +40,7 @@ domainObjectMappings:
     type: map
   genres:
     targetField: genres
-    type: map
+    type: list
 
 normalizers:
   - type: nfkc
