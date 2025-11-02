@@ -3,6 +3,7 @@ package com.example.AOD.service.similarity;
 import com.example.AOD.domain.Content;
 import com.example.AOD.domain.entity.*;
 import com.example.AOD.repo.*;
+import com.example.AOD.service.GenericDomainUpserter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class ContentMergeService {
     private final WebnovelContentRepository webnovelContentRepository;
     private final PlatformDataRepository platformDataRepository;
     private final ContentSimilarityService similarityService;
+    private final GenericDomainUpserter genericUpserter;
 
     private static final double SIMILARITY_THRESHOLD = 0.85;
 
@@ -34,12 +36,16 @@ public class ContentMergeService {
      * @param newContent 새로 추가하려는 작품
      * @param domainSpecificData 도메인별 상세 정보 (GameContent, WebtoonContent 등)
      * @param platformData 플랫폼 데이터
+     * @param domainDoc 원본 도메인 데이터 (병합용)
+     * @param domainMappings 도메인 필드 매핑 정보
      * @return 병합된 작품 (기존 작품) 또는 null (중복 없음)
      */
     @Transactional
     public Content findAndMergeDuplicate(Content newContent, 
                                          Object domainSpecificData,
-                                         PlatformData platformData) {
+                                         PlatformData platformData,
+                                         Map<String, Object> domainDoc,
+                                         Map<String, com.example.AOD.rules.DomainObjectMapping> domainMappings) {
         
         log.info("🔍 중복 검사 시작: 제목='{}', Domain={}", newContent.getMasterTitle(), newContent.getDomain());
         
@@ -79,7 +85,7 @@ public class ContentMergeService {
                         newContent.getMasterTitle(), 
                         candidate.getContentId());
                 
-                mergeContent(candidate, newContent, domainSpecificData, platformData);
+                mergeContent(candidate, newContent, domainSpecificData, platformData, domainDoc, domainMappings);
                 
                 log.info("✅ 중복 작품 병합 완료: 기존 ID={}", candidate.getContentId());
                 return candidate; // 기존 작품 반환
@@ -183,7 +189,9 @@ public class ContentMergeService {
     public void mergeContent(Content existingContent, 
                             Content newContent,
                             Object domainSpecificData,
-                            PlatformData newPlatformData) {
+                            PlatformData newPlatformData,
+                            Map<String, Object> domainDoc,
+                            Map<String, com.example.AOD.rules.DomainObjectMapping> domainMappings) {
         
         log.info("📝 작품 병합 시작");
         log.info("   기존 작품: ID={}, 제목='{}', Domain={}", 
@@ -246,8 +254,8 @@ public class ContentMergeService {
             }
         }
         
-        // 3. 도메인별 상세 정보 병합
-        mergeDomainSpecificData(existingContent, domainSpecificData);
+        // 3. 도메인별 상세 정보 병합 (GenericDomainUpserter 사용)
+        mergeDomainSpecificData(existingContent, domainDoc, domainMappings);
         
         log.info("✅ 작품 병합 완료: ID={}, 최종 제목='{}'", 
                 existingContent.getContentId(),
@@ -255,178 +263,53 @@ public class ContentMergeService {
     }
 
     /**
-     * 도메인별 상세 정보 병합
+     * 도메인별 상세 정보 병합 (GenericDomainUpserter 사용)
      */
-    private void mergeDomainSpecificData(Content existingContent, Object newDomainData) {
+    private void mergeDomainSpecificData(Content existingContent, 
+                                         Map<String, Object> domainDoc,
+                                         Map<String, com.example.AOD.rules.DomainObjectMapping> domainMappings) {
+        
+        if (domainDoc == null || domainDoc.isEmpty() || domainMappings == null) {
+            log.debug("   ℹ️  병합할 도메인 데이터 없음");
+            return;
+        }
+        
         Domain domain = existingContent.getDomain();
         log.debug("   🔧 도메인별 상세 정보 병합 시작: {}", domain);
         
         switch (domain) {
             case GAME:
-                if (newDomainData instanceof GameContent) {
-                    GameContent newGame = (GameContent) newDomainData;
-                    GameContent existingGame = gameContentRepository.findById(existingContent.getContentId())
-                            .orElse(null);
-                    
-                    if (existingGame != null) {
-                        boolean domainUpdated = false;
-                        if (existingGame.getPublisher() == null && newGame.getPublisher() != null) {
-                            existingGame.setPublisher(newGame.getPublisher());
-                            log.info("      ➕ [GAME] publisher 추가: '{}'", newGame.getPublisher());
-                            domainUpdated = true;
-                        }
-                        if (existingGame.getReleaseDate() == null && newGame.getReleaseDate() != null) {
-                            existingGame.setReleaseDate(newGame.getReleaseDate());
-                            log.info("      ➕ [GAME] releaseDate 추가: {}", newGame.getReleaseDate());
-                            domainUpdated = true;
-                        }
-                        // 플랫폼 정보 병합 (Map)
-                        if (newGame.getPlatforms() != null) {
-                            Map<String, Object> existingPlatforms = existingGame.getPlatforms();
-                            if (existingPlatforms == null) {
-                                existingGame.setPlatforms(newGame.getPlatforms());
-                                log.info("      ➕ [GAME] platforms 추가: {} 항목", newGame.getPlatforms().size());
-                                domainUpdated = true;
-                            } else {
-                                int beforeSize = existingPlatforms.size();
-                                existingPlatforms.putAll(newGame.getPlatforms());
-                                int afterSize = existingPlatforms.size();
-                                if (afterSize > beforeSize) {
-                                    log.info("      ➕ [GAME] platforms 병합: {}개 추가 (총 {}개)", 
-                                            afterSize - beforeSize, afterSize);
-                                    domainUpdated = true;
-                                }
-                            }
-                        }
-                        // 장르 정보 병합
-                        if (newGame.getGenres() != null) {
-                            Map<String, Object> existingGenres = existingGame.getGenres();
-                            if (existingGenres == null) {
-                                existingGame.setGenres(newGame.getGenres());
-                                log.info("      ➕ [GAME] genres 추가: {} 항목", newGame.getGenres().size());
-                                domainUpdated = true;
-                            } else {
-                                int beforeSize = existingGenres.size();
-                                existingGenres.putAll(newGame.getGenres());
-                                int afterSize = existingGenres.size();
-                                if (afterSize > beforeSize) {
-                                    log.info("      ➕ [GAME] genres 병합: {}개 추가 (총 {}개)", 
-                                            afterSize - beforeSize, afterSize);
-                                    domainUpdated = true;
-                                }
-                            }
-                        }
-                        if (domainUpdated) {
-                            gameContentRepository.save(existingGame);
-                            log.debug("      💾 GameContent 저장 완료");
-                        }
-                    }
+                GameContent existingGame = gameContentRepository.findById(existingContent.getContentId())
+                        .orElse(null);
+                if (existingGame != null) {
+                    genericUpserter.upsert(existingGame, domainDoc, domainMappings);
+                    gameContentRepository.save(existingGame);
+                    log.debug("      💾 GameContent 병합 및 저장 완료");
                 }
                 break;
                 
             case WEBTOON:
-                if (newDomainData instanceof WebtoonContent) {
-                    WebtoonContent newWebtoon = (WebtoonContent) newDomainData;
-                    WebtoonContent existingWebtoon = webtoonContentRepository.findById(existingContent.getContentId())
-                            .orElse(null);
-                    
-                    if (existingWebtoon != null) {
-                        boolean domainUpdated = false;
-                        if (existingWebtoon.getIllustrator() == null && newWebtoon.getIllustrator() != null) {
-                            existingWebtoon.setIllustrator(newWebtoon.getIllustrator());
-                            log.info("      ➕ [WEBTOON] illustrator 추가: '{}'", newWebtoon.getIllustrator());
-                            domainUpdated = true;
-                        }
-                        if (existingWebtoon.getStatus() == null && newWebtoon.getStatus() != null) {
-                            existingWebtoon.setStatus(newWebtoon.getStatus());
-                            log.info("      ➕ [WEBTOON] status 추가: '{}'", newWebtoon.getStatus());
-                            domainUpdated = true;
-                        }
-                        if (existingWebtoon.getStartedAt() == null && newWebtoon.getStartedAt() != null) {
-                            existingWebtoon.setStartedAt(newWebtoon.getStartedAt());
-                            log.info("      ➕ [WEBTOON] startedAt 추가: {}", newWebtoon.getStartedAt());
-                            domainUpdated = true;
-                        }
-                        if (newWebtoon.getGenres() != null) {
-                            Map<String, Object> existingGenres = existingWebtoon.getGenres();
-                            if (existingGenres == null) {
-                                existingWebtoon.setGenres(newWebtoon.getGenres());
-                                log.info("      ➕ [WEBTOON] genres 추가: {} 항목", newWebtoon.getGenres().size());
-                                domainUpdated = true;
-                            } else {
-                                int beforeSize = existingGenres.size();
-                                existingGenres.putAll(newWebtoon.getGenres());
-                                int afterSize = existingGenres.size();
-                                if (afterSize > beforeSize) {
-                                    log.info("      ➕ [WEBTOON] genres 병합: {}개 추가 (총 {}개)", 
-                                            afterSize - beforeSize, afterSize);
-                                    domainUpdated = true;
-                                }
-                            }
-                        }
-                        if (domainUpdated) {
-                            webtoonContentRepository.save(existingWebtoon);
-                            log.debug("      💾 WebtoonContent 저장 완료");
-                        }
-                    }
+                WebtoonContent existingWebtoon = webtoonContentRepository.findById(existingContent.getContentId())
+                        .orElse(null);
+                if (existingWebtoon != null) {
+                    genericUpserter.upsert(existingWebtoon, domainDoc, domainMappings);
+                    webtoonContentRepository.save(existingWebtoon);
+                    log.debug("      💾 WebtoonContent 병합 및 저장 완료");
                 }
                 break;
                 
             case WEBNOVEL:
-                if (newDomainData instanceof WebnovelContent) {
-                    WebnovelContent newNovel = (WebnovelContent) newDomainData;
-                    WebnovelContent existingNovel = webnovelContentRepository.findById(existingContent.getContentId())
-                            .orElse(null);
-                    
-                    if (existingNovel != null) {
-                        boolean domainUpdated = false;
-                        if (existingNovel.getPublisher() == null && newNovel.getPublisher() != null) {
-                            existingNovel.setPublisher(newNovel.getPublisher());
-                            log.info("      ➕ [WEBNOVEL] publisher 추가: '{}'", newNovel.getPublisher());
-                            domainUpdated = true;
-                        }
-                        if (existingNovel.getAgeRating() == null && newNovel.getAgeRating() != null) {
-                            existingNovel.setAgeRating(newNovel.getAgeRating());
-                            log.info("      ➕ [WEBNOVEL] ageRating 추가: '{}'", newNovel.getAgeRating());
-                            domainUpdated = true;
-                        }
-                        if (existingNovel.getStartedAt() == null && newNovel.getStartedAt() != null) {
-                            existingNovel.setStartedAt(newNovel.getStartedAt());
-                            log.info("      ➕ [WEBNOVEL] startedAt 추가: {}", newNovel.getStartedAt());
-                            domainUpdated = true;
-                        }
-                        if (newNovel.getGenres() != null && !newNovel.getGenres().isEmpty()) {
-                            if (existingNovel.getGenres() == null) {
-                                existingNovel.setGenres(newNovel.getGenres());
-                                log.info("      ➕ [WEBNOVEL] genres 추가: {} 항목", newNovel.getGenres().size());
-                                domainUpdated = true;
-                            } else {
-                                // List 병합 (중복 제거)
-                                List<String> merged = new ArrayList<>(existingNovel.getGenres());
-                                int beforeSize = merged.size();
-                                for (String genre : newNovel.getGenres()) {
-                                    if (!merged.contains(genre)) {
-                                        merged.add(genre);
-                                    }
-                                }
-                                int afterSize = merged.size();
-                                if (afterSize > beforeSize) {
-                                    existingNovel.setGenres(merged);
-                                    log.info("      ➕ [WEBNOVEL] genres 병합: {}개 추가 (총 {}개)", 
-                                            afterSize - beforeSize, afterSize);
-                                    domainUpdated = true;
-                                }
-                            }
-                        }
-                        if (domainUpdated) {
-                            webnovelContentRepository.save(existingNovel);
-                            log.debug("      💾 WebnovelContent 저장 완료");
-                        }
-                    }
+                WebnovelContent existingNovel = webnovelContentRepository.findById(existingContent.getContentId())
+                        .orElse(null);
+                if (existingNovel != null) {
+                    genericUpserter.upsert(existingNovel, domainDoc, domainMappings);
+                    webnovelContentRepository.save(existingNovel);
+                    log.debug("      💾 WebnovelContent 병합 및 저장 완료");
                 }
                 break;
                 
             default:
+                log.debug("      [{}] 병합 미지원 도메인", domain);
                 break;
         }
     }

@@ -52,11 +52,13 @@ public class UpsertService {
         Map<String, Object> attributes = (Map<String, Object>) platform.get("attributes");
         PlatformData newPlatformData = buildPlatformData(platformName, platformSpecificId, url, attributes);
         
-        // 4. 중복 체크 및 병합
+        // 4. 중복 체크 및 병합 (domainDoc와 domainMappings 전달)
         Content existingContent = contentMergeService.findAndMergeDuplicate(
                 newContent, 
                 domainSpecificData, 
-                newPlatformData
+                newPlatformData,
+                domainDoc,
+                rule.getDomainObjectMappings()
         );
         
         if (existingContent != null) {
