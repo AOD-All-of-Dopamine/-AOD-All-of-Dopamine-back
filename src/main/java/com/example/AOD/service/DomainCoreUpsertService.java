@@ -41,6 +41,43 @@ public class DomainCoreUpsertService {
         saveDomainEntity(domain, domainEntity);
     }
 
+    /**
+     * 도메인 데이터를 구성만 하고 저장하지 않음 (중복 체크용)
+     */
+    public Object buildDomainData(Domain domain, Content content, Map<String, Object> domainDoc, MappingRule rule) {
+        if (domainDoc == null || domainDoc.isEmpty()) return null;
+
+        Object domainEntity = createDomainEntity(domain, content);
+        if (domainEntity == null) return null;
+
+        genericUpserter.upsert(domainEntity, domainDoc, rule.getDomainObjectMappings());
+        return domainEntity;
+    }
+
+    /**
+     * 도메인 데이터 저장
+     */
+    @Transactional
+    public void saveDomainData(Domain domain, Content content, Map<String, Object> domainDoc, MappingRule rule) {
+        if (domainDoc == null || domainDoc.isEmpty()) return;
+
+        Object domainEntity = findOrCreateDomainEntity(domain, content);
+        if (domainEntity == null) return;
+
+        genericUpserter.upsert(domainEntity, domainDoc, rule.getDomainObjectMappings());
+        saveDomainEntity(domain, domainEntity);
+    }
+
+    private Object createDomainEntity(Domain domain, Content content) {
+        return switch (domain) {
+            case AV -> new AvContent(content);
+            case GAME -> new GameContent(content);
+            case WEBTOON -> new WebtoonContent(content);
+            case WEBNOVEL -> new WebnovelContent(content);
+            default -> null;
+        };
+    }
+
     private Object findOrCreateDomainEntity(Domain domain, Content content) {
         Long contentId = content.getContentId();
         if (contentId == null) {

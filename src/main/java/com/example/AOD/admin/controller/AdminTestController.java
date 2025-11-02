@@ -5,6 +5,7 @@ import com.example.AOD.contents.Novel.NaverSeriesNovel.NaverSeriesCrawler;
 
 import com.example.AOD.contents.Webtoon.NaverWebtoon.NaverWebtoonService;
 import com.example.AOD.ingest.BatchTransformService;
+import com.example.AOD.ingest.RawItem;
 import com.example.AOD.ingest.RawItemRepository;
 import com.example.AOD.rules.MappingRule;
 import com.example.AOD.service.RuleLoader;
@@ -330,5 +331,57 @@ public class AdminTestController {
                                       Map<String,Object> platform,
                                       Map<String,Object> domainDoc,
                                       String platformSpecificId,
-                                      String url) {}
+                                      String url,
+                                      String rulePath) {}
+
+    /**
+     * 중복 검사 테스트용: 특정 RawItem을 다시 처리하도록 강제
+     */
+    @PostMapping("/test/reprocess-raw/{rawId}")
+    public Map<String, Object> reprocessRawItem(@PathVariable Long rawId) {
+        var raw = rawRepo.findById(rawId)
+                .orElseThrow(() -> new IllegalArgumentException("RawItem not found: " + rawId));
+        
+        // processed를 false로 변경
+        raw.setProcessed(false);
+        raw.setProcessedAt(null);
+        rawRepo.save(raw);
+        
+        // 다시 처리
+        int processed = batchService.processBatch(1);
+        
+        return Map.of(
+                "message", "RawItem 재처리 완료",
+                "rawId", rawId,
+                "processed", processed > 0
+        );
+    }
+
+    /**
+     * 중복 검사 테스트용: 최근 처리된 N개를 다시 처리
+     */
+    @PostMapping("/test/reprocess-recent")
+    public Map<String, Object> reprocessRecent(@RequestParam(defaultValue = "5") int count) {
+        var recentRaws = rawRepo.findAll().stream()
+                .filter(RawItem::isProcessed)
+                .sorted((a, b) -> b.getProcessedAt().compareTo(a.getProcessedAt()))
+                .limit(count)
+                .toList();
+        
+        // processed를 false로 변경
+        recentRaws.forEach(raw -> {
+            raw.setProcessed(false);
+            raw.setProcessedAt(null);
+        });
+        rawRepo.saveAll(recentRaws);
+        
+        // 다시 처리
+        int processed = batchService.processBatch(count);
+        
+        return Map.of(
+                "message", "최근 " + count + "개 RawItem 재처리 완료",
+                "reprocessedIds", recentRaws.stream().map(RawItem::getRawId).toList(),
+                "successCount", processed
+        );
+    }
 }

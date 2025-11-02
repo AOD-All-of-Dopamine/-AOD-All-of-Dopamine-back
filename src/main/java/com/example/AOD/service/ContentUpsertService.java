@@ -47,6 +47,32 @@ public class ContentUpsertService {
         return contentRepo.save(content);
     }
 
+    /**
+     * Content 엔티티를 구성만 하고 저장하지 않음 (중복 체크용)
+     */
+    public Content buildContent(Domain domain, Map<String, Object> master) {
+        String masterTitle = (String) master.get("master_title");
+        LocalDate releaseDate = parseReleaseDate(master.get("release_date"));
+
+        Content content = new Content();
+        content.setDomain(domain);
+        content.setMasterTitle(masterTitle);
+        content.setOriginalTitle((String) master.get("original_title"));
+        content.setReleaseDate(releaseDate);
+        content.setPosterImageUrl((String) master.get("poster_image_url"));
+        content.setSynopsis((String) master.get("synopsis"));
+
+        return content;
+    }
+
+    /**
+     * Content 엔티티 저장
+     */
+    @Transactional
+    public Content saveContent(Content content) {
+        return contentRepo.save(content);
+    }
+
     private LocalDate parseReleaseDate(Object value) {
         if (value == null) return null;
         if (value instanceof LocalDate) return (LocalDate) value;
