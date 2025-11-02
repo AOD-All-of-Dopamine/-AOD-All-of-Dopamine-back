@@ -140,7 +140,7 @@ public class WorkApiService {
                 gameContentRepository.findById(content.getContentId()).ifPresent(game -> {
                     info.put("developer", game.getDeveloper());
                     info.put("publisher", game.getPublisher());
-                    if (game.getGenres() != null) info.putAll(game.getGenres());
+                    if (game.getGenres() != null) info.put("genres", game.getGenres());
                     if (game.getPlatforms() != null) info.putAll(game.getPlatforms());
                     if (game.getReleaseDate() != null) {
                         info.put("releaseDate", game.getReleaseDate().toString());

@@ -4,6 +4,7 @@ package com.example.AOD.domain.entity;
 import com.example.AOD.domain.Content;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;
@@ -44,7 +45,7 @@ public class GameContent implements Persistable<Long> {
 
     @Type(JsonType.class)
     @Column(columnDefinition="jsonb")
-    private Map<String,Object> genres;    // 자유 형식
+    private List<String> genres;    // 자유 형식
 
     // getters/setters...
 

@@ -1,37 +1,47 @@
 package com.example.AOD.game.steam.fetcher;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SteamApiFetcher {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
-    private static final String ALL_APPS_URL = "https://api.steampowered.com/ISteamApps/GetAppList/v2";
+    @Value("${steam.api.key}")
+    private String steamApiKey;
+
     private static final String APP_DETAILS_URL = "https://store.steampowered.com/api/appdetails?appids={appId}&l=korean";
 
     /**
-     * Steam에 등록된 모든 앱의 목록(appid, name)을 가져옵니다.
-     * @return 앱 정보 Map의 리스트
+     * Steam에 등록된 *게임* 앱 목록만 가져옵니다. (IStoreService 사용)
+     * @return 게임 앱 정보(appid, name 등) Map의 리스트
      */
-    public List<Map<String, Object>> fetchAllApps() {
+    public List<Map<String, Object>> fetchGameApps() {
+        String url = "https://api.steampowered.com/IStoreService/GetAppList/v1/?key=" + steamApiKey + "&include_games=true&include_dlc=false&include_software=false&include_videos=false&include_hardware=false";
         try {
-            Map<String, Map<String, List<Map<String, Object>>>> response = restTemplate.getForObject(ALL_APPS_URL, Map.class);
-            if (response != null && response.containsKey("applist") && response.get("applist").containsKey("apps")) {
-                return response.get("applist").get("apps");
+            String response = restTemplate.getForObject(url, String.class);
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode appsNode = root.path("response").path("apps");
+            if (appsNode.isArray()) {
+                return objectMapper.convertValue(appsNode, new TypeReference<List<Map<String, Object>>>() {});
             }
-        } catch (Exception e) {
-            log.error("Steam 앱 목록을 가져오는 중 오류 발생: {}", e.getMessage());
+        } catch (IOException e) {
+            log.error("Steam 게임 앱 목록을 가져오는 중 오류 발생: {}", e.getMessage());
         }
         return Collections.emptyList();
     }
@@ -44,7 +54,6 @@ public class SteamApiFetcher {
     @SuppressWarnings("unchecked")
     public Map<String, Object> fetchGameDetails(Long appId) {
         try {
-            // RestTemplate은 제네릭 타입의 Map으로 바로 변환 가능합니다.
             Map<String, Object> response = restTemplate.getForObject(APP_DETAILS_URL, Map.class, appId);
 
             if (response != null && response.containsKey(String.valueOf(appId))) {
