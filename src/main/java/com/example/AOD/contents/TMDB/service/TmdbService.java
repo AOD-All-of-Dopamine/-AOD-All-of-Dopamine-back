@@ -8,11 +8,14 @@ import com.example.AOD.contents.TMDB.dto.TmdbTvShow;
 import com.example.AOD.contents.TMDB.dto.WatchProviderResult;
 import com.example.AOD.contents.TMDB.fetcher.TmdbApiFetcher;
 import com.example.AOD.ingest.CollectorService;
+import com.example.AOD.util.InterruptibleSleep;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -23,6 +26,46 @@ public class TmdbService {
     private final TmdbApiFetcher tmdbApiFetcher;
     private final CollectorService collectorService;
     private final TmdbPayloadProcessor payloadProcessor;
+
+    // --- 비동기 메서드 (스케줄러용) ---
+    
+    /**
+     * 신규 콘텐츠 수집 (비동기)
+     * - @Scheduled 메서드에서 호출
+     * - crawlerTaskExecutor 스레드 풀에서 실행 (최대 10개 제한)
+     */
+    @Async("crawlerTaskExecutor")
+    public CompletableFuture<Void> collectNewContentAsync(String startDate, String endDate, String language, int maxPages) {
+        log.info("🚀 [비동기 작업] 신규 콘텐츠 수집 시작 (기간: {} ~ {})", startDate, endDate);
+        try {
+            collectMoviesForPeriod(startDate, endDate, language, maxPages);
+            collectTvShowsForPeriod(startDate, endDate, language, maxPages);
+            log.info("✅ [비동기 작업] 신규 콘텐츠 수집 완료");
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            log.error("❌ [비동기 작업] 신규 콘텐츠 수집 중 오류 발생: {}", e.getMessage(), e);
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    /**
+     * 과거 콘텐츠 최신화 (비동기)
+     * - @Scheduled 메서드에서 호출
+     * - crawlerTaskExecutor 스레드 풀에서 실행 (최대 10개 제한)
+     */
+    @Async("crawlerTaskExecutor")
+    public CompletableFuture<Void> updatePastContentAsync(int year, String language) {
+        log.info("🚀 [비동기 작업] {}년 콘텐츠 최신화 시작", year);
+        try {
+            collectAllMoviesByYear(year, year, language);
+            collectAllTvShowsByYear(year, year, language);
+            log.info("✅ [비동기 작업] {}년 콘텐츠 최신화 완료", year);
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            log.error("❌ [비동기 작업] {}년 콘텐츠 최신화 중 오류 발생: {}", year, e.getMessage(), e);
+            return CompletableFuture.failedFuture(e);
+        }
+    }
 
     // --- 연도별 전체 수집 로직 ---
     public void collectAllMoviesByYear(int startYear, int endYear, String language) {
@@ -84,6 +127,12 @@ public class TmdbService {
         int effectiveMaxPages = Math.min(maxPages, 500); // TMDB API는 최대 500페이지까지만 지원
 
         while (currentPage <= effectiveMaxPages) {
+            // 인터럽트 체크 - 작업 취소 요청 확인
+            if (Thread.currentThread().isInterrupted()) {
+                log.info("작업 인터럽트 감지, TMDB 영화 수집 중단 (현재 페이지: {})", currentPage);
+                return;
+            }
+            
             try {
                 // [개선] 통합된 API 호출 메서드 사용
                 TmdbDiscoveryResult result = tmdbApiFetcher.discoverMovies(language, currentPage, startDate, endDate);
@@ -100,7 +149,10 @@ public class TmdbService {
                     break;
                 }
                 currentPage++;
-                TimeUnit.MILLISECONDS.sleep(200); // 페이지 간 간격
+                if (!InterruptibleSleep.sleep(200, TimeUnit.MILLISECONDS)) {
+                    log.info("TMDB 영화 수집 중 인터럽트 발생, 작업 중단");
+                    return;
+                }
             } catch (Exception e) {
                 log.error("{} 페이지 수집 중 오류 발생: {}", currentPage, e.getMessage());
                 break;
@@ -108,14 +160,18 @@ public class TmdbService {
         }
     }
 
-    private void processMovieList(java.util.List<TmdbMovie> movies, String language) throws InterruptedException {
+    private void processMovieList(java.util.List<TmdbMovie> movies, String language) {
         for (TmdbMovie movie : movies) {
             try {
                 Map<String, Object> detailedData = tmdbApiFetcher.getMovieDetails(movie.getId(), language);
                 Map<String, Object> processedData = payloadProcessor.process(detailedData);
                 processedData.put("av_type", "movie");
                 collectorService.saveRaw("TMDB_MOVIE", "AV", processedData, String.valueOf(movie.getId()), "https://www.themoviedb.org/movie/" + movie.getId());
-                TimeUnit.MILLISECONDS.sleep(100); // 개별 상세 조회에 대한 Rate Limiting
+                
+                if (!InterruptibleSleep.sleep(100, TimeUnit.MILLISECONDS)) {
+                    log.info("TMDB 영화 상세 처리 중 인터럽트 발생, 작업 중단");
+                    return;
+                }
             } catch (Exception e) {
                 log.error("영화 상세 정보 처리 중 오류 발생 (ID: {}): {}", movie.getId(), e.getMessage());
             }
@@ -127,6 +183,12 @@ public class TmdbService {
         int effectiveMaxPages = Math.min(maxPages, 500);
 
         while (currentPage <= effectiveMaxPages) {
+            // 인터럽트 체크 - 작업 취소 요청 확인
+            if (Thread.currentThread().isInterrupted()) {
+                log.info("작업 인터럽트 감지, TMDB TV쇼 수집 중단 (현재 페이지: {})", currentPage);
+                return;
+            }
+            
             try {
                 // [개선] 통합된 API 호출 메서드 사용
                 TmdbTvDiscoveryResult result = tmdbApiFetcher.discoverTvShows(language, currentPage, startDate, endDate);
@@ -143,7 +205,10 @@ public class TmdbService {
                     break;
                 }
                 currentPage++;
-                TimeUnit.MILLISECONDS.sleep(200); // 페이지 간 간격
+                if (!InterruptibleSleep.sleep(200, TimeUnit.MILLISECONDS)) {
+                    log.info("TMDB TV쇼 수집 중 인터럽트 발생, 작업 중단");
+                    return;
+                }
             } catch (Exception e) {
                 log.error("{} 페이지 수집 중 오류 발생: {}", currentPage, e.getMessage());
                 break;
@@ -151,14 +216,18 @@ public class TmdbService {
         }
     }
 
-    private void processTvShowList(java.util.List<TmdbTvShow> tvShows, String language) throws InterruptedException {
+    private void processTvShowList(java.util.List<TmdbTvShow> tvShows, String language) {
         for (TmdbTvShow tvShow : tvShows) {
             try {
                 Map<String, Object> detailedData = tmdbApiFetcher.getTvShowDetails(tvShow.getId(), language);
                 Map<String, Object> processedData = payloadProcessor.process(detailedData);
                 processedData.put("av_type", "tv");
                 collectorService.saveRaw("TMDB_TV", "AV", processedData, String.valueOf(tvShow.getId()), "https://www.themoviedb.org/tv/" + tvShow.getId());
-                TimeUnit.MILLISECONDS.sleep(100);
+                
+                if (!InterruptibleSleep.sleep(100, TimeUnit.MILLISECONDS)) {
+                    log.info("TMDB TV쇼 상세 처리 중 인터럽트 발생, 작업 중단");
+                    return;
+                }
             } catch (Exception e) {
                 log.error("TV쇼 상세 정보 처리 중 오류 발생 (ID: {}): {}", tvShow.getId(), e.getMessage());
             }

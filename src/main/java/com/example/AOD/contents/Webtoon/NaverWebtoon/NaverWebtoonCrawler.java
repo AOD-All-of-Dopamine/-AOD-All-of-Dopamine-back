@@ -2,6 +2,7 @@ package com.example.AOD.contents.Webtoon.NaverWebtoon;
 
 
 import com.example.AOD.ingest.CollectorService;
+import com.example.AOD.util.InterruptibleSleep;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -35,16 +36,28 @@ public class NaverWebtoonCrawler {
     }
 
     /**
+     * PageParser 접근자 (Service 레이어에서 cleanup 위해 필요)
+     */
+    public WebtoonPageParser getPageParser() {
+        return pageParser;
+    }
+
+    /**
      * 모든 요일별 웹툰 크롤링
      */
     public int crawlAllWeekdays() throws Exception {
         int totalSaved = 0;
 
-        for (String weekday : WEEKDAYS) {
-            log.info("크롤링 시작: {} 요일", weekday);
-            int saved = crawlWeekday(weekday);
-            totalSaved += saved;
-            log.info("{} 요일 크롤링 완료: {}개 저장", weekday, saved);
+        try {
+            for (String weekday : WEEKDAYS) {
+                log.info("크롤링 시작: {} 요일", weekday);
+                int saved = crawlWeekday(weekday);
+                totalSaved += saved;
+                log.info("{} 요일 크롤링 완료: {}개 저장", weekday, saved);
+            }
+        } finally {
+            // WebDriver 자원 정리
+            cleanupParser();
         }
 
         return totalSaved;
@@ -56,7 +69,12 @@ public class NaverWebtoonCrawler {
     public int crawlWeekday(String weekday) throws Exception {
         String url = BASE_WEEKDAY_URL + weekday;
         String crawlSource = "weekday_" + weekday;
-        return crawlWebtoonList(url, crawlSource, weekday, 0); // maxPages=0 (무제한)
+        try {
+            return crawlWebtoonList(url, crawlSource, weekday, 0); // maxPages=0 (무제한)
+        } finally {
+            // 개별 크롤링 후 정리
+            cleanupParser();
+        }
     }
 
     /**
@@ -64,7 +82,21 @@ public class NaverWebtoonCrawler {
      */
     public int crawlFinishedWebtoons(int maxPages) throws Exception {
         String crawlSource = "finish";
-        return crawlWebtoonListWithPagination(BASE_FINISH_URL, crawlSource, null, maxPages);
+        try {
+            return crawlWebtoonListWithPagination(BASE_FINISH_URL, crawlSource, null, maxPages);
+        } finally {
+            // 크롤링 후 정리
+            cleanupParser();
+        }
+    }
+    
+    /**
+     * WebDriver 자원 정리 (Selenium 파서인 경우)
+     */
+    private void cleanupParser() {
+        if (pageParser instanceof NaverWebtoonSeleniumPageParser) {
+            ((NaverWebtoonSeleniumPageParser) pageParser).cleanup();
+        }
     }
 
     /**
@@ -75,6 +107,12 @@ public class NaverWebtoonCrawler {
         int page = 1;
 
         while (true) {
+            // 인터럽트 체크 - 작업 취소 요청 확인
+            if (Thread.currentThread().isInterrupted()) {
+                log.info("작업 인터럽트 감지, 크롤링 중단 (현재까지 {}개 저장)", totalSaved);
+                return totalSaved;
+            }
+            
             if (maxPages > 0 && page > maxPages) break;
 
             String pageUrl = baseUrl + (baseUrl.contains("?") ? "&page=" : "?page=") + page;
@@ -104,8 +142,15 @@ public class NaverWebtoonCrawler {
                         totalSaved++;
 
                         // 과도한 요청 방지를 위한 딜레이
-                        Thread.sleep(NaverWebtoonSelectors.PAGE_DELAY);
+                        if (!InterruptibleSleep.sleep(NaverWebtoonSelectors.PAGE_DELAY)) {
+                            log.info("크롤링 인터럽트 발생, 작업 중단");
+                            return totalSaved; // 인터럽트 시 즉시 종료
+                        }
 
+                    } catch (InterruptedException e) {
+                        log.info("웹툰 크롤링 인터럽트 발생, 작업 중단");
+                        Thread.currentThread().interrupt();
+                        return totalSaved;
                     } catch (Exception e) {
                         log.warn("웹툰 상세 정보 보완 실패: {}, {}", mobileUrl, e.getMessage());
 
@@ -122,7 +167,10 @@ public class NaverWebtoonCrawler {
                 page++;
 
                 // 페이지 간 딜레이
-                Thread.sleep(NaverWebtoonSelectors.PAGE_DELAY);
+                if (!InterruptibleSleep.sleep(NaverWebtoonSelectors.PAGE_DELAY)) {
+                    log.info("페이지 간 대기 중 인터럽트 발생, 작업 중단");
+                    return totalSaved;
+                }
 
             } catch (Exception e) {
                 log.error("페이지 {} 크롤링 실패: {}", page, e.getMessage());
@@ -161,8 +209,15 @@ public class NaverWebtoonCrawler {
                 saved++;
 
                 // 과도한 요청 방지를 위한 딜레이
-                Thread.sleep(NaverWebtoonSelectors.PAGE_DELAY);
+                if (!InterruptibleSleep.sleep(NaverWebtoonSelectors.PAGE_DELAY)) {
+                    log.info("요일별 크롤링 인터럽트 발생, 작업 중단");
+                    return saved;
+                }
 
+            } catch (InterruptedException e) {
+                log.info("요일별 웹툰 크롤링 인터럽트 발생, 작업 중단");
+                Thread.currentThread().interrupt();
+                return saved;
             } catch (Exception e) {
                 log.warn("웹툰 상세 정보 보완 실패: {}, {}", mobileUrl, e.getMessage());
 

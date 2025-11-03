@@ -2,6 +2,8 @@ package com.example.AOD.contents.Webtoon.NaverWebtoon;
 
 
 import com.example.AOD.util.ChromeDriverProvider;
+import com.example.AOD.util.InterruptibleSleep;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
@@ -20,6 +22,7 @@ import java.util.regex.Pattern;
  * - WebtoonPageParser 인터페이스 구현
  * - PC 상세 페이지를 Selenium으로 파싱
  * - React SPA 동적 콘텐츠 완벽 지원
+ * - WebDriver 재사용으로 자원 누수 방지
  */
 @Component
 @Slf4j
@@ -27,6 +30,11 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
     private final ChromeDriverProvider chromeDriverProvider;
     private final int SLEEP_TIME = 100; // React 로딩 대기 시간
+    
+    // WebDriver 재사용을 위한 ThreadLocal (멀티스레드 환경 대응)
+    private final ThreadLocal<WebDriver> driverThreadLocal = ThreadLocal.withInitial(() -> null);
+    private final ThreadLocal<Integer> usageCount = ThreadLocal.withInitial(() -> 0);
+    private static final int MAX_REUSE_COUNT = 50; // 50회 사용 후 재생성 (메모리 누수 방지)
 
     public NaverWebtoonSeleniumPageParser(ChromeDriverProvider chromeDriverProvider) {
         this.chromeDriverProvider = chromeDriverProvider;
@@ -45,18 +53,89 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
         // 인터페이스 호환성을 위해 빈 구현
         return new LinkedHashSet<>();
     }
+    
+    /**
+     * 재사용 가능한 WebDriver 획득
+     * - ThreadLocal을 사용하여 스레드별 드라이버 관리
+     * - 일정 횟수 사용 후 자동 재생성 (메모리 누수 방지)
+     */
+    private WebDriver getOrCreateDriver() {
+        WebDriver driver = driverThreadLocal.get();
+        Integer count = usageCount.get();
+        
+        // 드라이버가 없거나 MAX_REUSE_COUNT 초과 시 재생성
+        if (driver == null || count >= MAX_REUSE_COUNT) {
+            if (driver != null) {
+                try {
+                    driver.quit();
+                    log.debug("WebDriver 재생성 (사용 횟수: {}회)", count);
+                } catch (Exception e) {
+                    log.warn("기존 WebDriver 종료 실패: {}", e.getMessage());
+                } finally {
+                    // 실패 여부와 관계없이 ThreadLocal 정리
+                    driverThreadLocal.remove();
+                    usageCount.remove();
+                }
+            }
+            
+            // 새 WebDriver 생성
+            try {
+                driver = chromeDriverProvider.getDriver();
+                driverThreadLocal.set(driver);
+                usageCount.set(0);
+            } catch (Exception e) {
+                log.error("새 WebDriver 생성 실패: {}", e.getMessage());
+                throw new RuntimeException("WebDriver 초기화 실패", e);
+            }
+        }
+        
+        usageCount.set(count + 1);
+        return driver;
+    }
+    
+    /**
+     * ThreadLocal WebDriver 정리 (작업 완료 후 호출 권장)
+     */
+    public void cleanup() {
+        WebDriver driver = driverThreadLocal.get();
+        if (driver != null) {
+            try {
+                driver.quit();
+                log.debug("WebDriver 정리 완료");
+            } catch (Exception e) {
+                log.warn("WebDriver 정리 실패: {}", e.getMessage());
+            } finally {
+                driverThreadLocal.remove();
+                usageCount.remove();
+            }
+        }
+    }
+    
+    /**
+     * Spring Bean 종료 시 자동으로 ThreadLocal 자원 정리
+     */
+    @PreDestroy
+    public void onDestroy() {
+        cleanup();
+        log.info("NaverWebtoonSeleniumPageParser Bean 종료 - ThreadLocal 자원 정리 완료");
+    }
 
     @Override
     public NaverWebtoonDTO parseWebtoonDetail(Document detailDocument, String detailUrl,
                                               String crawlSource, String weekday) {
         // Document 파라미터는 무시하고 detailUrl로 Selenium을 통해 접근
         WebDriver driver = null;
+        
         try {
-            driver = chromeDriverProvider.getDriver();
+            driver = getOrCreateDriver(); // 재사용 가능한 드라이버 획득
             driver.get(detailUrl);
 
             // React 앱 로딩 대기
-            Thread.sleep(SLEEP_TIME);
+            if (!InterruptibleSleep.sleep(SLEEP_TIME)) {
+                log.warn("React 로딩 대기 중 인터럽트 발생: {}", detailUrl);
+                cleanup();
+                return null;
+            }
 
             log.debug("Selenium으로 웹툰 상세 파싱 시작: {}", detailUrl);
 
@@ -111,12 +190,10 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
         } catch (Exception e) {
             log.error("Selenium 웹툰 상세 파싱 중 오류 발생: {}, {}", detailUrl, e.getMessage());
+            // 일반 예외는 드라이버를 재사용하므로 정리하지 않음
             return null;
-        } finally {
-            if (driver != null) {
-                driver.quit();
-            }
         }
+        // finally 블록 제거: 드라이버를 재사용하므로 매번 quit()하지 않음
     }
 
     @Override

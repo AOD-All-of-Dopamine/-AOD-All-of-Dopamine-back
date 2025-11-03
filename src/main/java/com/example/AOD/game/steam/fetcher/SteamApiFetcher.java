@@ -22,7 +22,7 @@ public class SteamApiFetcher {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${steam.api.key}")
+    @Value("${steam.api.key:}")
     private String steamApiKey;
 
     private static final String APP_DETAILS_URL = "https://store.steampowered.com/api/appdetails?appids={appId}&l=korean";

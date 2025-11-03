@@ -2,6 +2,7 @@ package com.example.AOD.contents.TMDB.fetcher;
 
 import com.example.AOD.contents.TMDB.dto.TmdbDiscoveryResult;
 import com.example.AOD.contents.TMDB.dto.TmdbTvDiscoveryResult;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,12 +13,13 @@ import java.util.Map;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class TmdbApiFetcher {
 
     @Value("${tmdb.api.key}")
     private String apiKey;
     private static final String BASE_URL = "https://api.themoviedb.org/3";
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate; // 의존성 주입으로 변경
 
     /**
      * 특정 기간과 페이지에 해당하는 영화 목록을 TMDB에서 가져옵니다.
