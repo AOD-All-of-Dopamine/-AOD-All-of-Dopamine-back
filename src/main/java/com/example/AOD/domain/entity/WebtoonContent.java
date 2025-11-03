@@ -5,7 +5,7 @@ package com.example.AOD.domain.entity;
 import com.example.AOD.domain.Content;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +42,7 @@ public class WebtoonContent implements Persistable<Long> {
 
     @Type(JsonType.class)
     @Column(columnDefinition="jsonb")
-    private Map<String,Object> genres;
+    private List<String> genres;
 
     // getters/setters...
 
