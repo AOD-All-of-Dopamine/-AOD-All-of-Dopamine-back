@@ -5,6 +5,7 @@ import com.example.AOD.contents.Novel.NaverSeriesNovel.NaverSeriesCrawler;
 
 import com.example.AOD.contents.Webtoon.NaverWebtoon.NaverWebtoonService;
 import com.example.AOD.ingest.BatchTransformService;
+import com.example.AOD.ingest.BatchTransformServiceOptimized;
 import com.example.AOD.ingest.RawItem;
 import com.example.AOD.ingest.RawItemRepository;
 import com.example.AOD.rules.MappingRule;
@@ -28,6 +29,7 @@ public class AdminTestController {
     private final NaverWebtoonService naverWebtoonService;
 
     private final BatchTransformService batchService;
+    private final BatchTransformServiceOptimized batchServiceOptimized;
     private final RawItemRepository rawRepo;
     private final RuleLoader ruleLoader;
     private final TransformEngine transformEngine;
@@ -37,6 +39,7 @@ public class AdminTestController {
                                KakaoPageCrawler kakaoPageCrawler,
                                NaverWebtoonService naverWebtoonService,  // 추가
                                BatchTransformService batchService,
+                               BatchTransformServiceOptimized batchServiceOptimized,
                                RawItemRepository rawRepo,
                                RuleLoader ruleLoader,
                                TransformEngine transformEngine,
@@ -45,6 +48,7 @@ public class AdminTestController {
         this.kakaoPageCrawler = kakaoPageCrawler;
         this.naverWebtoonService = naverWebtoonService;  // 추가
         this.batchService = batchService;
+        this.batchServiceOptimized = batchServiceOptimized;
         this.rawRepo = rawRepo;
         this.ruleLoader = ruleLoader;
         this.transformEngine = transformEngine;
@@ -270,6 +274,49 @@ public class AdminTestController {
         );
     }
 
+    // 🚀 최적화된 배치 처리 (대용량 처리용)
+    @PostMapping(path = "/batch/process-optimized", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> runBatchOptimized(@RequestBody BatchRequestOptimized req) {
+        long startTime = System.currentTimeMillis();
+        int batchSize = req.batchSize() != null && req.batchSize() > 0 ? req.batchSize() : 500;
+        
+        int processed = batchServiceOptimized.processBatchOptimized(batchSize);
+        long stillPending = rawRepo.countByProcessedFalse();
+        long elapsed = System.currentTimeMillis() - startTime;
+        
+        return Map.of(
+                "batchSize", batchSize,
+                "processed", processed,
+                "pendingRaw", stillPending,
+                "elapsedMs", elapsed,
+                "itemsPerSecond", processed * 1000L / Math.max(elapsed, 1)
+        );
+    }
+
+    // 🔥 병렬 배치 처리 (초고속 대량 처리)
+    @PostMapping(path = "/batch/process-parallel", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> runBatchParallel(@RequestBody BatchRequestParallel req) {
+        long startTime = System.currentTimeMillis();
+        
+        int totalItems = req.totalItems() != null && req.totalItems() > 0 ? req.totalItems() : 10000;
+        int batchSize = req.batchSize() != null && req.batchSize() > 0 ? req.batchSize() : 500;
+        int numWorkers = req.numWorkers() != null && req.numWorkers() > 0 ? req.numWorkers() : 4;
+        
+        int processed = batchServiceOptimized.processInParallel(totalItems, batchSize, numWorkers);
+        long stillPending = rawRepo.countByProcessedFalse();
+        long elapsed = System.currentTimeMillis() - startTime;
+        
+        return Map.of(
+                "totalItems", totalItems,
+                "batchSize", batchSize,
+                "numWorkers", numWorkers,
+                "processed", processed,
+                "pendingRaw", stillPending,
+                "elapsedMs", elapsed,
+                "itemsPerSecond", processed * 1000L / Math.max(elapsed, 1)
+        );
+    }
+
     // 규칙 프리뷰: payload + rulePath로 transform만 수행해 확인 (DB 반영 X)
     @PostMapping(path = "/transform/preview", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> previewTransform(@RequestBody PreviewRequest req) {
@@ -325,6 +372,8 @@ public class AdminTestController {
     public record KpCollectRequest(List<String> urls, String cookie) {}
 
     public record BatchRequest(Integer batchSize) {}
+    public record BatchRequestOptimized(Integer batchSize) {}
+    public record BatchRequestParallel(Integer totalItems, Integer batchSize, Integer numWorkers) {}
     public record PreviewRequest(String platformName, String domain, String rulePath, Map<String,Object> payload) {}
     public record UpsertDirectRequest(String domain,
                                       Map<String,Object> master,
