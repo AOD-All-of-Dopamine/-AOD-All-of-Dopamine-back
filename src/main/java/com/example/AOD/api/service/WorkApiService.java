@@ -152,7 +152,9 @@ public class WorkApiService {
                     info.put("author", webtoon.getAuthor());
                     info.put("illustrator", webtoon.getIllustrator());
                     info.put("status", webtoon.getStatus());
-                    if (webtoon.getGenres() != null) info.putAll(webtoon.getGenres());
+                    if (webtoon.getGenres() != null) {
+                        info.put("genres", webtoon.getGenres());
+                    }
                     if (webtoon.getStartedAt() != null) {
                         info.put("startedAt", webtoon.getStartedAt().toString());
                     }

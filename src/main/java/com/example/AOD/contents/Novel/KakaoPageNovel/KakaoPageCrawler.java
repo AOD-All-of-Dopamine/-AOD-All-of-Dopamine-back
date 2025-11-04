@@ -1,6 +1,7 @@
 package com.example.AOD.contents.Novel.KakaoPageNovel;
 
 import com.example.AOD.ingest.CollectorService;
+import com.example.AOD.util.InterruptibleSleep;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Connection;
@@ -50,6 +51,12 @@ public class KakaoPageCrawler {
         int page = 1;
 
         while (true) {
+            // 인터럽트 체크 - 작업 취소 요청 확인
+            if (Thread.currentThread().isInterrupted()) {
+                System.out.println("작업 인터럽트 감지, 크롤링 중단 (현재까지 " + saved + "개 저장)");
+                return saved;
+            }
+            
             if (maxPages > 0 && page > maxPages) break;
 
             // ... (1, 2, 3 단계는 변경 없음) ...
@@ -142,7 +149,10 @@ public class KakaoPageCrawler {
             }
 
             page++;
-            Thread.sleep(1000);
+            if (!InterruptibleSleep.sleep(1000)) {
+                System.out.println("카카오페이지 크롤링 인터럽트 발생, 작업 중단");
+                break;
+            }
         }
         return saved;
     }

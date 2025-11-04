@@ -24,13 +24,19 @@ public class NaverLoginHandler {
     @Value("${naver.pw}")
     private String naverPw;
 
-    public void naverLogin(WebDriver driver) throws InterruptedException{
+    public void naverLogin(WebDriver driver) throws InterruptedException {
         naverLogin(driver, naverId, naverPw);
     }
 
     public void naverLogin(WebDriver driver, String id, String pw) throws InterruptedException {
         driver.get("https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com/");
-        Thread.sleep(SLEEP_TIME);
+        
+        try {
+            Thread.sleep(SLEEP_TIME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // 인터럽트 상태 복원
+            throw e; // 상위로 전파
+        }
 
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("document.getElementById('id').value='" + id + "'");

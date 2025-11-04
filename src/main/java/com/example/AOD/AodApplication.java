@@ -2,11 +2,9 @@ package com.example.AOD;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableAsync
 @EnableScheduling // 스케줄링 기능 활성화
 public class AodApplication {
 

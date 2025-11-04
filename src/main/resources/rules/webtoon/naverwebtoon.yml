@@ -27,7 +27,7 @@ domainObjectMappings:
     type: string
   genres:
     targetField: genres
-    type: map # Assuming genres is a Map<String, Object>
+    type: list
 
 normalizers:
   - type: nfkc

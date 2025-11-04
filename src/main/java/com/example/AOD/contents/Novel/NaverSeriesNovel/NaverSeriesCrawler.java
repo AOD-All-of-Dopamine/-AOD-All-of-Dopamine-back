@@ -34,6 +34,12 @@ public class NaverSeriesCrawler {
         int page = 1;
 
         while (true) {
+            // 인터럽트 체크 - 작업 취소 요청 확인
+            if (Thread.currentThread().isInterrupted()) {
+                System.out.println("작업 인터럽트 감지, 크롤링 중단 (현재까지 " + saved + "개 저장)");
+                return saved;
+            }
+            
             if (maxPages > 0 && page > maxPages) break;
 
             String url = baseListUrl + page;
