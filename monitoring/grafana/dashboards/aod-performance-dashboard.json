@@ -1,0 +1,418 @@
+{
+  "id": null,
+  "uid": "aod-performance",
+  "title": "AOD Performance Dashboard",
+  "tags": ["performance", "batch", "spring-boot"],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "배치 처리 시간 (Before vs After)",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(performance_test_duration_seconds_sum{version=\"BEFORE\"}[5m]) / rate(performance_test_duration_seconds_count{version=\"BEFORE\"}[5m])",
+          "legendFormat": "Before (최적화 전)",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(performance_test_duration_seconds_sum{version=\"AFTER\"}[5m]) / rate(performance_test_duration_seconds_count{version=\"AFTER\"}[5m])",
+          "legendFormat": "After (최적화 후)",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "s",
+          "label": "처리 시간"
+        },
+        {
+          "format": "short"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "처리 속도 (items/sec)",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(performance_test_items_total{status=\"success\",version=\"BEFORE\"}[5m])",
+          "legendFormat": "Before",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(performance_test_items_total{status=\"success\",version=\"AFTER\"}[5m])",
+          "legendFormat": "After",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "ops",
+          "label": "Items/sec"
+        },
+        {
+          "format": "short"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "스레드풀 활용률",
+      "type": "gauge",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "executor_active_threads{name=\"crawlerTaskExecutor\"} / executor_pool_max_threads{name=\"crawlerTaskExecutor\"} * 100",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 70,
+                "color": "yellow"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "DB 커넥션 활성",
+      "type": "gauge",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "max": 20
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "JVM 메모리 사용률",
+      "type": "gauge",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{area=\"heap\"} / jvm_memory_max_bytes{area=\"heap\"} * 100",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 70,
+                "color": "yellow"
+              },
+              {
+                "value": 85,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "처리 성공/실패율",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(performance_test_items_total{status=\"success\"}[5m])) / sum(rate(performance_test_items_total[5m])) * 100",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "red"
+              },
+              {
+                "value": 95,
+                "color": "yellow"
+              },
+              {
+                "value": 99,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "총 처리량 (누적)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "sum(performance_test_items_total{status=\"success\"})",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "평균 처리 시간 (최근 5분)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(performance_test_duration_seconds_sum[5m]) / rate(performance_test_duration_seconds_count[5m])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "시스템 CPU 사용률",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "system_cpu_usage * 100",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 70,
+                "color": "yellow"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "JVM 스레드 수",
+      "type": "graph",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "jvm_threads_live",
+          "legendFormat": "Live Threads",
+          "refId": "A"
+        },
+        {
+          "expr": "jvm_threads_daemon",
+          "legendFormat": "Daemon Threads",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "GC 시간",
+      "type": "graph",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(jvm_gc_pause_seconds_sum[5m])",
+          "legendFormat": "{{action}} {{cause}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "s",
+          "label": "GC Time"
+        },
+        {
+          "format": "short"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s","10s","30s","1m","5m","15m","30m","1h","2h","1d"]
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "schemaVersion": 38,
+  "version": 1,
+  "links": []
+}
