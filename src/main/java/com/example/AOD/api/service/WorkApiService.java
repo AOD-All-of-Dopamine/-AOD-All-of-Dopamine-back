@@ -35,7 +35,7 @@ public class WorkApiService {
     /**
      * 작품 목록 조회 (필터링, 페이징)
      */
-    public PageResponse<WorkSummaryDTO> getWorks(Domain domain, String keyword, Pageable pageable) {
+    public PageResponse<WorkSummaryDTO> getWorks(Domain domain, String keyword, String platform, String genre, Pageable pageable) {
         Page<Content> contentPage;
 
         if (keyword != null && !keyword.isBlank()) {
@@ -50,7 +50,10 @@ public class WorkApiService {
             contentPage = contentRepository.findAll(pageable);
         }
 
+        // 플랫폼 및 장르 필터링 (메모리에서 처리)
         List<WorkSummaryDTO> content = contentPage.getContent().stream()
+                .filter(c -> filterByPlatform(c, platform))
+                .filter(c -> filterByGenre(c, genre))
                 .map(this::toWorkSummary)
                 .collect(Collectors.toList());
 
@@ -205,7 +208,7 @@ public class WorkApiService {
     /**
      * 최근 출시작 조회 (최근 3개월 이내 출시된 작품들)
      */
-    public PageResponse<WorkSummaryDTO> getRecentReleases(Domain domain, Pageable pageable) {
+    public PageResponse<WorkSummaryDTO> getRecentReleases(Domain domain, String platform, Pageable pageable) {
         LocalDate now = LocalDate.now();
         LocalDate threeMonthsAgo = now.minusMonths(3);
         Page<Content> contentPage;
@@ -216,7 +219,9 @@ public class WorkApiService {
             contentPage = contentRepository.findReleasesInDateRange(threeMonthsAgo, now, pageable);
         }
 
+        // 플랫폼 필터링 (메모리에서 처리)
         List<WorkSummaryDTO> content = contentPage.getContent().stream()
+                .filter(c -> filterByPlatform(c, platform))
                 .map(this::toWorkSummary)
                 .collect(Collectors.toList());
 
@@ -234,7 +239,7 @@ public class WorkApiService {
     /**
      * 출시 예정작 조회 (아직 출시되지 않은 작품들)
      */
-    public PageResponse<WorkSummaryDTO> getUpcomingReleases(Domain domain, Pageable pageable) {
+    public PageResponse<WorkSummaryDTO> getUpcomingReleases(Domain domain, String platform, Pageable pageable) {
         LocalDate now = LocalDate.now();
         Page<Content> contentPage;
 
@@ -244,7 +249,9 @@ public class WorkApiService {
             contentPage = contentRepository.findUpcomingReleases(now, pageable);
         }
 
+        // 플랫폼 필터링 (메모리에서 처리)
         List<WorkSummaryDTO> content = contentPage.getContent().stream()
+                .filter(c -> filterByPlatform(c, platform))
                 .map(this::toWorkSummary)
                 .collect(Collectors.toList());
 
@@ -257,5 +264,52 @@ public class WorkApiService {
                 .first(contentPage.isFirst())
                 .last(contentPage.isLast())
                 .build();
+    }
+
+    /**
+     * 플랫폼 필터링 헬퍼 메서드
+     */
+    private boolean filterByPlatform(Content content, String platform) {
+        if (platform == null || platform.isBlank()) {
+            return true; // 필터링 없음
+        }
+
+        // PlatformData에서 플랫폼 확인
+        List<PlatformData> platformDataList = platformDataRepository.findByContent(content);
+        return platformDataList.stream()
+                .anyMatch(pd -> pd.getPlatformName().equalsIgnoreCase(platform));
+    }
+
+    /**
+     * 장르 필터링 헬퍼 메서드
+     */
+    private boolean filterByGenre(Content content, String genre) {
+        if (genre == null || genre.isBlank()) {
+            return true; // 필터링 없음
+        }
+
+        Domain domain = content.getDomain();
+        
+        // 도메인별로 장르 정보 확인
+        switch (domain) {
+            case AV:
+                return avContentRepository.findById(content.getContentId())
+                        .map(av -> av.getGenres() != null && av.getGenres().contains(genre))
+                        .orElse(false);
+            case GAME:
+                return gameContentRepository.findById(content.getContentId())
+                        .map(game -> game.getGenres() != null && game.getGenres().contains(genre))
+                        .orElse(false);
+            case WEBTOON:
+                return webtoonContentRepository.findById(content.getContentId())
+                        .map(webtoon -> webtoon.getGenres() != null && webtoon.getGenres().contains(genre))
+                        .orElse(false);
+            case WEBNOVEL:
+                return webnovelContentRepository.findById(content.getContentId())
+                        .map(novel -> novel.getGenres() != null && novel.getGenres().contains(genre))
+                        .orElse(false);
+            default:
+                return false;
+        }
     }
 }
