@@ -268,7 +268,13 @@ public class NaverSeriesCrawler {
     }
 
 
-    private static String extractQueryParam(String url, String key) {
+    /**
+     * URL에서 쿼리 파라미터 추출 (공개 유틸리티 메서드)
+     * @param url 전체 URL
+     * @param key 추출할 파라미터 키
+     * @return 파라미터 값 (없으면 null)
+     */
+    public static String extractQueryParam(String url, String key) {
         if (url == null) return null;
         int idx = url.indexOf('?');
         if (idx < 0) return null;
@@ -282,7 +288,12 @@ public class NaverSeriesCrawler {
         return null;
     }
 
-    private static String cleanTitle(String raw) {
+    /**
+     * 제목 정리: [독점], [시리즈 에디션] 등 태그 제거 (공개 유틸리티 메서드)
+     * @param raw 원본 제목
+     * @return 정리된 제목
+     */
+    public static String cleanTitle(String raw) {
         if (raw == null) return null;
         return raw.replaceAll("\\s*\\[[^\\]]+\\]\\s*", " ").replaceAll("\\s+", " ").trim();
     }
