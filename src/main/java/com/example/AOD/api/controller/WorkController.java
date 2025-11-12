@@ -24,14 +24,14 @@ public class WorkController {
 
     /**
      * 작품 목록 조회
-     * GET /api/works?domain=GAME&keyword=검색어&platform=steam&genre=액션&page=0&size=20&sort=masterTitle,asc
+     * GET /api/works?domain=GAME&keyword=검색어&platforms=steam,epic&genres=액션,RPG&page=0&size=20&sort=masterTitle,asc
      */
     @GetMapping
     public ResponseEntity<PageResponse<WorkSummaryDTO>> getWorks(
             @RequestParam(required = false) String domain,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String platform,
-            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) java.util.List<String> platforms,
+            @RequestParam(required = false) java.util.List<String> genres,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "masterTitle") String sortBy,
@@ -49,7 +49,7 @@ public class WorkController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PageResponse<WorkSummaryDTO> response = workApiService.getWorks(domainEnum, keyword, platform, genre, pageable);
+        PageResponse<WorkSummaryDTO> response = workApiService.getWorks(domainEnum, keyword, platforms, genres, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -65,12 +65,12 @@ public class WorkController {
 
     /**
      * 최근 출시작 조회 (신작)
-     * GET /api/releases/recent?domain=GAME&platform=steam&page=0&size=20
+     * GET /api/releases/recent?domain=GAME&platforms=steam,epic&page=0&size=20
      */
     @GetMapping("/releases/recent")
     public ResponseEntity<PageResponse<WorkSummaryDTO>> getRecentReleases(
             @RequestParam(required = false) String domain,
-            @RequestParam(required = false) String platform,
+            @RequestParam(required = false) java.util.List<String> platforms,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
@@ -84,18 +84,18 @@ public class WorkController {
         }
 
         Pageable pageable = PageRequest.of(page, size);
-        PageResponse<WorkSummaryDTO> response = workApiService.getRecentReleases(domainEnum, platform, pageable);
+        PageResponse<WorkSummaryDTO> response = workApiService.getRecentReleases(domainEnum, platforms, pageable);
         return ResponseEntity.ok(response);
     }
 
     /**
      * 출시 예정작 조회
-     * GET /api/releases/upcoming?domain=GAME&platform=steam&page=0&size=20
+     * GET /api/releases/upcoming?domain=GAME&platforms=steam,epic&page=0&size=20
      */
     @GetMapping("/releases/upcoming")
     public ResponseEntity<PageResponse<WorkSummaryDTO>> getUpcomingReleases(
             @RequestParam(required = false) String domain,
-            @RequestParam(required = false) String platform,
+            @RequestParam(required = false) java.util.List<String> platforms,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
@@ -109,7 +109,7 @@ public class WorkController {
         }
 
         Pageable pageable = PageRequest.of(page, size);
-        PageResponse<WorkSummaryDTO> response = workApiService.getUpcomingReleases(domainEnum, platform, pageable);
+        PageResponse<WorkSummaryDTO> response = workApiService.getUpcomingReleases(domainEnum, platforms, pageable);
         return ResponseEntity.ok(response);
     }
 
