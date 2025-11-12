@@ -312,4 +312,97 @@ public class WorkApiService {
                 return false;
         }
     }
+
+    /**
+     * 도메인별 사용 가능한 장르 목록 조회
+     */
+    public List<String> getAvailableGenres(Domain domain) {
+        Set<String> genresSet = new HashSet<>();
+        
+        if (domain == null) {
+            // 전체 도메인의 장르 수집
+            genresSet.addAll(getGenresForDomain(Domain.AV));
+            genresSet.addAll(getGenresForDomain(Domain.GAME));
+            genresSet.addAll(getGenresForDomain(Domain.WEBTOON));
+            genresSet.addAll(getGenresForDomain(Domain.WEBNOVEL));
+        } else {
+            genresSet.addAll(getGenresForDomain(domain));
+        }
+        
+        return genresSet.stream()
+                .filter(genre -> genre != null && !genre.isBlank())
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 도메인의 장르 목록 수집
+     */
+    private Set<String> getGenresForDomain(Domain domain) {
+        Set<String> genres = new HashSet<>();
+        
+        switch (domain) {
+            case AV:
+                avContentRepository.findAll().forEach(av -> {
+                    if (av.getGenres() != null) {
+                        genres.addAll(av.getGenres());
+                    }
+                });
+                break;
+            case GAME:
+                gameContentRepository.findAll().forEach(game -> {
+                    if (game.getGenres() != null) {
+                        genres.addAll(game.getGenres());
+                    }
+                });
+                break;
+            case WEBTOON:
+                webtoonContentRepository.findAll().forEach(webtoon -> {
+                    if (webtoon.getGenres() != null) {
+                        genres.addAll(webtoon.getGenres());
+                    }
+                });
+                break;
+            case WEBNOVEL:
+                webnovelContentRepository.findAll().forEach(novel -> {
+                    if (novel.getGenres() != null) {
+                        genres.addAll(novel.getGenres());
+                    }
+                });
+                break;
+        }
+        
+        return genres;
+    }
+
+    /**
+     * 도메인별 사용 가능한 플랫폼 목록 조회
+     */
+    public List<String> getAvailablePlatforms(Domain domain) {
+        Set<String> platformsSet = new HashSet<>();
+        
+        if (domain == null) {
+            // 전체 플랫폼 조회
+            platformDataRepository.findAll().forEach(pd -> {
+                if (pd.getPlatformName() != null && !pd.getPlatformName().isBlank()) {
+                    platformsSet.add(pd.getPlatformName());
+                }
+            });
+        } else {
+            // 특정 도메인의 플랫폼만 조회
+            List<Content> contents = contentRepository.findByDomain(domain, Pageable.unpaged()).getContent();
+            contents.forEach(content -> {
+                List<PlatformData> platformDataList = platformDataRepository.findByContent(content);
+                platformDataList.forEach(pd -> {
+                    if (pd.getPlatformName() != null && !pd.getPlatformName().isBlank()) {
+                        platformsSet.add(pd.getPlatformName());
+                    }
+                });
+            });
+        }
+        
+        return platformsSet.stream()
+                .sorted()
+                .collect(Collectors.toList());
+    }
 }

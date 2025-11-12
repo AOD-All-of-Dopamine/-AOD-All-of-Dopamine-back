@@ -112,4 +112,48 @@ public class WorkController {
         PageResponse<WorkSummaryDTO> response = workApiService.getUpcomingReleases(domainEnum, platform, pageable);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * 도메인별 사용 가능한 장르 목록 조회
+     * GET /api/works/genres?domain=GAME
+     */
+    @GetMapping("/genres")
+    public ResponseEntity<java.util.List<String>> getGenres(
+            @RequestParam(required = false) String domain
+    ) {
+        Domain domainEnum = null;
+        if (domain != null && !domain.isBlank()) {
+            try {
+                domainEnum = Domain.valueOf(domain.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid domain parameter: {}", domain);
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+        java.util.List<String> genres = workApiService.getAvailableGenres(domainEnum);
+        return ResponseEntity.ok(genres);
+    }
+
+    /**
+     * 도메인별 사용 가능한 플랫폼 목록 조회
+     * GET /api/works/platforms?domain=GAME
+     */
+    @GetMapping("/platforms")
+    public ResponseEntity<java.util.List<String>> getPlatforms(
+            @RequestParam(required = false) String domain
+    ) {
+        Domain domainEnum = null;
+        if (domain != null && !domain.isBlank()) {
+            try {
+                domainEnum = Domain.valueOf(domain.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid domain parameter: {}", domain);
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+        java.util.List<String> platforms = workApiService.getAvailablePlatforms(domainEnum);
+        return ResponseEntity.ok(platforms);
+    }
 }
