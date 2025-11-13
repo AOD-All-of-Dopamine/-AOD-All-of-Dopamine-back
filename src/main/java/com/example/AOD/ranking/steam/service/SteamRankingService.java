@@ -1,7 +1,7 @@
 package com.example.AOD.ranking.steam.service;
 
+import com.example.AOD.ranking.common.RankingUpsertHelper;
 import com.example.AOD.ranking.entity.ExternalRanking;
-import com.example.AOD.ranking.repo.ExternalRankingRepository;
 import com.example.AOD.ranking.steam.fetcher.SteamRankingFetcher;
 import com.example.AOD.ranking.steam.parser.SteamRankingParser;
 import com.example.AOD.ranking.steam.parser.SteamRankingParser.SteamGameData;
@@ -26,7 +26,7 @@ public class SteamRankingService {
 
     private final SteamRankingFetcher steamRankingFetcher;
     private final SteamRankingParser steamRankingParser;
-    private final ExternalRankingRepository rankingRepository;
+    private final RankingUpsertHelper rankingUpsertHelper;
 
     private static final String PLATFORM_NAME = "STEAM_GAME";
 
@@ -58,9 +58,8 @@ public class SteamRankingService {
             return;
         }
 
-        // 4. 기존 데이터 삭제 후 저장 (일관성 보장)
-        deleteExistingRankings();
-        rankingRepository.saveAll(rankings);
+        // 4. 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
+        rankingUpsertHelper.upsertRankings(rankings, PLATFORM_NAME);
 
         log.info("Steam 최고 판매 랭킹 업데이트 완료. 총 {}개", rankings.size());
     }
@@ -86,17 +85,5 @@ public class SteamRankingService {
         }
 
         return rankings;
-    }
-
-    /**
-     * 기존 랭킹 데이터 삭제 (트랜잭션 내에서 안전하게 처리)
-     */
-    private void deleteExistingRankings() {
-        List<ExternalRanking> existingRankings = rankingRepository.findByPlatform(PLATFORM_NAME);
-        
-        if (!existingRankings.isEmpty()) {
-            rankingRepository.deleteAllInBatch(existingRankings);
-            log.debug("기존 Steam 랭킹 {}개를 삭제했습니다.", existingRankings.size());
-        }
     }
 }

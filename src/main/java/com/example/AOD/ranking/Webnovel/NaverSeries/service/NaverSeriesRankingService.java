@@ -2,9 +2,9 @@ package com.example.AOD.ranking.Webnovel.NaverSeries.service;
 
 import com.example.AOD.contents.Novel.NaverSeriesNovel.NaverSeriesCrawler;
 import com.example.AOD.ranking.Webnovel.NaverSeries.parser.NaverSeriesDetailParser;
+import com.example.AOD.ranking.common.RankingUpsertHelper;
 import com.example.AOD.ranking.entity.ExternalRanking;
 import com.example.AOD.ranking.Webnovel.NaverSeries.fetcher.NaverSeriesRankingFetcher;
-import com.example.AOD.ranking.repo.ExternalRankingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
@@ -30,7 +30,7 @@ public class NaverSeriesRankingService {
 
     private final NaverSeriesRankingFetcher fetcher;
     private final NaverSeriesDetailParser detailParser; // 랭킹용 파서 (제목 추출 전용)
-    private final ExternalRankingRepository rankingRepository;
+    private final RankingUpsertHelper rankingUpsertHelper;
 
     private static final int MAX_RANKING_SIZE = 20;
 
@@ -124,14 +124,8 @@ public class NaverSeriesRankingService {
             }
 
             if (!rankings.isEmpty()) {
-                // 기존 네이버 시리즈 랭킹 삭제 후 새로 저장
-                List<ExternalRanking> existingRankings = rankingRepository.findByPlatform("NAVER_SERIES");
-                if (!existingRankings.isEmpty()) {
-                    rankingRepository.deleteAll(existingRankings);
-                    log.info("기존 네이버 시리즈 랭킹 {}개를 삭제했습니다.", existingRankings.size());
-                }
-
-                rankingRepository.saveAll(rankings);
+                // 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
+                rankingUpsertHelper.upsertRankings(rankings, "NAVER_SERIES");
                 log.info("네이버 시리즈 랭킹 업데이트 완료. 총 {}개의 데이터를 저장했습니다.", rankings.size());
             } else {
                 log.warn("저장할 유효한 랭킹 데이터가 없습니다.");

@@ -1,0 +1,102 @@
+package com.example.AOD.ranking.common;
+
+import com.example.AOD.ranking.entity.ExternalRanking;
+import com.example.AOD.ranking.repo.ExternalRankingRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * 랭킹 데이터 Upsert 헬퍼 클래스
+ * - 기존 작품: ID 유지하며 랭킹/제목 업데이트
+ * - 신규 작품: 새로 추가
+ * - 제외 작품: 삭제
+ */
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class RankingUpsertHelper {
+
+    private final ExternalRankingRepository rankingRepository;
+
+    /**
+     * 랭킹 데이터 Upsert (Insert or Update)
+     * 
+     * @param newRankings 새로운 랭킹 데이터 목록
+     * @param platform 플랫폼 이름 (e.g., "TMDB_MOVIE", "STEAM_GAME")
+     */
+    public void upsertRankings(List<ExternalRanking> newRankings, String platform) {
+        if (newRankings == null || newRankings.isEmpty()) {
+            log.warn("업데이트할 랭킹 데이터가 없습니다. platform={}", platform);
+            return;
+        }
+
+        List<ExternalRanking> toSave = new ArrayList<>();
+        List<Long> newContentIds = new ArrayList<>();
+
+        // 1. 기존 데이터 조회 및 병합
+        for (ExternalRanking newRanking : newRankings) {
+            newContentIds.add(newRanking.getContentId());
+            
+            Optional<ExternalRanking> existingOpt = rankingRepository
+                    .findByPlatformAndContentId(platform, newRanking.getContentId());
+
+            if (existingOpt.isPresent()) {
+                // 기존 작품: ID 유지하며 업데이트
+                ExternalRanking existing = existingOpt.get();
+                existing.setRanking(newRanking.getRanking());
+                existing.setTitle(newRanking.getTitle());
+                toSave.add(existing);
+                log.debug("기존 작품 업데이트: contentId={}, 새 순위={}", 
+                        existing.getContentId(), newRanking.getRanking());
+            } else {
+                // 신규 작품: 그대로 추가
+                toSave.add(newRanking);
+                log.debug("신규 작품 추가: contentId={}, 순위={}", 
+                        newRanking.getContentId(), newRanking.getRanking());
+            }
+        }
+
+        // 2. 저장 (기존 ID 유지됨)
+        rankingRepository.saveAll(toSave);
+        log.info("{} 플랫폼 랭킹 {}개 저장 완료", platform, toSave.size());
+
+        // 3. 랭킹에서 제외된 작품 삭제
+        deleteRankingsNotInList(platform, newContentIds);
+    }
+
+    /**
+     * 현재 랭킹 목록에 없는 작품 삭제
+     * 
+     * @param platform 플랫폼 이름
+     * @param currentContentIds 현재 랭킹에 있는 contentId 목록
+     */
+    private void deleteRankingsNotInList(String platform, List<Long> currentContentIds) {
+        List<ExternalRanking> allRankings = rankingRepository.findByPlatform(platform);
+        List<ExternalRanking> toDelete = allRankings.stream()
+                .filter(ranking -> !currentContentIds.contains(ranking.getContentId()))
+                .toList();
+
+        if (!toDelete.isEmpty()) {
+            rankingRepository.deleteAllInBatch(toDelete);
+            log.info("{} 플랫폼에서 제외된 {}개 작품 삭제", platform, toDelete.size());
+        }
+    }
+
+    /**
+     * 특정 플랫폼의 모든 랭킹 삭제
+     * 
+     * @param platform 플랫폼 이름
+     */
+    public void deleteAllByPlatform(String platform) {
+        List<ExternalRanking> rankings = rankingRepository.findByPlatform(platform);
+        if (!rankings.isEmpty()) {
+            rankingRepository.deleteAllInBatch(rankings);
+            log.info("{} 플랫폼의 모든 랭킹 {}개 삭제", platform, rankings.size());
+        }
+    }
+}

@@ -3,8 +3,8 @@ package com.example.AOD.ranking.Webtoon.NaverWebtoon.service;
 import com.example.AOD.contents.Webtoon.NaverWebtoon.MobileListParser;
 import com.example.AOD.contents.Webtoon.NaverWebtoon.NaverWebtoonDTO;
 import com.example.AOD.ranking.Webtoon.NaverWebtoon.fetcher.NaverWebtoonRankingFetcher;
+import com.example.AOD.ranking.common.RankingUpsertHelper;
 import com.example.AOD.ranking.entity.ExternalRanking;
-import com.example.AOD.ranking.repo.ExternalRankingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
@@ -28,7 +28,7 @@ public class NaverWebtoonRankingService {
 
     private final NaverWebtoonRankingFetcher fetcher; // Document 가져오기
     private final MobileListParser mobileListParser; // 기존 파서 재사용
-    private final ExternalRankingRepository rankingRepository;
+    private final RankingUpsertHelper rankingUpsertHelper;
 
     private static final int MAX_RANKING_SIZE = 20;
 
@@ -84,14 +84,8 @@ public class NaverWebtoonRankingService {
             }
 
             if (!rankings.isEmpty()) {
-                // 기존 네이버 웹툰 랭킹 삭제 후 새로 저장
-                List<ExternalRanking> existingRankings = rankingRepository.findByPlatform("NAVER_WEBTOON");
-                if (!existingRankings.isEmpty()) {
-                    rankingRepository.deleteAll(existingRankings);
-                    log.info("기존 네이버 웹툰 랭킹 {}개를 삭제했습니다.", existingRankings.size());
-                }
-
-                rankingRepository.saveAll(rankings);
+                // 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
+                rankingUpsertHelper.upsertRankings(rankings, "NAVER_WEBTOON");
                 log.info("네이버 웹툰 랭킹 업데이트 완료. 총 {}개의 데이터를 저장했습니다. ({}요일)", 
                         rankings.size(), todayWeekday);
             } else {

@@ -1,7 +1,7 @@
 package com.example.AOD.ranking.tmdb.service;
 
+import com.example.AOD.ranking.common.RankingUpsertHelper;
 import com.example.AOD.ranking.entity.ExternalRanking;
-import com.example.AOD.ranking.repo.ExternalRankingRepository;
 import com.example.AOD.ranking.tmdb.constant.TmdbPlatformType;
 import com.example.AOD.ranking.tmdb.fetcher.TmdbRankingFetcher;
 import com.example.AOD.ranking.tmdb.mapper.TmdbRankingMapper;
@@ -26,7 +26,7 @@ public class TmdbRankingService {
 
     private final TmdbRankingFetcher tmdbRankingFetcher;
     private final TmdbRankingMapper tmdbRankingMapper;
-    private final ExternalRankingRepository rankingRepository;
+    private final RankingUpsertHelper rankingUpsertHelper;
 
     @Transactional
     public void updatePopularMoviesRanking() {
@@ -60,22 +60,10 @@ public class TmdbRankingService {
             return;
         }
 
-        // 3. 기존 데이터 삭제 후 저장 (일관성 보장)
-        deleteExistingRankings(platformType.getPlatformName());
-        rankingRepository.saveAll(rankings);
+        // 3. 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
+        rankingUpsertHelper.upsertRankings(rankings, platformType.getPlatformName());
 
         log.info("TMDB {} 랭킹 업데이트 완료. 총 {}개", platformType.name(), rankings.size());
     }
 
-    /**
-     * 기존 랭킹 데이터 삭제 (트랜잭션 내에서 안전하게 처리)
-     */
-    private void deleteExistingRankings(String platform) {
-        List<ExternalRanking> existingRankings = rankingRepository.findByPlatform(platform);
-        
-        if (!existingRankings.isEmpty()) {
-            rankingRepository.deleteAllInBatch(existingRankings);
-            log.debug("기존 {} 랭킹 {}개를 삭제했습니다.", platform, existingRankings.size());
-        }
-    }
 }
