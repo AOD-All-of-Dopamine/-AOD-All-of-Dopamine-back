@@ -92,7 +92,6 @@ jobs:
           POSTGRES_DB: aodDB
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          SELENIUM_URL: ${{ secrets.SELENIUM_URL }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
