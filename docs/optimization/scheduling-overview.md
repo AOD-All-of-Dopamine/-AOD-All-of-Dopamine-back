@@ -27,14 +27,14 @@
 |------|------|------|--------|------|
 | 일요일 | 03:00 | 완결 웹툰 수집 | 네이버 웹툰 | `NaverWebtoonSchedulingService` |
 | 일요일 | 05:00 | 과거 콘텐츠 최신화 (연도별) | TMDB | `TmdbSchedulingService` |
-| 화요일 | 02:00 | TOP100 웹소설 수집 | 네이버 시리즈 | `NaverSeriesSchedulingService` |
+| 화요일 | 02:00 | 완결 웹소설 수집 | 네이버 시리즈 | `NaverSeriesSchedulingService` |
 | 목요일 | 03:00 | 전체 게임 수집 | Steam | `SteamSchedulingService` |
 
 ### 매월 실행
 
 | 날짜 | 시간 | 작업 | 플랫폼 | 파일 |
 |------|------|------|--------|------|
-| 1일 | 03:00 | 전체 카테고리 대규모 수집 | 네이버 시리즈 | `NaverSeriesSchedulingService` |
+| 1일 | 03:00 | 전체 완결작품 대규모 수집 | 네이버 시리즈 | `NaverSeriesSchedulingService` |
 | 15일 | 04:00 | 기존 게임 정보 업데이트 | Steam | `SteamSchedulingService` |
 
 ---
@@ -45,7 +45,7 @@
 00:00 ┃
 01:00 ┃
 02:00 ┃ ▶ 네이버 웹툰 (매일)
-      ┃ ▶ 네이버 시리즈 TOP100 (화)
+      ┃ ▶ 네이버 시리즈 완결작 (화)
 03:00 ┃ ▶ 네이버 웹툰 완결작 (일)
       ┃ ▶ Steam 전체 수집 (목)
       ┃ ▶ 네이버 시리즈 대규모 (매월 1일)
@@ -114,8 +114,9 @@ public void collectAllCategoriesMonthly()
 ```
 
 **수집 데이터:**
-- 주간: TOP100 일간 랭킹 (5페이지)
-- 월간: 전체 카테고리 (50페이지, ~1000개 작품)
+- 주간: 완결작품 카테고리 (10페이지, ~200개 작품)
+- 월간: 전체 완결작품 (100페이지, ~2000개 작품)
+- URL: `https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all`
 
 ---
 
@@ -211,12 +212,6 @@ public CompletableFuture<Integer> crawlAsync() {
 ---
 
 ## 🚀 추가 계획
-
-### 고려 중인 플랫폼
-- [ ] 카카오페이지 (주 1회)
-- [ ] 왓챠 (월 1회)
-- [ ] 리디북스 (월 1회)
-- [ ] 애플TV (주 1회)
 
 ### 개선 사항
 - [ ] 스케줄 동적 변경 (Admin UI)
