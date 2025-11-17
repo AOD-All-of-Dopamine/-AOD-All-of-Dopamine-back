@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,34 +36,114 @@ public class WorkApiService {
     /**
      * 작품 목록 조회 (필터링, 페이징)
      */
-    public PageResponse<WorkSummaryDTO> getWorks(Domain domain, String keyword, Pageable pageable) {
-        Page<Content> contentPage;
-
-        if (keyword != null && !keyword.isBlank()) {
-            if (domain != null) {
-                contentPage = contentRepository.searchByDomainAndKeyword(domain, keyword, pageable);
+    public PageResponse<WorkSummaryDTO> getWorks(Domain domain, String keyword, List<String> platforms, List<String> genres, Pageable pageable) {
+        // 필터링이 필요한 경우 더 많은 데이터를 가져와서 필터링 후 페이징
+        boolean needsFiltering = (platforms != null && !platforms.isEmpty()) || (genres != null && !genres.isEmpty());
+        
+        List<Content> allFilteredContent;
+        
+        if (needsFiltering) {
+            // 필터링이 필요한 경우: 모든 데이터를 가져와서 필터링
+            List<Content> allContent;
+            if (keyword != null && !keyword.isBlank()) {
+                if (domain != null) {
+                    allContent = contentRepository.searchByDomainAndKeyword(domain, keyword, Pageable.unpaged()).getContent();
+                } else {
+                    allContent = contentRepository.searchByKeyword(keyword, Pageable.unpaged()).getContent();
+                }
+            } else if (domain != null) {
+                allContent = contentRepository.findByDomain(domain, Pageable.unpaged()).getContent();
             } else {
-                contentPage = contentRepository.searchByKeyword(keyword, pageable);
+                allContent = contentRepository.findAll(Pageable.unpaged()).getContent();
             }
-        } else if (domain != null) {
-            contentPage = contentRepository.findByDomain(domain, pageable);
+            
+            // 플랫폼 및 장르 필터링
+            allFilteredContent = allContent.stream()
+                    .filter(c -> filterByPlatforms(c, platforms))
+                    .filter(c -> filterByGenres(c, genres))
+                    .collect(Collectors.toList());
+            
         } else {
-            contentPage = contentRepository.findAll(pageable);
+            // 필터링이 없는 경우: 기존 방식대로 페이징된 데이터 가져오기
+            Page<Content> contentPage;
+            if (keyword != null && !keyword.isBlank()) {
+                if (domain != null) {
+                    contentPage = contentRepository.searchByDomainAndKeyword(domain, keyword, pageable);
+                } else {
+                    contentPage = contentRepository.searchByKeyword(keyword, pageable);
+                }
+            } else if (domain != null) {
+                contentPage = contentRepository.findByDomain(domain, pageable);
+            } else {
+                contentPage = contentRepository.findAll(pageable);
+            }
+            allFilteredContent = contentPage.getContent();
         }
-
-        List<WorkSummaryDTO> content = contentPage.getContent().stream()
+        
+        // 정렬 적용
+        if (pageable.getSort().isSorted()) {
+            allFilteredContent = applySorting(allFilteredContent, pageable.getSort());
+        }
+        
+        // 수동 페이징
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), allFilteredContent.size());
+        
+        List<WorkSummaryDTO> pagedContent = allFilteredContent.subList(
+                Math.min(start, allFilteredContent.size()),
+                end
+        ).stream()
                 .map(this::toWorkSummary)
                 .collect(Collectors.toList());
-
+        
+        int totalElements = allFilteredContent.size();
+        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+        
         return PageResponse.<WorkSummaryDTO>builder()
-                .content(content)
-                .page(contentPage.getNumber())
-                .size(contentPage.getSize())
-                .totalElements(contentPage.getTotalElements())
-                .totalPages(contentPage.getTotalPages())
-                .first(contentPage.isFirst())
-                .last(contentPage.isLast())
+                .content(pagedContent)
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalElements((long) totalElements)
+                .totalPages(totalPages)
+                .first(pageable.getPageNumber() == 0)
+                .last(pageable.getPageNumber() >= totalPages - 1)
                 .build();
+    }
+    
+    /**
+     * 정렬 적용 헬퍼 메서드
+     */
+    private List<Content> applySorting(List<Content> contents, Sort sort) {
+        Comparator<Content> comparator = null;
+        
+        for (Sort.Order order : sort) {
+            Comparator<Content> orderComparator = null;
+            
+            switch (order.getProperty()) {
+                case "masterTitle":
+                    orderComparator = Comparator.comparing(Content::getMasterTitle, 
+                            Comparator.nullsLast(String::compareTo));
+                    break;
+                case "releaseDate":
+                    orderComparator = Comparator.comparing(Content::getReleaseDate,
+                            Comparator.nullsLast(LocalDate::compareTo));
+                    break;
+                default:
+                    orderComparator = Comparator.comparing(Content::getContentId);
+            }
+            
+            if (order.getDirection() == Sort.Direction.DESC) {
+                orderComparator = orderComparator.reversed();
+            }
+            
+            comparator = (comparator == null) ? orderComparator : comparator.thenComparing(orderComparator);
+        }
+        
+        if (comparator != null) {
+            return contents.stream().sorted(comparator).collect(Collectors.toList());
+        }
+        
+        return contents;
     }
 
     /**
@@ -205,57 +286,262 @@ public class WorkApiService {
     /**
      * 최근 출시작 조회 (최근 3개월 이내 출시된 작품들)
      */
-    public PageResponse<WorkSummaryDTO> getRecentReleases(Domain domain, Pageable pageable) {
+    public PageResponse<WorkSummaryDTO> getRecentReleases(Domain domain, List<String> platforms, Pageable pageable) {
         LocalDate now = LocalDate.now();
         LocalDate threeMonthsAgo = now.minusMonths(3);
-        Page<Content> contentPage;
-
+        
+        List<Content> allContent;
         if (domain != null) {
-            contentPage = contentRepository.findReleasesInDateRange(domain, threeMonthsAgo, now, pageable);
+            allContent = contentRepository.findReleasesInDateRange(domain, threeMonthsAgo, now, Pageable.unpaged()).getContent();
         } else {
-            contentPage = contentRepository.findReleasesInDateRange(threeMonthsAgo, now, pageable);
+            allContent = contentRepository.findReleasesInDateRange(threeMonthsAgo, now, Pageable.unpaged()).getContent();
         }
 
-        List<WorkSummaryDTO> content = contentPage.getContent().stream()
-                .map(this::toWorkSummary)
+        // 플랫폼 필터링
+        List<Content> filteredContent = allContent.stream()
+                .filter(c -> filterByPlatforms(c, platforms))
                 .collect(Collectors.toList());
 
+        // 수동 페이징
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filteredContent.size());
+        
+        List<WorkSummaryDTO> pagedContent = filteredContent.subList(
+                Math.min(start, filteredContent.size()),
+                end
+        ).stream()
+                .map(this::toWorkSummary)
+                .collect(Collectors.toList());
+        
+        int totalElements = filteredContent.size();
+        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+
         return PageResponse.<WorkSummaryDTO>builder()
-                .content(content)
-                .page(contentPage.getNumber())
-                .size(contentPage.getSize())
-                .totalElements(contentPage.getTotalElements())
-                .totalPages(contentPage.getTotalPages())
-                .first(contentPage.isFirst())
-                .last(contentPage.isLast())
+                .content(pagedContent)
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalElements((long) totalElements)
+                .totalPages(totalPages)
+                .first(pageable.getPageNumber() == 0)
+                .last(pageable.getPageNumber() >= totalPages - 1)
                 .build();
     }
 
     /**
      * 출시 예정작 조회 (아직 출시되지 않은 작품들)
      */
-    public PageResponse<WorkSummaryDTO> getUpcomingReleases(Domain domain, Pageable pageable) {
+    public PageResponse<WorkSummaryDTO> getUpcomingReleases(Domain domain, List<String> platforms, Pageable pageable) {
         LocalDate now = LocalDate.now();
-        Page<Content> contentPage;
-
+        
+        List<Content> allContent;
         if (domain != null) {
-            contentPage = contentRepository.findUpcomingReleases(domain, now, pageable);
+            allContent = contentRepository.findUpcomingReleases(domain, now, Pageable.unpaged()).getContent();
         } else {
-            contentPage = contentRepository.findUpcomingReleases(now, pageable);
+            allContent = contentRepository.findUpcomingReleases(now, Pageable.unpaged()).getContent();
         }
 
-        List<WorkSummaryDTO> content = contentPage.getContent().stream()
-                .map(this::toWorkSummary)
+        // 플랫폼 필터링
+        List<Content> filteredContent = allContent.stream()
+                .filter(c -> filterByPlatforms(c, platforms))
                 .collect(Collectors.toList());
 
+        // 수동 페이징
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filteredContent.size());
+        
+        List<WorkSummaryDTO> pagedContent = filteredContent.subList(
+                Math.min(start, filteredContent.size()),
+                end
+        ).stream()
+                .map(this::toWorkSummary)
+                .collect(Collectors.toList());
+        
+        int totalElements = filteredContent.size();
+        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+
         return PageResponse.<WorkSummaryDTO>builder()
-                .content(content)
-                .page(contentPage.getNumber())
-                .size(contentPage.getSize())
-                .totalElements(contentPage.getTotalElements())
-                .totalPages(contentPage.getTotalPages())
-                .first(contentPage.isFirst())
-                .last(contentPage.isLast())
+                .content(pagedContent)
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalElements((long) totalElements)
+                .totalPages(totalPages)
+                .first(pageable.getPageNumber() == 0)
+                .last(pageable.getPageNumber() >= totalPages - 1)
                 .build();
+    }
+
+    /**
+     * 플랫폼 필터링 헬퍼 메서드 (복수 플랫폼 지원)
+     */
+    private boolean filterByPlatforms(Content content, List<String> platforms) {
+        if (platforms == null || platforms.isEmpty()) {
+            return true; // 필터링 없음
+        }
+
+        // PlatformData에서 플랫폼 확인
+        List<PlatformData> platformDataList = platformDataRepository.findByContent(content);
+        return platformDataList.stream()
+                .anyMatch(pd -> platforms.stream()
+                        .anyMatch(platform -> pd.getPlatformName().equalsIgnoreCase(platform)));
+    }
+
+    /**
+     * 장르 필터링 헬퍼 메서드 (복수 장르 지원)
+     */
+    private boolean filterByGenres(Content content, List<String> genres) {
+        if (genres == null || genres.isEmpty()) {
+            return true; // 필터링 없음
+        }
+
+        Domain domain = content.getDomain();
+        List<String> contentGenres = getContentGenres(content, domain);
+        
+        // 선택된 장르 중 하나라도 포함되면 true
+        return genres.stream()
+                .anyMatch(genre -> contentGenres.stream()
+                        .anyMatch(cg -> cg.equalsIgnoreCase(genre)));
+    }
+    
+    /**
+     * 컨텐츠의 장르 목록 가져오기
+     */
+    private List<String> getContentGenres(Content content, Domain domain) {
+        switch (domain) {
+            case AV:
+                return avContentRepository.findById(content.getContentId())
+                        .map(av -> av.getGenres() != null ? new ArrayList<>(av.getGenres()) : new ArrayList<String>())
+                        .orElse(new ArrayList<>());
+            case GAME:
+                return gameContentRepository.findById(content.getContentId())
+                        .map(game -> game.getGenres() != null ? new ArrayList<>(game.getGenres()) : new ArrayList<String>())
+                        .orElse(new ArrayList<>());
+            case WEBTOON:
+                return webtoonContentRepository.findById(content.getContentId())
+                        .map(webtoon -> webtoon.getGenres() != null ? new ArrayList<>(webtoon.getGenres()) : new ArrayList<String>())
+                        .orElse(new ArrayList<>());
+            case WEBNOVEL:
+                return webnovelContentRepository.findById(content.getContentId())
+                        .map(novel -> novel.getGenres() != null ? new ArrayList<>(novel.getGenres()) : new ArrayList<String>())
+                        .orElse(new ArrayList<>());
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 플랫폼 필터링 헬퍼 메서드 (단일 - 하위 호환성)
+     * @deprecated Use filterByPlatforms instead
+     */
+    @Deprecated
+    private boolean filterByPlatform(Content content, String platform) {
+        if (platform == null || platform.isBlank()) {
+            return true;
+        }
+        return filterByPlatforms(content, Collections.singletonList(platform));
+    }
+
+    /**
+     * 장르 필터링 헬퍼 메서드 (단일 - 하위 호환성)
+     * @deprecated Use filterByGenres instead
+     */
+    @Deprecated
+    private boolean filterByGenre(Content content, String genre) {
+        if (genre == null || genre.isBlank()) {
+            return true;
+        }
+        return filterByGenres(content, Collections.singletonList(genre));
+    }
+
+    /**
+     * 도메인별 사용 가능한 장르 목록 조회
+     */
+    public List<String> getAvailableGenres(Domain domain) {
+        Set<String> genresSet = new HashSet<>();
+        
+        if (domain == null) {
+            // 전체 도메인의 장르 수집
+            genresSet.addAll(getGenresForDomain(Domain.AV));
+            genresSet.addAll(getGenresForDomain(Domain.GAME));
+            genresSet.addAll(getGenresForDomain(Domain.WEBTOON));
+            genresSet.addAll(getGenresForDomain(Domain.WEBNOVEL));
+        } else {
+            genresSet.addAll(getGenresForDomain(domain));
+        }
+        
+        return genresSet.stream()
+                .filter(genre -> genre != null && !genre.isBlank())
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 도메인의 장르 목록 수집
+     */
+    private Set<String> getGenresForDomain(Domain domain) {
+        Set<String> genres = new HashSet<>();
+        
+        switch (domain) {
+            case AV:
+                avContentRepository.findAll().forEach(av -> {
+                    if (av.getGenres() != null) {
+                        genres.addAll(av.getGenres());
+                    }
+                });
+                break;
+            case GAME:
+                gameContentRepository.findAll().forEach(game -> {
+                    if (game.getGenres() != null) {
+                        genres.addAll(game.getGenres());
+                    }
+                });
+                break;
+            case WEBTOON:
+                webtoonContentRepository.findAll().forEach(webtoon -> {
+                    if (webtoon.getGenres() != null) {
+                        genres.addAll(webtoon.getGenres());
+                    }
+                });
+                break;
+            case WEBNOVEL:
+                webnovelContentRepository.findAll().forEach(novel -> {
+                    if (novel.getGenres() != null) {
+                        genres.addAll(novel.getGenres());
+                    }
+                });
+                break;
+        }
+        
+        return genres;
+    }
+
+    /**
+     * 도메인별 사용 가능한 플랫폼 목록 조회
+     */
+    public List<String> getAvailablePlatforms(Domain domain) {
+        Set<String> platformsSet = new HashSet<>();
+        
+        if (domain == null) {
+            // 전체 플랫폼 조회
+            platformDataRepository.findAll().forEach(pd -> {
+                if (pd.getPlatformName() != null && !pd.getPlatformName().isBlank()) {
+                    platformsSet.add(pd.getPlatformName());
+                }
+            });
+        } else {
+            // 특정 도메인의 플랫폼만 조회
+            List<Content> contents = contentRepository.findByDomain(domain, Pageable.unpaged()).getContent();
+            contents.forEach(content -> {
+                List<PlatformData> platformDataList = platformDataRepository.findByContent(content);
+                platformDataList.forEach(pd -> {
+                    if (pd.getPlatformName() != null && !pd.getPlatformName().isBlank()) {
+                        platformsSet.add(pd.getPlatformName());
+                    }
+                });
+            });
+        }
+        
+        return platformsSet.stream()
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

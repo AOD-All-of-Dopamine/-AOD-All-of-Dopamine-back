@@ -29,7 +29,6 @@ public class ContentMergeService {
     private final ContentSimilarityService similarityService;
     private final GenericDomainUpserter genericUpserter;
 
-    private static final double SIMILARITY_THRESHOLD = 0.85;
 
     /**
      * 중복 가능성이 있는 작품을 찾아서 병합
@@ -50,50 +49,38 @@ public class ContentMergeService {
         log.info("🔍 중복 검사 시작: 제목='{}', Domain={}", newContent.getMasterTitle(), newContent.getDomain());
         
         List<Content> candidates = findDuplicateCandidates(newContent, domainSpecificData);
-        
         if (candidates.isEmpty()) {
             log.info("   ℹ️  중복 후보 없음 - 새 작품으로 저장");
-            return null;
+            return null; // No duplicate candidates
         }
 
-        log.info("   📋 중복 후보 {}개 발견 - 유사도 검사 시작", candidates.size());
-
-        // 유사도 검사
+        // Iterate candidates and use title-equality (normalized) to decide merge
         for (Content candidate : candidates) {
-            double similarity = similarityService.calculateSimilarity(
-                    newContent.getMasterTitle(), 
+            boolean same = similarityService.isSameTitle(
+                    newContent.getMasterTitle(),
                     candidate.getMasterTitle()
             );
-            
-            log.info("🔍 중복 검사: '{}' vs '{}' = {}% (임계값: {}%)", 
-                    newContent.getMasterTitle(), 
-                    candidate.getMasterTitle(), 
-                    String.format("%.2f", similarity * 100),
-                    (int)(SIMILARITY_THRESHOLD * 100));
-            
-            if (similarity >= SIMILARITY_THRESHOLD) {
-                log.warn("⚠️  중복 작품 발견! 같은 작품으로 판단됨 - 유사도: {}%", 
-                        String.format("%.2f", similarity * 100));
-                log.warn("    기존 작품: ID={}, 제목='{}', Domain={}", 
-                        candidate.getContentId(), 
-                        candidate.getMasterTitle(),
-                        candidate.getDomain());
-                log.warn("    신규 데이터: 제목='{}', Domain={}", 
+
+            log.info("🔍 중복 검사: '{}' vs '{}' => sameTitle={}",
+                    newContent.getMasterTitle(),
+                    candidate.getMasterTitle(),
+                    same);
+
+            if (same) {
+                log.warn("⚠️  중복 작품 발견 - 제목 일치: {}", candidate.getMasterTitle());
+                log.info("🔄 병합 진행: '{}' 데이터를 기존 작품(ID={})에 추가",
                         newContent.getMasterTitle(),
-                        newContent.getDomain());
-                log.info("🔄 병합 진행: '{}' 데이터를 기존 작품(ID={})에 추가", 
-                        newContent.getMasterTitle(), 
                         candidate.getContentId());
-                
+
                 mergeContent(candidate, newContent, domainSpecificData, platformData, domainDoc, domainMappings);
-                
+
                 log.info("✅ 중복 작품 병합 완료: 기존 ID={}", candidate.getContentId());
-                return candidate; // 기존 작품 반환
+                return candidate; // return the merged existing content
             }
         }
-        
-        log.info("   ❌ 유사도 임계값 미달 - 중복 없음으로 판단");
-        return null; // 중복 없음
+
+        log.info("   ❌ 중복 작품 없음 - 새로운 작품으로 처리");
+        return null; // No duplicates found
     }
 
     /**
