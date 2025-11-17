@@ -200,11 +200,11 @@ public class AdminTestController {
 
     /* ===================== NAVER SERIES ===================== */
 
-    // 네이버 시리즈 크롤 → raw_items 적재
+    // 네이버 시리즈 크롤 → raw_items 적재 (완결작품 페이지)
     @PostMapping(path = "/crawl/naver-series", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> crawlNaverSeries(@RequestBody CrawlRequest req) throws Exception {
         String base = (req.baseListUrl() == null || req.baseListUrl().isBlank())
-                ? "https://series.naver.com/novel/top100List.series?rankingTypeCode=DAILY&categoryCode=ALL&page="
+                ? "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all&page="
                 : req.baseListUrl();
         int pages = req.pages() != null ? req.pages() : 1;
 
