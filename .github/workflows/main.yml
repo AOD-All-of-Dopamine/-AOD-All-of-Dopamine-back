@@ -72,7 +72,6 @@ jobs:
           if [ -z "${{ secrets.POSTGRES_USER }}" ]; then echo "POSTGRES_USER secret is missing!"; exit 1; fi
           if [ -z "${{ secrets.POSTGRES_PASSWORD }}" ]; then echo "POSTGRES_PASSWORD secret is missing!"; exit 1; fi
           if [ -z "${{ secrets.TMDB_API_KEY }}" ]; then echo "TMDB_API_KEY secret is missing!"; exit 1; fi
-          if [ -z "${{ secrets.SELENIUM_URL }}" ]; then echo "SELENIUM_URL secret is missing!"; exit 1; fi
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -117,7 +116,6 @@ jobs:
             export POSTGRES_DB='${POSTGRES_DB}'
             export POSTGRES_USER='${POSTGRES_USER}'
             export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
-            export SELENIUM_URL='${SELENIUM_URL}'
             export TMDB_API_KEY='${TMDB_API_KEY}'
             export STEAM_API_KEY='${STEAM_API_KEY}'
             export OPENAI_API_KEY='${OPENAI_API_KEY}'
