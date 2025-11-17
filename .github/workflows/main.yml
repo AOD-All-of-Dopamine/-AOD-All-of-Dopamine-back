@@ -95,8 +95,8 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-          # <-- 2. 수정됨: ECR 로그인에 필요한 변수 추가
+          NAVER_ID: ${{ secrets.NAVER_ID }}
+          NAVER_PW: ${{ secrets.NAVER_PW }}
           ECR_REGISTRY: ${{ needs.build-and-push.outputs.registry }}
           AWS_REGION: ${{ env.AWS_REGION }}
 
