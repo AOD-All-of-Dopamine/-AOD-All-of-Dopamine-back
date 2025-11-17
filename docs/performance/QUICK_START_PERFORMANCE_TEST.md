@@ -15,7 +15,7 @@ PostgreSQL에 접속하여:
 
 ```sql
 -- 처리 대기 중인 데이터 확인
-SELECT COUNT(*) FROM raw_items WHERE status = 'PENDING';
+SELECT COUNT(*) FROM raw_items WHERE processed = false;
 
 -- 결과가 0이면 크롤링 먼저 실행
 ```
