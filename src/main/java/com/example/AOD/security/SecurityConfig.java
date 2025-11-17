@@ -23,24 +23,24 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired(required = false)  // required = false를 추가해 의존성 주입 실패를 허용
+    @Autowired(required = false)
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CORS 설정 활성화
+                // CORS 설정 활성화 (아래 corsConfigurationSource Bean 사용)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // 모든 API 엔드포인트에 대해 인증 없이 접근 허용
-                        .requestMatchers("/api/**").permitAll()
+                        // /api/ 및 /api/auth/ 경로는 인증 없이 모두 허용
                         .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().permitAll()  // 모든 요청 허용
+                        .requestMatchers("/api/works/**").permitAll() // 'works' 경로 명시적 허용
+                        .requestMatchers("/api/**").permitAll() // 기타 /api/ 경로
+                        .anyRequest().permitAll() // 그 외 모든 요청도 일단 허용 (보안 강화 시 수정 필요)
                 );
 
-        // JWT 필터가 있는 경우에만 추가
         if (jwtAuthenticationFilter != null) {
             http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         }
@@ -51,13 +51,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://aod-all-of-dopamine-front-3ww3xgg0u-dfdfg42s-projects.vercel.app", // Vercel 프리뷰 주소
+                "https://allofdophamin.com",  // 나중에 연결할 실제 프로덕션 도메인
+                "http://localhost:3000"      // 로컬 개발용 (vite.config.ts)
+        ));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("*")); // 모든 헤더 허용
+        configuration.setAllowCredentials(true); // 인증 정보(쿠키, 토큰) 허용
+        configuration.setMaxAge(3600L); // Pre-flight 요청 캐시 시간 (1시간)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 위 설정 적용
         return source;
     }
 
