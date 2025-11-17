@@ -19,7 +19,8 @@ jobs:
     
     outputs:
       image: ${{ steps.build-image.outputs.image }}
-    
+      registry: ${{ steps.login-ecr.outputs.registry }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +34,7 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
-        
+
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
@@ -63,7 +64,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Check for required secrets
         run: |
@@ -82,7 +83,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          
+
           # Application environment variables from secrets
           APP_IMAGE_URI: ${{ needs.build-and-push.outputs.image }}
           SPRING_PROFILE: prod
@@ -94,6 +95,10 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+          # <-- 2. 수정됨: ECR 로그인에 필요한 변수 추가
+          ECR_REGISTRY: ${{ needs.build-and-push.outputs.registry }}
+          AWS_REGION: ${{ env.AWS_REGION }}
 
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
@@ -120,13 +125,28 @@ jobs:
             export STEAM_API_KEY='${STEAM_API_KEY}'
             export OPENAI_API_KEY='${OPENAI_API_KEY}'
 
+            # --- 3. 수정됨: EC2 인스턴스에서 ECR 로그인 실행 ---
+            export AWS_REGION='${AWS_REGION}'
+            export ECR_REGISTRY='${ECR_REGISTRY}'
+            echo "Logging in to ECR at \${ECR_REGISTRY}..."
+          
+            # (EC2 인스턴스에 awscli가 설치되어 있어야 합니다!)
+            aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
+          
+            if [ $? -ne 0 ]; then
+              echo "❌ ECR login failed. Check IAM role and AWS CLI installation."
+              exit 1
+            fi
+            echo "✅ ECR login successful."
+            # --- (로그인 블록 끝) ---
+
             docker pull \${APP_IMAGE_URI}
 
             docker-compose up -d --remove-orphans
 
             echo "Sleeping for 40 seconds to allow the application to start..."
             sleep 40
-            
+          
             # Health check
             if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
               echo "✅ Health check successful!"
@@ -135,9 +155,8 @@ jobs:
               docker-compose logs --tail 50
               exit 1
             fi
-            
+          
             docker image prune -af
           EOF
           
           rm -f private_key.pem
-
