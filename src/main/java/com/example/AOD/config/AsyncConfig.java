@@ -33,13 +33,13 @@ public class AsyncConfig implements AsyncConfigurer {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         
         // 기본 스레드 수: 크롤러 종류만큼 (Naver, Steam, TMDB 등)
-        executor.setCorePoolSize(5);
+        executor.setCorePoolSize(1);
         
         // 최대 스레드 수: 동시 크롤링 최대치
-        executor.setMaxPoolSize(10);
+        executor.setMaxPoolSize(1);
         
         // 대기 큐 용량
-        executor.setQueueCapacity(200);
+        executor.setQueueCapacity(5);
         
         // 스레드 이름 prefix (디버깅 편의)
         executor.setThreadNamePrefix("Crawler-Async-");
