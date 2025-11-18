@@ -1,5 +1,3 @@
-# This workflow builds the application, pushes it to ECR, and deploys it to EC2.
-
 name: CI/CD Pipeline
 
 on:
@@ -79,12 +77,12 @@ jobs:
 
       - name: Deploy to EC2 using Docker Compose
         env:
-          # SSH connection secrets
+          # SSH connection
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
 
-          # Application environment variables from secrets
+          # Application environment variables
           APP_IMAGE_URI: ${{ needs.build-and-push.outputs.image }}
           SPRING_PROFILE: prod
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
@@ -99,21 +97,25 @@ jobs:
           NAVER_PW: ${{ secrets.NAVER_PW }}
           ECR_REGISTRY: ${{ needs.build-and-push.outputs.registry }}
           AWS_REGION: ${{ env.AWS_REGION }}
-
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
 
+          # EC2에 디렉터리 생성
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-app"
 
+          # docker-compose.yml 전달
           scp -i private_key.pem -o StrictHostKeyChecking=no \
             ./docker-compose.yml \
             ${USER}@${HOST}:/home/${USER}/aod-app/
 
+          # 원격 배포
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
+            set -e  # 중간에 명령 실패 시 바로 종료
+
             cd /home/${USER}/aod-app
 
-            # Export all necessary environment variables
+            # 환경 변수 설정
             export APP_IMAGE_URI='${APP_IMAGE_URI}'
             export SPRING_PROFILE='${SPRING_PROFILE}'
             export POSTGRES_HOST='${POSTGRES_HOST}'
@@ -124,39 +126,39 @@ jobs:
             export TMDB_API_KEY='${TMDB_API_KEY}'
             export STEAM_API_KEY='${STEAM_API_KEY}'
             export OPENAI_API_KEY='${OPENAI_API_KEY}'
-
-            # --- 3. 수정됨: EC2 인스턴스에서 ECR 로그인 실행 ---
+            export NAVER_ID='${NAVER_ID}'
+            export NAVER_PW='${NAVER_PW}'
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
-            echo "Logging in to ECR at \${ECR_REGISTRY}..."
-          
-            # (EC2 인스턴스에 awscli가 설치되어 있어야 합니다!)
-            aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
-          
-            if [ $? -ne 0 ]; then
-              echo "❌ ECR login failed. Check IAM role and AWS CLI installation."
-              exit 1
-            fi
-            echo "✅ ECR login successful."
-            # --- (로그인 블록 끝) ---
 
+            echo "Logging in to ECR at \${ECR_REGISTRY}..."
+            aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
+            echo "✅ ECR login successful."
+
+            # 1) 기존 컨테이너/네트워크 정리
+            docker compose down --remove-orphans || true
+
+            # 2) 새 이미지 pull
             docker pull \${APP_IMAGE_URI}
 
+            # 3) 새 컨테이너 기동
             docker compose up -d --remove-orphans
 
             echo "Sleeping for 40 seconds to allow the application to start..."
             sleep 40
-          
-            # Health check
+
+            # 4) Health check
             if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
               echo "✅ Health check successful!"
             else
-              echo "❌ Health check failed! Please check the container logs."
-              docker compose logs --tail 50
+              echo "❌ Health check failed! Printing docker compose status & logs..."
+              docker compose ps
+              docker compose logs --tail 100
               exit 1
             fi
-          
+
+            # 5) 사용하지 않는 이미지 정리
             docker image prune -af
           EOF
-          
+
           rm -f private_key.pem
