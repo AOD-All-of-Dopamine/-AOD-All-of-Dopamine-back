@@ -142,7 +142,7 @@ jobs:
 
             docker pull \${APP_IMAGE_URI}
 
-            docker-compose up -d --remove-orphans
+            docker compose up -d --remove-orphans
 
             echo "Sleeping for 40 seconds to allow the application to start..."
             sleep 40
@@ -152,7 +152,7 @@ jobs:
               echo "✅ Health check successful!"
             else
               echo "❌ Health check failed! Please check the container logs."
-              docker-compose logs --tail 50
+              docker compose logs --tail 50
               exit 1
             fi
           
