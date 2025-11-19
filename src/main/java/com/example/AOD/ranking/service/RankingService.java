@@ -32,12 +32,12 @@ public class RankingService {
 
     @Transactional(readOnly = true)
     public List<ExternalRanking> getRankingsByPlatform(String platform) {
-        return rankingRepository.findByPlatform(platform);
+        return rankingRepository.findByPlatformWithContent(platform);
     }
 
     @Transactional(readOnly = true)
     public List<ExternalRanking> getAllRankings() {
-        return rankingRepository.findAll();
+        return rankingRepository.findAllWithContent();
     }
 
     /**

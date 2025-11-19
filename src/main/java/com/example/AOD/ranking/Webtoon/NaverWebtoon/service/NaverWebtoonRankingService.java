@@ -72,8 +72,9 @@ public class NaverWebtoonRankingService {
                     ExternalRanking ranking = new ExternalRanking();
                     ranking.setRanking(rank);
                     ranking.setTitle(dto.getTitle());
-                    ranking.setContentId(Long.parseLong(dto.getTitleId()));
-                    ranking.setPlatform("NAVER_WEBTOON");
+                    ranking.setPlatformSpecificId(dto.getTitleId());
+                    ranking.setPlatform("NaverWebtoon");
+                    ranking.setThumbnailUrl(dto.getImageUrl());
                     rankings.add(ranking);
 
                     rank++;
@@ -85,8 +86,8 @@ public class NaverWebtoonRankingService {
 
             if (!rankings.isEmpty()) {
                 // 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
-                rankingUpsertHelper.upsertRankings(rankings, "NAVER_WEBTOON");
-                log.info("네이버 웹툰 랭킹 업데이트 완료. 총 {}개의 데이터를 저장했습니다. ({}요일)", 
+                rankingUpsertHelper.upsertRankings(rankings, "NaverWebtoon");
+                log.info("네이버 웹툰 랭킹 업데이트 완료. 총 {}개의 데이터를 저장했습니다. ({})요일", 
                         rankings.size(), todayWeekday);
             } else {
                 log.warn("저장할 유효한 랭킹 데이터가 없습니다.");

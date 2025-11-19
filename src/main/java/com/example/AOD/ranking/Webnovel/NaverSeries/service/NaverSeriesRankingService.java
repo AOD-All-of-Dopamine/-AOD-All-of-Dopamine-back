@@ -107,12 +107,16 @@ public class NaverSeriesRankingService {
                         continue;
                     }
 
+                    // 썸네일 URL 추출
+                    String thumbnailUrl = detailParser.extractThumbnailUrl(detailDoc);
+
                     // 랭킹 데이터 생성
                     ExternalRanking ranking = new ExternalRanking();
                     ranking.setRanking(rank);
                     ranking.setTitle(title);
-                    ranking.setContentId(Long.parseLong(productNo));
-                    ranking.setPlatform("NAVER_SERIES");
+                    ranking.setPlatformSpecificId(productNo);
+                    ranking.setPlatform("NaverSeries");
+                    ranking.setThumbnailUrl(thumbnailUrl);
                     rankings.add(ranking);
 
                     log.info("랭킹 {}위: {} (productNo={})", rank, title, productNo);
@@ -125,7 +129,7 @@ public class NaverSeriesRankingService {
 
             if (!rankings.isEmpty()) {
                 // 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
-                rankingUpsertHelper.upsertRankings(rankings, "NAVER_SERIES");
+                rankingUpsertHelper.upsertRankings(rankings, "NaverSeries");
                 log.info("네이버 시리즈 랭킹 업데이트 완료. 총 {}개의 데이터를 저장했습니다.", rankings.size());
             } else {
                 log.warn("저장할 유효한 랭킹 데이터가 없습니다.");

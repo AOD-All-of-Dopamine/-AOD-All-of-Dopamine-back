@@ -44,10 +44,17 @@ public class TmdbRankingMapper {
         }
 
         ExternalRanking ranking = new ExternalRanking();
-        ranking.setContentId(item.get("id").asLong());
+        ranking.setPlatformSpecificId(String.valueOf(item.get("id").asLong()));
         ranking.setTitle(item.get(platformType.getTitleField()).asText());
         ranking.setRanking(rank);
         ranking.setPlatform(platformType.getPlatformName());
+        
+        // 썸네일 URL 추출 (poster_path)
+        if (item.has("poster_path") && !item.get("poster_path").isNull()) {
+            String posterPath = item.get("poster_path").asText();
+            String thumbnailUrl = "https://image.tmdb.org/t/p/w500" + posterPath;
+            ranking.setThumbnailUrl(thumbnailUrl);
+        }
 
         return ranking;
     }

@@ -1,7 +1,9 @@
 package com.example.AOD.ranking.common;
 
+import com.example.AOD.domain.entity.PlatformData;
 import com.example.AOD.ranking.entity.ExternalRanking;
 import com.example.AOD.ranking.repo.ExternalRankingRepository;
+import com.example.AOD.repo.PlatformDataRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,7 @@ import java.util.Optional;
 public class RankingUpsertHelper {
 
     private final ExternalRankingRepository rankingRepository;
+    private final PlatformDataRepository platformDataRepository;
 
     /**
      * 랭킹 데이터 Upsert (Insert or Update)
@@ -36,28 +39,32 @@ public class RankingUpsertHelper {
         }
 
         List<ExternalRanking> toSave = new ArrayList<>();
-        List<Long> newContentIds = new ArrayList<>();
+        List<String> newPlatformSpecificIds = new ArrayList<>();
 
         // 1. 기존 데이터 조회 및 병합
         for (ExternalRanking newRanking : newRankings) {
-            newContentIds.add(newRanking.getContentId());
+            newPlatformSpecificIds.add(newRanking.getPlatformSpecificId());
             
+            // 내부 Content 매핑 시도 (저장 시점 매핑)
+            mapToInternalContent(newRanking, platform);
+
             Optional<ExternalRanking> existingOpt = rankingRepository
-                    .findByPlatformAndContentId(platform, newRanking.getContentId());
+                    .findByPlatformAndPlatformSpecificId(platform, newRanking.getPlatformSpecificId());
 
             if (existingOpt.isPresent()) {
                 // 기존 작품: ID 유지하며 업데이트
                 ExternalRanking existing = existingOpt.get();
                 existing.setRanking(newRanking.getRanking());
                 existing.setTitle(newRanking.getTitle());
+                existing.setContent(newRanking.getContent()); // 매핑 정보 업데이트
                 toSave.add(existing);
-                log.debug("기존 작품 업데이트: contentId={}, 새 순위={}", 
-                        existing.getContentId(), newRanking.getRanking());
+                log.debug("기존 작품 업데이트: id={}, 새 순위={}", 
+                        existing.getPlatformSpecificId(), newRanking.getRanking());
             } else {
                 // 신규 작품: 그대로 추가
                 toSave.add(newRanking);
-                log.debug("신규 작품 추가: contentId={}, 순위={}", 
-                        newRanking.getContentId(), newRanking.getRanking());
+                log.debug("신규 작품 추가: id={}, 순위={}", 
+                        newRanking.getPlatformSpecificId(), newRanking.getRanking());
             }
         }
 
@@ -66,19 +73,35 @@ public class RankingUpsertHelper {
         log.info("{} 플랫폼 랭킹 {}개 저장 완료", platform, toSave.size());
 
         // 3. 랭킹에서 제외된 작품 삭제
-        deleteRankingsNotInList(platform, newContentIds);
+        deleteRankingsNotInList(platform, newPlatformSpecificIds);
+    }
+
+    private void mapToInternalContent(ExternalRanking ranking, String platform) {
+        try {
+            Optional<PlatformData> platformDataOpt = platformDataRepository
+                    .findByPlatformNameAndPlatformSpecificId(platform, ranking.getPlatformSpecificId());
+            
+            if (platformDataOpt.isPresent()) {
+                ranking.setContent(platformDataOpt.get().getContent());
+                log.debug("작품 매핑 성공: {} -> contentId={}", ranking.getTitle(), platformDataOpt.get().getContent().getContentId());
+            } else {
+                log.debug("작품 매핑 실패 (DB에 없음): {} ({})", ranking.getTitle(), ranking.getPlatformSpecificId());
+            }
+        } catch (Exception e) {
+            log.warn("작품 매핑 중 오류 발생: {}", e.getMessage());
+        }
     }
 
     /**
      * 현재 랭킹 목록에 없는 작품 삭제
      * 
      * @param platform 플랫폼 이름
-     * @param currentContentIds 현재 랭킹에 있는 contentId 목록
+     * @param currentPlatformSpecificIds 현재 랭킹에 있는 ID 목록
      */
-    private void deleteRankingsNotInList(String platform, List<Long> currentContentIds) {
+    private void deleteRankingsNotInList(String platform, List<String> currentPlatformSpecificIds) {
         List<ExternalRanking> allRankings = rankingRepository.findByPlatform(platform);
         List<ExternalRanking> toDelete = allRankings.stream()
-                .filter(ranking -> !currentContentIds.contains(ranking.getContentId()))
+                .filter(ranking -> !currentPlatformSpecificIds.contains(ranking.getPlatformSpecificId()))
                 .toList();
 
         if (!toDelete.isEmpty()) {
