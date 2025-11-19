@@ -70,7 +70,10 @@ public class SteamRankingParser {
         Long appId = extractAppId(row);
         if (appId == null) return null;
 
-        return new SteamGameData(rank, title, appId);
+        // 썸네일 URL 추출
+        String thumbnailUrl = extractThumbnailUrl(row);
+
+        return new SteamGameData(rank, title, appId, thumbnailUrl);
     }
 
     /**
@@ -130,17 +133,38 @@ public class SteamRankingParser {
     }
 
     /**
+     * 썸네일 이미지 URL 추출
+     */
+    private String extractThumbnailUrl(Element row) {
+        try {
+            // img 태그 찾기
+            Element img = row.selectFirst("img");
+            if (img != null) {
+                String src = img.attr("src");
+                if (src != null && !src.isEmpty()) {
+                    return src;
+                }
+            }
+        } catch (Exception e) {
+            log.debug("썸네일 URL 추출 실패: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    /**
      * Steam 게임 데이터 DTO
      */
     public static class SteamGameData {
         private final Integer rank;
         private final String title;
         private final Long appId;
+        private final String thumbnailUrl;
 
-        public SteamGameData(Integer rank, String title, Long appId) {
+        public SteamGameData(Integer rank, String title, Long appId, String thumbnailUrl) {
             this.rank = rank;
             this.title = title;
             this.appId = appId;
+            this.thumbnailUrl = thumbnailUrl;
         }
 
         public Integer getRank() {
@@ -153,6 +177,10 @@ public class SteamRankingParser {
 
         public Long getAppId() {
             return appId;
+        }
+
+        public String getThumbnailUrl() {
+            return thumbnailUrl;
         }
     }
 }

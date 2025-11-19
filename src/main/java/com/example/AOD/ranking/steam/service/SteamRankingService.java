@@ -28,7 +28,7 @@ public class SteamRankingService {
     private final SteamRankingParser steamRankingParser;
     private final RankingUpsertHelper rankingUpsertHelper;
 
-    private static final String PLATFORM_NAME = "STEAM_GAME";
+    private static final String PLATFORM_NAME = "Steam";
 
     @Transactional
     public void updateTopSellersRanking() {
@@ -73,10 +73,11 @@ public class SteamRankingService {
         for (SteamGameData gameData : gameDataList) {
             try {
                 ExternalRanking ranking = new ExternalRanking();
-                ranking.setContentId(gameData.getAppId());
+                ranking.setPlatformSpecificId(String.valueOf(gameData.getAppId()));
                 ranking.setTitle(gameData.getTitle());
                 ranking.setRanking(gameData.getRank());
                 ranking.setPlatform(PLATFORM_NAME);
+                ranking.setThumbnailUrl(gameData.getThumbnailUrl());
                 rankings.add(ranking);
             } catch (Exception e) {
                 log.warn("Steam 랭킹 항목 변환 중 오류 발생 (건너뜀): rank={}, error={}", 

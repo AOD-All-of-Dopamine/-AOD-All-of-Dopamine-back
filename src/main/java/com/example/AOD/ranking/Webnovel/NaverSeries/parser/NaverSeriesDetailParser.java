@@ -48,4 +48,38 @@ public class NaverSeriesDetailParser {
             return null;
         }
     }
+
+    /**
+     * 상세 페이지에서 썸네일 이미지 URL 추출
+     * 
+     * @param detailDoc 상세 페이지 Document
+     * @return 이미지 URL (null 가능)
+     */
+    public String extractThumbnailUrl(Document detailDoc) {
+        if (detailDoc == null) {
+            return null;
+        }
+
+        try {
+            // og:image 메타 태그에서 추출
+            Element ogImage = detailDoc.selectFirst("meta[property=og:image]");
+            if (ogImage != null) {
+                String imageUrl = ogImage.attr("content");
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    return imageUrl;
+                }
+            }
+
+            // 폴백: 첫 번째 이미지 태그
+            Element img = detailDoc.selectFirst("img.thumb_img, img[src*='phinf']");
+            if (img != null) {
+                return img.attr("src");
+            }
+
+            return null;
+        } catch (Exception e) {
+            log.warn("썸네일 추출 중 오류 발생: {}", e.getMessage());
+            return null;
+        }
+    }
 }
