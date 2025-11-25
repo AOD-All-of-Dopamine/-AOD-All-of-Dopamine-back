@@ -39,7 +39,8 @@ public class SteamCrawlService {
         for (int i = 0; i < totalApps; i += batchSize) {
             int start = i;
             int end = Math.min(i + batchSize, totalApps);
-            log.info("==> Steam 자동 수집 배치 실행: {} / {} (인덱스 {}부터 {}까지)", (start / batchSize) + 1, (totalApps / batchSize) + 1, start, end);
+            log.info("==> Steam 자동 수집 배치 실행: {} / {} (인덱스 {}부터 {}까지)", (start / batchSize) + 1,
+                    (totalApps / batchSize) + 1, start, end);
 
             List<Map<String, Object>> batch = gameApps.subList(start, end);
             int batchCount = collectGamesFromList(batch);
@@ -101,8 +102,7 @@ public class SteamCrawlService {
                             "GAME",
                             processedDetails,
                             String.valueOf(appId),
-                            "https://store.steampowered.com/app/" + appId
-                    );
+                            "https://store.steampowered.com/app/" + appId);
                     collectedCount++;
                     log.info("Steam 게임 수집 성공: {} (ID: {})", appName, appId);
                 } else {
@@ -115,5 +115,46 @@ public class SteamCrawlService {
         }
         log.info("Steam 게임 데이터 수집 완료. 현재 작업에서 총 {}개의 유효한 게임을 수집했습니다.", collectedCount);
         return collectedCount;
+    }
+
+    /**
+     * 특정 AppID의 Steam 게임 상세 정보를 수집하여 저장합니다.
+     * 
+     * @param appId Steam 게임의 고유 ID
+     * @return 수집 성공 여부
+     */
+    public boolean collectGameByAppId(Long appId) {
+        log.info("Steam 게임 AppID {} 데이터 수집 시작", appId);
+        
+        try {
+            Map<String, Object> gameDetails = steamApiFetcher.fetchGameDetails(appId);
+            
+            if (gameDetails == null) {
+                log.warn("AppID {}의 상세 정보를 가져올 수 없습니다.", appId);
+                return false;
+            }
+            
+            if (!"game".equals(gameDetails.get("type"))) {
+                log.warn("AppID {}는 게임이 아닙니다. Type: {}", appId, gameDetails.get("type"));
+                return false;
+            }
+            
+            String appName = (String) gameDetails.get("name");
+            Map<String, Object> processedDetails = payloadProcessor.process(gameDetails);
+            
+            collectorService.saveRaw(
+                    "Steam",
+                    "GAME",
+                    processedDetails,
+                    String.valueOf(appId),
+                    "https://store.steampowered.com/app/" + appId);
+            
+            log.info("Steam 게임 수집 성공: {} (AppID: {})", appName, appId);
+            return true;
+            
+        } catch (Exception e) {
+            log.error("Steam 게임 AppID {} 처리 중 오류 발생: {}", appId, e.getMessage(), e);
+            return false;
+        }
     }
 }
