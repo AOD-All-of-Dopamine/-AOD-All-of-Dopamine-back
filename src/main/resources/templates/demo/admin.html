@@ -45,6 +45,13 @@
         <div class="platform-section">
             <h4>🎮 Steam (게임)</h4>
             <div class="input-group">
+                <label for="steam-appid">특정 게임 AppID:</label>
+                <input type="number" id="steam-appid" placeholder="예: 730 (CS2)" class="form-input">
+                <button onclick="callSteamByAppIdApi()">AppID로 수집</button>
+            </div>
+            <p class="description">특정 게임의 AppID를 입력하여 개별 수집합니다.</p>
+            <hr>
+            <div class="input-group">
                 <label for="steam-start-index">시작 인덱스:</label>
                 <input type="number" id="steam-start-index" value="0" class="form-input">
                 <label for="steam-end-index">종료 인덱스:</label>
@@ -190,6 +197,16 @@
             const pages = document.getElementById('tmdb-sample-year-pages').value;
             const fullEndpoint = `${endpoint}?year=${year}&pages=${pages}`;
             callApi(fullEndpoint, 'POST', null, taskName);
+        }
+
+        function callSteamByAppIdApi() {
+            const appId = document.getElementById('steam-appid').value;
+            if (!appId || appId.trim() === '') {
+                alert('AppID를 입력해주세요.');
+                return;
+            }
+            const body = { appId: parseInt(appId) };
+            callApi('/api/steam/collect/by-appid', 'POST', body, `Steam 게임 AppID ${appId} 수집`);
         }
 
         function callSteamApi() {
