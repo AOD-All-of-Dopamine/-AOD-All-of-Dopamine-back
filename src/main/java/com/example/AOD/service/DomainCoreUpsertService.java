@@ -17,14 +17,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @RequiredArgsConstructor
 public class DomainCoreUpsertService {
 
-    // 범용 Upserter 주입
     private final GenericDomainUpserter genericUpserter;
 
-    // 엔티티를 찾기 위한 각 도메인의 Repository는 여전히 필요
+    private final MovieContentRepository movieRepo;
+    private final TvContentRepository tvRepo;
     private final GameContentRepository gameRepo;
     private final WebtoonContentRepository webtoonRepo;
     private final WebnovelContentRepository webnovelRepo;
-    private final AvContentRepository avRepo;
 
     @Transactional
     public void upsert(Domain domain, Content content, Map<String, Object> domainDoc, MappingRule rule) {
@@ -70,11 +69,11 @@ public class DomainCoreUpsertService {
 
     private Object createDomainEntity(Domain domain, Content content) {
         return switch (domain) {
-            case AV -> new AvContent(content);
+            case MOVIE -> new MovieContent(content);
+            case TV -> new TvContent(content);
             case GAME -> new GameContent(content);
             case WEBTOON -> new WebtoonContent(content);
             case WEBNOVEL -> new WebnovelContent(content);
-            default -> null;
         };
     }
 
@@ -85,11 +84,11 @@ public class DomainCoreUpsertService {
         }
 
         return switch (domain) {
-            case AV -> findOrCreate(contentId, avRepo, () -> new AvContent(content));
+            case MOVIE -> findOrCreate(contentId, movieRepo, () -> new MovieContent(content));
+            case TV -> findOrCreate(contentId, tvRepo, () -> new TvContent(content));
             case GAME -> findOrCreate(contentId, gameRepo, () -> new GameContent(content));
             case WEBTOON -> findOrCreate(contentId, webtoonRepo, () -> new WebtoonContent(content));
             case WEBNOVEL -> findOrCreate(contentId, webnovelRepo, () -> new WebnovelContent(content));
-            default -> null;
         };
     }
 
@@ -99,12 +98,11 @@ public class DomainCoreUpsertService {
 
     private void saveDomainEntity(Domain domain, Object entity) {
         switch (domain) {
-            case AV -> avRepo.save((AvContent) entity);
+            case MOVIE -> movieRepo.save((MovieContent) entity);
+            case TV -> tvRepo.save((TvContent) entity);
             case GAME -> gameRepo.save((GameContent) entity);
             case WEBTOON -> webtoonRepo.save((WebtoonContent) entity);
             case WEBNOVEL -> webnovelRepo.save((WebnovelContent) entity);
-            default -> {
-            }
         }
     }
 }

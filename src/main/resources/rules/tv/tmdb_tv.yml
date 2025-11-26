@@ -1,7 +1,7 @@
-# src/main/resources/rules/av/tmdb_tv.yml
+# src/main/resources/rules/tv/tmdb_tv.yml
 
 platformName: TMDB_TV
-domain: AV
+domain: TV                 # AV → TV로 변경
 schemaVersion: 3
 
 fieldMappings:
@@ -12,30 +12,30 @@ fieldMappings:
   overview: synopsis
 
   # === Domain Mappings (for domainDoc) ===
-  av_type: domain.av_type
-  id: domain.tmdb_id
-  first_air_date: domain.release_date
+  first_air_date: domain.first_air_date
   genres: domain.genres
+  number_of_seasons: domain.season_count
+  episode_run_time: domain.episode_runtime
+  cast: domain.cast
 
   # === Platform Attributes ===
   watch_providers: platform.attributes.watch_providers
-  episode_run_time: platform.attributes.runtime
-  number_of_seasons: platform.attributes.season_count
-  cast: platform.attributes.cast
-  crew: platform.attributes.crew
 
 domainObjectMappings:
-  av_type:
-    targetField: avType
-    type: string
-  tmdb_id:
-    targetField: tmdbId
-    type: integer
-  release_date:
-    targetField: releaseDate
+  first_air_date:
+    targetField: firstAirDate
     type: date
   genres:
     targetField: genres
+    type: list
+  season_count:
+    targetField: seasonCount
+    type: integer
+  episode_runtime:
+    targetField: episodeRuntime
+    type: integer
+  cast:
+    targetField: cast
     type: list
 
 normalizers:

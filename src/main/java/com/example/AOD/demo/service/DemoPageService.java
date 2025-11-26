@@ -28,7 +28,8 @@ public class DemoPageService {
 
     private final ContentRepository contentRepository;
     private final PlatformDataRepository platformDataRepository;
-    private final AvContentRepository avContentRepository;
+    private final MovieContentRepository movieContentRepository;
+    private final TvContentRepository tvContentRepository;
     private final GameContentRepository gameContentRepository;
     private final WebnovelContentRepository webnovelContentRepository;
     private final WebtoonContentRepository webtoonContentRepository;
@@ -98,14 +99,27 @@ public class DemoPageService {
 
     private Map<String, Object> getDomainAttributes(Content content) {
         switch (content.getDomain()) {
-            case AV:
-                return avContentRepository.findById(content.getContentId())
+            case MOVIE:
+                return movieContentRepository.findById(content.getContentId())
                         .map(c -> {
-                            // HashMap을 사용하여 null 값을 안전하게 처리합니다.
                             Map<String, Object> attrs = new HashMap<>();
                             if (c.getReleaseDate() != null) attrs.put("releaseDate", c.getReleaseDate());
                             if (c.getGenres() != null) attrs.put("genres", c.getGenres());
-                            if (c.getAvType() != null) attrs.put("avType", c.getAvType());
+                            if (c.getRuntime() != null) attrs.put("runtime", c.getRuntime());
+                            if (c.getDirectors() != null) attrs.put("directors", c.getDirectors());
+                            if (c.getCast() != null) attrs.put("cast", c.getCast());
+                            return attrs;
+                        })
+                        .orElse(Collections.emptyMap());
+            case TV:
+                return tvContentRepository.findById(content.getContentId())
+                        .map(c -> {
+                            Map<String, Object> attrs = new HashMap<>();
+                            if (c.getFirstAirDate() != null) attrs.put("firstAirDate", c.getFirstAirDate());
+                            if (c.getGenres() != null) attrs.put("genres", c.getGenres());
+                            if (c.getSeasonCount() != null) attrs.put("seasonCount", c.getSeasonCount());
+                            if (c.getEpisodeRuntime() != null) attrs.put("episodeRuntime", c.getEpisodeRuntime());
+                            if (c.getCast() != null) attrs.put("cast", c.getCast());
                             return attrs;
                         })
                         .orElse(Collections.emptyMap());
@@ -133,7 +147,6 @@ public class DemoPageService {
             case WEBNOVEL:
                 return webnovelContentRepository.findById(content.getContentId())
                         .map(c -> {
-                            // 문제가 발생한 WEBNOVEL 부분도 HashMap으로 변경합니다.
                             Map<String, Object> attrs = new HashMap<>();
                             if (c.getAuthor() != null) attrs.put("author", c.getAuthor());
                             if (c.getStartedAt() != null) attrs.put("startedAt", c.getStartedAt());

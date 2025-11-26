@@ -66,7 +66,7 @@ public class GenericDomainUpserter {
         if (type == null) return value;
 
         return switch (type) {
-            case "integer" -> (value instanceof Number n) ? n.intValue() : Integer.parseInt(value.toString());
+            case "integer" -> convertToInteger(value);
             case "long" -> (value instanceof Number n) ? n.longValue() : Long.parseLong(value.toString());
             case "webtoon_status" -> "true".equalsIgnoreCase(value.toString()) ? "완결" : "연재중";
             case "date" -> parseDate(value);
@@ -74,6 +74,31 @@ public class GenericDomainUpserter {
             // TODO: double 등 필요한 타입 변환 로직 추가
             default -> value;
         };
+    }
+
+    /**
+     * Integer 타입 변환 (배열인 경우 첫 번째 값 사용)
+     * TMDB API의 episode_run_time 등이 배열로 오는 경우 처리
+     */
+    private Integer convertToInteger(Object value) {
+        if (value == null) return null;
+        
+        // 배열/리스트인 경우 첫 번째 값 사용
+        if (value instanceof List<?> list) {
+            if (list.isEmpty()) return null;
+            value = list.get(0);
+        }
+        
+        if (value instanceof Number n) {
+            return n.intValue();
+        }
+        
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (NumberFormatException e) {
+            log.warn("Failed to convert '{}' to Integer", value);
+            return null;
+        }
     }
 
     private LocalDate parseDate(Object s) {

@@ -199,10 +199,13 @@ public class BatchTransformServiceOptimized {
                 case "KakaoPage" -> "rules/webnovel/kakaopage.yml";
                 default -> throw new IllegalArgumentException("No rule for webnovel platform: " + platformName);
             };
-            case "AV" -> switch (platformName) {
-                case "TMDB_MOVIE" -> "rules/av/tmdb_movie.yml";
-                case "TMDB_TV" -> "rules/av/tmdb_tv.yml";
-                default -> throw new IllegalArgumentException("No rule for AV platform: " + platformName);
+            case "MOVIE" -> switch (platformName) {
+                case "TMDB_MOVIE" -> "rules/movie/tmdb_movie.yml";
+                default -> throw new IllegalArgumentException("No rule for MOVIE platform: " + platformName);
+            };
+            case "TV" -> switch (platformName) {
+                case "TMDB_TV" -> "rules/tv/tmdb_tv.yml";
+                default -> throw new IllegalArgumentException("No rule for TV platform: " + platformName);
             };
             case "GAME" -> switch (platformName) {
                 case "Steam" -> "rules/game/steam.yml";

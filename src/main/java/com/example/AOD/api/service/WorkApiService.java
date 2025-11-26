@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 public class WorkApiService {
 
     private final ContentRepository contentRepository;
-    private final AvContentRepository avContentRepository;
+    private final MovieContentRepository movieContentRepository;
+    private final TvContentRepository tvContentRepository;
     private final GameContentRepository gameContentRepository;
     private final WebtoonContentRepository webtoonContentRepository;
     private final WebnovelContentRepository webnovelContentRepository;
@@ -207,13 +208,25 @@ public class WorkApiService {
         Domain domain = content.getDomain();
 
         switch (domain) {
-            case AV:
-                avContentRepository.findById(content.getContentId()).ifPresent(av -> {
-                    if (av.getGenres() != null) info.put("genres", av.getGenres());
-                    info.put("tmdbId", av.getTmdbId());
-                    info.put("avType", av.getAvType());
-                    if (av.getReleaseDate() != null) {
-                        info.put("releaseDate", av.getReleaseDate().toString());
+            case MOVIE:
+                movieContentRepository.findById(content.getContentId()).ifPresent(movie -> {
+                    if (movie.getGenres() != null) info.put("genres", movie.getGenres());
+                    info.put("runtime", movie.getRuntime());
+                    if (movie.getDirectors() != null) info.put("directors", movie.getDirectors());
+                    if (movie.getCast() != null) info.put("cast", movie.getCast());
+                    if (movie.getReleaseDate() != null) {
+                        info.put("releaseDate", movie.getReleaseDate().toString());
+                    }
+                });
+                break;
+            case TV:
+                tvContentRepository.findById(content.getContentId()).ifPresent(tv -> {
+                    if (tv.getGenres() != null) info.put("genres", tv.getGenres());
+                    info.put("seasonCount", tv.getSeasonCount());
+                    info.put("episodeRuntime", tv.getEpisodeRuntime());
+                    if (tv.getCast() != null) info.put("cast", tv.getCast());
+                    if (tv.getFirstAirDate() != null) {
+                        info.put("firstAirDate", tv.getFirstAirDate().toString());
                     }
                 });
                 break;
@@ -407,9 +420,13 @@ public class WorkApiService {
      */
     private List<String> getContentGenres(Content content, Domain domain) {
         switch (domain) {
-            case AV:
-                return avContentRepository.findById(content.getContentId())
-                        .map(av -> av.getGenres() != null ? new ArrayList<>(av.getGenres()) : new ArrayList<String>())
+            case MOVIE:
+                return movieContentRepository.findById(content.getContentId())
+                        .map(movie -> movie.getGenres() != null ? new ArrayList<>(movie.getGenres()) : new ArrayList<String>())
+                        .orElse(new ArrayList<>());
+            case TV:
+                return tvContentRepository.findById(content.getContentId())
+                        .map(tv -> tv.getGenres() != null ? new ArrayList<>(tv.getGenres()) : new ArrayList<String>())
                         .orElse(new ArrayList<>());
             case GAME:
                 return gameContentRepository.findById(content.getContentId())
@@ -460,7 +477,8 @@ public class WorkApiService {
         
         if (domain == null) {
             // 전체 도메인의 장르 수집
-            genresSet.addAll(getGenresForDomain(Domain.AV));
+            genresSet.addAll(getGenresForDomain(Domain.MOVIE));
+            genresSet.addAll(getGenresForDomain(Domain.TV));
             genresSet.addAll(getGenresForDomain(Domain.GAME));
             genresSet.addAll(getGenresForDomain(Domain.WEBTOON));
             genresSet.addAll(getGenresForDomain(Domain.WEBNOVEL));
@@ -481,10 +499,17 @@ public class WorkApiService {
         Set<String> genres = new HashSet<>();
         
         switch (domain) {
-            case AV:
-                avContentRepository.findAll().forEach(av -> {
-                    if (av.getGenres() != null) {
-                        genres.addAll(av.getGenres());
+            case MOVIE:
+                movieContentRepository.findAll().forEach(movie -> {
+                    if (movie.getGenres() != null) {
+                        genres.addAll(movie.getGenres());
+                    }
+                });
+                break;
+            case TV:
+                tvContentRepository.findAll().forEach(tv -> {
+                    if (tv.getGenres() != null) {
+                        genres.addAll(tv.getGenres());
                     }
                 });
                 break;

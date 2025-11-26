@@ -1,5 +1,9 @@
 package com.example.AOD.domain.entity;
 
 public enum Domain {
-    AV, GAME, WEBTOON, WEBNOVEL
+    MOVIE,
+    TV,
+    GAME,
+    WEBTOON,
+    WEBNOVEL
 }
