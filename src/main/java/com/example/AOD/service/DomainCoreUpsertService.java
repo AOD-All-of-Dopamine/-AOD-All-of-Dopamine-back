@@ -20,10 +20,16 @@ public class DomainCoreUpsertService {
     // 범용 Upserter 주입
     private final GenericDomainUpserter genericUpserter;
 
-    // 엔티티를 찾기 위한 각 도메인의 Repository는 여전히 필요
+    // 신규 도메인 Repository
+    private final MovieContentRepository movieRepo;
+    private final TvContentRepository tvRepo;
+    
+    // 기존 도메인 Repository
     private final GameContentRepository gameRepo;
     private final WebtoonContentRepository webtoonRepo;
     private final WebnovelContentRepository webnovelRepo;
+    
+    @Deprecated // 마이그레이션 후 제거 예정
     private final AvContentRepository avRepo;
 
     @Transactional
@@ -70,11 +76,12 @@ public class DomainCoreUpsertService {
 
     private Object createDomainEntity(Domain domain, Content content) {
         return switch (domain) {
-            case AV -> new AvContent(content);
+            case MOVIE -> new MovieContent(content);
+            case TV -> new TvContent(content);
             case GAME -> new GameContent(content);
             case WEBTOON -> new WebtoonContent(content);
             case WEBNOVEL -> new WebnovelContent(content);
-            default -> null;
+            case AV -> new AvContent(content); // @Deprecated - 마이그레이션 후 제거
         };
     }
 
@@ -85,11 +92,12 @@ public class DomainCoreUpsertService {
         }
 
         return switch (domain) {
-            case AV -> findOrCreate(contentId, avRepo, () -> new AvContent(content));
+            case MOVIE -> findOrCreate(contentId, movieRepo, () -> new MovieContent(content));
+            case TV -> findOrCreate(contentId, tvRepo, () -> new TvContent(content));
             case GAME -> findOrCreate(contentId, gameRepo, () -> new GameContent(content));
             case WEBTOON -> findOrCreate(contentId, webtoonRepo, () -> new WebtoonContent(content));
             case WEBNOVEL -> findOrCreate(contentId, webnovelRepo, () -> new WebnovelContent(content));
-            default -> null;
+            case AV -> findOrCreate(contentId, avRepo, () -> new AvContent(content)); // @Deprecated
         };
     }
 
@@ -97,14 +105,15 @@ public class DomainCoreUpsertService {
         return repository.findById(id).orElseGet(() -> repository.save(creator.get()));
     }
 
+    @SuppressWarnings("deprecation")
     private void saveDomainEntity(Domain domain, Object entity) {
         switch (domain) {
-            case AV -> avRepo.save((AvContent) entity);
+            case MOVIE -> movieRepo.save((MovieContent) entity);
+            case TV -> tvRepo.save((TvContent) entity);
             case GAME -> gameRepo.save((GameContent) entity);
             case WEBTOON -> webtoonRepo.save((WebtoonContent) entity);
             case WEBNOVEL -> webnovelRepo.save((WebnovelContent) entity);
-            default -> {
-            }
+            case AV -> avRepo.save((AvContent) entity); // @Deprecated - 마이그레이션 후 제거
         }
     }
 }

@@ -1,0 +1,45 @@
+# src/main/resources/rules/movie/tmdb_movie.yml
+
+platformName: TMDB_MOVIE
+domain: MOVIE              # AV → MOVIE로 변경
+schemaVersion: 3
+
+fieldMappings:
+  # === Master & Platform Mappings ===
+  title: master_title
+  original_title: original_title
+  poster_image_url: poster_image_url
+  overview: synopsis
+
+  # === Domain Mappings (for domainDoc) ===
+  release_date: domain.release_date
+  genres: domain.genres
+  runtime: domain.runtime
+  directors: domain.directors
+  cast: domain.cast
+
+  # === Platform Attributes ===
+  watch_providers: platform.attributes.watch_providers
+
+domainObjectMappings:
+  release_date:
+    targetField: releaseDate
+    type: date
+  genres:
+    targetField: genres
+    type: list
+  runtime:
+    targetField: runtime
+    type: integer
+  directors:
+    targetField: directors
+    type: list
+  cast:
+    targetField: cast
+    type: list
+
+normalizers:
+  - type: collapse_spaces
+    fields: [master_title, original_title]
+  - type: nfkc
+    fields: [master_title, original_title]

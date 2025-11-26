@@ -42,7 +42,7 @@ public class TmdbPayloadProcessor {
         String[] fieldsToCopy = {
                 "id", "overview", "release_date", "first_air_date",
                 "name", "title", "original_name", "original_title",
-                "runtime", "episode_run_time"
+                "runtime", "episode_run_time", "number_of_seasons"
         };
         for (String field : fieldsToCopy) {
             if (source.containsKey(field) && source.get(field) != null) {

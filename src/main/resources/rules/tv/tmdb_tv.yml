@@ -1,0 +1,45 @@
+# src/main/resources/rules/tv/tmdb_tv.yml
+
+platformName: TMDB_TV
+domain: TV                 # AV → TV로 변경
+schemaVersion: 3
+
+fieldMappings:
+  # === Master & Platform Mappings ===
+  name: master_title
+  original_name: original_title
+  poster_image_url: poster_image_url
+  overview: synopsis
+
+  # === Domain Mappings (for domainDoc) ===
+  first_air_date: domain.first_air_date
+  genres: domain.genres
+  number_of_seasons: domain.season_count
+  episode_run_time: domain.episode_runtime
+  cast: domain.cast
+
+  # === Platform Attributes ===
+  watch_providers: platform.attributes.watch_providers
+
+domainObjectMappings:
+  first_air_date:
+    targetField: firstAirDate
+    type: date
+  genres:
+    targetField: genres
+    type: list
+  season_count:
+    targetField: seasonCount
+    type: integer
+  episode_runtime:
+    targetField: episodeRuntime
+    type: integer
+  cast:
+    targetField: cast
+    type: list
+
+normalizers:
+  - type: collapse_spaces
+    fields: [master_title, original_title]
+  - type: nfkc
+    fields: [master_title, original_title]

@@ -165,8 +165,8 @@ public class TmdbService {
             try {
                 Map<String, Object> detailedData = tmdbApiFetcher.getMovieDetails(movie.getId(), language);
                 Map<String, Object> processedData = payloadProcessor.process(detailedData);
-                processedData.put("av_type", "movie");
-                collectorService.saveRaw("TMDB_MOVIE", "AV", processedData, String.valueOf(movie.getId()), "https://www.themoviedb.org/movie/" + movie.getId());
+                // av_type 필드 제거 - 도메인이 MOVIE로 분리됨
+                collectorService.saveRaw("TMDB_MOVIE", "MOVIE", processedData, String.valueOf(movie.getId()), "https://www.themoviedb.org/movie/" + movie.getId());
                 
                 if (!InterruptibleSleep.sleep(100, TimeUnit.MILLISECONDS)) {
                     log.info("TMDB 영화 상세 처리 중 인터럽트 발생, 작업 중단");
@@ -221,8 +221,8 @@ public class TmdbService {
             try {
                 Map<String, Object> detailedData = tmdbApiFetcher.getTvShowDetails(tvShow.getId(), language);
                 Map<String, Object> processedData = payloadProcessor.process(detailedData);
-                processedData.put("av_type", "tv");
-                collectorService.saveRaw("TMDB_TV", "AV", processedData, String.valueOf(tvShow.getId()), "https://www.themoviedb.org/tv/" + tvShow.getId());
+                // av_type 필드 제거 - 도메인이 TV로 분리됨
+                collectorService.saveRaw("TMDB_TV", "TV", processedData, String.valueOf(tvShow.getId()), "https://www.themoviedb.org/tv/" + tvShow.getId());
                 
                 if (!InterruptibleSleep.sleep(100, TimeUnit.MILLISECONDS)) {
                     log.info("TMDB TV쇼 상세 처리 중 인터럽트 발생, 작업 중단");
