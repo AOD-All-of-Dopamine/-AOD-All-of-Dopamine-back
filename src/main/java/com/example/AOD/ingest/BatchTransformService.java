@@ -23,7 +23,6 @@ public class BatchTransformService {
     private final UpsertService upsert;
 
     // 플랫폼/도메인 → 규칙 경로 매핑
-    @SuppressWarnings("deprecation")
     private String rulePath(String domain, String platformName) {
         return switch (domain) {
             case "WEBNOVEL" -> switch (platformName) {
@@ -39,12 +38,6 @@ public class BatchTransformService {
                 case "TMDB_TV" -> "rules/tv/tmdb_tv.yml";
                 default -> throw new IllegalArgumentException("No rule for TV platform: " + platformName);
             };
-            case "AV" -> switch (platformName) { // @Deprecated - 마이그레이션 후 제거
-                case "TMDB_MOVIE" -> "rules/av/tmdb_movie.yml";
-                case "TMDB_TV" -> "rules/av/tmdb_tv.yml";
-                default -> throw new IllegalArgumentException("No rule for AV platform: " + platformName);
-            };
-            // [신규 추가] GAME 도메인 규칙 추가
             case "GAME" -> switch (platformName) {
                 case "Steam" -> "rules/game/steam.yml";
                 default -> throw new IllegalArgumentException("No rule for GAME platform: " + platformName);

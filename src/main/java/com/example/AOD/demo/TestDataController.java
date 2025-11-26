@@ -87,23 +87,23 @@ public class TestDataController {
             "https://image.aladin.co.kr/product/33000/12/cover500/k052932636_1.jpg",
             "현대에서 마법을 펼치다", now));
 
-        // AV 도메인 신작 (최근 1개월)
-        contents.add(createContent(Domain.AV, "듄: 파트 2", "Dune: Part Two", 
+        // MOVIE 도메인 신작 (최근 1개월)
+        contents.add(createContent(Domain.MOVIE, "듄: 파트 2", "Dune: Part Two", 
             LocalDate.of(2025, 10, 5),
             "https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtODhmNDI1NmY5YzAwXkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_.jpg",
             "폴 아트레이데스의 장대한 여정이 계속된다", now));
 
-        contents.add(createContent(Domain.AV, "데드풀과 울버린", "Deadpool & Wolverine", 
+        contents.add(createContent(Domain.MOVIE, "데드풀과 울버린", "Deadpool & Wolverine", 
             LocalDate.of(2025, 9, 28),
             "https://m.media-amazon.com/images/M/MV5BNzRiMjg0MzUtNTQ1Mi00Y2Q5LWEwM2MtMzUwZDU5NmVjN2NkXkEyXkFqcGdeQXVyMTEzMTI1Mjk3._V1_.jpg",
             "MCU 최초의 데드풀과 울버린의 만남", now));
 
-        contents.add(createContent(Domain.AV, "베놈: 라스트 댄스", "Venom: The Last Dance", 
+        contents.add(createContent(Domain.MOVIE, "베놈: 라스트 댄스", "Venom: The Last Dance", 
             LocalDate.of(2025, 10, 12),
             "https://m.media-amazon.com/images/M/MV5BZDMyYWU4NzItZDY0MC00ODE2LTkyYTMtMzNkNDdmYmFhZDg0XkEyXkFqcGdeQXVyMTEyNzgwMDUw._V1_.jpg",
             "베놈의 마지막 모험", now));
 
-        contents.add(createContent(Domain.AV, "조커: 폴리 아 되", "Joker: Folie à Deux", 
+        contents.add(createContent(Domain.MOVIE, "조커: 폴리 아 되", "Joker: Folie à Deux", 
             LocalDate.of(2025, 10, 19),
             "https://m.media-amazon.com/images/M/MV5BYjZlMTA5ZGYtODVmNC00NDJmLWE2MWItZmQ3OTJlMDE2OTQ5XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
             "조커와 할리 퀸의 광기 어린 로맨스", now));
@@ -124,7 +124,7 @@ public class TestDataController {
             "https://image.aladin.co.kr/product/33000/12/cover500/k052932636_1.jpg",
             "최고의 가상현실 게임 소설", now));
 
-        contents.add(createContent(Domain.AV, "인터스텔라", "Interstellar", 
+        contents.add(createContent(Domain.MOVIE, "인터스텔라", "Interstellar", 
             LocalDate.of(2014, 11, 7),
             "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
             "크리스토퍼 놀란의 SF 걸작", now));

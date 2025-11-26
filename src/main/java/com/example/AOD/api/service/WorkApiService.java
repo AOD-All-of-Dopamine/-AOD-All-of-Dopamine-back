@@ -26,20 +26,13 @@ import java.util.stream.Collectors;
 public class WorkApiService {
 
     private final ContentRepository contentRepository;
-    
-    // 신규 도메인 Repository
     private final MovieContentRepository movieContentRepository;
     private final TvContentRepository tvContentRepository;
-    
-    // 기존 도메인 Repository
     private final GameContentRepository gameContentRepository;
     private final WebtoonContentRepository webtoonContentRepository;
     private final WebnovelContentRepository webnovelContentRepository;
     private final PlatformDataRepository platformDataRepository;
     private final ContentRatingRepository contentRatingRepository;
-    
-    @Deprecated // 마이그레이션 후 제거 예정
-    private final AvContentRepository avContentRepository;
 
     /**
      * 작품 목록 조회 (필터링, 페이징)
@@ -210,7 +203,6 @@ public class WorkApiService {
     /**
      * 도메인별 상세 정보 추출
      */
-    @SuppressWarnings("deprecation")
     private Map<String, Object> getDomainInfo(Content content) {
         Map<String, Object> info = new HashMap<>();
         Domain domain = content.getDomain();
@@ -235,16 +227,6 @@ public class WorkApiService {
                     if (tv.getCast() != null) info.put("cast", tv.getCast());
                     if (tv.getFirstAirDate() != null) {
                         info.put("firstAirDate", tv.getFirstAirDate().toString());
-                    }
-                });
-                break;
-            case AV: // @Deprecated - 마이그레이션 후 제거
-                avContentRepository.findById(content.getContentId()).ifPresent(av -> {
-                    if (av.getGenres() != null) info.put("genres", av.getGenres());
-                    info.put("tmdbId", av.getTmdbId());
-                    info.put("avType", av.getAvType());
-                    if (av.getReleaseDate() != null) {
-                        info.put("releaseDate", av.getReleaseDate().toString());
                     }
                 });
                 break;
@@ -436,7 +418,6 @@ public class WorkApiService {
     /**
      * 컨텐츠의 장르 목록 가져오기
      */
-    @SuppressWarnings("deprecation")
     private List<String> getContentGenres(Content content, Domain domain) {
         switch (domain) {
             case MOVIE:
@@ -446,10 +427,6 @@ public class WorkApiService {
             case TV:
                 return tvContentRepository.findById(content.getContentId())
                         .map(tv -> tv.getGenres() != null ? new ArrayList<>(tv.getGenres()) : new ArrayList<String>())
-                        .orElse(new ArrayList<>());
-            case AV: // @Deprecated
-                return avContentRepository.findById(content.getContentId())
-                        .map(av -> av.getGenres() != null ? new ArrayList<>(av.getGenres()) : new ArrayList<String>())
                         .orElse(new ArrayList<>());
             case GAME:
                 return gameContentRepository.findById(content.getContentId())
@@ -495,7 +472,6 @@ public class WorkApiService {
     /**
      * 도메인별 사용 가능한 장르 목록 조회
      */
-    @SuppressWarnings("deprecation")
     public List<String> getAvailableGenres(Domain domain) {
         Set<String> genresSet = new HashSet<>();
         
@@ -503,7 +479,6 @@ public class WorkApiService {
             // 전체 도메인의 장르 수집
             genresSet.addAll(getGenresForDomain(Domain.MOVIE));
             genresSet.addAll(getGenresForDomain(Domain.TV));
-            genresSet.addAll(getGenresForDomain(Domain.AV)); // @Deprecated
             genresSet.addAll(getGenresForDomain(Domain.GAME));
             genresSet.addAll(getGenresForDomain(Domain.WEBTOON));
             genresSet.addAll(getGenresForDomain(Domain.WEBNOVEL));
@@ -520,7 +495,6 @@ public class WorkApiService {
     /**
      * 특정 도메인의 장르 목록 수집
      */
-    @SuppressWarnings("deprecation")
     private Set<String> getGenresForDomain(Domain domain) {
         Set<String> genres = new HashSet<>();
         
@@ -536,13 +510,6 @@ public class WorkApiService {
                 tvContentRepository.findAll().forEach(tv -> {
                     if (tv.getGenres() != null) {
                         genres.addAll(tv.getGenres());
-                    }
-                });
-                break;
-            case AV: // @Deprecated
-                avContentRepository.findAll().forEach(av -> {
-                    if (av.getGenres() != null) {
-                        genres.addAll(av.getGenres());
                     }
                 });
                 break;

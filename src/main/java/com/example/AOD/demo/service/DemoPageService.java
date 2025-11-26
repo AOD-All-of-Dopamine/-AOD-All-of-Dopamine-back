@@ -28,18 +28,11 @@ public class DemoPageService {
 
     private final ContentRepository contentRepository;
     private final PlatformDataRepository platformDataRepository;
-    
-    // 신규 도메인 Repository
     private final MovieContentRepository movieContentRepository;
     private final TvContentRepository tvContentRepository;
-    
-    // 기존 도메인 Repository
     private final GameContentRepository gameContentRepository;
     private final WebnovelContentRepository webnovelContentRepository;
     private final WebtoonContentRepository webtoonContentRepository;
-    
-    @Deprecated // 마이그레이션 후 제거 예정
-    private final AvContentRepository avContentRepository;
 
     /**
      * 신작 콘텐츠 목록을 조회합니다. (최신순)
@@ -104,7 +97,6 @@ public class DemoPageService {
         return new ContentDetailDTO(content, domainAttributes, platformData);
     }
 
-    @SuppressWarnings("deprecation")
     private Map<String, Object> getDomainAttributes(Content content) {
         switch (content.getDomain()) {
             case MOVIE:
@@ -128,16 +120,6 @@ public class DemoPageService {
                             if (c.getSeasonCount() != null) attrs.put("seasonCount", c.getSeasonCount());
                             if (c.getEpisodeRuntime() != null) attrs.put("episodeRuntime", c.getEpisodeRuntime());
                             if (c.getCast() != null) attrs.put("cast", c.getCast());
-                            return attrs;
-                        })
-                        .orElse(Collections.emptyMap());
-            case AV: // @Deprecated - 마이그레이션 후 제거
-                return avContentRepository.findById(content.getContentId())
-                        .map(c -> {
-                            Map<String, Object> attrs = new HashMap<>();
-                            if (c.getReleaseDate() != null) attrs.put("releaseDate", c.getReleaseDate());
-                            if (c.getGenres() != null) attrs.put("genres", c.getGenres());
-                            if (c.getAvType() != null) attrs.put("avType", c.getAvType());
                             return attrs;
                         })
                         .orElse(Collections.emptyMap());

@@ -17,20 +17,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @RequiredArgsConstructor
 public class DomainCoreUpsertService {
 
-    // 범용 Upserter 주입
     private final GenericDomainUpserter genericUpserter;
 
-    // 신규 도메인 Repository
     private final MovieContentRepository movieRepo;
     private final TvContentRepository tvRepo;
-    
-    // 기존 도메인 Repository
     private final GameContentRepository gameRepo;
     private final WebtoonContentRepository webtoonRepo;
     private final WebnovelContentRepository webnovelRepo;
-    
-    @Deprecated // 마이그레이션 후 제거 예정
-    private final AvContentRepository avRepo;
 
     @Transactional
     public void upsert(Domain domain, Content content, Map<String, Object> domainDoc, MappingRule rule) {
@@ -81,7 +74,6 @@ public class DomainCoreUpsertService {
             case GAME -> new GameContent(content);
             case WEBTOON -> new WebtoonContent(content);
             case WEBNOVEL -> new WebnovelContent(content);
-            case AV -> new AvContent(content); // @Deprecated - 마이그레이션 후 제거
         };
     }
 
@@ -97,7 +89,6 @@ public class DomainCoreUpsertService {
             case GAME -> findOrCreate(contentId, gameRepo, () -> new GameContent(content));
             case WEBTOON -> findOrCreate(contentId, webtoonRepo, () -> new WebtoonContent(content));
             case WEBNOVEL -> findOrCreate(contentId, webnovelRepo, () -> new WebnovelContent(content));
-            case AV -> findOrCreate(contentId, avRepo, () -> new AvContent(content)); // @Deprecated
         };
     }
 
@@ -105,7 +96,6 @@ public class DomainCoreUpsertService {
         return repository.findById(id).orElseGet(() -> repository.save(creator.get()));
     }
 
-    @SuppressWarnings("deprecation")
     private void saveDomainEntity(Domain domain, Object entity) {
         switch (domain) {
             case MOVIE -> movieRepo.save((MovieContent) entity);
@@ -113,7 +103,6 @@ public class DomainCoreUpsertService {
             case GAME -> gameRepo.save((GameContent) entity);
             case WEBTOON -> webtoonRepo.save((WebtoonContent) entity);
             case WEBNOVEL -> webnovelRepo.save((WebnovelContent) entity);
-            case AV -> avRepo.save((AvContent) entity); // @Deprecated - 마이그레이션 후 제거
         }
     }
 }

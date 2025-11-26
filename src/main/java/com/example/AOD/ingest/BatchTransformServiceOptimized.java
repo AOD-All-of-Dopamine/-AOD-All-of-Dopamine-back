@@ -207,11 +207,6 @@ public class BatchTransformServiceOptimized {
                 case "TMDB_TV" -> "rules/tv/tmdb_tv.yml";
                 default -> throw new IllegalArgumentException("No rule for TV platform: " + platformName);
             };
-            case "AV" -> switch (platformName) { // @Deprecated - 마이그레이션 후 제거
-                case "TMDB_MOVIE" -> "rules/av/tmdb_movie.yml";
-                case "TMDB_TV" -> "rules/av/tmdb_tv.yml";
-                default -> throw new IllegalArgumentException("No rule for AV platform: " + platformName);
-            };
             case "GAME" -> switch (platformName) {
                 case "Steam" -> "rules/game/steam.yml";
                 default -> throw new IllegalArgumentException("No rule for GAME platform: " + platformName);
