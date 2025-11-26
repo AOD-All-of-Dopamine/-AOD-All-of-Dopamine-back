@@ -1,5 +1,6 @@
 package com.example.AOD.game.steam.fetcher;
 
+import com.example.AOD.game.steam.util.SteamRateLimiter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +23,7 @@ public class SteamApiFetcher {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final SteamRateLimiter rateLimiter;
 
     @Value("${steam.api.key:}")
     private String steamApiKey;
@@ -63,6 +65,9 @@ public class SteamApiFetcher {
 
         while (retryCount <= maxRetries) {
             try {
+                // Rate Limiter를 통한 요청 제한 준수
+                rateLimiter.acquirePermit();
+                
                 Map<String, Object> response = restTemplate.getForObject(APP_DETAILS_URL, Map.class, appId);
 
                 if (response != null && response.containsKey(String.valueOf(appId))) {

@@ -86,13 +86,8 @@ public class SteamCrawlService {
                 continue;
             }
 
-            // Rate limiting: 요청 간 딜레이
-            if (!InterruptibleSleep.sleep(500, TimeUnit.MILLISECONDS)) {
-                log.info("Steam 게임 수집 인터럽트 발생, 작업 중단");
-                break;
-            }
-
             try {
+                // Rate Limiter가 자동으로 요청 제한을 처리하므로 별도 딜레이 불필요
                 Map<String, Object> gameDetails = steamApiFetcher.fetchGameDetails(appId);
 
                 if (gameDetails != null && "game".equals(gameDetails.get("type"))) {
