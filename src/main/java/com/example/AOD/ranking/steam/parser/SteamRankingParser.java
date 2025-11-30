@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 public class SteamRankingParser {
 
     private static final Pattern APP_ID_PATTERN = Pattern.compile("/app/(\\d+)/");
+    private static final int MAX_ITEMS = 100;
 
     /**
      * Steam HTML Document에서 게임 랭킹 데이터 추출
@@ -29,22 +30,36 @@ public class SteamRankingParser {
             return new ArrayList<>();
         }
 
-        Elements rows = doc.select("tr[class]");
+        // 여러 선택자 시도 (Steam 페이지 구조 변경 대응)
+        Elements rows = doc.select("tr[data-ds-appid]");
         
         if (rows.isEmpty()) {
+            rows = doc.select("tr[class]");
+        }
+        
+        if (rows.isEmpty()) {
+            rows = doc.select("[data-ds-appid]");
+        }
+
+        if (rows.isEmpty()) {
             log.error("랭킹 데이터 행을 찾을 수 없습니다. 페이지 구조가 변경되었을 수 있습니다.");
+            log.debug("페이지 HTML 샘플: {}", doc.html().substring(0, Math.min(2000, doc.html().length())));
             return new ArrayList<>();
         }
 
         log.info("총 {}개의 랭킹 항목을 발견했습니다.", rows.size());
-        
+
         List<SteamGameData> gameDataList = new ArrayList<>();
-        
+        int rank = 1;
+
         for (Element row : rows) {
+            if (rank > MAX_ITEMS) break;
+            
             try {
-                SteamGameData gameData = parseRow(row);
+                SteamGameData gameData = parseRow(row, rank);
                 if (gameData != null) {
                     gameDataList.add(gameData);
+                    rank++;
                 }
             } catch (Exception e) {
                 log.warn("랭킹 항목 파싱 중 오류 발생 (건너뜀): {}", e.getMessage());
@@ -57,23 +72,68 @@ public class SteamRankingParser {
     /**
      * 개별 행 파싱
      */
-    private SteamGameData parseRow(Element row) {
-        // 순위 추출
+    private SteamGameData parseRow(Element row, int currentRank) {
+        // AppID 추출 (data-ds-appid 속성 우선, 없으면 URL에서 추출)
+        Long appId = extractAppIdFromAttribute(row);
+        if (appId == null) {
+            appId = extractAppIdFromUrl(row);
+        }
+        if (appId == null) return null;
+
+        // 순위 추출 (실패시 currentRank 사용)
         Integer rank = extractRank(row);
-        if (rank == null) return null;
+        if (rank == null) {
+            rank = currentRank;
+        }
 
         // 제목 추출
         String title = extractTitle(row);
-        if (title == null) return null;
+        if (title == null || title.isEmpty()) {
+            title = "Steam App " + appId;
+        }
 
-        // AppID 추출
-        Long appId = extractAppId(row);
-        if (appId == null) return null;
-
-        // 썸네일 URL 추출
+        // 썸네일 URL 추출 (없으면 Steam 표준 URL 생성)
         String thumbnailUrl = extractThumbnailUrl(row);
+        if (thumbnailUrl == null || thumbnailUrl.isEmpty()) {
+            thumbnailUrl = "https://cdn.akamai.steamstatic.com/steam/apps/" + appId + "/header.jpg";
+        }
 
         return new SteamGameData(rank, title, appId, thumbnailUrl);
+    }
+
+    /**
+     * data-ds-appid 속성에서 AppID 추출
+     */
+    private Long extractAppIdFromAttribute(Element row) {
+        try {
+            String appIdStr = row.attr("data-ds-appid");
+            if (appIdStr != null && !appIdStr.isEmpty()) {
+                return Long.parseLong(appIdStr);
+            }
+        } catch (Exception e) {
+            log.debug("data-ds-appid 속성 추출 실패: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * AppID 추출 (URL에서 정규식으로 추출)
+     */
+    private Long extractAppIdFromUrl(Element row) {
+        try {
+            Element linkElement = row.selectFirst("a[href*='/app/']");
+            if (linkElement == null) return null;
+
+            String href = linkElement.attr("href");
+            Matcher matcher = APP_ID_PATTERN.matcher(href);
+
+            if (matcher.find()) {
+                return Long.parseLong(matcher.group(1));
+            }
+        } catch (Exception e) {
+            log.debug("AppID URL 추출 실패: {}", e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -81,9 +141,15 @@ public class SteamRankingParser {
      */
     private Integer extractRank(Element row) {
         try {
-            Element rankElement = row.select("td").get(1);
-            if (rankElement != null) {
-                return Integer.parseInt(rankElement.text().trim());
+            Elements tds = row.select("td");
+            if (tds.size() > 1) {
+                Element rankElement = tds.get(1);
+                if (rankElement != null) {
+                    String text = rankElement.text().trim();
+                    if (text.matches("\\d+")) {
+                        return Integer.parseInt(text);
+                    }
+                }
             }
         } catch (Exception e) {
             log.debug("순위 추출 실패: {}", e.getMessage());
@@ -92,17 +158,27 @@ public class SteamRankingParser {
     }
 
     /**
-     * 제목 추출 (_1n_4 패턴 또는 fallback)
+     * 제목 추출 (여러 선택자 시도)
      */
     private String extractTitle(Element row) {
-        // 제목: '_1n_4' 패턴의 div (제목 전용 클래스)
-        Element titleElement = row.selectFirst("div[class*='_1n_4']");
+        // 1. GameName 클래스 패턴
+        Element titleElement = row.selectFirst("[class*='GameName']");
         
+        // 2. _1n_4 패턴 (이전 버전)
         if (titleElement == null) {
-            // fallback: 숫자가 아닌 텍스트를 가진 첫 번째 div
+            titleElement = row.selectFirst("div[class*='_1n_4']");
+        }
+        
+        // 3. 링크 텍스트
+        if (titleElement == null) {
+            titleElement = row.selectFirst("a[href*='/app/']");
+        }
+
+        // 4. fallback: 숫자가 아닌 텍스트를 가진 첫 번째 div
+        if (titleElement == null) {
             for (Element div : row.select("div")) {
                 String text = div.ownText().trim();
-                if (!text.isEmpty() && !text.matches("\\d+")) {
+                if (!text.isEmpty() && !text.matches("\\d+") && text.length() > 2) {
                     titleElement = div;
                     break;
                 }
@@ -110,26 +186,6 @@ public class SteamRankingParser {
         }
 
         return titleElement != null ? titleElement.text().trim() : null;
-    }
-
-    /**
-     * AppID 추출 (URL에서 정규식으로 추출)
-     */
-    private Long extractAppId(Element row) {
-        try {
-            Element linkElement = row.selectFirst("a[href*='/app/']");
-            if (linkElement == null) return null;
-
-            String href = linkElement.attr("href");
-            Matcher matcher = APP_ID_PATTERN.matcher(href);
-            
-            if (matcher.find()) {
-                return Long.parseLong(matcher.group(1));
-            }
-        } catch (Exception e) {
-            log.debug("AppID 추출 실패: {}", e.getMessage());
-        }
-        return null;
     }
 
     /**
@@ -181,6 +237,15 @@ public class SteamRankingParser {
 
         public String getThumbnailUrl() {
             return thumbnailUrl;
+        }
+
+        @Override
+        public String toString() {
+            return "SteamGameData{" +
+                    "rank=" + rank +
+                    ", title='" + title + '\'' +
+                    ", appId=" + appId +
+                    '}';
         }
     }
 }

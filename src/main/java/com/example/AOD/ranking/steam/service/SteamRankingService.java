@@ -3,11 +3,9 @@ package com.example.AOD.ranking.steam.service;
 import com.example.AOD.ranking.common.RankingUpsertHelper;
 import com.example.AOD.ranking.entity.ExternalRanking;
 import com.example.AOD.ranking.steam.fetcher.SteamRankingFetcher;
-import com.example.AOD.ranking.steam.parser.SteamRankingParser;
 import com.example.AOD.ranking.steam.parser.SteamRankingParser.SteamGameData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Steam 랭킹 서비스 (리팩토링됨)
- * - SRP: 책임 분리 (Fetcher, Parser, Service)
- * - 복잡한 HTML 파싱 로직은 Parser로 분리
+ * Steam 랭킹 서비스 (Selenium 방식으로 한국 Top Sellers 크롤링)
+ * - Headless Chrome으로 서버 환경(리눅스)에서도 동작
  */
 @Slf4j
 @Service
@@ -25,7 +22,6 @@ import java.util.List;
 public class SteamRankingService {
 
     private final SteamRankingFetcher steamRankingFetcher;
-    private final SteamRankingParser steamRankingParser;
     private final RankingUpsertHelper rankingUpsertHelper;
 
     private static final String PLATFORM_NAME = "Steam";
@@ -34,23 +30,15 @@ public class SteamRankingService {
     public void updateTopSellersRanking() {
         log.info("Steam 최고 판매 랭킹 업데이트를 시작합니다 (Selenium 방식).");
 
-        // 1. 페이지 크롤링
-        Document doc = steamRankingFetcher.fetchTopSellersPage();
-        
-        if (doc == null) {
-            log.warn("Steam 최고 판매 랭킹 페이지를 가져오지 못해 작업을 중단합니다.");
-            return;
-        }
-
-        // 2. HTML 파싱
-        List<SteamGameData> gameDataList = steamRankingParser.parseRankings(doc);
+        // 1. Selenium으로 페이지에서 게임 데이터 크롤링
+        List<SteamGameData> gameDataList = steamRankingFetcher.fetchTopSellers();
 
         if (gameDataList.isEmpty()) {
-            log.warn("파싱된 Steam 게임 데이터가 없습니다.");
+            log.warn("Steam 페이지에서 게임 데이터를 가져오지 못했습니다.");
             return;
         }
 
-        // 3. 엔티티 변환
+        // 2. 엔티티 변환
         List<ExternalRanking> rankings = convertToRankings(gameDataList);
 
         if (rankings.isEmpty()) {
@@ -58,7 +46,7 @@ public class SteamRankingService {
             return;
         }
 
-        // 4. 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
+        // 3. 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
         rankingUpsertHelper.upsertRankings(rankings, PLATFORM_NAME);
 
         log.info("Steam 최고 판매 랭킹 업데이트 완료. 총 {}개", rankings.size());
