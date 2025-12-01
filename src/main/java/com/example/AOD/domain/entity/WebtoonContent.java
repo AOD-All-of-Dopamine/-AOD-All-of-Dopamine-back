@@ -35,7 +35,6 @@ public class WebtoonContent implements Persistable<Long> {
     }
 
     private String author;
-    private String illustrator;
     private String status;      // 연재중/완결
     private String weekday;     // 연재 요일 (mon, tue, wed 등), 완결작은 null
 

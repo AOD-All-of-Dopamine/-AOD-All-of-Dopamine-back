@@ -244,7 +244,6 @@ public class WorkApiService {
             case WEBTOON:
                 webtoonContentRepository.findById(content.getContentId()).ifPresent(webtoon -> {
                     info.put("author", webtoon.getAuthor());
-                    info.put("illustrator", webtoon.getIllustrator());
                     info.put("status", webtoon.getStatus());
                     info.put("weekday", webtoon.getWeekday());
                     if (webtoon.getGenres() != null) {
