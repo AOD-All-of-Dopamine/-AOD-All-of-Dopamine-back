@@ -13,6 +13,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -127,17 +130,19 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
         WebDriver driver = null;
         
         try {
-            driver = getOrCreateDriver(); // 재사용 가능한 드라이버 획득
-            driver.get(detailUrl);
+            driver = getOrCreateDriver(); // 재사용 가능한 드라이버 획듍
+            
+            // 🎯 핵심: 처음부터 1화부터 정렬된 URL로 접근 (한 번에 첫 화 날짜까지 크롤링)
+            String sortedUrl = buildSortedUrl(detailUrl, weekday);
+            log.debug("정렬된 URL로 웹툰 상세 파싱 시작: {}", sortedUrl);
+            driver.get(sortedUrl);
 
             // React 앱 로딩 대기
             if (!InterruptibleSleep.sleep(SLEEP_TIME)) {
-                log.warn("React 로딩 대기 중 인터럽트 발생: {}", detailUrl);
+                log.warn("React 로딩 대기 중 인터럽트 발생: {}", sortedUrl);
                 cleanup();
                 return null;
             }
-
-            log.debug("Selenium으로 웹툰 상세 파싱 시작: {}", detailUrl);
 
             // titleId 추출
             String titleId = extractTitleId(detailUrl);
@@ -166,9 +171,12 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
             // 🎯 핵심: 관심수 파싱 (Selenium으로만 가능)
             Long likeCount = parseLikeCount(driver);
+            
+            // 🎯 첫 화 연재 날짜 파싱 (이미 정렬된 페이지의 첫 번째 에피소드)
+            LocalDate releaseDate = parseReleaseDate(driver);
 
-            log.debug("파싱 완료: {} (관심: {}, 에피소드: {}, 태그: {})",
-                    title, likeCount, episodeCount, tags.size());
+            log.debug("파싱 완료: {} (관심: {}, 에피소드: {}, 태그: {}, 첫화날짜: {})",
+                    title, likeCount, episodeCount, tags.size(), releaseDate);
 
             // DTO 빌드
             return NaverWebtoonDTO.builder()
@@ -184,6 +192,7 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
                     .ageRating(ageRating)
                     .tags(tags)
                     .likeCount(likeCount)
+                    .releaseDate(releaseDate)
                     .originalPlatform("NAVER_WEBTOON")
                     .crawlSource(crawlSource)
                     .build();
@@ -503,6 +512,92 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
         log.warn("관심수를 찾을 수 없음");
         return null;
+    }
+
+    /**
+     * 첫 화의 연재 날짜를 파싱 (이미 정렬된 페이지에 있음)
+     * 현재 페이지의 첫 번째 에피소드 날짜를 파싱
+     */
+    private LocalDate parseReleaseDate(WebDriver driver) {
+        try {
+            // 에피소드 리스트에서 첫 번째 항목의 날짜 찾기 (이미 정렬된 페이지)
+            List<WebElement> episodeItems = driver.findElements(
+                By.cssSelector("li.EpisodeListList__item--M8zq4")
+            );
+            
+            if (episodeItems.isEmpty()) {
+                log.warn("에피소드 목록을 찾을 수 없음");
+                return null;
+            }
+            
+            // 첫 번째 에피소드에서 날짜 추출
+            WebElement firstEpisode = episodeItems.get(0);
+            WebElement dateElement = firstEpisode.findElement(By.cssSelector("span.date"));
+            String dateText = dateElement.getText().trim();
+            
+            log.debug("첫 화 날짜 텍스트: {}", dateText);
+            
+            // 날짜 파싱: "20.11.01" -> 2020-11-01
+            return parseDateFromText(dateText);
+            
+        } catch (NoSuchElementException e) {
+            log.warn("첫 화 날짜 요소를 찾을 수 없음: {}", e.getMessage());
+            return null;
+        } catch (Exception e) {
+            log.warn("첫 화 날짜 파싱 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * 1화부터 정렬된 URL을 생성
+     * https://comic.naver.com/webtoon/list?titleId=758037&page=1&sort=ASC&tab=mon
+     */
+    private String buildSortedUrl(String detailUrl, String weekday) {
+        String titleId = extractTitleId(detailUrl);
+        if (titleId == null) {
+            return detailUrl; // titleId를 찾을 수 없으면 원래 URL 반환
+        }
+        
+        String tab = weekday != null ? "&tab=" + weekday : "";
+        return "https://comic.naver.com/webtoon/list?titleId=" + titleId + "&page=1&sort=ASC" + tab;
+    }
+    
+    /**
+     * 날짜 텍스트를 LocalDate로 변환
+     * 형식: "20.11.01" (yy.MM.dd) 또는 "2020.11.01" (yyyy.MM.dd)
+     */
+    private LocalDate parseDateFromText(String dateText) {
+        if (dateText == null || dateText.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // "20.11.01" 형식 처리
+            if (dateText.matches("\\d{2}\\.\\d{2}\\.\\d{2}")) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
+                return LocalDate.parse(dateText, formatter);
+            }
+            
+            // "2020.11.01" 형식 처리
+            if (dateText.matches("\\d{4}\\.\\d{2}\\.\\d{2}")) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                return LocalDate.parse(dateText, formatter);
+            }
+            
+            // "20-11-01" 형식 처리
+            if (dateText.matches("\\d{2}-\\d{2}-\\d{2}")) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd");
+                return LocalDate.parse(dateText, formatter);
+            }
+            
+            log.warn("지원하지 않는 날짜 형식: {}", dateText);
+            return null;
+            
+        } catch (DateTimeParseException e) {
+            log.warn("날짜 파싱 실패: {}, 오류: {}", dateText, e.getMessage());
+            return null;
+        }
     }
 
     // ===== 유틸리티 메서드들 =====

@@ -14,7 +14,9 @@ fieldMappings:
   author: domain.author
   status: domain.status
   tags: domain.genres
-  # weekday, episodeCount etc. are platform attributes, not domain core fields.
+  weekday: domain.weekday
+  releaseDate: release_date
+  # episodeCount etc. are platform attributes, not domain core fields.
 
 # [ ✨ 핵심 수정 ]
 # domainDoc의 키를 실제 Entity의 필드(속성)에 매핑하는 규칙
@@ -28,6 +30,9 @@ domainObjectMappings:
   genres:
     targetField: genres
     type: list
+  weekday:
+    targetField: weekday
+    type: string
 
 normalizers:
   - type: nfkc

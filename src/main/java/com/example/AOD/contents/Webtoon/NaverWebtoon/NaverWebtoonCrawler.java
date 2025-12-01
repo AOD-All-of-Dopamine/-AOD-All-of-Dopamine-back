@@ -79,10 +79,12 @@ public class NaverWebtoonCrawler {
 
     /**
      * 완결 웹툰 크롤링 (페이지네이션)
+     * 완결 웹툰은 weekday를 null로 설정
      */
     public int crawlFinishedWebtoons(int maxPages) throws Exception {
         String crawlSource = "finish";
         try {
+            // 완결 웹툰은 weekday를 null로 전달
             return crawlWebtoonListWithPagination(BASE_FINISH_URL, crawlSource, null, maxPages);
         } finally {
             // 크롤링 후 정리
@@ -322,6 +324,7 @@ public class NaverWebtoonCrawler {
         payload.put("weekday", nz(dto.getWeekday()));
         payload.put("status", nz(dto.getStatus()));
         payload.put("episodeCount", dto.getEpisodeCount());
+        payload.put("releaseDate", dto.getReleaseDate());
 
         payload.put("ageRating", nz(dto.getAgeRating()));
         payload.put("tags", dto.getTags());
