@@ -3,6 +3,8 @@ package com.example.AOD.ranking.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 랭킹 API 응답 DTO
  * - Hibernate Lazy Loading 문제 해결
@@ -23,6 +25,7 @@ public class RankingResponse {
     private Integer ranking;            // 순위 (1, 2, 3, ...)
     private String platform;            // 플랫폼 이름 (NaverWebtoon, Steam, etc.)
     private String thumbnailUrl;        // 썸네일 이미지 URL
+    private List<String> watchProviders; // OTT 플랫폼 목록 (Netflix, Disney Plus 등)
     
     // Content 상세 정보 (매핑된 경우만, 선택적)
     private ContentInfo content;
