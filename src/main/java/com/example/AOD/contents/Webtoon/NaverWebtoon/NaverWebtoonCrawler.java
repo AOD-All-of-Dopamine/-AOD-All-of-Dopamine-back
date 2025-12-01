@@ -140,6 +140,13 @@ public class NaverWebtoonCrawler {
                     try {
                         // PC 페이지에서 상세 정보 보완
                         NaverWebtoonDTO completeDTO = enrichWithPcDetails(basicDTO, mobileUrl);
+                        
+                        // 19금 작품 등으로 제목을 찾을 수 없는 경우 스킵
+                        if (completeDTO == null || completeDTO.getTitle() == null || completeDTO.getTitle().trim().isEmpty()) {
+                            log.info("제목을 찾을 수 없는 작품 스킵 (19금 등): {}", mobileUrl);
+                            continue;
+                        }
+                        
                         saveToRaw(completeDTO);
                         totalSaved++;
 
@@ -154,15 +161,7 @@ public class NaverWebtoonCrawler {
                         Thread.currentThread().interrupt();
                         return totalSaved;
                     } catch (Exception e) {
-                        log.warn("웹툰 상세 정보 보완 실패: {}, {}", mobileUrl, e.getMessage());
-
-                        // 상세 정보 보완 실패해도 기본 정보라도 저장
-                        try {
-                            saveToRaw(basicDTO);
-                            totalSaved++;
-                        } catch (Exception e2) {
-                            log.error("기본 정보 저장도 실패: {}, {}", mobileUrl, e2.getMessage());
-                        }
+                        log.warn("웹툰 크롤링 실패, 스킵: {}, {}", mobileUrl, e.getMessage());
                     }
                 }
 
@@ -207,6 +206,13 @@ public class NaverWebtoonCrawler {
             try {
                 // PC 페이지에서 상세 정보 보완
                 NaverWebtoonDTO completeDTO = enrichWithPcDetails(basicDTO, mobileUrl);
+                
+                // 19금 작품 등으로 제목을 찾을 수 없는 경우 스킵
+                if (completeDTO == null || completeDTO.getTitle() == null || completeDTO.getTitle().trim().isEmpty()) {
+                    log.info("제목을 찾을 수 없는 작품 스킵 (19금 등): {}", mobileUrl);
+                    continue;
+                }
+                
                 saveToRaw(completeDTO);
                 saved++;
 
@@ -221,15 +227,7 @@ public class NaverWebtoonCrawler {
                 Thread.currentThread().interrupt();
                 return saved;
             } catch (Exception e) {
-                log.warn("웹툰 상세 정보 보완 실패: {}, {}", mobileUrl, e.getMessage());
-
-                // 상세 정보 보완 실패해도 기본 정보라도 저장
-                try {
-                    saveToRaw(basicDTO);
-                    saved++;
-                } catch (Exception e2) {
-                    log.error("기본 정보 저장도 실패: {}, {}", mobileUrl, e2.getMessage());
-                }
+                log.warn("웹툰 크롤링 실패, 스킵: {}, {}", mobileUrl, e.getMessage());
             }
         }
 
@@ -267,13 +265,13 @@ public class NaverWebtoonCrawler {
                 return mergeBasicAndDetailedInfo(basicDTO, enrichedDTO);
             }
 
-            // PC 파싱 실패시 기본 정보라도 반환
-            log.warn("PC 페이지 파싱 실패, 목록 기본 정보만 사용: {}", pcUrl);
-            return basicDTO;
+            // PC 파싱 실패시 null 반환 (19금 작품 등)
+            log.warn("PC 페이지 파싱 실패, 작품 스킵: {}", pcUrl);
+            return null;
 
         } catch (Exception e) {
-            log.warn("PC 페이지 접근 실패, 목록 기본 정보만 사용: {}, 오류: {}", pcUrl, e.getMessage());
-            return basicDTO;
+            log.warn("PC 페이지 접근 실패, 작품 스킵: {}, 오류: {}", pcUrl, e.getMessage());
+            return null;
         }
     }
 
