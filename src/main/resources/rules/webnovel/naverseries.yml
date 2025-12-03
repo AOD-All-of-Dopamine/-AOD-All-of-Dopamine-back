@@ -27,6 +27,7 @@ fieldMappings:
   rating: platform.attributes.rating
   downloadCount: platform.attributes.download_count
   commentCount: platform.attributes.comment_count
+  episodeCount: platform.attributes.episode_count
 
 domainObjectMappings:
   author:

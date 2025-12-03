@@ -91,6 +91,9 @@ public class NaverSeriesCrawler {
                 // 💬 댓글 수: 여러 위치에서 찾아보도록 로직 변경
                 Long commentCount = extractCommentCount(doc, head);
 
+                // 📊 총 회차 수: "총 <strong>193</strong>화" 형식에서 추출
+                Long episodeCount = extractEpisodeCount(doc);
+
                 Element infoUl = doc.selectFirst("ul.end_info li.info_lst > ul");
                 String status = null;
                 if (infoUl != null) {
@@ -144,6 +147,7 @@ public class NaverSeriesCrawler {
                 payload.put("rating", rating);
                 payload.put("downloadCount", downloadCount);
                 payload.put("commentCount", commentCount);
+                payload.put("episodeCount", episodeCount);
 
                 collector.saveRaw("NaverSeries", "WEBNOVEL", payload, titleId, productUrl);
                 saved++;
@@ -232,6 +236,24 @@ public class NaverSeriesCrawler {
         return null;
     }
     // =======================================================================
+
+    /**
+     * 총 회차 수 추출: "총 <strong>193</strong>화" 형식에서 숫자 추출
+     * @param doc 상세 페이지 Document
+     * @return 회차 수 (없으면 null)
+     */
+    private static Long extractEpisodeCount(Document doc) {
+        Element episodeH5 = doc.selectFirst("h5.end_total_episode");
+        if (episodeH5 != null) {
+            Element strong = episodeH5.selectFirst("strong");
+            if (strong != null) {
+                try {
+                    return Long.parseLong(strong.text().trim().replace(",", ""));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return null;
+    }
 
 
     /** "2억 5,006만", "139.3만", "2.5천", "1,393,475" 등 지원 */
