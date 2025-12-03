@@ -35,7 +35,9 @@ public class GameContent implements Persistable<Long> {
         this.contentId = content.getContentId();
     }
 
+    @Column(length = 200)
     private String developer;
+    @Column(length = 200)
     private String publisher;
     private LocalDate releaseDate;
 

@@ -34,7 +34,9 @@ public class WebtoonContent implements Persistable<Long> {
         this.contentId = content.getContentId();
     }
 
+    @Column(length = 200)
     private String author;
+    @Column(length = 50)
     private String status;      // 연재중/완결
     private String weekday;     // 연재 요일 (mon, tue, wed 등), 완결작은 null
     private String ageRating;   // 연령등급 (전체이용가, 15세이용가 등)

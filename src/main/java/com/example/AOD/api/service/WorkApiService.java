@@ -263,8 +263,8 @@ public class WorkApiService {
                     if (novel.getGenres() != null) {
                         info.put("genres", novel.getGenres());
                     }
-                    if (novel.getStartedAt() != null) {
-                        info.put("startedAt", novel.getStartedAt().toString());
+                    if (novel.getContent().getReleaseDate() != null) {
+                        info.put("startedAt", novel.getContent().getReleaseDate().toString());
                     }
                 });
                 break;

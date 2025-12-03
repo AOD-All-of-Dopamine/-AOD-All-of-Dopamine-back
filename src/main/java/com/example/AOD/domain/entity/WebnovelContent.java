@@ -2,7 +2,6 @@ package com.example.AOD.domain.entity;
 
 import com.example.AOD.domain.Content;
 import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.util.List;
 
 import lombok.Getter;
@@ -33,9 +32,11 @@ public class WebnovelContent implements Persistable<Long> {
         this.contentId = content.getContentId();
     }
 
+    @Column(length = 200)
     private String author;
-    private LocalDate startedAt;
+    @Column(length = 200)
     private String publisher;
+    @Column(length = 50)
     private String ageRating;
 
     @Type(JsonType.class)
