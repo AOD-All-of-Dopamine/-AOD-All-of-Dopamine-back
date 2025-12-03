@@ -183,6 +183,7 @@ public class NaverSeriesCrawler {
     private String extractFirstEpisodeDate(String productNo, String cookieString) throws Exception {
         // sortOrder=ASC 파라미터를 사용하여 1화부터 정렬된 리스트를 요청
         String apiUrl = "https://series.naver.com/novel/volumeList.series?productNo=" + productNo + "&sortOrder=ASC&page=1";
+        System.out.println("[DEBUG] Fetching first episode date for productNo=" + productNo);
 
         // JSON 응답을 받음
         var conn = Jsoup.connect(apiUrl)
@@ -199,23 +200,32 @@ public class NaverSeriesCrawler {
         
         // JSON 응답을 텍스트로 받아서 파싱
         String jsonResponse = conn.execute().body();
+        System.out.println("[DEBUG] JSON response length: " + jsonResponse.length() + " chars");
         
         // JSON에서 lastVolumeUpdateDate 추출 (간단한 문자열 파싱)
         // 형식: "lastVolumeUpdateDate":"2025-08-20 00:01:38"
         int idx = jsonResponse.indexOf("\"lastVolumeUpdateDate\"");
+        System.out.println("[DEBUG] lastVolumeUpdateDate field found at index: " + idx);
+        
         if (idx >= 0) {
             int startQuote = jsonResponse.indexOf("\"", idx + 23);
             if (startQuote >= 0) {
                 int endQuote = jsonResponse.indexOf("\"", startQuote + 1);
                 if (endQuote >= 0) {
                     String dateTime = jsonResponse.substring(startQuote + 1, endQuote);
+                    System.out.println("[DEBUG] Extracted dateTime: " + dateTime);
+                    
                     // "2025-08-20 00:01:38" -> "2025-08-20" (날짜 부분만 추출)
                     if (dateTime != null && dateTime.length() >= 10) {
-                        return dateTime.substring(0, 10).replace("-", ".");
+                        String formattedDate = dateTime.substring(0, 10).replace("-", ".");
+                        System.out.println("[DEBUG] Formatted date: " + formattedDate);
+                        return formattedDate;
                     }
                 }
             }
         }
+        
+        System.out.println("[DEBUG] Failed to extract date for productNo=" + productNo);
         return null;
     }
 
