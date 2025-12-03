@@ -149,7 +149,7 @@ public class DemoPageService {
                         .map(c -> {
                             Map<String, Object> attrs = new HashMap<>();
                             if (c.getAuthor() != null) attrs.put("author", c.getAuthor());
-                            if (c.getStartedAt() != null) attrs.put("startedAt", c.getStartedAt());
+                            if (c.getContent().getReleaseDate() != null) attrs.put("startedAt", c.getContent().getReleaseDate());
                             if (c.getGenres() != null) attrs.put("genres", c.getGenres());
                             return attrs;
                         })
