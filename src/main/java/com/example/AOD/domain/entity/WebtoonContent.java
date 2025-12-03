@@ -4,7 +4,6 @@ package com.example.AOD.domain.entity;
 
 import com.example.AOD.domain.Content;
 import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.util.List;
 
 import lombok.Getter;
@@ -37,11 +36,10 @@ public class WebtoonContent implements Persistable<Long> {
 
     @Column(length = 200)
     private String author;
-    @Column(length = 200)
-    private String illustrator;
     @Column(length = 50)
     private String status;      // 연재중/완결
-    private LocalDate startedAt;
+    private String weekday;     // 연재 요일 (mon, tue, wed 등), 완결작은 null
+    private String ageRating;   // 연령등급 (전체이용가, 15세이용가 등)
 
     @Type(JsonType.class)
     @Column(columnDefinition="jsonb")
