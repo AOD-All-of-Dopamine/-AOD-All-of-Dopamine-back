@@ -130,7 +130,22 @@ public class NaverSeriesCrawler {
                     synopsis = text(synopsisElements.last()).replaceAll("\\s*접기$", "").trim();
                 }
 
+
                 String titleId = extractQueryParam(productUrl, "productNo");
+
+                // ========================================================
+                // [추가됨] 2. 1화 날짜 추출을 위한 추가 요청 (volumeList.series)
+                // ========================================================
+                String firstDate = null;
+                if (titleId != null) {
+                    try {
+                        // 헬퍼 메서드를 호출하여 1화 날짜를 가져옵니다.
+                        firstDate = extractFirstEpisodeDate(titleId, cookieString);
+                    } catch (Exception e) {
+                        // 날짜 하나 못 가져왔다고 전체를 실패 처리할 필요는 없으므로 로그만 남김
+                        System.err.println("Failed to extract first date for " + titleId + ": " + e.getMessage());
+                    }
+                }
 
                 Map<String,Object> payload = new LinkedHashMap<>();
                 payload.put("title", nz(title));
@@ -149,6 +164,9 @@ public class NaverSeriesCrawler {
                 payload.put("commentCount", commentCount);
                 payload.put("episodeCount", episodeCount);
 
+                // [추가됨] 1화 날짜 payload에 추가
+                payload.put("firstDate", firstDate);
+
                 collector.saveRaw("NaverSeries", "WEBNOVEL", payload, titleId, productUrl);
                 saved++;
             }
@@ -160,6 +178,28 @@ public class NaverSeriesCrawler {
     }
 
     /* ================= helpers ================ */
+
+    // [추가됨] 1화 날짜 추출 로직
+    private String extractFirstEpisodeDate(String productNo, String cookieString) throws Exception {
+        // sortOrder=ASC 파라미터를 사용하여 1화부터 정렬된 리스트를 요청
+        String apiUrl = "https://series.naver.com/novel/volumeList.series?productNo=" + productNo + "&sortOrder=ASC";
+
+        // 기존 get 메서드 재사용 (쿠키/헤더 적용)
+        Document doc = get(apiUrl, cookieString);
+
+        // 첫 번째 행(_volume_row_1) 선택
+        Element firstRow = doc.selectFirst("tr._volume_row_1");
+        if (firstRow != null) {
+            // class="subj" 내부의 <em> 태그 안의 텍스트 추출 (예: (2025.08.20.))
+            Element dateEm = firstRow.selectFirst("td.subj em");
+            if (dateEm != null) {
+                String rawDate = dateEm.text();
+                // 괄호 제거 후 반환
+                return rawDate.replaceAll("[()]", "").trim();
+            }
+        }
+        return null;
+    }
 
     private Document get(String url, String cookieString) throws Exception {
         var conn = Jsoup.connect(url)

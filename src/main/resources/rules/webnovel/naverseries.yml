@@ -13,8 +13,9 @@ fieldMappings:
   publisher: domain.publisher
   ageRating: domain.age_rating
   genres: domain.genres
-  # started_at은 실제 NaverSeries 데이터에 있다면 추가
-  # startedAt: domain.started_at
+
+  # === Contents (1화 날짜를 release_date로) ===
+  firstDate: release_date
 
   # === Platform_Data ===
   productUrl: platform.url
@@ -42,9 +43,6 @@ domainObjectMappings:
   genres:
     targetField: genres
     type: list
-  started_at:
-    targetField: startedAt
-    type: date
 
 normalizers:
   - type: strip_parentheses
