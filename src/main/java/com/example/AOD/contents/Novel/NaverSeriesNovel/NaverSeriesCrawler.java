@@ -215,9 +215,9 @@ public class NaverSeriesCrawler {
                     String dateTime = jsonResponse.substring(startQuote + 1, endQuote);
                     System.out.println("[DEBUG] Extracted dateTime: " + dateTime);
                     
-                    // "2025-08-20 00:01:38" -> "2025-08-20" (날짜 부분만 추출)
+                    // "2025-08-20 00:01:38" -> "2025-08-20" (ISO 8601 형식 유지, LocalDate.parse() 호환)
                     if (dateTime != null && dateTime.length() >= 10) {
-                        String formattedDate = dateTime.substring(0, 10).replace("-", ".");
+                        String formattedDate = dateTime.substring(0, 10);  // yyyy-MM-dd 형식 유지
                         System.out.println("[DEBUG] Formatted date: " + formattedDate);
                         return formattedDate;
                     }
