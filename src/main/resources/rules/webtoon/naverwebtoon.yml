@@ -9,6 +9,8 @@ fieldMappings:
   synopsis: synopsis
   productUrl: platform.url
   titleId: platform.platform_specific_id
+  likeCount: platform.like_count
+  episodeCount: platform.episode_count
 
   # === Domain Mappings (for domainDoc) ===
   author: domain.author
@@ -16,7 +18,6 @@ fieldMappings:
   tags: domain.genres
   weekday: domain.weekday
   releaseDate: release_date
-  # episodeCount etc. are platform attributes, not domain core fields.
 
 # [ ✨ 핵심 수정 ]
 # domainDoc의 키를 실제 Entity의 필드(속성)에 매핑하는 규칙

@@ -2,17 +2,16 @@ package com.example.AOD.contents.Webtoon.NaverWebtoon;
 
 
 import com.example.AOD.util.ChromeDriverProvider;
-import com.example.AOD.util.InterruptibleSleep;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -32,7 +31,6 @@ import java.util.regex.Pattern;
 public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
     private final ChromeDriverProvider chromeDriverProvider;
-    private final int SLEEP_TIME = 100; // React 로딩 대기 시간
     
     // WebDriver 재사용을 위한 ThreadLocal (멀티스레드 환경 대응)
     private final ThreadLocal<WebDriver> driverThreadLocal = ThreadLocal.withInitial(() -> null);
@@ -137,10 +135,16 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
             log.debug("정렬된 URL로 웹툰 상세 파싱 시작: {}", sortedUrl);
             driver.get(sortedUrl);
 
-            // React 앱 로딩 대기
-            if (!InterruptibleSleep.sleep(SLEEP_TIME)) {
-                log.warn("React 로딩 대기 중 인터럽트 발생: {}", sortedUrl);
-                cleanup();
+            // React 앱 로딩 대기 - WebDriverWait 사용으로 더 확실하게 대기
+            try {
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+                // 제목 요소가 나타날 때까지 대기 (React 렌더링 완료 확인)
+                wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.cssSelector("h2[class*='EpisodeListInfo'][class*='title']")
+                ));
+                log.debug("React 렌더링 완료 확인");
+            } catch (TimeoutException e) {
+                log.warn("React 렌더링 대기 시간 초과: {}", sortedUrl);
                 return null;
             }
 
@@ -520,31 +524,61 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
      */
     private LocalDate parseReleaseDate(WebDriver driver) {
         try {
-            // 에피소드 리스트에서 첫 번째 항목의 날짜 찾기 (이미 정렬된 페이지)
-            List<WebElement> episodeItems = driver.findElements(
-                By.cssSelector("li.EpisodeListList__item--M8zq4")
-            );
+            log.debug("첫 화 날짜 파싱 시작");
             
+            // 1. 명시적 대기 추가 (최대 10초 대기로 증가)
+            // React가 에피소드 리스트를 렌더링할 때까지 기다립니다.
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+            // 2. 해시값에 의존하지 않는 범용 셀렉터 사용
+            // "EpisodeListList__item"이 포함된 li 태그를 찾습니다.
+            log.debug("에피소드 리스트 로딩 대기 중...");
+            wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.cssSelector("li[class*='EpisodeListList__item']")
+            ));
+            log.debug("에피소드 리스트 로딩 완료");
+
+            List<WebElement> episodeItems = driver.findElements(
+                    By.cssSelector("li[class*='EpisodeListList__item']")
+            );
+
+            log.debug("발견된 에피소드 수: {}", episodeItems.size());
+
             if (episodeItems.isEmpty()) {
-                log.warn("에피소드 목록을 찾을 수 없음");
+                log.warn("에피소드 목록을 찾을 수 없음 (빈 리스트)");
                 return null;
             }
-            
-            // 첫 번째 에피소드에서 날짜 추출
+
+            // 3. 첫 번째 에피소드에서 날짜 추출
             WebElement firstEpisode = episodeItems.get(0);
-            WebElement dateElement = firstEpisode.findElement(By.cssSelector("span.date"));
+            log.debug("첫 번째 에피소드 요소 획득");
+
+            // 날짜 요소도 범용 셀렉터 사용 (span 중 class에 date가 포함된 것)
+            WebElement dateElement = firstEpisode.findElement(By.cssSelector("span[class*='date']"));
             String dateText = dateElement.getText().trim();
-            
-            log.debug("첫 화 날짜 텍스트: {}", dateText);
-            
+
+            log.debug("첫 화 날짜 텍스트 추출 성공: {}", dateText);
+
             // 날짜 파싱: "20.11.01" -> 2020-11-01
             return parseDateFromText(dateText);
-            
+
+        } catch (TimeoutException e) {
+            log.warn("에피소드 리스트 로딩 시간 초과 (10초): {}", e.getMessage());
+            // 페이지 소스 일부 로깅 (디버깅용)
+            try {
+                String pageSource = driver.getPageSource();
+                if (pageSource.length() > 500) {
+                    log.debug("페이지 소스 일부: {}", pageSource.substring(0, 500));
+                }
+            } catch (Exception logEx) {
+                log.debug("페이지 소스 로깅 실패");
+            }
+            return null;
         } catch (NoSuchElementException e) {
-            log.warn("첫 화 날짜 요소를 찾을 수 없음: {}", e.getMessage());
+            log.warn("첫 화 날짜 요소를 찾을 수 없음 (구조 변경 가능성): {}", e.getMessage());
             return null;
         } catch (Exception e) {
-            log.warn("첫 화 날짜 파싱 실패: {}", e.getMessage());
+            log.warn("첫 화 날짜 파싱 실패: {}", e.getMessage(), e);
             return null;
         }
     }
