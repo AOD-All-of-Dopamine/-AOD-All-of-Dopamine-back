@@ -48,8 +48,6 @@ public class MobileListParser {
             String status = parseStatus(listItem);
 
             // 뱃지 정보 분석
-            boolean isFree = !badges.contains("bm"); // bm = 유료작품
-            boolean hasAdult = badges.contains("adult");
             boolean isNew = badges.contains("new");
 
             return NaverWebtoonDTO.builder()
@@ -61,8 +59,6 @@ public class MobileListParser {
                     .weekday(weekday)
                     .status(translateStatus(status))
                     .likeCount(likeCount)
-                    .isFree(isFree)
-                    .hasAdult(hasAdult)
                     .originalPlatform("NAVER_WEBTOON")
                     .crawlSource(crawlSource)
                     // 추가 메타데이터
