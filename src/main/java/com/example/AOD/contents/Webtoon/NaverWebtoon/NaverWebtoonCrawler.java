@@ -295,13 +295,13 @@ public class NaverWebtoonCrawler {
                 .crawlSource(basicDTO.getCrawlSource())
 
                 // PC에서만 수집 가능한 상세 정보
-                .episodeCount(detailedDTO.getEpisodeCount())  // 다시 추가
+                .episodeCount(detailedDTO.getEpisodeCount())
                 .likeCount(detailedDTO.getLikeCount())
                 .synopsis(detailedDTO.getSynopsis())
                 .productUrl(detailedDTO.getProductUrl()) // PC URL 사용
-                .episodeCount(detailedDTO.getEpisodeCount())
                 .ageRating(detailedDTO.getAgeRating())
                 .tags(detailedDTO.getTags())
+                .releaseDate(detailedDTO.getReleaseDate()) // 첫 화 연재 날짜 (PC에서만 수집)
                 .build();
     }
 
@@ -322,7 +322,8 @@ public class NaverWebtoonCrawler {
         payload.put("weekday", nz(dto.getWeekday()));
         payload.put("status", nz(dto.getStatus()));
         payload.put("episodeCount", dto.getEpisodeCount());
-        payload.put("releaseDate", dto.getReleaseDate());
+        // LocalDate를 String으로 변환하여 저장 (JSON 직렬화 문제 방지)
+        payload.put("releaseDate", dto.getReleaseDate() != null ? dto.getReleaseDate().toString() : null);
 
         payload.put("ageRating", nz(dto.getAgeRating()));
         payload.put("tags", dto.getTags());
