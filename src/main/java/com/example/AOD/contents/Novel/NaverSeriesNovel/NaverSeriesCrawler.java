@@ -29,6 +29,28 @@ public class NaverSeriesCrawler {
         this.collector = collector;
     }
 
+    /**
+     * 신작 목록 크롤링 (recentList.series)
+     * @param cookieString 쿠키 (선택)
+     * @param maxPages 최대 페이지 수 (0이면 무제한)
+     * @return 저장된 작품 수
+     */
+    public int crawlRecentNovels(String cookieString, int maxPages) throws Exception {
+        String baseUrl = "https://series.naver.com/novel/recentList.series?page=";
+        return crawlToRaw(baseUrl, cookieString, maxPages);
+    }
+
+    /**
+     * 완결 작품 크롤링 (categoryProductList.series)
+     * @param cookieString 쿠키 (선택)
+     * @param maxPages 최대 페이지 수 (0이면 무제한)
+     * @return 저장된 작품 수
+     */
+    public int crawlCompletedNovels(String cookieString, int maxPages) throws Exception {
+        String baseUrl = "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all&page=";
+        return crawlToRaw(baseUrl, cookieString, maxPages);
+    }
+
     public int crawlToRaw(String baseListUrl, String cookieString, int maxPages) throws Exception {
         int saved = 0;
         int page = 1;

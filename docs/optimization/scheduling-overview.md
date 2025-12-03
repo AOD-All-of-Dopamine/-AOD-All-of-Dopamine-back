@@ -18,23 +18,25 @@
 
 | 시간 | 작업 | 플랫폼 | 파일 |
 |------|------|--------|------|
+| 02:00 | 신작 웹소설 수집 | 네이버 시리즈 | `NaverSeriesSchedulingService` |
 | 02:00 | 전체 요일 웹툰 수집 | 네이버 웹툰 | `NaverWebtoonSchedulingService` |
 | 04:00 | 신규 콘텐츠 수집 (최근 7일) | TMDB | `TmdbSchedulingService` |
+| 06:00 | raw_items 배치 변환 | Transform | `TransformSchedulingService` |
 
 ### 매주 실행
 
 | 요일 | 시간 | 작업 | 플랫폼 | 파일 |
 |------|------|------|--------|------|
 | 일요일 | 03:00 | 완결 웹툰 수집 | 네이버 웹툰 | `NaverWebtoonSchedulingService` |
+| 일요일 | 03:00 | 완결 웹소설 대규모 수집 | 네이버 시리즈 | `NaverSeriesSchedulingService` |
 | 일요일 | 05:00 | 과거 콘텐츠 최신화 (연도별) | TMDB | `TmdbSchedulingService` |
-| 화요일 | 02:00 | 완결 웹소설 수집 | 네이버 시리즈 | `NaverSeriesSchedulingService` |
+| 일요일 | 07:00 | raw_items 주간 대규모 변환 | Transform | `TransformSchedulingService` |
 | 목요일 | 03:00 | 전체 게임 수집 | Steam | `SteamSchedulingService` |
 
 ### 매월 실행
 
 | 날짜 | 시간 | 작업 | 플랫폼 | 파일 |
 |------|------|------|--------|------|
-| 1일 | 03:00 | 전체 완결작품 대규모 수집 | 네이버 시리즈 | `NaverSeriesSchedulingService` |
 | 15일 | 04:00 | 기존 게임 정보 업데이트 | Steam | `SteamSchedulingService` |
 
 ---
@@ -44,14 +46,16 @@
 ```
 00:00 ┃
 01:00 ┃
-02:00 ┃ ▶ 네이버 웹툰 (매일)
-      ┃ ▶ 네이버 시리즈 완결작 (화)
+02:00 ┃ ▶ 네이버 시리즈 신작 (매일)
+      ┃ ▶ 네이버 웹툰 요일별 (매일)
 03:00 ┃ ▶ 네이버 웹툰 완결작 (일)
+      ┃ ▶ 네이버 시리즈 완결작 (일)
       ┃ ▶ Steam 전체 수집 (목)
-      ┃ ▶ 네이버 시리즈 대규모 (매월 1일)
 04:00 ┃ ▶ TMDB 신규 콘텐츠 (매일)
       ┃ ▶ Steam 업데이트 (매월 15일)
 05:00 ┃ ▶ TMDB 과거 데이터 (일)
+06:00 ┃ ▶ Transform 배치 변환 (매일)
+07:00 ┃ ▶ Transform 대규모 변환 (일)
 ```
 
 **💡 시간대 분산 이유:**
@@ -106,17 +110,18 @@ Week 1: 2025년 → Week 2: 2024년 → ... → Week N: 1980년 → 다시 2025�
 **경로:** `src/main/java/com/example/AOD/contents/Novel/NaverSeriesNovel/NaverSeriesSchedulingService.java`
 
 ```java
-@Scheduled(cron = "0 0 2 * * TUE")  // 화요일 02:00
-public void collectNaverSeriesWeekly()
+@Scheduled(cron = "0 0 2 * * *")  // 매일 02:00
+public void collectRecentNovelsDaily()
 
-@Scheduled(cron = "0 0 3 1 * *")  // 매월 1일 03:00
-public void collectAllCategoriesMonthly()
+@Scheduled(cron = "0 0 3 * * SUN")  // 일요일 03:00
+public void collectCompletedNovelsWeekly()
 ```
 
 **수집 데이터:**
-- 주간: 완결작품 카테고리 (10페이지, ~200개 작품)
-- 월간: 전체 완결작품 (100페이지, ~2000개 작품)
-- URL: `https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all`
+- 매일: 신작 웹소설 (3페이지, ~60개 작품)
+  - URL: `https://series.naver.com/novel/recentList.series`
+- 주간: 완결작품 대규모 수집 (50페이지, ~1000개 작품)
+  - URL: `https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all`
 
 ---
 
@@ -134,6 +139,34 @@ public void updateExistingGamesMonthly()
 **수집 데이터:**
 - 주간: 신규 게임 추가 (1000개씩 자동 분할)
 - 월간: 기존 게임 정보 업데이트 (가격, 리뷰 등)
+
+---
+
+### 5. **TransformSchedulingService**
+**경로:** `src/main/java/com/example/AOD/ingest/TransformSchedulingService.java`
+
+```java
+@Scheduled(cron = "0 0 6 * * *")  // 매일 06:00
+public void transformRawItemsDaily()
+
+@Scheduled(cron = "0 0 7 * * SUN")  // 일요일 07:00
+public void transformRawItemsWeekly()
+```
+
+**처리 데이터:**
+- 매일: 미처리 raw_items 배치 변환 (100개씩)
+  - 모든 크롤러의 크롤링 완료 후 실행
+  - 미처리 데이터가 없을 때까지 반복
+- 주간: 대규모 배치 변환 (200개씩)
+  - 주간 누적된 데이터 일괄 처리
+  - 더 큰 배치 크기로 빠른 처리
+
+**변환 프로세스:**
+1. raw_items 테이블에서 미처리 데이터 조회
+2. 플랫폼/도메인별 YAML 규칙 로드
+3. TransformEngine으로 변환 (master/platform/domain)
+4. UpsertService로 contents/platform_data 저장
+5. transform_runs 테이블에 이력 기록
 
 ---
 
@@ -230,4 +263,9 @@ public CompletableFuture<Integer> crawlAsync() {
 
 ---
 
-**최종 업데이트:** 2025-11-17
+**최종 업데이트:** 2025-12-03
+
+**주요 변경사항:**
+- 네이버 시리즈: 신작 매일 수집 추가 (recentList.series)
+- 네이버 시리즈: 완결작 주간 수집으로 변경 (화요일 → 일요일)
+- Transform 스케줄러: raw_items 자동 변환 추가 (매일 06:00, 주간 07:00)
