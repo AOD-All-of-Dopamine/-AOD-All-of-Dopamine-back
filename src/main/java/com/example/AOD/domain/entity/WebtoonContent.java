@@ -35,8 +35,11 @@ public class WebtoonContent implements Persistable<Long> {
         this.contentId = content.getContentId();
     }
 
+    @Column(length = 200)
     private String author;
+    @Column(length = 200)
     private String illustrator;
+    @Column(length = 50)
     private String status;      // 연재중/완결
     private LocalDate startedAt;
 

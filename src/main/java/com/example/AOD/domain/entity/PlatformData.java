@@ -26,10 +26,12 @@ public class PlatformData {
             foreignKey = @ForeignKey(name = "fk_platform_data_content"))
     private Content content;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String platformName;       // 예: NAVER_SERIES
 
+    @Column(length = 200)
     private String platformSpecificId; // 예: productNo
+    @Column(length = 1000)
     private String url;                // 작품 상세 URL
 
     @Type(JsonType.class)
