@@ -17,6 +17,7 @@ fieldMappings:
   status: domain.status
   tags: domain.genres
   weekday: domain.weekday
+  ageRating: domain.ageRating
   releaseDate: release_date
 
 # [ ✨ 핵심 수정 ]
@@ -33,6 +34,9 @@ domainObjectMappings:
     type: list
   weekday:
     targetField: weekday
+    type: string
+  ageRating:
+    targetField: ageRating
     type: string
 
 normalizers:

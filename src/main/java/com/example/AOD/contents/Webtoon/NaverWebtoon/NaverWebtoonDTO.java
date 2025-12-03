@@ -33,9 +33,7 @@ public class NaverWebtoonDTO {
     // ==== 인기/평점 정보 ====
     private Long likeCount;         // 좋아요 수
 
-    // ==== 유료/무료 정보 ====
-    private Boolean isFree;         // 무료 웹툰 여부
-    private Boolean hasAdult;       // 성인 콘텐츠 포함 여부
+    // ==== 추가 정보 ====
     private String serviceType;     // 서비스 타입 (일반, 베스트도전, 도전만화 등)
 
     // ==== 추가 메타 ====

@@ -288,8 +288,6 @@ public class NaverWebtoonCrawler {
                 .weekday(basicDTO.getWeekday())
                 .status(basicDTO.getStatus() != null ? basicDTO.getStatus() : detailedDTO.getStatus())
                 .likeCount(basicDTO.getLikeCount() != null ? basicDTO.getLikeCount() : detailedDTO.getLikeCount())
-                .isFree(basicDTO.getIsFree() != null ? basicDTO.getIsFree() : detailedDTO.getIsFree())
-                .hasAdult(basicDTO.getHasAdult() != null ? basicDTO.getHasAdult() : detailedDTO.getHasAdult())
                 .serviceType(basicDTO.getServiceType() != null ? basicDTO.getServiceType() : detailedDTO.getServiceType())
                 .originalPlatform(basicDTO.getOriginalPlatform())
                 .crawlSource(basicDTO.getCrawlSource())
@@ -330,8 +328,6 @@ public class NaverWebtoonCrawler {
 
         payload.put("likeCount", dto.getLikeCount());
 
-        payload.put("isFree", dto.getIsFree());
-        payload.put("hasAdult", dto.getHasAdult());
         payload.put("serviceType", nz(dto.getServiceType()));
 
         payload.put("originalPlatform", nz(dto.getOriginalPlatform()));
