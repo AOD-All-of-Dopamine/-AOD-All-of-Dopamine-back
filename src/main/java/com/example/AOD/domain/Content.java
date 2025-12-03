@@ -22,11 +22,13 @@ public class Content {
     @Column(nullable = false)
     private Domain domain;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String masterTitle;
 
+    @Column(length = 500)
     private String originalTitle;
     private LocalDate releaseDate;
+    @Column(length = 1000)
     private String posterImageUrl;
 
     @Column(columnDefinition = "text")
