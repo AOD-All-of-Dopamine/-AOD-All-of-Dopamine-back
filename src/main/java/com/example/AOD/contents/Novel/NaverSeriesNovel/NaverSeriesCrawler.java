@@ -182,13 +182,12 @@ public class NaverSeriesCrawler {
     // [추가됨] 1화 날짜 추출 로직
     private String extractFirstEpisodeDate(String productNo, String cookieString) throws Exception {
         // sortOrder=ASC 파라미터를 사용하여 1화부터 정렬된 리스트를 요청
-        String apiUrl = "https://series.naver.com/novel/volumeList.series?productNo=" + productNo + "&sortOrder=ASC";
+        String apiUrl = "https://series.naver.com/novel/volumeList.series?productNo=" + productNo + "&sortOrder=ASC&page=1";
 
-        // JSON 응답을 받으므로 ignoreContentType(true) 설정
+        // JSON 응답을 받음
         var conn = Jsoup.connect(apiUrl)
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
                 .referrer("https://series.naver.com/")
-                .header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
                 .header("Accept", "application/json, text/javascript, */*; q=0.01")
                 .header("X-Requested-With", "XMLHttpRequest")
                 .ignoreContentType(true)
@@ -198,17 +197,23 @@ public class NaverSeriesCrawler {
             conn.header("Cookie", cookieString);
         }
         
-        Document doc = conn.get();
+        // JSON 응답을 텍스트로 받아서 파싱
+        String jsonResponse = conn.execute().body();
         
-        // 첫 번째 행(_volume_row_1) 선택
-        Element firstRow = doc.selectFirst("tr._volume_row_1");
-        if (firstRow != null) {
-            // class="subj" 내부의 <em> 태그 안의 텍스트 추출 (예: (2025.08.20.))
-            Element dateEm = firstRow.selectFirst("td.subj em");
-            if (dateEm != null) {
-                String rawDate = dateEm.text();
-                // 괄호 제거 후 반환
-                return rawDate.replaceAll("[()]", "").trim();
+        // JSON에서 lastVolumeUpdateDate 추출 (간단한 문자열 파싱)
+        // 형식: "lastVolumeUpdateDate":"2025-08-20 00:01:38"
+        int idx = jsonResponse.indexOf("\"lastVolumeUpdateDate\"");
+        if (idx >= 0) {
+            int startQuote = jsonResponse.indexOf("\"", idx + 23);
+            if (startQuote >= 0) {
+                int endQuote = jsonResponse.indexOf("\"", startQuote + 1);
+                if (endQuote >= 0) {
+                    String dateTime = jsonResponse.substring(startQuote + 1, endQuote);
+                    // "2025-08-20 00:01:38" -> "2025-08-20" (날짜 부분만 추출)
+                    if (dateTime != null && dateTime.length() >= 10) {
+                        return dateTime.substring(0, 10).replace("-", ".");
+                    }
+                }
             }
         }
         return null;
