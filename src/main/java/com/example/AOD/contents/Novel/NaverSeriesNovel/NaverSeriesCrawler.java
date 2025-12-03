@@ -184,9 +184,22 @@ public class NaverSeriesCrawler {
         // sortOrder=ASC 파라미터를 사용하여 1화부터 정렬된 리스트를 요청
         String apiUrl = "https://series.naver.com/novel/volumeList.series?productNo=" + productNo + "&sortOrder=ASC";
 
-        // 기존 get 메서드 재사용 (쿠키/헤더 적용)
-        Document doc = get(apiUrl, cookieString);
-
+        // JSON 응답을 받으므로 ignoreContentType(true) 설정
+        var conn = Jsoup.connect(apiUrl)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+                .referrer("https://series.naver.com/")
+                .header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
+                .header("Accept", "application/json, text/javascript, */*; q=0.01")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .ignoreContentType(true)
+                .timeout(15000);
+        
+        if (cookieString != null && !cookieString.isBlank()) {
+            conn.header("Cookie", cookieString);
+        }
+        
+        Document doc = conn.get();
+        
         // 첫 번째 행(_volume_row_1) 선택
         Element firstRow = doc.selectFirst("tr._volume_row_1");
         if (firstRow != null) {
