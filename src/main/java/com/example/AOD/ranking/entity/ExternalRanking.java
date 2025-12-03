@@ -1,8 +1,12 @@
 package com.example.AOD.ranking.entity;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
+
+import java.util.List;
 
 /**
  * 외부 플랫폼 랭킹 데이터 엔티티
@@ -41,6 +45,10 @@ public class ExternalRanking {
     private String platform;                    // 플랫폼 이름 (NaverWebtoon, Steam, TMDB_MOVIE, etc.)
 
     private String thumbnailUrl;                // 썸네일 이미지 URL (크롤링 시점 저장)
+
+    @Type(JsonType.class)
+    @Column(columnDefinition = "jsonb")
+    private List<String> watchProviders;        // OTT 플랫폼 정보 (예: ["Netflix", "Disney Plus", "Watcha"])
 
     // 생성자, 빌더 등 필요에 따라 추가
 }

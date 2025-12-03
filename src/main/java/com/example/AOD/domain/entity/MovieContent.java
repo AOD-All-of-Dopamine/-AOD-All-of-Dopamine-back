@@ -62,6 +62,11 @@ public class MovieContent implements Persistable<Long> {
     @Column(name = "cast_members", columnDefinition = "jsonb")
     private List<String> cast;
 
+    // TODO: OTT 플랫폼 정보 추가 (예: ["Netflix", "Disney Plus", "Watcha"])
+    // @Type(JsonType.class)
+    // @Column(columnDefinition = "jsonb")
+    // private List<String> watchProviders;
+
     @Override
     public Long getId() {
         return contentId;

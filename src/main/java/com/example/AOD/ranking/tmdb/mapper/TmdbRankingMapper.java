@@ -2,19 +2,26 @@ package com.example.AOD.ranking.tmdb.mapper;
 
 import com.example.AOD.ranking.entity.ExternalRanking;
 import com.example.AOD.ranking.tmdb.constant.TmdbPlatformType;
+import com.example.AOD.ranking.tmdb.fetcher.TmdbRankingFetcher;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * TMDB JSON 데이터를 ExternalRanking 엔티티로 변환 (SRP 준수)
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TmdbRankingMapper {
+
+    private final TmdbRankingFetcher tmdbRankingFetcher;
 
     public List<ExternalRanking> mapToRankings(JsonNode jsonNode, TmdbPlatformType platformType) {
         if (jsonNode == null || !jsonNode.has("results")) {
@@ -44,7 +51,8 @@ public class TmdbRankingMapper {
         }
 
         ExternalRanking ranking = new ExternalRanking();
-        ranking.setPlatformSpecificId(String.valueOf(item.get("id").asLong()));
+        String tmdbId = String.valueOf(item.get("id").asLong());
+        ranking.setPlatformSpecificId(tmdbId);
         ranking.setTitle(item.get(platformType.getTitleField()).asText());
         ranking.setRanking(rank);
         ranking.setPlatform(platformType.getPlatformName());
@@ -56,6 +64,45 @@ public class TmdbRankingMapper {
             ranking.setThumbnailUrl(thumbnailUrl);
         }
 
+        // Watch Providers 추출 (한국 지역 flatrate)
+        List<String> watchProviders = extractWatchProviders(platformType, tmdbId);
+        if (!watchProviders.isEmpty()) {
+            ranking.setWatchProviders(watchProviders);
+        }
+
         return ranking;
+    }
+
+    /**
+     * TMDB Watch Providers API에서 한국 지역 OTT 플랫폼 정보 추출
+     */
+    private List<String> extractWatchProviders(TmdbPlatformType platformType, String tmdbId) {
+        try {
+            JsonNode watchProvidersData = tmdbRankingFetcher.fetchWatchProviders(platformType, tmdbId);
+            
+            if (watchProvidersData == null || !watchProvidersData.has("results")) {
+                return new ArrayList<>();
+            }
+
+            JsonNode results = watchProvidersData.get("results");
+            if (!results.has("KR")) {
+                return new ArrayList<>();
+            }
+
+            JsonNode krData = results.get("KR");
+            if (!krData.has("flatrate")) {
+                return new ArrayList<>();
+            }
+
+            JsonNode flatrate = krData.get("flatrate");
+            return StreamSupport.stream(flatrate.spliterator(), false)
+                    .filter(provider -> provider.has("provider_name"))
+                    .map(provider -> provider.get("provider_name").asText())
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.warn("Watch Providers 추출 실패 (ID: {}): {}", tmdbId, e.getMessage());
+            return new ArrayList<>();
+        }
     }
 }

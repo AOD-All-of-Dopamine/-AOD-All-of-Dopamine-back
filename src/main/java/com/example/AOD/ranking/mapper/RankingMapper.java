@@ -34,6 +34,7 @@ public class RankingMapper {
         response.setRanking(entity.getRanking());
         response.setPlatform(entity.getPlatform());
         response.setThumbnailUrl(entity.getThumbnailUrl());
+        response.setWatchProviders(entity.getWatchProviders());
         
         // Content 매핑 정보가 있는 경우
         if (entity.getContent() != null) {
