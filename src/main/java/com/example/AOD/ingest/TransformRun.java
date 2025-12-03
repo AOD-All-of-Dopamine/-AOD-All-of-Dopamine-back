@@ -12,11 +12,11 @@ public class TransformRun {
     private Long runId;
 
     @Column(nullable=false) private Long rawId;
-    @Column(nullable=false) private String platformName;
-    @Column(nullable=false) private String domain;
-    private String rulePath;           // ex: rules/webnovel/naverseries.yml
+    @Column(nullable=false, length=100) private String platformName;
+    @Column(nullable=false, length=50) private String domain;
+    @Column(length=500) private String rulePath;           // ex: rules/webnovel/naverseries.yml
 
-    @Column(nullable=false) private String status; // SUCCESS/FAILED
+    @Column(nullable=false, length=50) private String status; // SUCCESS/FAILED
     @Column(columnDefinition="text") private String error;
 
     private Long producedContentId;
