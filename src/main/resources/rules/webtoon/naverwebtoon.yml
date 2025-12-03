@@ -9,8 +9,8 @@ fieldMappings:
   synopsis: synopsis
   productUrl: platform.url
   titleId: platform.platform_specific_id
-  likeCount: platform.like_count
-  episodeCount: platform.episode_count
+  likeCount: platform.attributes.like_count
+  episodeCount: platform.attributes.episode_count
 
   # === Domain Mappings (for domainDoc) ===
   author: domain.author
