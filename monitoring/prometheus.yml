@@ -2,7 +2,7 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    cluster: 'aod-crawler'
+    cluster: 'aod-prod'
 
 rule_files:
   - 'alerts.yml'
@@ -13,14 +13,17 @@ alerting:
         - targets: ['alertmanager:9093']
 
 scrape_configs:
-  - job_name: 'spring-boot-app'
+  # === EC2에 떠 있는 AOD 백엔드 ===
+  - job_name: 'aod-ec2-app'
     metrics_path: '/actuator/prometheus'
+    scheme: 'https'                        # 🔥 https로 도메인 접근
     static_configs:
-      - targets: ['host.docker.internal:8080']
+      - targets: ['api.allofdophamin.com'] # 포트는 443 기본
         labels:
-          application: 'aod-crawler'
-          environment: 'local'
+          application: 'aod-app'
+          environment: 'prod'
 
+  # === Prometheus 자기 자신 ===
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
