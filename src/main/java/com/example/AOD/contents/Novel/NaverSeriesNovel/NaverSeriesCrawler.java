@@ -29,6 +29,28 @@ public class NaverSeriesCrawler {
         this.collector = collector;
     }
 
+    /**
+     * 신작 목록 크롤링 (recentList.series)
+     * @param cookieString 쿠키 (선택)
+     * @param maxPages 최대 페이지 수 (0이면 무제한)
+     * @return 저장된 작품 수
+     */
+    public int crawlRecentNovels(String cookieString, int maxPages) throws Exception {
+        String baseUrl = "https://series.naver.com/novel/recentList.series?page=";
+        return crawlToRaw(baseUrl, cookieString, maxPages);
+    }
+
+    /**
+     * 완결 작품 크롤링 (categoryProductList.series)
+     * @param cookieString 쿠키 (선택)
+     * @param maxPages 최대 페이지 수 (0이면 무제한)
+     * @return 저장된 작품 수
+     */
+    public int crawlCompletedNovels(String cookieString, int maxPages) throws Exception {
+        String baseUrl = "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all&page=";
+        return crawlToRaw(baseUrl, cookieString, maxPages);
+    }
+
     public int crawlToRaw(String baseListUrl, String cookieString, int maxPages) throws Exception {
         int saved = 0;
         int page = 1;
@@ -91,6 +113,9 @@ public class NaverSeriesCrawler {
                 // 💬 댓글 수: 여러 위치에서 찾아보도록 로직 변경
                 Long commentCount = extractCommentCount(doc, head);
 
+                // 📊 총 회차 수: "총 <strong>193</strong>화" 형식에서 추출
+                Long episodeCount = extractEpisodeCount(doc);
+
                 Element infoUl = doc.selectFirst("ul.end_info li.info_lst > ul");
                 String status = null;
                 if (infoUl != null) {
@@ -127,7 +152,22 @@ public class NaverSeriesCrawler {
                     synopsis = text(synopsisElements.last()).replaceAll("\\s*접기$", "").trim();
                 }
 
+
                 String titleId = extractQueryParam(productUrl, "productNo");
+
+                // ========================================================
+                // [추가됨] 2. 1화 날짜 추출을 위한 추가 요청 (volumeList.series)
+                // ========================================================
+                String firstDate = null;
+                if (titleId != null) {
+                    try {
+                        // 헬퍼 메서드를 호출하여 1화 날짜를 가져옵니다.
+                        firstDate = extractFirstEpisodeDate(titleId, cookieString);
+                    } catch (Exception e) {
+                        // 날짜 하나 못 가져왔다고 전체를 실패 처리할 필요는 없으므로 로그만 남김
+                        System.err.println("Failed to extract first date for " + titleId + ": " + e.getMessage());
+                    }
+                }
 
                 Map<String,Object> payload = new LinkedHashMap<>();
                 payload.put("title", nz(title));
@@ -144,6 +184,10 @@ public class NaverSeriesCrawler {
                 payload.put("rating", rating);
                 payload.put("downloadCount", downloadCount);
                 payload.put("commentCount", commentCount);
+                payload.put("episodeCount", episodeCount);
+
+                // [추가됨] 1화 날짜 payload에 추가
+                payload.put("firstDate", firstDate);
 
                 collector.saveRaw("NaverSeries", "WEBNOVEL", payload, titleId, productUrl);
                 saved++;
@@ -156,6 +200,56 @@ public class NaverSeriesCrawler {
     }
 
     /* ================= helpers ================ */
+
+    // [추가됨] 1화 날짜 추출 로직
+    private String extractFirstEpisodeDate(String productNo, String cookieString) throws Exception {
+        // sortOrder=ASC 파라미터를 사용하여 1화부터 정렬된 리스트를 요청
+        String apiUrl = "https://series.naver.com/novel/volumeList.series?productNo=" + productNo + "&sortOrder=ASC&page=1";
+        System.out.println("[DEBUG] Fetching first episode date for productNo=" + productNo);
+
+        // JSON 응답을 받음
+        var conn = Jsoup.connect(apiUrl)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+                .referrer("https://series.naver.com/")
+                .header("Accept", "application/json, text/javascript, */*; q=0.01")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .ignoreContentType(true)
+                .timeout(15000);
+        
+        if (cookieString != null && !cookieString.isBlank()) {
+            conn.header("Cookie", cookieString);
+        }
+        
+        // JSON 응답을 텍스트로 받아서 파싱
+        String jsonResponse = conn.execute().body();
+        System.out.println("[DEBUG] JSON response length: " + jsonResponse.length() + " chars");
+        
+        // JSON에서 lastVolumeUpdateDate 추출 (간단한 문자열 파싱)
+        // 형식: "lastVolumeUpdateDate":"2025-08-20 00:01:38"
+        int idx = jsonResponse.indexOf("\"lastVolumeUpdateDate\"");
+        System.out.println("[DEBUG] lastVolumeUpdateDate field found at index: " + idx);
+        
+        if (idx >= 0) {
+            int startQuote = jsonResponse.indexOf("\"", idx + 23);
+            if (startQuote >= 0) {
+                int endQuote = jsonResponse.indexOf("\"", startQuote + 1);
+                if (endQuote >= 0) {
+                    String dateTime = jsonResponse.substring(startQuote + 1, endQuote);
+                    System.out.println("[DEBUG] Extracted dateTime: " + dateTime);
+                    
+                    // "2025-08-20 00:01:38" -> "2025-08-20" (ISO 8601 형식 유지, LocalDate.parse() 호환)
+                    if (dateTime != null && dateTime.length() >= 10) {
+                        String formattedDate = dateTime.substring(0, 10);  // yyyy-MM-dd 형식 유지
+                        System.out.println("[DEBUG] Formatted date: " + formattedDate);
+                        return formattedDate;
+                    }
+                }
+            }
+        }
+        
+        System.out.println("[DEBUG] Failed to extract date for productNo=" + productNo);
+        return null;
+    }
 
     private Document get(String url, String cookieString) throws Exception {
         var conn = Jsoup.connect(url)
@@ -232,6 +326,24 @@ public class NaverSeriesCrawler {
         return null;
     }
     // =======================================================================
+
+    /**
+     * 총 회차 수 추출: "총 <strong>193</strong>화" 형식에서 숫자 추출
+     * @param doc 상세 페이지 Document
+     * @return 회차 수 (없으면 null)
+     */
+    private static Long extractEpisodeCount(Document doc) {
+        Element episodeH5 = doc.selectFirst("h5.end_total_episode");
+        if (episodeH5 != null) {
+            Element strong = episodeH5.selectFirst("strong");
+            if (strong != null) {
+                try {
+                    return Long.parseLong(strong.text().trim().replace(",", ""));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return null;
+    }
 
 
     /** "2억 5,006만", "139.3만", "2.5천", "1,393,475" 등 지원 */

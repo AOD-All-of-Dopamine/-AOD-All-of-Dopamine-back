@@ -58,6 +58,27 @@ public class TmdbRankingFetcher {
         return fetchPopularContent(TmdbPlatformType.TV);
     }
 
+    /**
+     * 특정 콘텐츠의 Watch Providers 정보 조회
+     */
+    public JsonNode fetchWatchProviders(TmdbPlatformType platformType, String tmdbId) {
+        String endpoint = platformType == TmdbPlatformType.MOVIE ? "movie" : "tv";
+        String url = String.format("%s/%s/%s/watch/providers?api_key=%s",
+                tmdbBaseUrl,
+                endpoint,
+                tmdbId,
+                tmdbApiKey);
+        
+        try {
+            log.debug("TMDB Watch Providers API 호출: {}", url);
+            String response = restTemplate.getForObject(url, String.class);
+            return objectMapper.readTree(response);
+        } catch (Exception e) {
+            log.warn("TMDB Watch Providers 조회 실패 (ID: {}): {}", tmdbId, e.getMessage());
+            return null;
+        }
+    }
+
     private String buildUrl(TmdbPlatformType platformType) {
         return String.format("%s/%s?api_key=%s&language=%s&page=%d",
                 tmdbBaseUrl,

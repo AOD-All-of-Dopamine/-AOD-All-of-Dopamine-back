@@ -79,10 +79,12 @@ public class NaverWebtoonCrawler {
 
     /**
      * 완결 웹툰 크롤링 (페이지네이션)
+     * 완결 웹툰은 weekday를 null로 설정
      */
     public int crawlFinishedWebtoons(int maxPages) throws Exception {
         String crawlSource = "finish";
         try {
+            // 완결 웹툰은 weekday를 null로 전달
             return crawlWebtoonListWithPagination(BASE_FINISH_URL, crawlSource, null, maxPages);
         } finally {
             // 크롤링 후 정리
@@ -138,6 +140,13 @@ public class NaverWebtoonCrawler {
                     try {
                         // PC 페이지에서 상세 정보 보완
                         NaverWebtoonDTO completeDTO = enrichWithPcDetails(basicDTO, mobileUrl);
+                        
+                        // 19금 작품 등으로 제목을 찾을 수 없는 경우 스킵
+                        if (completeDTO == null || completeDTO.getTitle() == null || completeDTO.getTitle().trim().isEmpty()) {
+                            log.info("제목을 찾을 수 없는 작품 스킵 (19금 등): {}", mobileUrl);
+                            continue;
+                        }
+                        
                         saveToRaw(completeDTO);
                         totalSaved++;
 
@@ -152,15 +161,7 @@ public class NaverWebtoonCrawler {
                         Thread.currentThread().interrupt();
                         return totalSaved;
                     } catch (Exception e) {
-                        log.warn("웹툰 상세 정보 보완 실패: {}, {}", mobileUrl, e.getMessage());
-
-                        // 상세 정보 보완 실패해도 기본 정보라도 저장
-                        try {
-                            saveToRaw(basicDTO);
-                            totalSaved++;
-                        } catch (Exception e2) {
-                            log.error("기본 정보 저장도 실패: {}, {}", mobileUrl, e2.getMessage());
-                        }
+                        log.warn("웹툰 크롤링 실패, 스킵: {}, {}", mobileUrl, e.getMessage());
                     }
                 }
 
@@ -205,6 +206,13 @@ public class NaverWebtoonCrawler {
             try {
                 // PC 페이지에서 상세 정보 보완
                 NaverWebtoonDTO completeDTO = enrichWithPcDetails(basicDTO, mobileUrl);
+                
+                // 19금 작품 등으로 제목을 찾을 수 없는 경우 스킵
+                if (completeDTO == null || completeDTO.getTitle() == null || completeDTO.getTitle().trim().isEmpty()) {
+                    log.info("제목을 찾을 수 없는 작품 스킵 (19금 등): {}", mobileUrl);
+                    continue;
+                }
+                
                 saveToRaw(completeDTO);
                 saved++;
 
@@ -219,15 +227,7 @@ public class NaverWebtoonCrawler {
                 Thread.currentThread().interrupt();
                 return saved;
             } catch (Exception e) {
-                log.warn("웹툰 상세 정보 보완 실패: {}, {}", mobileUrl, e.getMessage());
-
-                // 상세 정보 보완 실패해도 기본 정보라도 저장
-                try {
-                    saveToRaw(basicDTO);
-                    saved++;
-                } catch (Exception e2) {
-                    log.error("기본 정보 저장도 실패: {}, {}", mobileUrl, e2.getMessage());
-                }
+                log.warn("웹툰 크롤링 실패, 스킵: {}, {}", mobileUrl, e.getMessage());
             }
         }
 
@@ -265,13 +265,13 @@ public class NaverWebtoonCrawler {
                 return mergeBasicAndDetailedInfo(basicDTO, enrichedDTO);
             }
 
-            // PC 파싱 실패시 기본 정보라도 반환
-            log.warn("PC 페이지 파싱 실패, 목록 기본 정보만 사용: {}", pcUrl);
-            return basicDTO;
+            // PC 파싱 실패시 null 반환 (19금 작품 등)
+            log.warn("PC 페이지 파싱 실패, 작품 스킵: {}", pcUrl);
+            return null;
 
         } catch (Exception e) {
-            log.warn("PC 페이지 접근 실패, 목록 기본 정보만 사용: {}, 오류: {}", pcUrl, e.getMessage());
-            return basicDTO;
+            log.warn("PC 페이지 접근 실패, 작품 스킵: {}, 오류: {}", pcUrl, e.getMessage());
+            return null;
         }
     }
 
@@ -288,20 +288,18 @@ public class NaverWebtoonCrawler {
                 .weekday(basicDTO.getWeekday())
                 .status(basicDTO.getStatus() != null ? basicDTO.getStatus() : detailedDTO.getStatus())
                 .likeCount(basicDTO.getLikeCount() != null ? basicDTO.getLikeCount() : detailedDTO.getLikeCount())
-                .isFree(basicDTO.getIsFree() != null ? basicDTO.getIsFree() : detailedDTO.getIsFree())
-                .hasAdult(basicDTO.getHasAdult() != null ? basicDTO.getHasAdult() : detailedDTO.getHasAdult())
                 .serviceType(basicDTO.getServiceType() != null ? basicDTO.getServiceType() : detailedDTO.getServiceType())
                 .originalPlatform(basicDTO.getOriginalPlatform())
                 .crawlSource(basicDTO.getCrawlSource())
 
                 // PC에서만 수집 가능한 상세 정보
-                .episodeCount(detailedDTO.getEpisodeCount())  // 다시 추가
+                .episodeCount(detailedDTO.getEpisodeCount())
                 .likeCount(detailedDTO.getLikeCount())
                 .synopsis(detailedDTO.getSynopsis())
                 .productUrl(detailedDTO.getProductUrl()) // PC URL 사용
-                .episodeCount(detailedDTO.getEpisodeCount())
                 .ageRating(detailedDTO.getAgeRating())
                 .tags(detailedDTO.getTags())
+                .releaseDate(detailedDTO.getReleaseDate()) // 첫 화 연재 날짜 (PC에서만 수집)
                 .build();
     }
 
@@ -322,14 +320,14 @@ public class NaverWebtoonCrawler {
         payload.put("weekday", nz(dto.getWeekday()));
         payload.put("status", nz(dto.getStatus()));
         payload.put("episodeCount", dto.getEpisodeCount());
+        // LocalDate를 String으로 변환하여 저장 (JSON 직렬화 문제 방지)
+        payload.put("releaseDate", dto.getReleaseDate() != null ? dto.getReleaseDate().toString() : null);
 
         payload.put("ageRating", nz(dto.getAgeRating()));
         payload.put("tags", dto.getTags());
 
         payload.put("likeCount", dto.getLikeCount());
 
-        payload.put("isFree", dto.getIsFree());
-        payload.put("hasAdult", dto.getHasAdult());
         payload.put("serviceType", nz(dto.getServiceType()));
 
         payload.put("originalPlatform", nz(dto.getOriginalPlatform()));

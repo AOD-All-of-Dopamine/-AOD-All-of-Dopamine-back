@@ -244,15 +244,16 @@ public class WorkApiService {
             case WEBTOON:
                 webtoonContentRepository.findById(content.getContentId()).ifPresent(webtoon -> {
                     info.put("author", webtoon.getAuthor());
-                    info.put("illustrator", webtoon.getIllustrator());
                     info.put("status", webtoon.getStatus());
+                    info.put("weekday", webtoon.getWeekday());
                     if (webtoon.getGenres() != null) {
                         info.put("genres", webtoon.getGenres());
                     }
-                    if (webtoon.getStartedAt() != null) {
-                        info.put("startedAt", webtoon.getStartedAt().toString());
-                    }
                 });
+                // releaseDate는 Content에서 가져옴
+                if (content.getReleaseDate() != null) {
+                    info.put("releaseDate", content.getReleaseDate().toString());
+                }
                 break;
             case WEBNOVEL:
                 webnovelContentRepository.findById(content.getContentId()).ifPresent(novel -> {
@@ -262,8 +263,8 @@ public class WorkApiService {
                     if (novel.getGenres() != null) {
                         info.put("genres", novel.getGenres());
                     }
-                    if (novel.getStartedAt() != null) {
-                        info.put("startedAt", novel.getStartedAt().toString());
+                    if (novel.getContent().getReleaseDate() != null) {
+                        info.put("startedAt", novel.getContent().getReleaseDate().toString());
                     }
                 });
                 break;
