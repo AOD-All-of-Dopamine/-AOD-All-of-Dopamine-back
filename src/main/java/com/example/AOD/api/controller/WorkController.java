@@ -113,7 +113,7 @@ public class WorkController {
     }
 
     /**
-     * 도메인별 사용 가능한 장르 목록 조회
+     * 도메인별 사용 가능한 장르 목록 조회 (작품 수 기준 정렬)
      * GET /api/works/genres?domain=GAME
      */
     @GetMapping("/genres")
@@ -132,6 +132,28 @@ public class WorkController {
 
         java.util.List<String> genres = workApiService.getAvailableGenres(domainEnum);
         return ResponseEntity.ok(genres);
+    }
+
+    /**
+     * 도메인별 장르별 작품 수 조회 (작품 수 기준 내림차순 정렬)
+     * GET /api/works/genres-with-count?domain=GAME
+     */
+    @GetMapping("/genres-with-count")
+    public ResponseEntity<java.util.Map<String, Long>> getGenresWithCount(
+            @RequestParam(required = false) String domain
+    ) {
+        Domain domainEnum = null;
+        if (domain != null && !domain.isBlank()) {
+            try {
+                domainEnum = Domain.valueOf(domain.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid domain parameter: {}", domain);
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+        java.util.Map<String, Long> genresWithCount = workApiService.getGenresWithCount(domainEnum);
+        return ResponseEntity.ok(genresWithCount);
     }
 
     /**

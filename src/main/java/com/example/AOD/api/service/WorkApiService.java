@@ -592,6 +592,78 @@ public class WorkApiService {
     }
 
     /**
+     * 도메인별 장르별 작품 수 조회 (작품 수 기준 내림차순 정렬)
+     */
+    public Map<String, Long> getGenresWithCount(Domain domain) {
+        Map<String, Long> genreCounts = new HashMap<>();
+        
+        if (domain == null) {
+            // 전체 도메인의 장르별 카운트
+            addGenreCountsForDomain(genreCounts, Domain.MOVIE);
+            addGenreCountsForDomain(genreCounts, Domain.TV);
+            addGenreCountsForDomain(genreCounts, Domain.GAME);
+            addGenreCountsForDomain(genreCounts, Domain.WEBTOON);
+            addGenreCountsForDomain(genreCounts, Domain.WEBNOVEL);
+        } else {
+            addGenreCountsForDomain(genreCounts, domain);
+        }
+        
+        // 작품 수 기준 내림차순 정렬하여 LinkedHashMap으로 반환
+        return genreCounts.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    /**
+     * 특정 도메인의 장르별 작품 수 카운트
+     */
+    private void addGenreCountsForDomain(Map<String, Long> genreCounts, Domain domain) {
+        Collection<?> contents;
+        
+        switch (domain) {
+            case MOVIE:
+                contents = movieContentRepository.findAll();
+                break;
+            case TV:
+                contents = tvContentRepository.findAll();
+                break;
+            case GAME:
+                contents = gameContentRepository.findAll();
+                break;
+            case WEBTOON:
+                contents = webtoonContentRepository.findAll();
+                break;
+            case WEBNOVEL:
+                contents = webnovelContentRepository.findAll();
+                break;
+            default:
+                return;
+        }
+        
+        for (Object obj : contents) {
+            List<String> genres = null;
+            if (obj instanceof MovieContent) genres = ((MovieContent) obj).getGenres();
+            else if (obj instanceof TvContent) genres = ((TvContent) obj).getGenres();
+            else if (obj instanceof GameContent) genres = ((GameContent) obj).getGenres();
+            else if (obj instanceof WebtoonContent) genres = ((WebtoonContent) obj).getGenres();
+            else if (obj instanceof WebnovelContent) genres = ((WebnovelContent) obj).getGenres();
+            
+            if (genres != null) {
+                for (String genre : genres) {
+                    if (genre != null && !genre.isBlank()) {
+                        genreCounts.merge(genre, 1L, Long::sum);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * 특정 도메인의 장르 목록 수집
      */
     private Set<String> getGenresForDomain(Domain domain) {
