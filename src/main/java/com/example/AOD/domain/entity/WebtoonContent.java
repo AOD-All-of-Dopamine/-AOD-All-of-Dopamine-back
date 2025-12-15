@@ -4,13 +4,12 @@ package com.example.AOD.domain.entity;
 
 import com.example.AOD.domain.Content;
 import jakarta.persistence.*;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
-import com.vladmihalcea.hibernate.type.json.JsonType;
 import org.springframework.data.domain.Persistable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity @Table(name="webtoon_contents")
 @Setter
@@ -41,9 +40,9 @@ public class WebtoonContent implements Persistable<Long> {
     private String weekday;     // 연재 요일 (mon, tue, wed 등), 완결작은 null
     private String ageRating;   // 연령등급 (전체이용가, 15세이용가 등)
 
-    @Type(JsonType.class)
-    @Column(columnDefinition="jsonb")
-    private List<String> genres;
+    // 장르 목록 (PostgreSQL text[] 배열)
+    @Column(name = "genres", columnDefinition = "text[]")
+    private List<String> genres = new ArrayList<>();
 
     // getters/setters...
 

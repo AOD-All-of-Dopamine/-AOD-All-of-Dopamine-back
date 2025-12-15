@@ -2,13 +2,12 @@ package com.example.AOD.domain.entity;
 
 import com.example.AOD.domain.Content;
 import jakarta.persistence.*;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
-import com.vladmihalcea.hibernate.type.json.JsonType;
 import org.springframework.data.domain.Persistable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity @Table(name="webnovel_contents")
 @Getter
@@ -39,9 +38,9 @@ public class WebnovelContent implements Persistable<Long> {
     @Column(length = 50)
     private String ageRating;
 
-    @Type(JsonType.class)
-    @Column(columnDefinition="jsonb")
-    private List<String> genres;
+    // 장르 목록 (PostgreSQL text[] 배열)
+    @Column(name = "genres", columnDefinition = "text[]")
+    private List<String> genres = new ArrayList<>();
 
     @Override
     public Long getId() {

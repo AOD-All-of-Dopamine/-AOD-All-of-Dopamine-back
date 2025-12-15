@@ -1,9 +1,15 @@
 package com.example.AOD.performance;
 
+import com.example.AOD.api.dto.PageResponse;
+import com.example.AOD.api.dto.WorkSummaryDTO;
+import com.example.AOD.api.service.WorkApiService;
+import com.example.AOD.domain.entity.Domain;
 import com.example.AOD.ingest.BatchTransformService;
 import com.example.AOD.ingest.BatchTransformServiceOptimized;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileWriter;
@@ -14,7 +20,9 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 🔬 성능 측정 전용 컨트롤러
@@ -28,6 +36,7 @@ public class PerformanceTestController {
 
     private final BatchTransformService originalService;
     private final BatchTransformServiceOptimized optimizedService;
+    private final WorkApiService workApiService;
     
     // 🔥 Actuator 통합 모니터 (기존 PerformanceMonitor 대신)
     private final PerformanceMonitorWithActuator actuatorMonitor;
@@ -486,5 +495,94 @@ public class PerformanceTestController {
         private double speedImprovementFactor;
         private double timeReductionPercent;
         private String comparisonSummary;
+    }
+    
+    // ========================================
+    // 🔥 장르 필터링 성능 테스트
+    // ========================================
+    
+    /**
+     * 장르 필터링 성능 테스트 - DB 레벨 필터링
+     */
+    @GetMapping("/test/genre-filtering")
+    public Map<String, Object> testGenreFiltering(
+            @RequestParam(required = false) Domain domain,
+            @RequestParam(required = false) List<String> genres,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        
+        if (genres == null || genres.isEmpty()) {
+            return Map.of("error", "genres parameter is required");
+        }
+        
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // DB 레벨 필터링 테스트
+        long dbStartTime = System.currentTimeMillis();
+        PageResponse<WorkSummaryDTO> dbResult = workApiService.getWorks(domain, null, null, genres, pageable);
+        long dbEndTime = System.currentTimeMillis();
+        long dbDuration = dbEndTime - dbStartTime;
+        
+        // 결과 구성
+        Map<String, Object> response = new HashMap<>();
+        response.put("testInfo", Map.of(
+                "domain", domain != null ? domain.name() : "ALL",
+                "genres", genres,
+                "page", page,
+                "size", size
+        ));
+        
+        response.put("dbLevelFiltering", Map.of(
+                "duration", dbDuration + "ms",
+                "totalElements", dbResult.getTotalElements(),
+                "totalPages", dbResult.getTotalPages(),
+                "resultCount", dbResult.getContent().size()
+        ));
+        
+        log.info("🔍 Genre filtering test - Domain: {}, Genres: {}, Duration: {}ms, Results: {}",
+                domain, genres, dbDuration, dbResult.getTotalElements());
+        
+        return response;
+    }
+    
+    /**
+     * 쿼리 실행 계획 확인 가이드
+     */
+    @GetMapping("/test/query-plan-guide")
+    public Map<String, String> getQueryPlanGuide(
+            @RequestParam Domain domain,
+            @RequestParam List<String> genres) {
+        
+        String queryPlanInfo = String.format("""
+                PostgreSQL JSONB Query Plan Test
+                =================================
+                
+                Current Query:
+                SELECT * FROM %s_contents 
+                WHERE genres ?& CAST(ARRAY[%s] AS text[])
+                
+                To check execution plan in psql:
+                EXPLAIN ANALYZE 
+                SELECT * FROM %s_contents 
+                WHERE genres ?& CAST(ARRAY[%s] AS text[]);
+                
+                Recommended Index (auto-created on startup):
+                CREATE INDEX IF NOT EXISTS idx_%s_genres ON %s_contents USING GIN (genres);
+                
+                Check if index exists:
+                SELECT indexname, indexdef 
+                FROM pg_indexes 
+                WHERE tablename = '%s_contents' AND indexname LIKE '%%genres%%';
+                """,
+                domain.name().toLowerCase(),
+                String.join(",", genres.stream().map(g -> "'" + g + "'").toArray(String[]::new)),
+                domain.name().toLowerCase(),
+                String.join(",", genres.stream().map(g -> "'" + g + "'").toArray(String[]::new)),
+                domain.name().toLowerCase(),
+                domain.name().toLowerCase(),
+                domain.name().toLowerCase()
+        );
+        
+        return Map.of("queryPlan", queryPlanInfo);
     }
 }

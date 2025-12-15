@@ -1,14 +1,13 @@
 package com.example.AOD.domain.entity;
 
 import com.example.AOD.domain.Content;
-import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,20 +46,17 @@ public class MovieContent implements Persistable<Long> {
     // 상영 시간 (분)
     private Integer runtime;
 
-    // 장르 목록
-    @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb")
-    private List<String> genres;
+    // 장르 목록 (PostgreSQL text[] 배열)
+    @Column(name = "genres", columnDefinition = "text[]")
+    private List<String> genres = new ArrayList<>();
 
-    // 감독 목록
-    @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb")
-    private List<String> directors;
+    // 감독 목록 (PostgreSQL text[] 배열)
+    @Column(name = "directors", columnDefinition = "text[]")
+    private List<String> directors = new ArrayList<>();
 
-    // 출연진 목록 (상위 10명)
-    @Type(JsonType.class)
-    @Column(name = "cast_members", columnDefinition = "jsonb")
-    private List<String> cast;
+    // 출연진 목록 (PostgreSQL text[] 배열)
+    @Column(name = "cast_members", columnDefinition = "text[]")
+    private List<String> cast = new ArrayList<>();
 
     // TODO: OTT 플랫폼 정보 추가 (예: ["Netflix", "Disney Plus", "Watcha"])
     // @Type(JsonType.class)

@@ -2,16 +2,17 @@ package com.example.AOD.domain.entity;
 
 
 import com.example.AOD.domain.Content;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
-import com.vladmihalcea.hibernate.type.json.JsonType;
 import org.springframework.data.domain.Persistable;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Entity @Table(name="game_contents")
 @Getter
@@ -41,13 +42,14 @@ public class GameContent implements Persistable<Long> {
     private String publisher;
     private LocalDate releaseDate;
 
+    // platforms는 객체이므로 JSONB 유지
     @Type(JsonType.class)
     @Column(columnDefinition="jsonb")
     private Map<String,Object> platforms; // {windows:true, mac:false, ...}
 
-    @Type(JsonType.class)
-    @Column(columnDefinition="jsonb")
-    private List<String> genres;    // 자유 형식
+    // 장르 목록 (PostgreSQL text[] 배열)
+    @Column(name = "genres", columnDefinition = "text[]")
+    private List<String> genres = new ArrayList<>();
 
     // getters/setters...
 

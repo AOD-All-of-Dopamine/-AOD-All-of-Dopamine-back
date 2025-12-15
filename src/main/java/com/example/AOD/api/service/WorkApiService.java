@@ -36,68 +36,187 @@ public class WorkApiService {
 
     /**
      * 작품 목록 조회 (필터링, 페이징)
+     * - 장르 필터링은 DB 레벨에서 처리 (성능 최적화)
+     * - 플랫폼 필터링은 메모리에서 처리 (platform_data 조인 필요)
      */
     public PageResponse<WorkSummaryDTO> getWorks(Domain domain, String keyword, List<String> platforms, List<String> genres, Pageable pageable) {
-        // 필터링이 필요한 경우 더 많은 데이터를 가져와서 필터링 후 페이징
-        boolean needsFiltering = (platforms != null && !platforms.isEmpty()) || (genres != null && !genres.isEmpty());
+        log.debug("getWorks - domain: {}, keyword: {}, platforms: {}, genres: {}, page: {}", 
+                  domain, keyword, platforms, genres, pageable.getPageNumber());
         
-        List<Content> allFilteredContent;
-        
-        if (needsFiltering) {
-            // 필터링이 필요한 경우: 모든 데이터를 가져와서 필터링
-            List<Content> allContent;
-            if (keyword != null && !keyword.isBlank()) {
-                if (domain != null) {
-                    allContent = contentRepository.searchByDomainAndKeyword(domain, keyword, Pageable.unpaged()).getContent();
-                } else {
-                    allContent = contentRepository.searchByKeyword(keyword, Pageable.unpaged()).getContent();
-                }
-            } else if (domain != null) {
-                allContent = contentRepository.findByDomain(domain, Pageable.unpaged()).getContent();
-            } else {
-                allContent = contentRepository.findAll(Pageable.unpaged()).getContent();
-            }
-            
-            // 플랫폼 및 장르 필터링
-            allFilteredContent = allContent.stream()
-                    .filter(c -> filterByPlatforms(c, platforms))
-                    .filter(c -> filterByGenres(c, genres))
-                    .collect(Collectors.toList());
-            
-        } else {
-            // 필터링이 없는 경우: 기존 방식대로 페이징된 데이터 가져오기
-            Page<Content> contentPage;
-            if (keyword != null && !keyword.isBlank()) {
-                if (domain != null) {
-                    contentPage = contentRepository.searchByDomainAndKeyword(domain, keyword, pageable);
-                } else {
-                    contentPage = contentRepository.searchByKeyword(keyword, pageable);
-                }
-            } else if (domain != null) {
-                contentPage = contentRepository.findByDomain(domain, pageable);
-            } else {
-                contentPage = contentRepository.findAll(pageable);
-            }
-            allFilteredContent = contentPage.getContent();
+        // 장르 필터링이 있는 경우 - DB 레벨에서 처리
+        if (genres != null && !genres.isEmpty()) {
+            return getWorksByGenresWithDbFiltering(domain, keyword, platforms, genres, pageable);
         }
         
+        // 장르 필터링이 없고 플랫폼 필터링만 있는 경우 - 메모리 필터링
+        if (platforms != null && !platforms.isEmpty()) {
+            return getWorksByPlatforms(domain, keyword, platforms, pageable);
+        }
+        
+        // 필터링 없는 기본 조회
+        return getWorksWithoutFiltering(domain, keyword, pageable);
+    }
+    
+    /**
+     * 장르 필터링 - DB 레벨에서 처리 (PostgreSQL JSONB 쿼리 사용)
+     */
+    private PageResponse<WorkSummaryDTO> getWorksByGenresWithDbFiltering(
+            Domain domain, String keyword, List<String> platforms, List<String> genres, Pageable pageable) {
+        
+        if (domain == null) {
+            log.warn("Genre filtering requires domain to be specified");
+            return getWorksWithoutFiltering(null, keyword, pageable);
+        }
+        
+        String[] genreArray = genres.toArray(new String[0]);
+        List<Long> filteredContentIds = new ArrayList<>();
+        
+        // 각 도메인별로 DB에서 장르 필터링
+        switch (domain) {
+            case MOVIE:
+                Page<MovieContent> moviePage = movieContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                filteredContentIds = moviePage.getContent().stream()
+                        .map(MovieContent::getContentId)
+                        .collect(Collectors.toList());
+                break;
+            case TV:
+                Page<TvContent> tvPage = tvContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                filteredContentIds = tvPage.getContent().stream()
+                        .map(TvContent::getContentId)
+                        .collect(Collectors.toList());
+                break;
+            case GAME:
+                Page<GameContent> gamePage = gameContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                filteredContentIds = gamePage.getContent().stream()
+                        .map(GameContent::getContentId)
+                        .collect(Collectors.toList());
+                break;
+            case WEBTOON:
+                Page<WebtoonContent> webtoonPage = webtoonContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                filteredContentIds = webtoonPage.getContent().stream()
+                        .map(WebtoonContent::getContentId)
+                        .collect(Collectors.toList());
+                break;
+            case WEBNOVEL:
+                Page<WebnovelContent> webnovelPage = webnovelContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                filteredContentIds = webnovelPage.getContent().stream()
+                        .map(WebnovelContent::getContentId)
+                        .collect(Collectors.toList());
+                break;
+            default:
+                log.warn("Unsupported domain for genre filtering: {}", domain);
+                return PageResponse.<WorkSummaryDTO>builder()
+                        .content(Collections.emptyList())
+                        .page(0).size(0).totalElements(0L).totalPages(0)
+                        .first(true).last(true).build();
+        }
+        
+        if (filteredContentIds.isEmpty()) {
+            return PageResponse.<WorkSummaryDTO>builder()
+                    .content(Collections.emptyList())
+                    .page(0).size(0).totalElements(0L).totalPages(0)
+                    .first(true).last(true).build();
+        }
+        
+        // Content ID로 Content 조회
+        List<Content> filteredContents = contentRepository.findByContentIdIn(filteredContentIds);
+        
+        // 키워드 필터링 (있는 경우)
+        if (keyword != null && !keyword.isBlank()) {
+            String lowerKeyword = keyword.toLowerCase();
+            filteredContents = filteredContents.stream()
+                    .filter(c -> c.getMasterTitle().toLowerCase().contains(lowerKeyword) ||
+                               (c.getOriginalTitle() != null && c.getOriginalTitle().toLowerCase().contains(lowerKeyword)))
+                    .collect(Collectors.toList());
+        }
+        
+        // 플랫폼 필터링 (있는 경우)
+        if (platforms != null && !platforms.isEmpty()) {
+            filteredContents = filteredContents.stream()
+                    .filter(c -> filterByPlatforms(c, platforms))
+                    .collect(Collectors.toList());
+        }
+        
+        // 정렬 및 페이징 적용
+        return applyPaginationAndMapping(filteredContents, pageable);
+    }
+    
+    /**
+     * 플랫폼 필터링만 있는 경우
+     */
+    private PageResponse<WorkSummaryDTO> getWorksByPlatforms(Domain domain, String keyword, List<String> platforms, Pageable pageable) {
+        // 모든 데이터를 가져와서 플랫폼 필터링
+        List<Content> allContent;
+        if (keyword != null && !keyword.isBlank()) {
+            if (domain != null) {
+                allContent = contentRepository.searchByDomainAndKeyword(domain, keyword, Pageable.unpaged()).getContent();
+            } else {
+                allContent = contentRepository.searchByKeyword(keyword, Pageable.unpaged()).getContent();
+            }
+        } else if (domain != null) {
+            allContent = contentRepository.findByDomain(domain, Pageable.unpaged()).getContent();
+        } else {
+            allContent = contentRepository.findAll(Pageable.unpaged()).getContent();
+        }
+        
+        List<Content> filtered = allContent.stream()
+                .filter(c -> filterByPlatforms(c, platforms))
+                .collect(Collectors.toList());
+        
+        return applyPaginationAndMapping(filtered, pageable);
+    }
+    
+    /**
+     * 필터링 없는 기본 조회
+     */
+    private PageResponse<WorkSummaryDTO> getWorksWithoutFiltering(Domain domain, String keyword, Pageable pageable) {
+        Page<Content> contentPage;
+        if (keyword != null && !keyword.isBlank()) {
+            if (domain != null) {
+                contentPage = contentRepository.searchByDomainAndKeyword(domain, keyword, pageable);
+            } else {
+                contentPage = contentRepository.searchByKeyword(keyword, pageable);
+            }
+        } else if (domain != null) {
+            contentPage = contentRepository.findByDomain(domain, pageable);
+        } else {
+            contentPage = contentRepository.findAll(pageable);
+        }
+        
+        return PageResponse.<WorkSummaryDTO>builder()
+                .content(contentPage.getContent().stream()
+                        .map(this::toWorkSummary)
+                        .collect(Collectors.toList()))
+                .page(contentPage.getNumber())
+                .size(contentPage.getSize())
+                .totalElements(contentPage.getTotalElements())
+                .totalPages(contentPage.getTotalPages())
+                .first(contentPage.isFirst())
+                .last(contentPage.isLast())
+                .build();
+    }
+    
+    /**
+     * 정렬 및 페이징 적용 후 DTO 매핑
+     */
+    private PageResponse<WorkSummaryDTO> applyPaginationAndMapping(List<Content> contents, Pageable pageable) {
         // 정렬 적용
         if (pageable.getSort().isSorted()) {
-            allFilteredContent = applySorting(allFilteredContent, pageable.getSort());
+            contents = applySorting(contents, pageable.getSort());
         }
         
         // 수동 페이징
         int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), allFilteredContent.size());
+        int end = Math.min(start + pageable.getPageSize(), contents.size());
         
-        List<WorkSummaryDTO> pagedContent = allFilteredContent.subList(
-                Math.min(start, allFilteredContent.size()),
+        List<WorkSummaryDTO> pagedContent = contents.subList(
+                Math.min(start, contents.size()),
                 end
         ).stream()
                 .map(this::toWorkSummary)
                 .collect(Collectors.toList());
         
-        int totalElements = allFilteredContent.size();
+        int totalElements = contents.size();
         int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
         
         return PageResponse.<WorkSummaryDTO>builder()
@@ -401,7 +520,10 @@ public class WorkApiService {
 
     /**
      * 장르 필터링 헬퍼 메서드 (복수 장르 지원)
+     * @deprecated DB 레벨 필터링 사용 - filterByGenresContainingAll in repositories
+     * 메모리 필터링이 필요한 경우에만 사용
      */
+    @Deprecated
     private boolean filterByGenres(Content content, List<String> genres) {
         if (genres == null || genres.isEmpty()) {
             return true; // 필터링 없음
@@ -410,9 +532,9 @@ public class WorkApiService {
         Domain domain = content.getDomain();
         List<String> contentGenres = getContentGenres(content, domain);
         
-        // 선택된 장르 중 하나라도 포함되면 true
+        // 선택된 모든 장르가 포함되어야 true (AND 조건)
         return genres.stream()
-                .anyMatch(genre -> contentGenres.stream()
+                .allMatch(genre -> contentGenres.stream()
                         .anyMatch(cg -> cg.equalsIgnoreCase(genre)));
     }
     
@@ -444,30 +566,6 @@ public class WorkApiService {
             default:
                 return new ArrayList<>();
         }
-    }
-
-    /**
-     * 플랫폼 필터링 헬퍼 메서드 (단일 - 하위 호환성)
-     * @deprecated Use filterByPlatforms instead
-     */
-    @Deprecated
-    private boolean filterByPlatform(Content content, String platform) {
-        if (platform == null || platform.isBlank()) {
-            return true;
-        }
-        return filterByPlatforms(content, Collections.singletonList(platform));
-    }
-
-    /**
-     * 장르 필터링 헬퍼 메서드 (단일 - 하위 호환성)
-     * @deprecated Use filterByGenres instead
-     */
-    @Deprecated
-    private boolean filterByGenre(Content content, String genre) {
-        if (genre == null || genre.isBlank()) {
-            return true;
-        }
-        return filterByGenres(content, Collections.singletonList(genre));
     }
 
     /**
