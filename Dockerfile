@@ -17,19 +17,54 @@ COPY src ./src
 # Build application
 RUN ./gradlew bootJar -x test --no-daemon
 
-# Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+# Runtime stage - Debian 기반으로 변경 (Chrome 설치 위해)
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
+# Install Chrome and dependencies for Selenium
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    curl \
+    unzip \
+    # Chrome 의존성
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libatspi2.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libwayland-client0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxkbcommon0 \
+    libxrandr2 \
+    xdg-utils \
+    # Chrome 설치
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    # 캐시 정리
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Chrome 버전 확인 (로그에 표시)
+RUN google-chrome --version
 
 # Copy jar from build stage
 COPY --from=build /app/build/libs/*.jar app.jar
 
 # Create non-root user
-RUN addgroup -g 1001 appuser && \
-    adduser -u 1001 -G appuser -s /bin/sh -D appuser && \
+RUN groupadd -g 1001 appuser && \
+    useradd -u 1001 -g appuser -s /bin/bash -d /home/appuser -m appuser && \
     chown -R appuser:appuser /app
 
 USER appuser
