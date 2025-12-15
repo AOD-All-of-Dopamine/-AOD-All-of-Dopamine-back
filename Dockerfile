@@ -27,17 +27,17 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     curl \
     unzip \
-    # Chrome 의존성
+    # Chrome 의존성 (Ubuntu 24.04 Noble 호환)
     fonts-liberation \
-    libasound2 \
+    libasound2t64 \
     libatk-bridge2.0-0 \
     libatk1.0-0 \
     libatspi2.0-0 \
-    libcups2 \
+    libcups2t64 \
     libdbus-1-3 \
     libdrm2 \
     libgbm1 \
-    libgtk-3-0 \
+    libgtk-3-0t64 \
     libnspr4 \
     libnss3 \
     libwayland-client0 \
