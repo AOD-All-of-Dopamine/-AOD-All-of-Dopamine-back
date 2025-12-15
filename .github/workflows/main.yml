@@ -34,6 +34,8 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: ./gradlew clean build -x test
 
       - name: Configure AWS credentials
@@ -95,6 +97,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           NAVER_ID: ${{ secrets.NAVER_ID }}
           NAVER_PW: ${{ secrets.NAVER_PW }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           ECR_REGISTRY: ${{ needs.build-and-push.outputs.registry }}
           AWS_REGION: ${{ env.AWS_REGION }}
         run: |
@@ -128,6 +131,7 @@ jobs:
             export OPENAI_API_KEY='${OPENAI_API_KEY}'
             export NAVER_ID='${NAVER_ID}'
             export NAVER_PW='${NAVER_PW}'
+            export SENTRY_DSN='${SENTRY_DSN}'
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
 

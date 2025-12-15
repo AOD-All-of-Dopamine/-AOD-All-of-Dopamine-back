@@ -1,0 +1,529 @@
+{
+  "id": null,
+  "uid": "aod-crawling-monitoring",
+  "title": "AOD 크롤링 모니터링 대시보드",
+  "tags": ["crawling", "monitoring", "errors", "spring-boot"],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "크롤링 성공률 (%)",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "(crawling_success_total / (crawling_success_total + crawling_failure_total)) * 100",
+          "legendFormat": "성공률",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "red"
+              },
+              {
+                "value": 80,
+                "color": "yellow"
+              },
+              {
+                "value": 95,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "총 저장된 작품 수",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "crawling_items_saved_total",
+          "legendFormat": "저장 작품",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "크롤링 성공/실패 건수",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "crawling_success_total",
+          "legendFormat": "성공",
+          "refId": "A"
+        },
+        {
+          "expr": "crawling_failure_total",
+          "legendFormat": "실패",
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "textMode": "value_and_name",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 4,
+      "title": "API 에러 수",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "api_errors_total",
+          "legendFormat": "API 에러",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value_and_name",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 10,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "시간별 크롤링 성공/실패 추이",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(crawling_success_total[5m]) * 300",
+          "legendFormat": "성공 (5분당)",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(crawling_failure_total[5m]) * 300",
+          "legendFormat": "실패 (5분당)",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "건수"
+        }
+      ],
+      "lines": true,
+      "fill": 2,
+      "linewidth": 2
+    },
+    {
+      "id": 6,
+      "title": "시간별 저장 작품 수",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(crawling_items_saved_total[5m]) * 300",
+          "legendFormat": "저장 작품 (5분당)",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "작품 수"
+        }
+      ],
+      "lines": true,
+      "fill": 2,
+      "linewidth": 2
+    },
+    {
+      "id": 7,
+      "title": "도메인별 크롤링 분포",
+      "type": "piechart",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "crawling_domain_movie_total",
+          "legendFormat": "영화",
+          "refId": "A"
+        },
+        {
+          "expr": "crawling_domain_tv_total",
+          "legendFormat": "TV",
+          "refId": "B"
+        },
+        {
+          "expr": "crawling_domain_game_total",
+          "legendFormat": "게임",
+          "refId": "C"
+        },
+        {
+          "expr": "crawling_domain_webtoon_total",
+          "legendFormat": "웹툰",
+          "refId": "D"
+        },
+        {
+          "expr": "crawling_domain_webnovel_total",
+          "legendFormat": "웹소설",
+          "refId": "E"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "pieType": "pie",
+        "displayLabels": ["percent"],
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "플랫폼별 크롤링 성공률",
+      "type": "table",
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 14
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "sum by (platform, domain) (crawling_success_by_platform_total)",
+          "legendFormat": "{{platform}}-{{domain}}",
+          "refId": "A",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "platform": "플랫폼",
+              "domain": "도메인",
+              "Value": "성공 횟수"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "에러율 추이",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(crawling_failure_total[5m]) / (rate(crawling_success_total[5m]) + rate(crawling_failure_total[5m])) * 100",
+          "legendFormat": "크롤링 에러율 (%)",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(api_errors_total[5m]) * 300",
+          "legendFormat": "API 에러 (5분당)",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": "에러율 / 에러 수"
+        }
+      ],
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [10],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": ["A", "5m", "now"]
+            },
+            "reducer": {
+              "params": [],
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "for": "5m",
+        "frequency": "1m",
+        "handler": 1,
+        "name": "크롤링 에러율 높음",
+        "noDataState": "no_data",
+        "notifications": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "중복 작품 비율",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(crawling_items_duplicate_total[5m]) * 300",
+          "legendFormat": "중복 (5분당)",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(crawling_items_saved_total[5m]) * 300",
+          "legendFormat": "신규 (5분당)",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "작품 수"
+        }
+      ],
+      "stack": true
+    },
+    {
+      "id": 11,
+      "title": "DB 연결 & 쿼리 에러",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "rate(db_connection_errors_total[5m]) * 300",
+          "legendFormat": "DB 연결 에러",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(db_query_errors_total[5m]) * 300",
+          "legendFormat": "DB 쿼리 에러",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "에러 수"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "JVM 메모리 사용률",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "(jvm_memory_used_bytes{area=\"heap\"} / jvm_memory_max_bytes{area=\"heap\"}) * 100",
+          "legendFormat": "Heap 사용률 (%)",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": "메모리",
+          "max": 100,
+          "min": 0
+        }
+      ],
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [85],
+              "type": "gt"
+            },
+            "query": {
+              "params": ["A", "5m", "now"]
+            },
+            "reducer": {
+              "params": [],
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "for": "5m",
+        "frequency": "1m",
+        "handler": 1,
+        "name": "높은 메모리 사용률",
+        "noDataState": "no_data"
+      }
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 27,
+  "style": "dark",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
+  },
+  "version": 1
+}

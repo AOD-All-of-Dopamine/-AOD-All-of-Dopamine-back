@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'io.sentry.jvm.gradle' version '5.12.2'  // Sentry 소스 컨텍스트
 }
 
 group = 'com.example'
@@ -79,11 +80,31 @@ dependencies {
 	testImplementation 'org.testcontainers:postgresql'
 	testImplementation 'org.testcontainers:testcontainers'
 
-	//모니터링
+	// === 모니터링 ===
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
+	
+	// Sentry (에러 추적 및 모니터링)
+	// Gradle Plugin과 동일한 버전 사용 (8.22.0)
+	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:8.22.0'
+	implementation 'io.sentry:sentry-logback:8.22.0'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// ===== Sentry 설정 (소스 컨텍스트 업로드) =====
+sentry {
+	// 소스 코드를 Sentry에 업로드하여 스택 트레이스에서 코드 확인 가능
+	includeSourceContext = true
+	
+	org = "aod-hd"
+	projectName = "java-spring-boot"
+	
+	// 환경변수 SENTRY_AUTH_TOKEN 사용
+	authToken = System.getenv("SENTRY_AUTH_TOKEN")
+	
+	// 로컬에서는 업로드 스킵, CI/CD나 명시적 활성화 시에만 업로드
+	autoUpload = System.getenv("SENTRY_AUTH_TOKEN") != null && System.getenv("SENTRY_AUTH_TOKEN") != ""
 }

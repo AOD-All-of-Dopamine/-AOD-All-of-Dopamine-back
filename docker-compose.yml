@@ -24,6 +24,9 @@ services:
       TMDB_API_KEY: ${TMDB_API_KEY}
       STEAM_API_KEY: ${STEAM_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      
+      # Sentry 에러 추적
+      SENTRY_DSN: ${SENTRY_DSN}
 
     networks:
       - aod-network
