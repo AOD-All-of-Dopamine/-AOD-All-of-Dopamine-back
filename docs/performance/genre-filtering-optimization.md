@@ -24,9 +24,9 @@ allContent.stream()
 
 ### After (DB 레벨 필터링)
 ```java
-// PostgreSQL JSONB 쿼리로 필터링
+// PostgreSQL text[] 배열 쿼리로 필터링
 @Query(value = "SELECT m.* FROM movie_contents m " +
-       "WHERE m.genres ?& CAST(:genres AS text[])",
+       "WHERE m.genres @> CAST(:genres AS text[])",
        nativeQuery = true)
 Page<MovieContent> findByGenresContainingAll(@Param("genres") String[] genres, Pageable pageable);
 ```
@@ -47,9 +47,9 @@ Page<MovieContent> findByGenresContainingAll(@Param("genres") String[] genres, P
 - ❌ 장르: ["액션", "드라마"] → 제외 (코미디 없음)
 - ❌ 장르: ["코미디"] → 제외 (액션 없음)
 
-### PostgreSQL JSONB 연산자
-- `?&` : 배열의 모든 요소를 포함하는지 확인 (AND 조건)
-- `?|` : 배열의 하나 이상의 요소를 포함하는지 확인 (OR 조건)
+### PostgreSQL 배열 연산자
+- `@>` : 배열이 모든 요소를 포함하는지 확인 (AND 조건)
+- `&&` : 배열이 하나 이상의 공통 요소를 가지는지 확인 (OR 조건)
 
 ## 인덱스 설정
 
@@ -88,11 +88,16 @@ ORDER BY idx_scan DESC;
 ### 1. API를 통한 성능 테스트
 
 ```bash
-# 장르 필터링 성능 테스트
-curl "http://localhost:8080/api/performance/test-genre-filtering?domain=MOVIE&genres=액션&genres=코미디&page=0&size=20"
+# 장르 필터링 테스트 (실제 작동하는 엔드포인트)
+curl "http://localhost:8080/api/works?domain=MOVIE&genres=액션&genres=코미디&page=0&size=20"
 
-# 쿼리 플랜 확인 정보
-curl "http://localhost:8080/api/performance/test-query-plan?domain=MOVIE&genres=액션&genres=코미디"
+# 응답 시간 측정
+time curl "http://localhost:8080/api/works?domain=MOVIE&genres=액션&genres=SF&page=0&size=20"
+
+# 다양한 도메인 테스트
+curl "http://localhost:8080/api/works?domain=TV&genres=드라마&genres=로맨스&page=0&size=20"
+curl "http://localhost:8080/api/works?domain=GAME&genres=액션&genres=RPG&page=0&size=20"
+curl "http://localhost:8080/api/works?domain=WEBTOON&genres=판타지&genres=액션&page=0&size=20"
 ```
 
 ### 2. 직접 SQL 성능 측정
@@ -101,13 +106,13 @@ curl "http://localhost:8080/api/performance/test-query-plan?domain=MOVIE&genres=
 -- 실행 계획 확인 (인덱스 사용 여부)
 EXPLAIN ANALYZE 
 SELECT * FROM movie_contents 
-WHERE genres ?& ARRAY['액션', '코미디']::text[];
+WHERE genres @> ARRAY['액션', '코미디']::text[];
 
 -- 결과 예시 (인덱스 사용 시)
 -- Bitmap Heap Scan on movie_contents  (cost=12.00..16.01 rows=1 width=...)
---   Recheck Cond: (genres ?& '{액션,코미디}'::text[])
+--   Recheck Cond: (genres @> '{액션,코미디}'::text[])
 --   ->  Bitmap Index Scan on idx_movie_genres  (cost=0.00..11.99 rows=1 width=0)
---         Index Cond: (genres ?& '{액션,코미디}'::text[])
+--         Index Cond: (genres @> '{액션,코미디}'::text[])
 ```
 
 ### 3. 성능 비교 시나리오
@@ -170,7 +175,7 @@ SELECT
     mean_time,
     max_time
 FROM pg_stat_statements
-WHERE query LIKE '%genres%?&%'
+WHERE query LIKE '%genres%@>%'
 ORDER BY mean_time DESC
 LIMIT 10;
 ```
@@ -219,6 +224,7 @@ WHERE indexname LIKE 'idx_%_genres';
 
 ## 참고 자료
 
-- [PostgreSQL JSONB 인덱싱](https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEXING)
+- [PostgreSQL 배열 타입](https://www.postgresql.org/docs/current/arrays.html)
+- [PostgreSQL 배열 함수와 연산자](https://www.postgresql.org/docs/current/functions-array.html)
 - [GIN 인덱스 성능](https://www.postgresql.org/docs/current/gin-intro.html)
-- [JSONB 연산자](https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE)
+- [PostgreSQL 배열 인덱싱](https://www.postgresql.org/docs/current/indexes-types.html)
