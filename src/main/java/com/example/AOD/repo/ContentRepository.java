@@ -76,4 +76,42 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     Page<Content> findReleasesInDateRange(@Param("startDate") LocalDate startDate,
                                           @Param("endDate") LocalDate endDate,
                                           Pageable pageable);
+    
+    // [✨ 플랫폼 필터링 쿼리 - 메모리 부하 해결]
+    // 도메인 + 플랫폼 필터링
+    @Query("SELECT DISTINCT c FROM Content c " +
+           "JOIN PlatformData pd ON pd.content = c " +
+           "WHERE c.domain = :domain AND LOWER(pd.platformName) IN :platforms")
+    Page<Content> findByDomainAndPlatforms(@Param("domain") Domain domain,
+                                           @Param("platforms") List<String> platforms,
+                                           Pageable pageable);
+    
+    // 플랫폼 필터링만 (도메인 무관)
+    @Query("SELECT DISTINCT c FROM Content c " +
+           "JOIN PlatformData pd ON pd.content = c " +
+           "WHERE LOWER(pd.platformName) IN :platforms")
+    Page<Content> findByPlatforms(@Param("platforms") List<String> platforms,
+                                  Pageable pageable);
+    
+    // 도메인 + 키워드 + 플랫폼 필터링
+    @Query("SELECT DISTINCT c FROM Content c " +
+           "JOIN PlatformData pd ON pd.content = c " +
+           "WHERE c.domain = :domain " +
+           "AND (LOWER(c.masterTitle) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "     LOWER(c.originalTitle) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+           "AND LOWER(pd.platformName) IN :platforms")
+    Page<Content> findByDomainAndKeywordAndPlatforms(@Param("domain") Domain domain,
+                                                     @Param("keyword") String keyword,
+                                                     @Param("platforms") List<String> platforms,
+                                                     Pageable pageable);
+    
+    // 키워드 + 플랫폼 필터링 (도메인 무관)
+    @Query("SELECT DISTINCT c FROM Content c " +
+           "JOIN PlatformData pd ON pd.content = c " +
+           "WHERE (LOWER(c.masterTitle) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "       LOWER(c.originalTitle) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+           "AND LOWER(pd.platformName) IN :platforms")
+    Page<Content> findByKeywordAndPlatforms(@Param("keyword") String keyword,
+                                           @Param("platforms") List<String> platforms,
+                                           Pageable pageable);
 }

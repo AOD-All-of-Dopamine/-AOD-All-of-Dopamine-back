@@ -143,27 +143,40 @@ public class WorkApiService {
     
     /**
      * 플랫폼 필터링만 있는 경우
+     * ⚠️ 개선: DB 레벨에서 플랫폼 필터링 (메모리 부하 해결)
      */
     private PageResponse<WorkSummaryDTO> getWorksByPlatforms(Domain domain, String keyword, List<String> platforms, Pageable pageable) {
-        // 모든 데이터를 가져와서 플랫폼 필터링
-        List<Content> allContent;
-        if (keyword != null && !keyword.isBlank()) {
-            if (domain != null) {
-                allContent = contentRepository.searchByDomainAndKeyword(domain, keyword, Pageable.unpaged()).getContent();
-            } else {
-                allContent = contentRepository.searchByKeyword(keyword, Pageable.unpaged()).getContent();
-            }
-        } else if (domain != null) {
-            allContent = contentRepository.findByDomain(domain, Pageable.unpaged()).getContent();
-        } else {
-            allContent = contentRepository.findAll(Pageable.unpaged()).getContent();
-        }
-        
-        List<Content> filtered = allContent.stream()
-                .filter(c -> filterByPlatforms(c, platforms))
+        // 플랫폼 이름을 소문자로 변환 (쿼리에서 LOWER 사용)
+        List<String> lowerPlatforms = platforms.stream()
+                .map(String::toLowerCase)
                 .collect(Collectors.toList());
         
-        return applyPaginationAndMapping(filtered, pageable);
+        Page<Content> contentPage;
+        
+        // DB 레벨에서 플랫폼 필터링
+        if (keyword != null && !keyword.isBlank()) {
+            if (domain != null) {
+                contentPage = contentRepository.findByDomainAndKeywordAndPlatforms(domain, keyword, lowerPlatforms, pageable);
+            } else {
+                contentPage = contentRepository.findByKeywordAndPlatforms(keyword, lowerPlatforms, pageable);
+            }
+        } else if (domain != null) {
+            contentPage = contentRepository.findByDomainAndPlatforms(domain, lowerPlatforms, pageable);
+        } else {
+            contentPage = contentRepository.findByPlatforms(lowerPlatforms, pageable);
+        }
+        
+        return PageResponse.<WorkSummaryDTO>builder()
+                .content(contentPage.getContent().stream()
+                        .map(this::toWorkSummary)
+                        .collect(Collectors.toList()))
+                .page(contentPage.getNumber())
+                .size(contentPage.getSize())
+                .totalElements(contentPage.getTotalElements())
+                .totalPages(contentPage.getTotalPages())
+                .first(contentPage.isFirst())
+                .last(contentPage.isLast())
+                .build();
     }
     
     /**
@@ -505,7 +518,10 @@ public class WorkApiService {
 
     /**
      * 플랫폼 필터링 헬퍼 메서드 (복수 플랫폼 지원)
+     * @deprecated DB 레벨 필터링 사용 - findByPlatforms in ContentRepository
+     * 메모리 필터링이 필요한 경우에만 사용
      */
+    @Deprecated
     private boolean filterByPlatforms(Content content, List<String> platforms) {
         if (platforms == null || platforms.isEmpty()) {
             return true; // 필터링 없음

@@ -76,5 +76,14 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Run application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run application with increased heap size
+# -Xms: 초기 힙 크기 (512MB)
+# -Xmx: 최대 힙 크기 (2GB)
+# -XX:+HeapDumpOnOutOfMemoryError: OOM 발생 시 힙 덤프 생성
+# -XX:HeapDumpPath: 힙 덤프 저장 경로
+ENTRYPOINT ["java", \
+    "-Xms512m", \
+    "-Xmx2048m", \
+    "-XX:+HeapDumpOnOutOfMemoryError", \
+    "-XX:HeapDumpPath=/app/heapdump.hprof", \
+    "-jar", "app.jar"]
