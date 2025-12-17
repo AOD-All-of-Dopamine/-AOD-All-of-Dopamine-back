@@ -3,7 +3,7 @@ domain: GAME
 schemaVersion: 1
 fieldMappings:
   data.title: master_title
-  data.effectiveDate: domain.release_date
+  data.effectiveDate: release_date
   data.developer: domain.developer
   data.publisher: domain.publisher
   data.platforms: domain.platforms

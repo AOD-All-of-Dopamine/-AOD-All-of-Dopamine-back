@@ -40,8 +40,6 @@ public class TvContent implements Persistable<Long> {
         this.contentId = content.getContentId();
     }
 
-    // 첨 방영일
-    private LocalDate firstAirDate;
 
     // 시즌 수
     private Integer seasonCount;

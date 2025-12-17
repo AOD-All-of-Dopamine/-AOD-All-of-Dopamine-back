@@ -8,9 +8,9 @@ fieldMappings:
   header_image: poster_image_url
   short_description: synopsis
   steam_appid: platform.platform_specific_id
+  release_date: release_date
 
   # === Domain Mappings (for domainDoc) ===
-  release_date.date: domain.release_date
   developers[0]: domain.developer
   publishers[0]: domain.publisher
   platforms: domain.platforms
@@ -26,9 +26,6 @@ fieldMappings:
   recommendations.total: platform.attributes.recommendation_count
 
 domainObjectMappings:
-  release_date:
-    targetField: releaseDate
-    type: date
   developer:
     targetField: developer
     type: string

@@ -28,6 +28,9 @@ public class SteamPayloadProcessor {
         // 카테고리(categories)의 description 값만 추출
         extractCategoryDescriptions(processedPayload);
 
+        // release_date 객체에서 date 값을 추출하여 최상위로 올림
+        extractReleaseDate(processedPayload);
+
         return processedPayload;
     }
 
@@ -57,6 +60,23 @@ public class SteamPayloadProcessor {
                     .map(Object::toString)
                     .collect(Collectors.toList());
             payload.put("categories", categoryDescriptions);
+        }
+    }
+
+    /**
+     * release_date 객체에서 date 문자열을 추출하여 최상위 레벨로 올립니다.
+     * Steam API는 release_date를 { "date": "1998년 11월 19일", "coming_soon": false } 형태로 반환
+     */
+    @SuppressWarnings("unchecked")
+    private void extractReleaseDate(Map<String, Object> payload) {
+        Object releaseDateObject = payload.get("release_date");
+        if (releaseDateObject instanceof Map) {
+            Map<String, Object> releaseDateMap = (Map<String, Object>) releaseDateObject;
+            Object dateValue = releaseDateMap.get("date");
+            if (dateValue != null) {
+                // release_date 객체를 date 문자열로 대체
+                payload.put("release_date", dateValue.toString());
+            }
         }
     }
 }

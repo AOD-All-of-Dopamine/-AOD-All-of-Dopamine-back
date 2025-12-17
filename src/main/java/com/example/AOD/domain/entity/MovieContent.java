@@ -40,9 +40,6 @@ public class MovieContent implements Persistable<Long> {
         this.contentId = content.getContentId();
     }
 
-    // 개봉일
-    private LocalDate releaseDate;
-
     // 상영 시간 (분)
     private Integer runtime;
 

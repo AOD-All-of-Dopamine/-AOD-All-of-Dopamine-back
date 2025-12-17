@@ -76,11 +76,30 @@ public class ContentUpsertService {
     private LocalDate parseReleaseDate(Object value) {
         if (value == null) return null;
         if (value instanceof LocalDate) return (LocalDate) value;
-        if (value instanceof String) {
+        if (value instanceof String dateStr) {
+            // 다양한 날짜 형식 시도
+            String[] patterns = {
+                "uuuu년 M월 d일",      // Steam 한국어: 1998년 11월 19일
+                "yyyy-MM-dd",          // ISO 형식
+                "yyyy.MM.dd",          // 점 구분
+                "yyyy/MM/dd",          // 슬래시 구분
+                "MMM d, yyyy"          // 영어: Nov 19, 1998
+            };
+            
+            for (String pattern : patterns) {
+                try {
+                    java.time.format.DateTimeFormatter formatter = 
+                        java.time.format.DateTimeFormatter.ofPattern(pattern, java.util.Locale.KOREAN);
+                    return LocalDate.parse(dateStr, formatter);
+                } catch (Exception ignored) {
+                }
+            }
+            
+            // 연도만 있는 경우 (숫자 문자열)
             try {
-                return LocalDate.parse((String) value);
-            } catch (Exception e) {
-                return null;
+                int year = Integer.parseInt(dateStr.trim());
+                return LocalDate.of(year, 1, 1);
+            } catch (Exception ignored) {
             }
         }
         if (value instanceof Number) {

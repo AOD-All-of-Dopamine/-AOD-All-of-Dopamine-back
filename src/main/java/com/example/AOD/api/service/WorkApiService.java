@@ -346,8 +346,8 @@ public class WorkApiService {
                     info.put("runtime", movie.getRuntime());
                     if (movie.getDirectors() != null) info.put("directors", movie.getDirectors());
                     if (movie.getCast() != null) info.put("cast", movie.getCast());
-                    if (movie.getReleaseDate() != null) {
-                        info.put("releaseDate", movie.getReleaseDate().toString());
+                    if (movie.getContent().getReleaseDate() != null) {
+                        info.put("releaseDate", movie.getContent().getReleaseDate().toString());
                     }
                 });
                 break;
@@ -357,8 +357,8 @@ public class WorkApiService {
                     info.put("seasonCount", tv.getSeasonCount());
                     info.put("episodeRuntime", tv.getEpisodeRuntime());
                     if (tv.getCast() != null) info.put("cast", tv.getCast());
-                    if (tv.getFirstAirDate() != null) {
-                        info.put("firstAirDate", tv.getFirstAirDate().toString());
+                    if (tv.getContent().getReleaseDate() != null) {
+                        info.put("firstAirDate", tv.getContent().getReleaseDate().toString());
                     }
                 });
                 break;
@@ -368,8 +368,8 @@ public class WorkApiService {
                     info.put("publisher", game.getPublisher());
                     if (game.getGenres() != null) info.put("genres", game.getGenres());
                     if (game.getPlatforms() != null) info.putAll(game.getPlatforms());
-                    if (game.getReleaseDate() != null) {
-                        info.put("releaseDate", game.getReleaseDate().toString());
+                    if (game.getContent().getReleaseDate() != null) {
+                        info.put("releaseDate", game.getContent().getReleaseDate().toString());
                     }
                 });
                 break;

@@ -103,7 +103,7 @@ public class DemoPageService {
                 return movieContentRepository.findById(content.getContentId())
                         .map(c -> {
                             Map<String, Object> attrs = new HashMap<>();
-                            if (c.getReleaseDate() != null) attrs.put("releaseDate", c.getReleaseDate());
+                            if (c.getContent().getReleaseDate() != null) attrs.put("releaseDate", c.getContent().getReleaseDate());
                             if (c.getGenres() != null) attrs.put("genres", c.getGenres());
                             if (c.getRuntime() != null) attrs.put("runtime", c.getRuntime());
                             if (c.getDirectors() != null) attrs.put("directors", c.getDirectors());
@@ -115,7 +115,7 @@ public class DemoPageService {
                 return tvContentRepository.findById(content.getContentId())
                         .map(c -> {
                             Map<String, Object> attrs = new HashMap<>();
-                            if (c.getFirstAirDate() != null) attrs.put("firstAirDate", c.getFirstAirDate());
+                            if (c.getContent().getReleaseDate() != null) attrs.put("firstAirDate", c.getContent().getReleaseDate());
                             if (c.getGenres() != null) attrs.put("genres", c.getGenres());
                             if (c.getSeasonCount() != null) attrs.put("seasonCount", c.getSeasonCount());
                             if (c.getEpisodeRuntime() != null) attrs.put("episodeRuntime", c.getEpisodeRuntime());
@@ -127,7 +127,7 @@ public class DemoPageService {
                 return gameContentRepository.findById(content.getContentId())
                         .map(c -> {
                             Map<String, Object> attrs = new HashMap<>();
-                            if (c.getReleaseDate() != null) attrs.put("releaseDate", c.getReleaseDate());
+                            if (c.getContent().getReleaseDate() != null) attrs.put("releaseDate", c.getContent().getReleaseDate());
                             if (c.getDeveloper() != null) attrs.put("developer", c.getDeveloper());
                             if (c.getPublisher() != null) attrs.put("publisher", c.getPublisher());
                             if (c.getGenres() != null) attrs.put("genres", c.getGenres());

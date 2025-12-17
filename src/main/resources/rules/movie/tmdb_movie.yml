@@ -10,9 +10,9 @@ fieldMappings:
   original_title: original_title
   poster_image_url: poster_image_url
   overview: synopsis
+  release_date: release_date  # Content의 releaseDate 필드로 매핑됨
 
   # === Domain Mappings (for domainDoc) ===
-  release_date: domain.release_date
   genres: domain.genres
   runtime: domain.runtime
   directors: domain.directors
@@ -22,9 +22,6 @@ fieldMappings:
   watch_providers: platform.attributes.watch_providers
 
 domainObjectMappings:
-  release_date:
-    targetField: releaseDate
-    type: date
   genres:
     targetField: genres
     type: list

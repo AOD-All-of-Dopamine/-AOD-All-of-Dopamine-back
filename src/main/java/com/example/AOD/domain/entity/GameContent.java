@@ -40,7 +40,6 @@ public class GameContent implements Persistable<Long> {
     private String developer;
     @Column(length = 200)
     private String publisher;
-    private LocalDate releaseDate;
 
     // platforms는 객체이므로 JSONB 유지
     @Type(JsonType.class)

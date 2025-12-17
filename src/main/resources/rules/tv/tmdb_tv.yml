@@ -10,9 +10,9 @@ fieldMappings:
   original_name: original_title
   poster_image_url: poster_image_url
   overview: synopsis
+  first_air_date: release_date  # Content의 releaseDate 필드로 매핑됨 (TV는 첫 방영일)
 
   # === Domain Mappings (for domainDoc) ===
-  first_air_date: domain.first_air_date
   genres: domain.genres
   number_of_seasons: domain.season_count
   episode_run_time: domain.episode_runtime
@@ -22,9 +22,6 @@ fieldMappings:
   watch_providers: platform.attributes.watch_providers
 
 domainObjectMappings:
-  first_air_date:
-    targetField: firstAirDate
-    type: date
   genres:
     targetField: genres
     type: list
