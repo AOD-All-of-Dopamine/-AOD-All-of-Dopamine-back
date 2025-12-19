@@ -12,8 +12,8 @@ services:
       - "${APP_PORT:-8080}:8080"
     environment:
       TZ: Asia/Seoul
-      # JVM 메모리 설정 (Heap 최대 1GB)
-      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul -Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      # JVM 메모리 설정 (t3.small 최적화: Heap 최대 512MB)
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul -Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-prod}
 
       # ✨ [핵심 수정] 외부 DB 및 Selenium을 참조하도록 환경 변수 사용
@@ -29,15 +29,15 @@ services:
       # Sentry 에러 추적
       SENTRY_DSN: ${SENTRY_DSN}
 
-    # 리소스 제한
+    # 리소스 제한 (t3.small 최적화)
     deploy:
       resources:
         limits:
           cpus: '2.0'
-          memory: 2G
+          memory: 1.5G
         reservations:
           cpus: '0.5'
-          memory: 1G
+          memory: 512M
 
     networks:
       - aod-network
