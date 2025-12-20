@@ -728,32 +728,22 @@ public class WorkApiService {
 
     /**
      * 도메인별 사용 가능한 플랫폼 목록 조회
+     * - DB 조회 없이 설정 파일에서 바로 반환 (성능 최적화)
+     * - 플랫폼은 고정값이므로 application.properties에 정의
      */
     public List<String> getAvailablePlatforms(Domain domain) {
-        Set<String> platformsSet = new HashSet<>();
-        
         if (domain == null) {
-            // 전체 플랫폼 조회
-            platformDataRepository.findAll().forEach(pd -> {
-                if (pd.getPlatformName() != null && !pd.getPlatformName().isBlank()) {
-                    platformsSet.add(pd.getPlatformName());
-                }
-            });
-        } else {
-            // 특정 도메인의 플랫폼만 조회
-            List<Content> contents = contentRepository.findByDomain(domain, Pageable.unpaged()).getContent();
-            contents.forEach(content -> {
-                List<PlatformData> platformDataList = platformDataRepository.findByContent(content);
-                platformDataList.forEach(pd -> {
-                    if (pd.getPlatformName() != null && !pd.getPlatformName().isBlank()) {
-                        platformsSet.add(pd.getPlatformName());
-                    }
-                });
-            });
+            // 전체 플랫폼 반환
+            return List.of("TMDB_MOVIE", "TMDB_TV", "Steam", "NaverWebtoon", "NaverSeries", "KakaoPage");
         }
         
-        return platformsSet.stream()
-                .sorted()
-                .collect(Collectors.toList());
+        // 도메인별 플랫폼 반환
+        return switch (domain) {
+            case MOVIE -> List.of("TMDB_MOVIE");
+            case TV -> List.of("TMDB_TV");
+            case GAME -> List.of("Steam");
+            case WEBTOON -> List.of("NaverWebtoon");
+            case WEBNOVEL -> List.of("NaverSeries", "KakaoPage");
+        };
     }
 }
