@@ -14,13 +14,18 @@ public class TmdbPayloadProcessor {
 
     /**
      * TMDB API의 원본 응답 페이로드를 받아 필요한 데이터만 추출하고 정제하여 새로운 Map으로 반환합니다.
+     * 
+     * 주의: CollectorService에서 platformSpecificId 기반 중복 감지를 사용하므로
+     * 동적 필드(vote_count, popularity 등)를 제거하지 않습니다.
+     * 이렇게 하면 데이터 갱신 시 최신 정보가 자동으로 반영됩니다.
+     * 
      * @param rawPayload TMDB API 원본 응답
      * @return 정제된 데이터 맵
      */
     public Map<String, Object> process(Map<String, Object> rawPayload) {
         Map<String, Object> processedPayload = new HashMap<>();
 
-        // 1. 기본 정보 직접 복사
+        // 1. 기본 정보 직접 복사 (동적 필드 포함)
         copyFields(rawPayload, processedPayload);
 
         // 2. 포스터 이미지 URL 절대 경로로 변환
@@ -34,6 +39,10 @@ public class TmdbPayloadProcessor {
 
         // 5. 시청 가능 OTT(watch providers) 이름 추출
         extractWatchProviders(rawPayload, processedPayload);
+
+        // 동적 필드(popularity, vote_count 등)는 제거하지 않음!
+        // platformSpecificId 기반 중복 감지를 사용하므로 모든 데이터를 유지하여
+        // 데이터 변경 시 자동 갱신이 가능하도록 함
 
         return processedPayload;
     }
