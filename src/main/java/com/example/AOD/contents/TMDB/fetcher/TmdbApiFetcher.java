@@ -38,9 +38,15 @@ public class TmdbApiFetcher {
                 .queryParam("page", page)
                 .queryParam("sort_by", "popularity.desc")
                 .queryParam("with_watch_providers", "8|97|337|356") // 예: Netflix, Watcha, Disney Plus, Wavve
-                .queryParam("watch_region", "KR")
-                .queryParam("primary_release_date.gte", startDate)
-                .queryParam("primary_release_date.lte", endDate);
+                .queryParam("watch_region", "KR");
+        
+        // null이 아닐 때만 날짜 파라미터 추가 (null 문자열 방지)
+        if (startDate != null) {
+            builder.queryParam("primary_release_date.gte", startDate);
+        }
+        if (endDate != null) {
+            builder.queryParam("primary_release_date.lte", endDate);
+        }
 
         String url = builder.toUriString();
 
@@ -69,9 +75,15 @@ public class TmdbApiFetcher {
                 .queryParam("page", page)
                 .queryParam("sort_by", "popularity.desc")
                 .queryParam("with_watch_providers", "8|97|337|356")
-                .queryParam("watch_region", "KR")
-                .queryParam("air_date.gte", startDate)
-                .queryParam("air_date.lte", endDate);
+                .queryParam("watch_region", "KR");
+        
+        // null이 아닐 때만 날짜 파라미터 추가 (null 문자열 방지)
+        if (startDate != null) {
+            builder.queryParam("air_date.gte", startDate);
+        }
+        if (endDate != null) {
+            builder.queryParam("air_date.lte", endDate);
+        }
 
         String url = builder.toUriString();
 

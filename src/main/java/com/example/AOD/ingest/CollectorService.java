@@ -24,6 +24,15 @@ public class CollectorService {
     public Long saveRaw(String platformName, String domain,
                         Map<String,Object> payload,
                         String platformSpecificId, String url) {
+        
+        // platformSpecificId 유효성 검증
+        if (platformSpecificId == null || "null".equals(platformSpecificId) 
+            || platformSpecificId.trim().isEmpty()) {
+            log.error("❌ [유효성 검증 실패] 유효하지 않은 platformSpecificId: '{}', Platform: {}, Domain: {}", 
+                    platformSpecificId, platformName, domain);
+            return -1L; // 저장하지 않음
+        }
+        
         String hash = sha256Canonical(payload);
         
         // 1차: platformName + platformSpecificId로 기존 데이터 검색 (같은 콘텐츠 찾기)
