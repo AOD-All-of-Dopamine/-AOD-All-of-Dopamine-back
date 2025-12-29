@@ -32,12 +32,14 @@ public class TmdbApiFetcher {
      * @return TmdbDiscoveryResult 객체
      */
     public TmdbDiscoveryResult discoverMovies(String language, int page, String startDate, String endDate) {
+        // with_watch_providers의 | 문자가 URL 인코딩되면 TMDB API가 OR 연산을 인식하지 못함
+        // build(false)로 인코딩 비활성화
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/discover/movie")
                 .queryParam("api_key", apiKey)
                 .queryParam("language", language)
                 .queryParam("page", page)
                 .queryParam("sort_by", "popularity.desc")
-                .queryParam("with_watch_providers", "8|97|337|356") // 예: Netflix, Watcha, Disney Plus, Wavve
+                .queryParam("with_watch_providers", "8|97|337|356") // Netflix, Watcha, Disney Plus, Wavve (OR 조건)
                 .queryParam("watch_region", "KR");
         
         // null이 아닐 때만 날짜 파라미터 추가 (null 문자열 방지)
@@ -48,7 +50,8 @@ public class TmdbApiFetcher {
             builder.queryParam("primary_release_date.lte", endDate);
         }
 
-        String url = builder.toUriString();
+        // build(false): 인코딩 비활성화 - | 문자가 %7C로 변환되지 않음
+        String url = builder.build(false).toUriString();
 
         try {
             return restTemplate.getForObject(url, TmdbDiscoveryResult.class);
@@ -69,23 +72,27 @@ public class TmdbApiFetcher {
      * @return TmdbTvDiscoveryResult 객체
      */
     public TmdbTvDiscoveryResult discoverTvShows(String language, int page, String startDate, String endDate) {
+        // with_watch_providers의 | 문자가 URL 인코딩되면 TMDB API가 OR 연산을 인식하지 못함
+        // build(false)로 인코딩 비활성화
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/discover/tv")
                 .queryParam("api_key", apiKey)
                 .queryParam("language", language)
                 .queryParam("page", page)
                 .queryParam("sort_by", "popularity.desc")
-                .queryParam("with_watch_providers", "8|97|337|356")
+                .queryParam("with_watch_providers", "8|97|337|356") // Netflix, Watcha, Disney Plus, Wavve (OR 조건)
                 .queryParam("watch_region", "KR");
         
         // null이 아닐 때만 날짜 파라미터 추가 (null 문자열 방지)
+        // TMDB API는 first_air_date.gte/lte를 사용 (air_date가 아님)
         if (startDate != null) {
-            builder.queryParam("air_date.gte", startDate);
+            builder.queryParam("first_air_date.gte", startDate);
         }
         if (endDate != null) {
-            builder.queryParam("air_date.lte", endDate);
+            builder.queryParam("first_air_date.lte", endDate);
         }
 
-        String url = builder.toUriString();
+        // build(false): 인코딩 비활성화 - | 문자가 %7C로 변환되지 않음
+        String url = builder.build(false).toUriString();
 
         try {
             return restTemplate.getForObject(url, TmdbTvDiscoveryResult.class);

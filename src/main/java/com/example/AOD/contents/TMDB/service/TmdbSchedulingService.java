@@ -16,9 +16,7 @@ public class TmdbSchedulingService {
 
     private final TmdbService tmdbService;
 
-    // 과거 데이터 업데이트를 위한 연도 추적 변수 (현재 연도로 시작)
-    private int yearToUpdate = Year.now().getValue();
-    private static final int OLDEST_YEAR = 1980; // 업데이트할 가장 오래된 연도
+    private static final int OLDEST_YEAR = 2023; // 전체 크롤링 시 가장 오래된 연도
 
     /**
      * [개선] 신규 콘텐츠 수집을 위해 매일 새벽 4시에 실행됩니다.
@@ -42,25 +40,18 @@ public class TmdbSchedulingService {
     }
 
     /**
-     * 과거 콘텐츠 최신화를 위해 매주 일요일 새벽 5시에 실행됩니다.
-     * 지정된 연도의 모든 영화 및 TV쇼 데이터를 수집하고, 다음 실행을 위해 연도를 1씩 감소시킵니다.
+     * 전체 과거 콘텐츠 크롤링을 위해 매주 일요일 새벽 5시에 실행됩니다.
+     * OLDEST_YEAR(1980년)부터 현재 연도까지의 모든 영화 및 TV쇼 데이터를 수집합니다.
      * @Scheduled 메서드는 즉시 반환하고, 실제 작업은 비동기로 실행됩니다.
      */
     @Scheduled(cron = "0 0 5 * * SUN") // 매주 일요일 새벽 5시
     public void updatePastContentWeekly() {
-        if (yearToUpdate < OLDEST_YEAR) {
-            log.info("모든 과거 콘텐츠 순환 업데이트가 1회 완료되었습니다. 다음 주부터 다시 현재 연도부터 시작합니다.");
-            yearToUpdate = Year.now().getValue(); // 가장 오래된 연도까지 갔으면 다시 현재 연도로 리셋
-        }
-
-        int currentYear = yearToUpdate;
-        log.info("🚀 [정기 스케줄] 과거 콘텐츠 최신화 스케줄 트리거됨. (대상 연도: {})", currentYear);
+        int currentYear = Year.now().getValue();
+        log.info("🚀 [정기 스케줄] 전체 과거 콘텐츠 크롤링 스케줄 트리거됨. (기간: {}년 ~ {}년)", OLDEST_YEAR, currentYear);
         String language = "ko-KR";
 
         // 비동기로 실행 - 스케줄러 스레드는 즉시 반환
-        tmdbService.updatePastContentAsync(currentYear, language);
-        
-        // 다음 주에 업데이트할 연도 설정
-        yearToUpdate--;
+        // OLDEST_YEAR부터 현재 연도까지 전체 데이터 크롤링
+        tmdbService.updatePastContentAsync(OLDEST_YEAR, currentYear, language);
     }
 }
