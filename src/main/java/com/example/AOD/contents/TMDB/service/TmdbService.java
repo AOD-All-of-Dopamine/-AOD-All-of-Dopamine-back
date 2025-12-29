@@ -52,17 +52,20 @@ public class TmdbService {
      * 과거 콘텐츠 최신화 (비동기)
      * - @Scheduled 메서드에서 호출
      * - crawlerTaskExecutor 스레드 풀에서 실행 (최대 10개 제한)
+     * @param startYear 시작 연도 (가장 오래된 연도, 예: 1980)
+     * @param endYear 종료 연도 (최근 연도, 예: 현재 연도)
+     * @param language 언어 코드
      */
     @Async("crawlerTaskExecutor")
-    public CompletableFuture<Void> updatePastContentAsync(int year, String language) {
-        log.info("🚀 [비동기 작업] {}년 콘텐츠 최신화 시작", year);
+    public CompletableFuture<Void> updatePastContentAsync(int startYear, int endYear, String language) {
+        log.info("🚀 [비동기 작업] 과거 콘텐츠 최신화 시작 ({}년 ~ {}년)", startYear, endYear);
         try {
-            collectAllMoviesByYear(year, year, language);
-            collectAllTvShowsByYear(year, year, language);
-            log.info("✅ [비동기 작업] {}년 콘텐츠 최신화 완료", year);
+            collectAllMoviesByYear(endYear, startYear, language);
+            collectAllTvShowsByYear(endYear, startYear, language);
+            log.info("✅ [비동기 작업] 과거 콘텐츠 최신화 완료 ({}년 ~ {}년)", startYear, endYear);
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
-            log.error("❌ [비동기 작업] {}년 콘텐츠 최신화 중 오류 발생: {}", year, e.getMessage(), e);
+            log.error("❌ [비동기 작업] 과거 콘텐츠 최신화 중 오류 발생: {}", e.getMessage(), e);
             return CompletableFuture.failedFuture(e);
         }
     }
@@ -221,7 +224,6 @@ public class TmdbService {
             try {
                 Map<String, Object> detailedData = tmdbApiFetcher.getTvShowDetails(tvShow.getId(), language);
                 Map<String, Object> processedData = payloadProcessor.process(detailedData);
-                // av_type 필드 제거 - 도메인이 TV로 분리됨
                 collectorService.saveRaw("TMDB_TV", "TV", processedData, String.valueOf(tvShow.getId()), "https://www.themoviedb.org/tv/" + tvShow.getId());
                 
                 if (!InterruptibleSleep.sleep(100, TimeUnit.MILLISECONDS)) {

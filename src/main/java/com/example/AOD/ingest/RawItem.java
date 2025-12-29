@@ -11,7 +11,8 @@ import java.util.Map;
 
 @Entity @Getter @Setter
 @Table(name = "raw_items", indexes = {
-        @Index(name="idx_raw_proc", columnList = "processed,fetchedAt")
+        @Index(name="idx_raw_proc", columnList = "processed,fetchedAt"),
+        @Index(name="idx_platform_id", columnList = "platformName,platformSpecificId")  // 중복 검사용 인덱스
 }, uniqueConstraints = @UniqueConstraint(name="uk_raw_hash", columnNames = {"hash"}))
 public class RawItem {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
