@@ -16,7 +16,7 @@ public class TmdbSchedulingService {
 
     private final TmdbService tmdbService;
 
-    private static final int OLDEST_YEAR = 2023; // 전체 크롤링 시 가장 오래된 연도
+    private static final int OLDEST_YEAR = 1980; // 전체 크롤링 시 가장 오래된 연도
 
     /**
      * [개선] 신규 콘텐츠 수집을 위해 매일 새벽 4시에 실행됩니다.
