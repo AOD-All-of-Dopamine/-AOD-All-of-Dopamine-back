@@ -1,6 +1,7 @@
 package com.example.AOD.contents.Novel.NaverSeriesNovel;
 
 import com.example.AOD.ingest.CollectorService;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
  * - 상세 페이지에서 필요한 필드만 추출
  * - 추출 결과를 평평한 Map payload로 raw_items에 저장
  */
+@Slf4j
 @Component
 public class NaverSeriesCrawler {
 
@@ -85,6 +87,17 @@ public class NaverSeriesCrawler {
 
             for (String detailUrl : detailUrls) {
                 Document doc = get(detailUrl, cookieString);
+
+                // 19금 작품 체크: adult_msg 또는 enctp="19" 존재 여부로 판단
+                Element adultMsg = doc.selectFirst("#adult_msg");
+                Element enctp = doc.selectFirst("input[name=enctp]");
+                boolean isAdultContent = (adultMsg != null) || 
+                                       (enctp != null && "19".equals(enctp.attr("value")));
+                
+                if (isAdultContent) {
+                    log.info("19금 작품으로 스킵: {}", detailUrl);
+                    continue;
+                }
 
                 String productUrl = attr(doc.selectFirst("meta[property=og:url]"), "content");
                 if (productUrl == null || productUrl.isBlank()) productUrl = detailUrl;
