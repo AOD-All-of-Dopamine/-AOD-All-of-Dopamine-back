@@ -131,11 +131,14 @@
 
     <div class="admin-section">
         <h3>2. 수집 데이터 통합 처리 (Batch Process)</h3>
-        <div class="button-group">
-            <button onclick="callApi('/api/batch/process', 'POST', {batchSize: 100}, '데이터 통합 처리')">수집된 데이터 통합 실행</button>
+        <div class="input-group">
+            <label for="batch-size">배치 크기:</label>
+            <input type="number" id="batch-size" value="100" class="form-input">
+            <button onclick="callBatchProcessApi()">수집된 데이터 통합 실행</button>
         </div>
         <p class="description">
             데이터 수집 후, 이 버튼을 눌러야 수집된 원본(`RawItem`) 데이터가 분석 및 정규화 과정을 거쳐 최종 콘텐츠(`Content`) DB에 저장됩니다.
+            배치 크기를 조정하여 한 번에 처리할 데이터 개수를 설정할 수 있습니다.
         </p>
     </div>
 
@@ -259,6 +262,13 @@
 
             // 새로운 엔드포인트를 호출합니다.
             callApi('/api/crawl/kakaopage/api', 'POST', body, '카카오페이지 웹소설 수집');
+        }
+
+        // 배치 처리 API 호출 함수
+        function callBatchProcessApi() {
+            const batchSize = document.getElementById('batch-size').value;
+            const body = { batchSize: parseInt(batchSize) };
+            callApi('/api/batch/process', 'POST', body, '데이터 통합 처리');
         }
 
     </script>
