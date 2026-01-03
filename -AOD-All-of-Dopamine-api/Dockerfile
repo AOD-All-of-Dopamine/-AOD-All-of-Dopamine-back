@@ -2,20 +2,24 @@
 FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 
-# Copy Gradle wrapper and build files
+# Copy root Gradle wrapper and build files
 COPY gradle gradle
 COPY gradlew .
+COPY gradlew.bat .
+COPY settings.gradle .
 COPY build.gradle .
-COPY settings.gradle* ./
+
+# Copy shared module
+COPY -AOD-All-of-Dopamine-shared -AOD-All-of-Dopamine-shared
+
+# Copy API module
+COPY -AOD-All-of-Dopamine-api -AOD-All-of-Dopamine-api
 
 # Download dependencies
 RUN ./gradlew dependencies --no-daemon || true
 
-# Copy source code
-COPY src ./src
-
-# Build application
-RUN ./gradlew bootJar -x test --no-daemon
+# Build only API module
+RUN ./gradlew :AOD-All-of-Dopamine-api:bootJar -x test --no-daemon
 
 # Runtime stage - Debian 기반으로 변경 (Chrome 설치 위해)
 FROM eclipse-temurin:17-jre
@@ -60,7 +64,7 @@ RUN apt-get update && apt-get install -y \
 RUN google-chrome --version
 
 # Copy jar from build stage
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /app/-AOD-All-of-Dopamine-api/build/libs/*.jar app.jar
 
 # Create non-root user
 RUN groupadd -g 1001 appuser && \
