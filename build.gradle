@@ -1,0 +1,10 @@
+// Root build.gradle for AOD multi-module project
+
+allprojects {
+	group = 'com.example'
+	version = '0.0.1-SNAPSHOT'
+	
+	repositories {
+		mavenCentral()
+	}
+}
