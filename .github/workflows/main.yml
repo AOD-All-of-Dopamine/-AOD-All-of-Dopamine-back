@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline - API & Crawler
 
 on:
   push:
@@ -9,14 +9,16 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: aod-app
+  API_ECR_REPOSITORY: aod-api
+  CRAWLER_ECR_REPOSITORY: aod-crawler
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
     
     outputs:
-      image: ${{ steps.build-image.outputs.image }}
+      api-image: ${{ steps.api-image.outputs.image }}
+      crawler-image: ${{ steps.crawler-image.outputs.image }}
       registry: ${{ steps.login-ecr.outputs.registry }}
 
     steps:
@@ -33,10 +35,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
+      - name: Build all modules with Gradle
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        working-directory: ./
         run: ./gradlew clean build -x test
 
       - name: Configure AWS credentials
@@ -50,33 +51,209 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
+      - name: Build and push API image to ECR
+        id: api-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f -AOD-All-of-Dopamine-api/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -f -AOD-All-of-Dopamine-api/Dockerfile -t $ECR_REGISTRY/$API_ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$API_ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$API_ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$API_ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$API_ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$API_ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-  deploy:
-    needs: build-and-push
+      - name: Build and push Crawler image to ECR
+        id: crawler-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -f -AOD-All-of-Dopamine-crawler/Dockerfile -t $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+  deploy-api:
+    needs: build
     runs-on: ubuntu-latest
+    if: success()
 
     steps:
       - name: Check for required secrets
         run: |
-          if [ -z "${{ secrets.EC2_HOST }}" ]; then echo "EC2_HOST secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.API_EC2_HOST }}" ]; then echo "API_EC2_HOST secret is missing!"; exit 1; fi
           if [ -z "${{ secrets.POSTGRES_HOST }}" ]; then echo "POSTGRES_HOST secret is missing!"; exit 1; fi
           if [ -z "${{ secrets.POSTGRES_USER }}" ]; then echo "POSTGRES_USER secret is missing!"; exit 1; fi
           if [ -z "${{ secrets.POSTGRES_PASSWORD }}" ]; then echo "POSTGRES_PASSWORD secret is missing!"; exit 1; fi
-          if [ -z "${{ secrets.TMDB_API_KEY }}" ]; then echo "TMDB_API_KEY secret is missing!"; exit 1; fi
 
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Deploy API to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.API_EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          APP_IMAGE_URI: ${{ needs.build.outputs.api-image }}
+          SPRING_PROFILE: prod
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: postgres
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NAVER_ID: ${{ secrets.NAVER_ID }}
+          NAVER_PW: ${{ secrets.NAVER_PW }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          ECR_REGISTRY: ${{ needs.build.outputs.registry }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-api"
+
+          scp -i private_key.pem -o StrictHostKeyChecking=no \
+            -AOD-All-of-Dopamine-api/docker-compose.yml \
+            ${USER}@${HOST}:/home/${USER}/aod-api/
+
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
+            set -e
+            cd /home/${USER}/aod-api
+
+            export APP_IMAGE_URI='${APP_IMAGE_URI}'
+            export SPRING_PROFILE='${SPRING_PROFILE}'
+            export POSTGRES_HOST='${POSTGRES_HOST}'
+            export POSTGRES_PORT='${POSTGRES_PORT}'
+            export POSTGRES_DB='${POSTGRES_DB}'
+            export POSTGRES_USER='${POSTGRES_USER}'
+            export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
+            export TMDB_API_KEY='${TMDB_API_KEY}'
+            export STEAM_API_KEY='${STEAM_API_KEY}'
+            export OPENAI_API_KEY='${OPENAI_API_KEY}'
+            export NAVER_ID='${NAVER_ID}'
+            export NAVER_PW='${NAVER_PW}'
+            export SENTRY_DSN='${SENTRY_DSN}'
+            export AWS_REGION='${AWS_REGION}'
+            export ECR_REGISTRY='${ECR_REGISTRY}'
+
+            aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
+            echo "✅ ECR login successful for API."
+
+            docker compose down --remove-orphans || true
+            docker pull \${APP_IMAGE_URI}
+            docker compose up -d --remove-orphans
+
+            echo "Waiting 40 seconds for API to start..."
+            sleep 40
+
+            if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+              echo "✅ API health check successful!"
+            else
+              echo "❌ API health check failed!"
+              docker compose ps
+              docker compose logs --tail 100
+              exit 1
+            fi
+
+            docker image prune -af
+          EOF
+
+          rm -f private_key.pem
+
+  deploy-crawler:
+    needs: build
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Check for required secrets
+        run: |
+          if [ -z "${{ secrets.CRAWLER_EC2_HOST }}" ]; then echo "CRAWLER_EC2_HOST secret is missing!"; exit 1; fi
+          if [ -z "${{ secrets.POSTGRES_HOST }}" ]; then echo "POSTGRES_HOST secret is missing!"; exit 1; fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy Crawler to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.CRAWLER_EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          CRAWLER_IMAGE_URI: ${{ needs.build.outputs.crawler-image }}
+          SPRING_PROFILE: prod
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: postgres
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NAVER_ID: ${{ secrets.NAVER_ID }}
+          NAVER_PW: ${{ secrets.NAVER_PW }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          ECR_REGISTRY: ${{ needs.build.outputs.registry }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-crawler"
+
+          scp -i private_key.pem -o StrictHostKeyChecking=no \
+            -AOD-All-of-Dopamine-crawler/docker-compose.yml \
+            ${USER}@${HOST}:/home/${USER}/aod-crawler/
+
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
+            set -e
+            cd /home/${USER}/aod-crawler
+
+            export CRAWLER_IMAGE_URI='${CRAWLER_IMAGE_URI}'
+            export SPRING_PROFILE='${SPRING_PROFILE}'
+            export POSTGRES_HOST='${POSTGRES_HOST}'
+            export POSTGRES_PORT='${POSTGRES_PORT}'
+            export POSTGRES_DB='${POSTGRES_DB}'
+            export POSTGRES_USER='${POSTGRES_USER}'
+            export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
+            export API_BASE_URL='${API_BASE_URL}'
+            export TMDB_API_KEY='${TMDB_API_KEY}'
+            export STEAM_API_KEY='${STEAM_API_KEY}'
+            export OPENAI_API_KEY='${OPENAI_API_KEY}'
+            export NAVER_ID='${NAVER_ID}'
+            export NAVER_PW='${NAVER_PW}'
+            export SENTRY_DSN='${SENTRY_DSN}'
+            export AWS_REGION='${AWS_REGION}'
+            export ECR_REGISTRY='${ECR_REGISTRY}'
+
+            aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
+            echo "✅ ECR login successful for Crawler."
+
+            docker compose down --remove-orphans || true
+            docker pull \${CRAWLER_IMAGE_URI}
+            docker compose up -d --remove-orphans
+
+            echo "Waiting 60 seconds for Crawler to initialize..."
+            sleep 60
+
+            if curl -f http://localhost:8081/actuator/health > /dev/null 2>&1; then
+              echo "✅ Crawler health check successful!"
+            else
+              echo "⚠️ Crawler starting... (may take longer for first sync)"
+              docker compose ps
+              docker compose logs --tail 50
+            fi
+
+            docker image prune -af
+          EOF
+
+          rm -f private_key.pem
+
 
       - name: Deploy to EC2 using Docker Compose
         env:

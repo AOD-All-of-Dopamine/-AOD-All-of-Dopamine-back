@@ -73,11 +73,11 @@ server:
 # 크롤러 전용 설정
 crawler:
   steam:
-    api-key: ${STEAM_API_KEY:FFDC108C0841A3A4177B6EE9EE321916}
+    api-key: ${STEAM_API_KEY}
     rate-limit:
       requests-per-second: 1
   tmdb:
-    api-key: ${TMDB_API_KEY:2ce2aa190c966e5d87d537117d450cec}
+    api-key: ${TMDB_API_KEY}
     language: ko-KR
   batch:
     size: 100
@@ -86,11 +86,11 @@ crawler:
 # API Keys (backward compatibility)
 tmdb:
   api:
-    key: 2ce2aa190c966e5d87d537117d450cec
+    key: ${TMDB_API_KEY}
 
 steam:
   api:
-    key: FFDC108C0841A3A4177B6EE9EE321916
+    key: ${STEAM_API_KEY}
 
 openai:
   api:
