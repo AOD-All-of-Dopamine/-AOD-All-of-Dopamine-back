@@ -130,7 +130,7 @@ jobs:
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-api"
 
           scp -i private_key.pem -o StrictHostKeyChecking=no \
-            -AOD-All-of-Dopamine-api/docker-compose.yml \
+            ./-AOD-All-of-Dopamine-api/docker-compose.yml \
             ${USER}@${HOST}:/home/${USER}/aod-api/
 
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
@@ -218,7 +218,7 @@ jobs:
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-crawler"
 
           scp -i private_key.pem -o StrictHostKeyChecking=no \
-            -AOD-All-of-Dopamine-crawler/docker-compose.yml \
+            ./-AOD-All-of-Dopamine-crawler/docker-compose.yml \
             ${USER}@${HOST}:/home/${USER}/aod-crawler/
 
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
