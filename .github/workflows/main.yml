@@ -156,6 +156,10 @@ jobs:
             aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
             echo "✅ ECR login successful for API."
 
+            # Clean up disk space
+            echo "🧹 Cleaning up disk space..."
+            docker system prune -af --volumes || true
+            
             docker compose down --remove-orphans || true
             docker rm -f aod-app || true
             docker pull \${APP_IMAGE_URI}
@@ -245,6 +249,10 @@ jobs:
             aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
             echo "✅ ECR login successful for Crawler."
 
+            # Clean up disk space
+            echo "🧹 Cleaning up disk space..."
+            docker system prune -af --volumes || true
+            
             docker compose down --remove-orphans || true
             docker rm -f aod-crawler || true
             docker pull \${CRAWLER_IMAGE_URI}
