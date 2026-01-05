@@ -37,15 +37,15 @@ services:
       SELENIUM_GRID_URL: ${SELENIUM_GRID_URL:-}
       HEADLESS_MODE: "true"
 
-    # Resource limits for crawling (higher than API)
+    # 리소스 제한 (t3.small 최적화)
     deploy:
       resources:
         limits:
-          cpus: '4.0'
-          memory: 4G
+          cpus: '2.0'
+          memory: 1.5G
         reservations:
-          cpus: '1.0'
-          memory: 2G
+          cpus: '0.5'
+          memory: 512M
 
     networks:
       - aod-crawler-network
