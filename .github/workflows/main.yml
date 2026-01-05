@@ -153,15 +153,22 @@ jobs:
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
 
+            # --- Attempt to free disk space on the target host before pulling images ---
+            echo "=> Disk usage before cleanup:"
+            df -h || true
+            echo "=> Docker system usage before cleanup:"
+            docker system df || true
+            # Try non-sudo first; fall back to sudo if needed. Do not fail the deploy here if prune itself errors.
+            docker system prune -af --volumes || sudo docker system prune -af --volumes || true
+            docker image prune -af || true
+            docker volume prune -f || true
+            echo "=> Disk usage after cleanup:"
+            df -h || true
+
             aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
             echo "✅ ECR login successful for API."
 
-            # Clean up disk space
-            echo "🧹 Cleaning up disk space..."
-            docker system prune -af --volumes || true
-            
             docker compose down --remove-orphans || true
-            docker rm -f aod-app || true
             docker pull \${APP_IMAGE_URI}
             docker compose up -d --remove-orphans
 
@@ -246,15 +253,21 @@ jobs:
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
 
+            # --- Attempt to free disk space on the target host before pulling images ---
+            echo "=> Disk usage before cleanup:"
+            df -h || true
+            echo "=> Docker system usage before cleanup:"
+            docker system df || true
+            docker system prune -af --volumes || sudo docker system prune -af --volumes || true
+            docker image prune -af || true
+            docker volume prune -f || true
+            echo "=> Disk usage after cleanup:"
+            df -h || true
+
             aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
             echo "✅ ECR login successful for Crawler."
 
-            # Clean up disk space
-            echo "🧹 Cleaning up disk space..."
-            docker system prune -af --volumes || true
-            
             docker compose down --remove-orphans || true
-            docker rm -f aod-crawler || true
             docker pull \${CRAWLER_IMAGE_URI}
             docker compose up -d --remove-orphans
 
