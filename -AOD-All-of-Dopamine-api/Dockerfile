@@ -19,7 +19,7 @@ COPY -AOD-All-of-Dopamine-api -AOD-All-of-Dopamine-api
 RUN ./gradlew dependencies --no-daemon || true
 
 # Build only API module
-RUN ./gradlew :AOD-All-of-Dopamine-api:bootJar -x test --no-daemon
+RUN ./gradlew :-AOD-All-of-Dopamine-api:bootJar -x test --no-daemon
 
 # Runtime stage - Debian 기반으로 변경 (Chrome 설치 위해)
 FROM eclipse-temurin:17-jre

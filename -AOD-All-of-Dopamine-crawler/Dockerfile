@@ -19,7 +19,7 @@ COPY -AOD-All-of-Dopamine-crawler -AOD-All-of-Dopamine-crawler
 RUN ./gradlew dependencies --no-daemon || true
 
 # Build only Crawler module
-RUN ./gradlew :AOD-All-of-Dopamine-crawler:bootJar -x test --no-daemon
+RUN ./gradlew :-AOD-All-of-Dopamine-crawler:bootJar -x test --no-daemon
 
 # Runtime stage - Debian based for Selenium/Chrome support
 FROM eclipse-temurin:17-jre
