@@ -18,4 +18,18 @@ public interface ExternalRankingRepository extends JpaRepository<ExternalRanking
     
     @Query("SELECT er FROM ExternalRanking er WHERE er.platform = :platform ORDER BY er.ranking ASC")
     List<ExternalRanking> findByPlatformOrdered(@Param("platform") String platform);
+    
+    /**
+     * 플랫폼별 랭킹 조회 (Content와 JOIN FETCH)
+     * - N+1 문제 방지를 위해 Content를 함께 조회
+     */
+    @Query("SELECT er FROM ExternalRanking er LEFT JOIN FETCH er.content WHERE er.platform = :platform ORDER BY er.ranking ASC")
+    List<ExternalRanking> findByPlatformWithContent(@Param("platform") String platform);
+    
+    /**
+     * 전체 랭킹 조회 (Content와 JOIN FETCH)
+     * - N+1 문제 방지를 위해 Content를 함께 조회
+     */
+    @Query("SELECT er FROM ExternalRanking er LEFT JOIN FETCH er.content ORDER BY er.platform ASC, er.ranking ASC")
+    List<ExternalRanking> findAllWithContent();
 }
