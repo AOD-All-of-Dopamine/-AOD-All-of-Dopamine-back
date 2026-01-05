@@ -51,6 +51,18 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Create ECR repositories if not exist
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          # Create API repository
+          aws ecr describe-repositories --repository-names $API_ECR_REPOSITORY --region $AWS_REGION || \
+            aws ecr create-repository --repository-name $API_ECR_REPOSITORY --region $AWS_REGION
+          
+          # Create Crawler repository
+          aws ecr describe-repositories --repository-names $CRAWLER_ECR_REPOSITORY --region $AWS_REGION || \
+            aws ecr create-repository --repository-name $CRAWLER_ECR_REPOSITORY --region $AWS_REGION
+
       - name: Build and push API image to ECR
         id: api-image
         env:
