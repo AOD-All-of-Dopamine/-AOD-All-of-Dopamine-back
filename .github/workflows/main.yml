@@ -157,6 +157,7 @@ jobs:
             echo "✅ ECR login successful for API."
 
             docker compose down --remove-orphans || true
+            docker rm -f aod-app || true
             docker pull \${APP_IMAGE_URI}
             docker compose up -d --remove-orphans
 
@@ -245,6 +246,7 @@ jobs:
             echo "✅ ECR login successful for Crawler."
 
             docker compose down --remove-orphans || true
+            docker rm -f aod-crawler || true
             docker pull \${CRAWLER_IMAGE_URI}
             docker compose up -d --remove-orphans
 
