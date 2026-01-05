@@ -1,1 +1,5 @@
-rootProject.name = 'AOD'
+rootProject.name = 'AOD-All-of-Dopamine-back'
+
+include '-AOD-All-of-Dopamine-shared'
+include '-AOD-All-of-Dopamine-api'
+include '-AOD-All-of-Dopamine-crawler'

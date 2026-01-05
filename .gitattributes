@@ -1,3 +1,38 @@
+# ========== Line Ending Configuration ==========
+# Unix-based files (gradlew scripts, shell scripts)
 /gradlew text eol=lf
+*.sh text eol=lf
+
+# Windows-based files (batch scripts)
 *.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Preserve exact line endings for these files
+.gitattributes text merge=union
+.gitignore text merge=union
+.github/** text eol=lf
+
+# ========== Binary Files ==========
+# JAR and compiled binaries
 *.jar binary
+*.class binary
+*.war binary
+*.ear binary
+
+# Gradle cache
+.gradle binary
+
+# IDE files
+*.iml binary
+
+# OS specific
+.DS_Store binary
+Thumbs.db binary
+
+# Documentation
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary

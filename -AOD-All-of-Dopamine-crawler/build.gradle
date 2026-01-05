@@ -1,0 +1,74 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.9'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// === Shared Module ===
+	implementation project(':-AOD-All-of-Dopamine-shared')
+	
+	// === Spring Boot starters ===
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'  // Admin UI용
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'   // OpenAI API, 외부 API 호출용
+	implementation 'org.springframework.boot:spring-boot-starter-cache'     // 캐싱
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'  // 모니터링
+
+	// === DB ===
+	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'com.h2database:h2'  // 테스트용
+
+	// JSONB 매핑 (Hibernate Types)
+	implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
+
+	// === 크롤링 도구 ===
+	implementation 'org.seleniumhq.selenium:selenium-java:4.11.0'
+	implementation 'io.github.bonigarcia:webdrivermanager:6.1.0'
+	implementation 'org.jsoup:jsoup:1.16.1'
+
+	// === 유틸/라이브러리 ===
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'org.yaml:snakeyaml'
+
+	// === Lombok ===
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// === 모니터링 ===
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:8.22.0'
+	implementation 'io.sentry:sentry-logback:8.22.0'
+
+	// === 테스트 ===
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

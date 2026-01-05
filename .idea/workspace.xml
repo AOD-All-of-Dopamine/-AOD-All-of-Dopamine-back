@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8246d20d-e076-4aa7-8aaa-cea02a51d2af" name="Changes" comment="feat:크롤링 스레드 풀 설정  115">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="AOD-All-of-Dopamine-back" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="AOD-All-of-Dopamine-back" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Interface" />
+        <option value="Class" />
+        <option value="Dockerfile" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feature/batch-performance-optimization" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;dfdfg42&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/AOD-All-of-Dopamine/-AOD-All-of-Dopamine-back&quot;,
+    &quot;accountId&quot;: &quot;bdd77fa2-00ae-48ce-acce-48eeef8f05bf&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2z0LPZ8qQjxTtc3ZwOV87kOplFD" />
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.-AOD-All-of-Dopamine-back [build].executor": "Run",
+    "Gradle.Build -AOD-All-of-Dopamine-back.executor": "Run",
+    "Gradle.WebnovelMergeIntegrationTest.executor": "Run",
+    "Gradle.WebnovelMergeIntegrationTest.upsert_naverseries_links_to_same_content.executor": "Run",
+    "Gradle.WebnovelTransformUnitTest.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.AodApplication.executor": "Run",
+    "git-widget-placeholder": "refactor/multi-module-migration",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/AOD/-AOD-All-of-Dopamine-back/-AOD-All-of-Dopamine-api",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "configurable.group.appearance",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
+  }
+}]]></component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.example.AOD.v2.repo" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\-AOD-All-of-Dopamine-back\src\main\resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\-AOD-All-of-Dopamine-back\src\main\resources" />
+      <recent name="D:\-AOD-All-of-Dopamine-back" />
+      <recent name="D:\-AOD-All-of-Dopamine-back\src\main\resources\rules" />
+      <recent name="D:\-AOD-All-of-Dopamine-back\src\test\resources" />
+      <recent name="D:\-AOD-All-of-Dopamine-back\src\main\java\com\example\AOD\v2\rules\game" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.AodApplication">
+    <configuration name="-AOD-All-of-Dopamine-back [build]" type="GradleRunConfiguration" factoryName="Gradle">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="WebnovelMergeIntegrationTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;com.example.aod.integration.WebnovelMergeIntegrationTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="WebnovelMergeIntegrationTest.upsert_naverseries_links_to_same_content" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;com.example.aod.integration.WebnovelMergeIntegrationTest.upsert_naverseries_links_to_same_content&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="WebnovelTransformUnitTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;com.example.aod.transform.WebnovelTransformUnitTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="AodApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AOD.main" />
+      <selectedOptions>
+        <option name="environmentVariables" />
+      </selectedOptions>
+      <option name="SHORTEN_COMMAND_LINE" value="ARGS_FILE" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.AOD.AodApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="SHORTEN_COMMAND_LINE" value="ARGS_FILE" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Gradle.-AOD-All-of-Dopamine-back [build]" />
+      <item itemvalue="Gradle.WebnovelMergeIntegrationTest" />
+      <item itemvalue="Gradle.WebnovelMergeIntegrationTest.upsert_naverseries_links_to_same_content" />
+      <item itemvalue="Gradle.WebnovelTransformUnitTest" />
+      <item itemvalue="Spring Boot.AodApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.WebnovelTransformUnitTest" />
+        <item itemvalue="Gradle.WebnovelMergeIntegrationTest" />
+        <item itemvalue="Gradle.WebnovelMergeIntegrationTest.upsert_naverseries_links_to_same_content" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.25659.59" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.25659.59" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8246d20d-e076-4aa7-8aaa-cea02a51d2af" name="Changes" comment="" />
+      <created>1750863021478</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1750863021478</updated>
+      <workItem from="1750863023002" duration="2704000" />
+      <workItem from="1750900907584" duration="1543000" />
+      <workItem from="1750902610953" duration="5851000" />
+      <workItem from="1756986890226" duration="8890000" />
+      <workItem from="1757134203398" duration="10643000" />
+      <workItem from="1757214601128" duration="4024000" />
+      <workItem from="1757301086983" duration="727000" />
+      <workItem from="1757381366876" duration="600000" />
+      <workItem from="1757494402755" duration="2321000" />
+      <workItem from="1757508557402" duration="946000" />
+      <workItem from="1758280090544" duration="2115000" />
+      <workItem from="1758301847853" duration="5642000" />
+      <workItem from="1758367137554" duration="8193000" />
+      <workItem from="1758516612811" duration="4062000" />
+      <workItem from="1758522332353" duration="1224000" />
+      <workItem from="1758853685591" duration="61000" />
+      <workItem from="1758959193727" duration="4494000" />
+      <workItem from="1759074423921" duration="38000" />
+      <workItem from="1759123122215" duration="1052000" />
+      <workItem from="1759151352860" duration="7440000" />
+      <workItem from="1759191485161" duration="351000" />
+      <workItem from="1759325003099" duration="15000" />
+      <workItem from="1759832418752" duration="2881000" />
+      <workItem from="1759848204595" duration="15959000" />
+      <workItem from="1760503166237" duration="9096000" />
+      <workItem from="1760523469083" duration="12058000" />
+      <workItem from="1760538144952" duration="344000" />
+      <workItem from="1760617572897" duration="11760000" />
+      <workItem from="1760667380925" duration="5307000" />
+      <workItem from="1760694179706" duration="10959000" />
+      <workItem from="1760709011260" duration="112000" />
+      <workItem from="1760758599163" duration="2356000" />
+      <workItem from="1760782932401" duration="686000" />
+      <workItem from="1760783863998" duration="157000" />
+      <workItem from="1760795162376" duration="378000" />
+      <workItem from="1760967345253" duration="3515000" />
+      <workItem from="1760972499978" duration="5997000" />
+      <workItem from="1761127793349" duration="622000" />
+      <workItem from="1761232805945" duration="328000" />
+      <workItem from="1761314577786" duration="55000" />
+      <workItem from="1761314823094" duration="181000" />
+      <workItem from="1762048530800" duration="2745000" />
+      <workItem from="1762088056591" duration="644000" />
+      <workItem from="1762151172260" duration="6084000" />
+      <workItem from="1762262093139" duration="1569000" />
+      <workItem from="1762815765823" duration="6465000" />
+      <workItem from="1762915199466" duration="2551000" />
+      <workItem from="1763033155471" duration="1321000" />
+      <workItem from="1763339355371" duration="18933000" />
+      <workItem from="1763464780710" duration="3930000" />
+      <workItem from="1764162501858" duration="149000" />
+      <workItem from="1764411914761" duration="2926000" />
+      <workItem from="1764555019405" duration="905000" />
+      <workItem from="1764942291961" duration="2775000" />
+      <workItem from="1765371863330" duration="705000" />
+      <workItem from="1765460199315" duration="2469000" />
+      <workItem from="1765772360636" duration="12972000" />
+      <workItem from="1765847204793" duration="765000" />
+      <workItem from="1765977196490" duration="2526000" />
+      <workItem from="1765981454246" duration="147000" />
+      <workItem from="1766060531127" duration="3575000" />
+      <workItem from="1766199360790" duration="21854000" />
+      <workItem from="1766754581497" duration="659000" />
+      <workItem from="1766989918106" duration="618000" />
+      <workItem from="1767091351543" duration="650000" />
+      <workItem from="1767339457109" duration="2058000" />
+      <workItem from="1767403392060" duration="1981000" />
+      <workItem from="1767414701377" duration="12000" />
+      <workItem from="1767604315074" duration="197000" />
+    </task>
+    <task id="LOCAL-00006" summary="feat: 테스트파일 위치 조정 -&gt; resource 폴더 내로 이동 , 테스트 통과 확인">
+      <option name="closed" value="true" />
+      <created>1757159044865</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1757159044866</updated>
+    </task>
+    <task id="LOCAL-00007" summary="feat: 프로젝트 리빌딩을위한 삭제">
+      <option name="closed" value="true" />
+      <created>1757216161020</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1757216161020</updated>
+    </task>
+    <task id="LOCAL-00008" summary="feat: 새로운 로직에 맞춰서 크롤링 재편성 , 기존 로직들 비활성화">
+      <option name="closed" value="true" />
+      <created>1757303336261</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1757303336261</updated>
+    </task>
+    <task id="LOCAL-00009" summary="feat: 새로운 로직에 맞춰서 크롤링 재편성 , 기존 로직들 비활성화">
+      <option name="closed" value="true" />
+      <created>1758302792240</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1758302792240</updated>
+    </task>
+    <task id="LOCAL-00010" summary="feat: 네이버웹툰 크롤링 재편성">
+      <option name="closed" value="true" />
+      <created>1758302830067</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1758302830067</updated>
+    </task>
+    <task id="LOCAL-00011" summary="feat: 네이버웹툰 크롤링 테스트 컨트롤러 추가 , 구 크롤러 로직 삭제">
+      <option name="closed" value="true" />
+      <created>1758305451718</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1758305451718</updated>
+    </task>
+    <task id="LOCAL-00012" summary="feat: 네이버웹툰 크롤링 사용필드로 수정(태그 , 연재상태 , 연령가 ,화수 크롤링안됨)">
+      <option name="closed" value="true" />
+      <created>1758307506934</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1758307506934</updated>
+    </task>
+    <task id="LOCAL-00013" summary="feat: 네이버웹툰 크롤링 셀레니움으로 변경">
+      <option name="closed" value="true" />
+      <created>1758376529981</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1758376529981</updated>
+    </task>
+    <task id="LOCAL-00014" summary="feat: 네이버웹툰 크롤링 yml, Rule Path 추가">
+      <option name="closed" value="true" />
+      <created>1758517022801</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1758517022801</updated>
+    </task>
+    <task id="LOCAL-00015" summary="feat: 네이버시리즈 소설 yml 임시수정">
+      <option name="closed" value="true" />
+      <created>1758523351310</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1758523351310</updated>
+    </task>
+    <task id="LOCAL-00016" summary="style : 데모페이지  양식 수정 (카드형식) , 테스트코드 비활성화">
+      <option name="closed" value="true" />
+      <created>1759123182232</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1759123182232</updated>
+    </task>
+    <task id="LOCAL-00017" summary="docs : 깃 이그노어 수정">
+      <option name="closed" value="true" />
+      <created>1759123312119</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1759123312119</updated>
+    </task>
+    <task id="LOCAL-00018" summary="docs : 깃 이그노어 수정">
+      <option name="closed" value="true" />
+      <created>1759123552794</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1759123552794</updated>
+    </task>
+    <task id="LOCAL-00019" summary="feat : 모니터링 구축">
+      <option name="closed" value="true" />
+      <created>1759156521153</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1759156521153</updated>
+    </task>
+    <task id="LOCAL-00020" summary="feat : 모니터링 구축 수정">
+      <option name="closed" value="true" />
+      <created>1759159857455</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1759159857455</updated>
+    </task>
+    <task id="LOCAL-00021" summary="feat : 모니터링 도커파일들 주석추가">
+      <option name="closed" value="true" />
+      <created>1759162527080</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1759162527080</updated>
+    </task>
+    <task id="LOCAL-00022" summary="feat : 네이버시리즈 정적으로 변경 크롤링 정상작동 확인">
+      <option name="closed" value="true" />
+      <created>1759898744156</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1759898744156</updated>
+    </task>
+    <task id="LOCAL-00023" summary="feat : 네이버시리즈 크롤링 다운로드 카운트 천단위 추가">
+      <option name="closed" value="true" />
+      <created>1759900512360</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1759900512360</updated>
+    </task>
+    <task id="LOCAL-00024" summary="feat : 네이버시리즈 크롤링 다운로드 카운트 폴백및 정교화">
+      <option name="closed" value="true" />
+      <created>1759901476713</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1759901476713</updated>
+    </task>
+    <task id="LOCAL-00025" summary="feat : 카카오페이지 크롤링 graphql 요청">
+      <option name="closed" value="true" />
+      <created>1759904084898</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1759904084898</updated>
+    </task>
+    <task id="LOCAL-00026" summary="feat : 카카오페이지 크롤링 graphql 요청">
+      <option name="closed" value="true" />
+      <created>1760503350788</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1760503350788</updated>
+    </task>
+    <task id="LOCAL-00027" summary="feat : cicd 설정">
+      <option name="closed" value="true" />
+      <created>1760505884212</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1760505884212</updated>
+    </task>
+    <task id="LOCAL-00028" summary="feat : cicd 설정">
+      <option name="closed" value="true" />
+      <created>1760507932039</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1760507932039</updated>
+    </task>
+    <task id="LOCAL-00029" summary="feat : cicd 설정">
+      <option name="closed" value="true" />
+      <created>1760510359428</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1760510359428</updated>
+    </task>
+    <task id="LOCAL-00030" summary="feat : cicd 설정">
+      <option name="closed" value="true" />
+      <created>1760511221930</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1760511221930</updated>
+    </task>
+    <task id="LOCAL-00031" summary="feat : cicd 설정">
+      <option name="closed" value="true" />
+      <created>1760512559413</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1760512559413</updated>
+    </task>
+    <task id="LOCAL-00032" summary="feat : cicd 설정">
+      <option name="closed" value="true" />
+      <created>1760512725654</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1760512725654</updated>
+    </task>
+    <task id="LOCAL-00033" summary="feat : cicd 설정">
+      <option name="closed" value="true" />
+      <created>1760513177927</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1760513177927</updated>
+    </task>
+    <task id="LOCAL-00034" summary="feat : cicd 설정">
+      <option name="closed" value="true" />
+      <created>1760514241230</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1760514241230</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Refactor : cicd 설정 리팩토링">
+      <option name="closed" value="true" />
+      <created>1760528541202</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1760528541202</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Refactor : cicd 설정 리팩토링">
+      <option name="closed" value="true" />
+      <created>1760528847250</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1760528847250</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Refactor : cicd 설정 리팩토링">
+      <option name="closed" value="true" />
+      <created>1760533110292</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1760533110292</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Refactor : 카카오페이지 맵핑수정">
+      <option name="closed" value="true" />
+      <created>1760621688288</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1760621688288</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Refactor : Domain UpsertService 분리">
+      <option name="closed" value="true" />
+      <created>1760708648312</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1760708648312</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Refactor : Domain UpsertService 분리">
+      <option name="closed" value="true" />
+      <created>1760708663533</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1760708663533</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Refactor : content doamin 폴더 변경">
+      <option name="closed" value="true" />
+      <created>1760972669918</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1760972669918</updated>
+    </task>
+    <task id="LOCAL-00042" summary="feat: cicd설정&#10;&#10;-naver id/pw 시크릿 삭제&#10;-netflix id/pw 시크릿 삭제">
+      <option name="closed" value="true" />
+      <created>1763367716211</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1763367716211</updated>
+    </task>
+    <task id="LOCAL-00043" summary="feat: cicd설정">
+      <option name="closed" value="true" />
+      <created>1763368101534</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1763368101534</updated>
+    </task>
+    <task id="LOCAL-00044" summary="feat: cicd설정">
+      <option name="closed" value="true" />
+      <created>1763368545867</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1763368545867</updated>
+    </task>
+    <task id="LOCAL-00045" summary="feat: cicd설정">
+      <option name="closed" value="true" />
+      <created>1763370977094</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1763370977094</updated>
+    </task>
+    <task id="LOCAL-00046" summary="feat: cicd설정">
+      <option name="closed" value="true" />
+      <created>1763373169086</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1763373169086</updated>
+    </task>
+    <task id="LOCAL-00047" summary="feat: cicd설정">
+      <option name="closed" value="true" />
+      <created>1763374872657</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1763374872657</updated>
+    </task>
+    <task id="LOCAL-00048" summary="feat: cicd설정">
+      <option name="closed" value="true" />
+      <created>1763375739706</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1763375739706</updated>
+    </task>
+    <task id="LOCAL-00049" summary="feat: cicd설정">
+      <option name="closed" value="true" />
+      <created>1763375831850</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1763375831850</updated>
+    </task>
+    <task id="LOCAL-00050" summary="feat: cicd설정">
+      <option name="closed" value="true" />
+      <created>1763376611735</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1763376611735</updated>
+    </task>
+    <task id="LOCAL-00051" summary="feat: 네이버 로그인 비활성화">
+      <option name="closed" value="true" />
+      <created>1763377104865</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1763377104865</updated>
+    </task>
+    <task id="LOCAL-00052" summary="fix:보안설정">
+      <option name="closed" value="true" />
+      <created>1763381733044</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1763381733044</updated>
+    </task>
+    <task id="LOCAL-00053" summary="feat:cors설정">
+      <option name="closed" value="true" />
+      <created>1763383278559</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1763383278559</updated>
+    </task>
+    <task id="LOCAL-00054" summary="feat:크롤링 스레드 풀 설정  115">
+      <option name="closed" value="true" />
+      <created>1763466252580</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1763466252580</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: 네이버웹툰 크롤링 테스트 컨트롤러 추가 , 구 크롤러 로직 삭제" />
+    <MESSAGE value="feat: 네이버웹툰 크롤링 사용필드로 수정(태그 , 연재상태 , 연령가 ,화수 크롤링안됨)" />
+    <MESSAGE value="feat: 네이버웹툰 크롤링 셀레니움으로 변경" />
+    <MESSAGE value="feat: 네이버웹툰 크롤링 yml, Rule Path 추가" />
+    <MESSAGE value="feat: 네이버시리즈 소설 yml 임시수정" />
+    <MESSAGE value="style : 데모페이지  양식 수정 (카드형식) , 테스트코드 비활성화" />
+    <MESSAGE value="docs : 깃 이그노어 수정" />
+    <MESSAGE value="feat : 모니터링 구축" />
+    <MESSAGE value="feat : 모니터링 구축 수정" />
+    <MESSAGE value="feat : 모니터링 도커파일들 주석추가" />
+    <MESSAGE value="feat : 네이버시리즈 정적으로 변경 크롤링 정상작동 확인" />
+    <MESSAGE value="feat : 네이버시리즈 크롤링 다운로드 카운트 천단위 추가" />
+    <MESSAGE value="feat : 네이버시리즈 크롤링 다운로드 카운트 폴백및 정교화" />
+    <MESSAGE value="feat : 카카오페이지 크롤링 graphql 요청" />
+    <MESSAGE value="feat : cicd 설정" />
+    <MESSAGE value="Refactor : cicd 설정 리팩토링" />
+    <MESSAGE value="Refactor : 카카오페이지 맵핑수정" />
+    <MESSAGE value="Refactor : Domain UpsertService 분리" />
+    <MESSAGE value="Refactor : content doamin 폴더 변경" />
+    <MESSAGE value="feat: cicd설정&#10;&#10;-naver id/pw 시크릿 삭제&#10;-netflix id/pw 시크릿 삭제" />
+    <MESSAGE value="feat: cicd설정" />
+    <MESSAGE value="feat: 네이버 로그인 비활성화" />
+    <MESSAGE value="fix:보안설정" />
+    <MESSAGE value="feat:cors설정" />
+    <MESSAGE value="feat:크롤링 스레드 풀 설정  115" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat:크롤링 스레드 풀 설정  115" />
+  </component>
+</project>

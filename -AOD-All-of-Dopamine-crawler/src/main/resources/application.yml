@@ -1,0 +1,99 @@
+spring:
+  application:
+    name: aod-crawler
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 7292
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: create  # 크롤러는 스키마 변경 금지
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: public
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# 스케줄링 설정
+scheduling:
+  enabled: true
+
+# 로깅 설정
+logging:
+  level:
+    root: INFO
+    com.example.crawler: DEBUG
+    com.example.crawler.ingest: INFO
+    com.example.crawler.service: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 모니터링 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Sentry (에러 추적)
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:development}
+  traces-sample-rate: 1.0
+
+# 서버 설정
+server:
+  port: 8081  # API 서버와 분리 (8080과 다른 포트)
+  shutdown: graceful
+
+# 크롤러 전용 설정
+crawler:
+  steam:
+    api-key: ${STEAM_API_KEY}
+    rate-limit:
+      requests-per-second: 1
+  tmdb:
+    api-key: ${TMDB_API_KEY}
+    language: ko-KR
+  batch:
+    size: 100
+    transform-interval: 600000  # 10분
+
+# API Keys (backward compatibility)
+tmdb:
+  api:
+    key: ${TMDB_API_KEY}
+
+steam:
+  api:
+    key: ${STEAM_API_KEY}
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
+    url: https://api.openai.com/v1/chat/completions
+

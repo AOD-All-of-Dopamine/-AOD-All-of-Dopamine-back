@@ -1,0 +1,63 @@
+version: '3.8'
+# Docker Compose for Crawler Service (Separate EC2)
+
+services:
+  # ========== Crawler Service ==========
+  crawler:
+    # CI/CD에서는 ECR 이미지, 로컬에서는 build
+    image: ${CRAWLER_IMAGE_URI:-aod-crawler:latest}
+    container_name: aod-crawler
+    ports:
+      - "${CRAWLER_PORT:-8081}:8081"
+    environment:
+      TZ: Asia/Seoul
+      # JVM 메모리 설정 (Crawler는 더 많은 메모리 필요 - Selenium/Chrome)
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul -Xms512m -Xmx3072m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-prod}
+
+      # Database Configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+      # API Configuration (for data transformation)
+      API_BASE_URL: ${API_BASE_URL:-http://api:8080}
+
+      # External API Keys
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      STEAM_API_KEY: ${STEAM_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      NAVER_ID: ${NAVER_ID}
+      NAVER_PW: ${NAVER_PW}
+
+      # Monitoring & Logging
+      SENTRY_DSN: ${SENTRY_DSN}
+
+      # Selenium Configuration
+      SELENIUM_GRID_URL: ${SELENIUM_GRID_URL:-}
+      HEADLESS_MODE: "true"
+
+    # 리소스 제한 (t3.small 최적화)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1.5G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    networks:
+      - aod-crawler-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# Network for crawler service
+networks:
+  aod-crawler-network:
+    driver: bridge
