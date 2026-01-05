@@ -5,254 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8246d20d-e076-4aa7-8aaa-cea02a51d2af" name="Changes" comment="feat:크롤링 스레드 풀 설정  115">
-      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/architecture/admin-frontend-separation-strategy.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/architecture/admin-ui-architecture.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/architecture/system-architecture.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/monitoring/ACTUATOR_INTEGRATION_COMPLETE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/monitoring/ACTUATOR_INTEGRATION_QUICK_START.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/monitoring/CUSTOM_VS_ACTUATOR_INTEGRATION.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/monitoring/GRAFANA_DASHBOARD_GUIDE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/monitoring/MONITORING_GUIDE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/optimization/batch-performance-configuration.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/optimization/batch-performance-optimization.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/optimization/crawling-improvements.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/optimization/duplicate-detection.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/optimization/resource-limits.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/optimization/scheduling-overview.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/optimization/steam-rate-limiting.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/optimization/thread-resource-issues.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/performance/INTEGRATION_BEFORE_AFTER_COMPARISON.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/performance/QUICK_START_PERFORMANCE_TEST.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/performance/create-genre-indexes.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/performance/genre-filtering-optimization.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/performance/memory-optimization-platform-filter.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/performance/performance-measurement-guide.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/performance/threadpool-performance-guide.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/testing/STEAM_RATE_LIMITER_TEST_GUIDE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/webnovel/naver-series-adult-content-filtering.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/alertmanager.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/alerts.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/grafana/dashboards/aod-crawling-monitoring-dashboard.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/grafana/dashboards/aod-performance-dashboard.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/grafana/provisioning/dashboards/dashboard.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/grafana/provisioning/datasources/prometheus.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/monitoring-compose.base.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/monitoring-compose.local.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/monitoring-compose.prod.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/prometheus.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/AodApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/admin/controller/AdminController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/admin/controller/AdminTestController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/admin/controller/ContentManagementController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/admin/controller/TestController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/controller/InteractionController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/controller/ReviewController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/controller/WorkController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/dto/PageResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/dto/ReviewResponseDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/dto/WorkResponseDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/dto/WorkSummaryDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/dto/review/ReviewRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/dto/review/ReviewResponseDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/performance/GenreFilteringPerformanceController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/service/BookmarkService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/service/LikeService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/service/ReviewService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/api/service/WorkApiService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/config/AsyncConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/config/DatabaseIndexInitializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/config/RestTemplateConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/config/SentryConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Novel/KakaoPageNovel/KakaoPageCrawler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Novel/KakaoPageNovel/KakaoPageNovelDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Novel/NaverSeriesNovel/NaverSeriesCrawler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Novel/NaverSeriesNovel/NaverSeriesNovel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Novel/NaverSeriesNovel/NaverSeriesNovelDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Novel/NaverSeriesNovel/NaverSeriesNovelRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Novel/NaverSeriesNovel/NaverSeriesSchedulingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/controller/TmdbController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/controller/TmdbTestController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/dto/TmdbDiscoveryResult.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/dto/TmdbMovie.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/dto/TmdbTvDiscoveryResult.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/dto/TmdbTvShow.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/dto/WatchProviderResult.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/fetcher/TmdbApiFetcher.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/processor/TmdbPayloadProcessor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/service/TmdbSchedulingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/TMDB/service/TmdbService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Webtoon/NaverWebtoon/MobileListParser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Webtoon/NaverWebtoon/NaverWebtoonCrawler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Webtoon/NaverWebtoon/NaverWebtoonDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Webtoon/NaverWebtoon/NaverWebtoonSchedulingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Webtoon/NaverWebtoon/NaverWebtoonSelectors.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Webtoon/NaverWebtoon/NaverWebtoonSeleniumPageParser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Webtoon/NaverWebtoon/NaverWebtoonService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/contents/Webtoon/NaverWebtoon/WebtoonPageParser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/demo/TestDataController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/demo/controller/DemoPageController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/demo/dto/ContentDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/demo/dto/ContentDetailDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/demo/service/DemoPageService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/Bookmark.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/Content.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/ContentLike.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/Review.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/entity/Domain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/entity/GameContent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/entity/MovieContent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/entity/PlatformData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/entity/TvContent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/entity/WebnovelContent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/domain/entity/WebtoonContent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/game/steam/controller/SteamController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/game/steam/controller/SteamRateLimiterController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/game/steam/controller/SteamTestController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/game/steam/fetcher/SteamApiFetcher.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/game/steam/processor/SteamPayloadProcessor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/game/steam/service/SteamCrawlService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/game/steam/service/SteamSchedulingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/game/steam/util/SteamRateLimiter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ingest/BatchTransformService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ingest/BatchTransformServiceOptimized.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ingest/CollectorService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ingest/RawItem.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ingest/RawItemRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ingest/TransformRun.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ingest/TransformRunRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ingest/TransformSchedulingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/monitoring/CustomMetrics.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/monitoring/SentryEventLogger.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/monitoring/SentryTestController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/performance/PerformanceMetrics.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/performance/PerformanceMonitor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/performance/PerformanceMonitorWithActuator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/performance/PerformanceTestController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/performance/ThreadPoolMetrics.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/performance/ThreadPoolMonitor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/Webnovel/NaverSeries/controller/NaverSeriesRankingController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/Webnovel/NaverSeries/fetcher/NaverSeriesRankingFetcher.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/Webnovel/NaverSeries/parser/NaverSeriesDetailParser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/Webnovel/NaverSeries/service/NaverSeriesRankingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/Webtoon/NaverWebtoon/controller/NaverWebtoonRankingController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/Webtoon/NaverWebtoon/fetcher/NaverWebtoonRankingFetcher.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/Webtoon/NaverWebtoon/service/NaverWebtoonRankingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/common/RankingUpsertHelper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/controller/RankingController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/dto/RankingResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/entity/ExternalRanking.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/mapper/RankingMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/repo/ExternalRankingRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/service/RankingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/steam/controller/SteamRankingController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/steam/fetcher/SteamRankingFetcher.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/steam/parser/SteamRankingParser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/steam/service/SteamRankingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/tmdb/constant/TmdbPlatformType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/tmdb/controller/TmdbRankingController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/tmdb/fetcher/TmdbRankingFetcher.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/tmdb/mapper/TmdbRankingMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/ranking/tmdb/service/TmdbRankingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/config/RecommendationConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/controller/RecommendationController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/domain/ContentRating.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/domain/LLMRecommendationRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/domain/UserPreference.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/dto/GameRecommendationDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/dto/MovieRecommendationDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/dto/NovelRecommendationDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/dto/OTTRecommendationDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/dto/WebtoonRecommendationDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/repository/ContentRatingRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/repository/LLMRecommendationRequestRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/repository/UserPreferenceRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/scheduler/RecommendationScheduler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/service/ContentRatingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/service/ImprovedRecommendationService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/service/InitialRecommendationService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/service/LLMRecommendationService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/service/SafeDTOConverter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/service/TraditionalRecommendationService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/recommendation/service/UserPreferenceService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/BookmarkRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/ContentLikeRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/ContentRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/GameContentRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/MovieContentRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/PlatformDataRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/ReviewRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/TvContentRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/WebnovelContentRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/repo/WebtoonContentRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/rules/DomainObjectMapping.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/rules/MappingRule.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/rules/NormalizerStep.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/security/JwtAuthenticationFilter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/security/JwtTokenProvider.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/security/SecurityConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/service/ContentUpsertService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/service/DomainCoreUpsertService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/service/GenericDomainUpserter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/service/RuleLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/service/TransformEngine.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/service/UpsertService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/service/similarity/ContentMergeService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/service/similarity/ContentSimilarityService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/controller/AuthController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/controller/UserController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/dto/JwtResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/dto/LoginRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/dto/SignUpRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/model/User.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/repository/UserRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/service/UserService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/user/service/UserServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/util/ChromeDriverProvider.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/util/InterruptibleSleep.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/AOD/util/NaverLoginHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-local.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-prod.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-test.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/db/migration/V1__create_genre_gin_indexes.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/db/test-data.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/rules/game/epic.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/rules/game/steam.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/rules/movie/tmdb_movie.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/rules/tv/tmdb_tv.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/rules/webnovel/kakaopage.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/rules/webnovel/naverseries.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/rules/webtoon/naverwebtoon.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/demo-style.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/demo/admin.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/demo/detail.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/demo/explore.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/demo/new.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/demo/ranking.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/demo/recommendation.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/fragments/footer.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/fragments/header.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/layouts/default_layout.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/aod/game/steam/util/SteamRateLimiterTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/aod/integration/WebnovelMergeIntegrationTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/aod/transform/WebnovelTransformUnitTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/sample/raw-kakaopage.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/sample/raw-naverseries.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/start-grafana.ps1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-performance.ps1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-performance.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -275,18 +29,12 @@
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="AOD" type="f1a62948:ProjectNode" />
+                <item name="AOD-All-of-Dopamine-back" type="f1a62948:ProjectNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="AOD" type="f1a62948:ProjectNode" />
+                <item name="AOD-All-of-Dopamine-back" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="AOD" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -348,9 +96,9 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.AodApplication.executor": "Run",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "refactor/multi-module-migration",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/AOD/-AOD-All-of-Dopamine-back/-AOD-All-of-Dopamine-crawler",
+    "last_opened_file_path": "D:/AOD/-AOD-All-of-Dopamine-back/-AOD-All-of-Dopamine-api",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -597,6 +345,7 @@
       <workItem from="1767339457109" duration="2058000" />
       <workItem from="1767403392060" duration="1981000" />
       <workItem from="1767414701377" duration="12000" />
+      <workItem from="1767604315074" duration="197000" />
     </task>
     <task id="LOCAL-00006" summary="feat: 테스트파일 위치 조정 -&gt; resource 폴더 내로 이동 , 테스트 통과 확인">
       <option name="closed" value="true" />

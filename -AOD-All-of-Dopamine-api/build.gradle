@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
 	// === Shared Module ===
-	implementation project(':AOD-All-of-Dopamine-shared')
+	implementation project(':-AOD-All-of-Dopamine-shared')
 	
 	// === Spring Boot starters ===
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -34,6 +34,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'   // OpenAI API 호출용
 	implementation 'org.springframework.boot:spring-boot-starter-cache'    // 캐시
+	implementation 'org.springframework.boot:spring-boot-starter-validation'  // Bean Validation
 
 	// === DB ===
 	runtimeOnly 'org.postgresql:postgresql'   // BOM으로 버전 관리 (중복/명시 버전 제거)
