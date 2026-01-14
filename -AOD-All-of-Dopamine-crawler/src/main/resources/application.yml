@@ -14,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create  # 크롤러는 스키마 변경 금지
+      ddl-auto: none  # 크롤러는 스키마 변경 금지
     show-sql: false
     properties:
       hibernate:
@@ -62,7 +62,7 @@ management:
 # Sentry (에러 추적)
 sentry:
   dsn: ${SENTRY_DSN:}
-  environment: ${SENTRY_ENVIRONMENT:development}
+  environment: ${spring.profiles.active:local}
   traces-sample-rate: 1.0
 
 # 서버 설정

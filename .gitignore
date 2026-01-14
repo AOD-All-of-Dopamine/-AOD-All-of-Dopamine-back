@@ -60,6 +60,10 @@ application.properties
 application-prod.properties
 application-dev.properties
 application-test.properties
+application.yml
+application-prod.yml
+application-dev.yml
+application-test.yml
 
 # Environment variables
 .env
