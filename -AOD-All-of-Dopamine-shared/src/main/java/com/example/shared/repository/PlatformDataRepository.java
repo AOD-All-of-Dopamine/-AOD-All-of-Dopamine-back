@@ -32,4 +32,33 @@ public interface PlatformDataRepository extends JpaRepository<PlatformData, Long
            "WHERE pd.platformName IS NOT NULL " +
            "ORDER BY pd.platformName")
     List<String> findDistinctPlatformNames();
+    
+    /**
+     * 특정 Watch Provider (OTT)를 가진 Content ID 조회 - 단일 OTT
+     * PlatformData.attributes JSONB 내의 watch_providers 배열에서 검색
+     * @param watchProvider 소문자로 변환된 OTT 플랫폼 이름 (예: "netflix")
+     */
+    @Query(value = "SELECT DISTINCT pd.content_id FROM platform_data pd " +
+           "WHERE pd.attributes -> 'watch_providers' IS NOT NULL " +
+           "AND jsonb_typeof(pd.attributes -> 'watch_providers') = 'array' " +
+           "AND EXISTS (SELECT 1 FROM jsonb_array_elements_text(pd.attributes -> 'watch_providers') AS wp " +
+           "            WHERE LOWER(wp) = :watchProvider)",
+           nativeQuery = true)
+    List<Long> findContentIdsByWatchProvider(@Param("watchProvider") String watchProvider);
+    
+    /**
+     * 특정 도메인의 Watch Provider (OTT)를 가진 Content ID 조회 - 단일 OTT
+     * @param domain 도메인 (MOVIE, TV 등)
+     * @param watchProvider 소문자로 변환된 OTT 플랫폼 이름
+     */
+    @Query(value = "SELECT DISTINCT pd.content_id FROM platform_data pd " +
+           "JOIN contents c ON pd.content_id = c.content_id " +
+           "WHERE c.domain = :domain " +
+           "AND pd.attributes -> 'watch_providers' IS NOT NULL " +
+           "AND jsonb_typeof(pd.attributes -> 'watch_providers') = 'array' " +
+           "AND EXISTS (SELECT 1 FROM jsonb_array_elements_text(pd.attributes -> 'watch_providers') AS wp " +
+           "            WHERE LOWER(wp) = :watchProvider)",
+           nativeQuery = true)
+    List<Long> findContentIdsByDomainAndWatchProvider(@Param("domain") String domain,
+                                                       @Param("watchProvider") String watchProvider);
 }
