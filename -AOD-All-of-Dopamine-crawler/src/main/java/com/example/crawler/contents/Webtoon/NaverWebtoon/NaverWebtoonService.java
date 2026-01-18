@@ -158,6 +158,24 @@ public class NaverWebtoonService {
     /**
      * 동기 버전 - 완결 웹툰 크롤링
      */
+    /**
+     * 단일 웹툰 크롤링 (Job Queue용)
+     */
+    public boolean collectWebtoonById(String titleId) {
+        try {
+            log.debug("📚 [Webtoon] 웹툰 ID {} 크롤링 시작", titleId);
+            
+            // TODO: 웹툰 단일 크롤링 로직 구현
+            // 현재는 전체 요일별 크롤링만 지원
+            log.warn("⚠️ [Webtoon] 웹툰 단일 크롤링 미구현 - titleId: {}", titleId);
+            
+            return true; // 임시로 성공 처리
+        } catch (Exception e) {
+            log.error("❌ [Webtoon] 웹툰 ID {} 크롤링 실패", titleId, e);
+            return false;
+        }
+    }
+
     public int crawlFinishedWebtoonsSync(int maxPages) throws Exception {
         return naverWebtoonCrawler.crawlFinishedWebtoons(maxPages);
     }

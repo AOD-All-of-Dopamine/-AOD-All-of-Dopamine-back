@@ -1,9 +1,13 @@
 package com.example.crawler.admin.controller;
 
+import com.example.crawler.common.queue.CrawlJobProducer;
+import com.example.crawler.common.queue.JobType;
 import com.example.crawler.contents.Novel.KakaoPageNovel.KakaoPageCrawler;
 import com.example.crawler.contents.Novel.NaverSeriesNovel.NaverSeriesCrawler;
-
+import com.example.crawler.contents.Novel.NaverSeriesNovel.NaverSeriesSchedulingService;
+import com.example.crawler.contents.Webtoon.NaverWebtoon.NaverWebtoonSchedulingService;
 import com.example.crawler.contents.Webtoon.NaverWebtoon.NaverWebtoonService;
+import com.example.crawler.game.steam.service.SteamSchedulingService;
 import com.example.crawler.ingest.BatchTransformService;
 import com.example.crawler.ingest.BatchTransformServiceOptimized;
 import com.example.shared.entity.RawItem;
@@ -27,6 +31,12 @@ public class AdminTestController {
     private final NaverSeriesCrawler naverSeriesCrawler;
     private final KakaoPageCrawler kakaoPageCrawler;
     private final NaverWebtoonService naverWebtoonService;
+    
+    // Job Queue Producers
+    private final SteamSchedulingService steamSchedulingService;
+    private final NaverWebtoonSchedulingService webtoonSchedulingService;
+    private final NaverSeriesSchedulingService naverSeriesSchedulingService;
+    private final CrawlJobProducer crawlJobProducer;
 
     private final BatchTransformService batchService;
     private final BatchTransformServiceOptimized batchServiceOptimized;
@@ -37,7 +47,11 @@ public class AdminTestController {
 
     public AdminTestController(NaverSeriesCrawler naverSeriesCrawler,
                                KakaoPageCrawler kakaoPageCrawler,
-                               NaverWebtoonService naverWebtoonService,  // 추가
+                               NaverWebtoonService naverWebtoonService,
+                               SteamSchedulingService steamSchedulingService,
+                               NaverWebtoonSchedulingService webtoonSchedulingService,
+                               NaverSeriesSchedulingService naverSeriesSchedulingService,
+                               CrawlJobProducer crawlJobProducer,
                                BatchTransformService batchService,
                                BatchTransformServiceOptimized batchServiceOptimized,
                                RawItemRepository rawRepo,
@@ -46,7 +60,11 @@ public class AdminTestController {
                                UpsertService upsertService) {
         this.naverSeriesCrawler = naverSeriesCrawler;
         this.kakaoPageCrawler = kakaoPageCrawler;
-        this.naverWebtoonService = naverWebtoonService;  // 추가
+        this.naverWebtoonService = naverWebtoonService;
+        this.steamSchedulingService = steamSchedulingService;
+        this.webtoonSchedulingService = webtoonSchedulingService;
+        this.naverSeriesSchedulingService = naverSeriesSchedulingService;
+        this.crawlJobProducer = crawlJobProducer;
         this.batchService = batchService;
         this.batchServiceOptimized = batchServiceOptimized;
         this.rawRepo = rawRepo;
@@ -61,17 +79,16 @@ public class AdminTestController {
         return Map.of("ok", true);
     }
 
-    /* ===================== NAVER WEBTOON ===================== */
-// 하이브리드 크롤링: 목록(모바일) + 상세(PC)
-
-    // 모든 요일별 웹툰 크롤링
-    @PostMapping("/crawl/naver-webtoon/all-weekdays")
-    public Map<String, Object> crawlNaverWebtoonAllWeekdays() {
+    /* ===================== STEAM ===================== */
+    
+    // Steam 전체 게임 크롤링 (Job Queue 등록)
+    @PostMapping("/crawl/steam/all-games")
+    public Map<String, Object> crawlSteamAllGames() {
         try {
-            naverWebtoonService.crawlAllWeekdays(); // 비동기 실행
+            steamSchedulingService.collectSteamGamesWeekly();
             return Map.of(
                     "success", true,
-                    "message", "네이버 웹툰 전체 크롤링 작업이 비동기로 시작되었습니다."
+                    "message", "Steam 게임 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다."
             );
         } catch (Exception e) {
             return Map.of(
@@ -81,7 +98,27 @@ public class AdminTestController {
         }
     }
 
-    // 특정 요일 웹툰 크롤링
+    /* ===================== NAVER WEBTOON ===================== */
+    // Job Queue 기반 크롤링 (권장)
+
+    // 모든 요일별 웹툰 크롤링 (Job Queue 등록)
+    @PostMapping("/crawl/naver-webtoon/all-weekdays")
+    public Map<String, Object> crawlNaverWebtoonAllWeekdays() {
+        try {
+            webtoonSchedulingService.collectAllWeekdaysDaily();
+            return Map.of(
+                    "success", true,
+                    "message", "네이버 웹툰 전체 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다."
+            );
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            );
+        }
+    }
+
+    // 특정 요일 웹툰 크롤링 (Job Queue 등록)
     @PostMapping("/crawl/naver-webtoon/weekday")
     public Map<String, Object> crawlNaverWebtoonWeekday(@RequestBody Map<String, Object> request) {
         try {
@@ -93,10 +130,10 @@ public class AdminTestController {
                 );
             }
 
-            naverWebtoonService.crawlWeekday(weekday); // 비동기 실행
+            webtoonSchedulingService.collectAllWeekdaysDaily(); // 전체 수집
             return Map.of(
                     "success", true,
-                    "message", weekday + " 요일 웹툰 크롤링 작업이 비동기로 시작되었습니다.",
+                    "message", weekday + " 요일 포함 전체 웹툰 크롤링 작업이 Job Queue에 등록되었습니다.",
                     "weekday", weekday
             );
         } catch (Exception e) {
@@ -107,19 +144,14 @@ public class AdminTestController {
         }
     }
 
-    // 완결 웹툰 크롤링
+    // 완결 웹툰 크롤링 (Job Queue 등록)
     @PostMapping("/crawl/naver-webtoon/finished")
     public Map<String, Object> crawlNaverWebtoonFinished(@RequestBody Map<String, Object> request) {
         try {
-            Integer maxPages = request.get("maxPages") != null
-                    ? (Integer) request.get("maxPages")
-                    : 10; // 기본값 10페이지
-
-            naverWebtoonService.crawlFinishedWebtoons(maxPages); // 비동기 실행
+            webtoonSchedulingService.collectFinishedWebtoonsWeekly();
             return Map.of(
                     "success", true,
-                    "message", "완결 웹툰 크롤링 작업이 비동기로 시작되었습니다. (최대 " + maxPages + "페이지)",
-                    "maxPages", maxPages
+                    "message", "완결 웹툰 크롤링 작업이 Job Queue에 등록되었습니다."
             );
         } catch (Exception e) {
             return Map.of(
@@ -129,7 +161,7 @@ public class AdminTestController {
         }
     }
 
-    // 동기 버전 - 테스트용 (즉시 결과 반환)
+    // 동기 버전 - 테스트용 (즉시 실행, Job Queue 우회 - 권장하지 않음)
     @PostMapping("/crawl/naver-webtoon/weekday/sync")
     public Map<String, Object> crawlNaverWebtoonWeekdaySync(@RequestBody Map<String, Object> request) {
         try {
@@ -198,9 +230,64 @@ public class AdminTestController {
     }
 
 
-    /* ===================== NAVER SERIES ===================== */
+    /**
+     * 네이버 시리즈 소설 ID 목록 수집 후 Job Queue에 등록 (Producer 패턴)
+     * 즉시 리턴, 실제 크롤링은 Consumer가 5초마다 처리
+     */
+    @PostMapping("/crawl/naver-series/popular")
+    public Map<String, Object> queueNaverSeriesPopular(@RequestParam(defaultValue = "5") int maxPages) {
+        try {
+            String baseUrl = "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all&page=";
+            java.util.List<String> novelIds = naverSeriesSchedulingService.fetchNovelIdsByUrlPublic(baseUrl, maxPages);
+            
+            int created = 0;
+            if (!novelIds.isEmpty()) {
+                created = crawlJobProducer.createJobs(JobType.NAVER_SERIES_NOVEL, novelIds, 3);
+            }
+            
+            Map<String, Object> res = new HashMap<>();
+            res.put("foundNovelIds", novelIds.size());
+            res.put("jobsCreated", created);
+            res.put("maxPages", maxPages);
+            res.put("message", "작업이 큐에 등록되었습니다. Consumer가 5초마다 2개씩 처리합니다.");
+            return res;
+            
+        } catch (Exception e) {
+            return Map.of("error", e.getMessage());
+        }
+    }
+    
+    /**
+     * 네이버 시리즈 신작 수집 후 Job Queue에 등록
+     */
+    @PostMapping("/crawl/naver-series/recent")
+    public Map<String, Object> queueNaverSeriesRecent(@RequestParam(defaultValue = "3") int maxPages) {
+        try {
+            String baseUrl = "https://series.naver.com/novel/recentList.series?page=";
+            java.util.List<String> novelIds = naverSeriesSchedulingService.fetchNovelIdsByUrlPublic(baseUrl, maxPages);
+            
+            int created = 0;
+            if (!novelIds.isEmpty()) {
+                created = crawlJobProducer.createJobs(JobType.NAVER_SERIES_NOVEL, novelIds, 3);
+            }
+            
+            Map<String, Object> res = new HashMap<>();
+            res.put("foundNovelIds", novelIds.size());
+            res.put("jobsCreated", created);
+            res.put("maxPages", maxPages);
+            res.put("message", "신작 작업이 큐에 등록되었습니다. Consumer가 5초마다 2개씩 처리합니다.");
+            return res;
+            
+        } catch (Exception e) {
+            return Map.of("error", e.getMessage());
+        }
+    }
 
-    // 네이버 시리즈 크롤 → raw_items 적재 (완결작품 페이지)
+    /**
+     * 레거시: 네이버 시리즈 직접 크롤링 (즉시 실행, 권장하지 않음)
+     * @deprecated Job Queue 패턴 사용 권장 (/api/crawl/naver-series/popular 또는 /recent)
+     */
+    @Deprecated
     @PostMapping(path = "/crawl/naver-series", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> crawlNaverSeries(@RequestBody CrawlRequest req) throws Exception {
         String base = (req.baseListUrl() == null || req.baseListUrl().isBlank())

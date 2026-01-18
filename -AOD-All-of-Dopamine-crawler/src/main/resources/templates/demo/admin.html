@@ -231,11 +231,23 @@
             callApi('/api/crawl/naver-webtoon/weekday/sync', 'POST', body, `네이버 ${weekday}요일 웹툰 수집`);
         }
 
-        // 네이버 시리즈 API 호출 함수 (ID 충돌 방지를 위해 ns-novel-pages로 변경)
+        // 네이버 시리즈 API 호출 함수 (Job Queue 패턴 사용)
         function callNaverSeriesApi() {
             const pages = document.getElementById('ns-novel-pages').value;
-            const body = { pages: parseInt(pages) };
-            callApi('/api/crawl/naver-series', 'POST', body, '네이버 시리즈 웹소설 수집');
+            // Query parameter로 전달 (Body 없음)
+            fetch(`/api/crawl/naver-series/popular?maxPages=${pages}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`✅ 네이버 시리즈 인기작 수집 완료\n\n발견: ${data.foundNovelIds}개\n생성: ${data.jobsCreated}개 작업\n\n${data.message}`);
+                console.log('응답:', data);
+            })
+            .catch(error => {
+                alert('❌ 오류 발생: ' + error);
+                console.error('Error:', error);
+            });
         }
 
         // 카카오페이지 API 호출 함수 (새로운 컨트롤러에 맞게 대폭 수정)

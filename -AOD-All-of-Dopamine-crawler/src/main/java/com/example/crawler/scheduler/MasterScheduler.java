@@ -28,52 +28,39 @@ public class MasterScheduler {
     private final TransformSchedulingService transformSchedulingService;
 
     /**
-     * ===== 크롤링 스케줄 =====
+     * ===== 크롤링 스케줄 (Job Queue 기반) =====
+     * 
+     * 각 스케줄은 크롤링 대상 목록을 Job Queue에 등록만 합니다.
+     * 실제 크롤링은 Consumer가 5초마다 균등하게 처리합니다.
      */
 
     // Steam 게임 크롤링 - 매주 목요일 새벽 3시
     @Scheduled(cron = "0 0 3 * * THU")
     public void scheduleSteamCrawling() {
-        log.info("🚀 [Master] Steam 게임 크롤링 스케줄 시작");
+        log.info("🚀 [Master] Steam 게임 목록 Job Queue 등록 시작");
         steamSchedulingService.collectSteamGamesWeekly();
     }
 
     // TMDB 신규 콘텐츠 - 매일 새벽 1시
     @Scheduled(cron = "0 0 1 * * *")
     public void scheduleTmdbNewContent() {
-        log.info("🚀 [Master] TMDB 신규 콘텐츠 크롤링 스케줄 시작");
+        log.info("🚀 [Master] TMDB 신규 콘텐츠 Job Queue 등록 시작");
         tmdbSchedulingService.collectNewContentDaily();
     }
-
-    // TMDB 과거 콘텐츠 업데이트 - 매일 새벽 5시
-    // TODO: updatePastContentDaily 메서드 구현 필요
-    // @Scheduled(cron = "0 0 5 * * *")
-    // public void scheduleTmdbPastContent() {
-    //     log.info("🚀 [Master] TMDB 과거 콘텐츠 업데이트 스케줄 시작");
-    //     tmdbSchedulingService.updatePastContentDaily();
-    // }
 
     // 네이버 웹툰 - 매일 새벽 2시
     @Scheduled(cron = "0 0 2 * * *")
     public void scheduleNaverWebtoon() {
-        log.info("🚀 [Master] 네이버 웹툰 크롤링 스케줄 시작");
+        log.info("🚀 [Master] 네이버 웹툰 Job Queue 등록 시작");
         naverWebtoonSchedulingService.collectAllWeekdaysDaily();
     }
 
     // 네이버 웹툰 완결작 - 매주 일요일 새벽 3시
     @Scheduled(cron = "0 0 3 * * SUN")
     public void scheduleNaverWebtoonFinished() {
-        log.info("🚀 [Master] 네이버 웹툰 완결작 크롤링 스케줄 시작");
+        log.info("🚀 [Master] 네이버 웹툰 완결작 Job Queue 등록 시작");
         naverWebtoonSchedulingService.collectFinishedWebtoonsWeekly();
     }
-
-    // 네이버 시리즈 신작 - 매일 새벽 4시
-    // TODO: crawlRecentNovelsDaily 메서드 구현 필요
-    // @Scheduled(cron = "0 0 4 * * *")
-    // public void scheduleNaverSeriesRecent() {
-    //     log.info("🚀 [Master] 네이버 시리즈 신작 크롤링 스케줄 시작");
-    //     naverSeriesSchedulingService.crawlRecentNovelsDaily();
-    // }
 
     /**
      * ===== Transform 스케줄 =====

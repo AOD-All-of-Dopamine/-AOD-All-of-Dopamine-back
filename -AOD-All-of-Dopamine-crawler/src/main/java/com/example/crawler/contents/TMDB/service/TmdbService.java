@@ -181,6 +181,62 @@ public class TmdbService {
         }
     }
 
+    /**
+     * 단일 영화 크롤링 (Job Queue용)
+     */
+    public boolean collectMovieById(String movieId) {
+        try {
+            String language = "ko-KR";
+            log.debug("🎬 [TMDB] 영화 ID {} 크롤링 시작", movieId);
+            
+            int id = Integer.parseInt(movieId);
+            Map<String, Object> detailedData = tmdbApiFetcher.getMovieDetails(id, language);
+            
+            if (detailedData == null || detailedData.isEmpty()) {
+                log.warn("⚠️ [TMDB] 영화 ID {} 데이터 없음", movieId);
+                return false;
+            }
+            
+            Map<String, Object> processedData = payloadProcessor.process(detailedData);
+            collectorService.saveRaw("TMDB_MOVIE", "MOVIE", processedData, movieId, 
+                "https://www.themoviedb.org/movie/" + movieId);
+            
+            log.debug("✅ [TMDB] 영화 ID {} 크롤링 완료", movieId);
+            return true;
+        } catch (Exception e) {
+            log.error("❌ [TMDB] 영화 ID {} 크롤링 실패", movieId, e);
+            return false;
+        }
+    }
+
+    /**
+     * 단일 TV 쇼 크롤링 (Job Queue용)
+     */
+    public boolean collectTvShowById(String tvId) {
+        try {
+            String language = "ko-KR";
+            log.debug("📺 [TMDB] TV ID {} 크롤링 시작", tvId);
+            
+            int id = Integer.parseInt(tvId);
+            Map<String, Object> detailedData = tmdbApiFetcher.getTvShowDetails(id, language);
+            
+            if (detailedData == null || detailedData.isEmpty()) {
+                log.warn("⚠️ [TMDB] TV ID {} 데이터 없음", tvId);
+                return false;
+            }
+            
+            Map<String, Object> processedData = payloadProcessor.process(detailedData);
+            collectorService.saveRaw("TMDB_TV", "TV", processedData, tvId, 
+                "https://www.themoviedb.org/tv/" + tvId);
+            
+            log.debug("✅ [TMDB] TV ID {} 크롤링 완료", tvId);
+            return true;
+        } catch (Exception e) {
+            log.error("❌ [TMDB] TV ID {} 크롤링 실패", tvId, e);
+            return false;
+        }
+    }
+
     public void collectTvShowsForPeriod(String startDate, String endDate, String language, int maxPages) {
         int currentPage = 1;
         int effectiveMaxPages = Math.min(maxPages, 500);

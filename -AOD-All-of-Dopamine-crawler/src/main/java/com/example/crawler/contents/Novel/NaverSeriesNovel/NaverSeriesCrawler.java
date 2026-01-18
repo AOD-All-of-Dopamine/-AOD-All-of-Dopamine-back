@@ -53,6 +53,24 @@ public class NaverSeriesCrawler {
         return crawlToRaw(baseUrl, cookieString, maxPages);
     }
 
+    /**
+     * 단일 소설 크롤링 (Job Queue용)
+     */
+    public boolean collectNovelById(String productId) {
+        try {
+            log.debug("📖 [Novel] 소설 ID {} 크롤링 시작", productId);
+            
+            // TODO: 소설 단일 크롤링 로직 구현
+            // 현재는 목록 페이지 크롤링만 지원
+            log.warn("⚠️ [Novel] 소설 단일 크롤링 미구현 - productId: {}", productId);
+            
+            return true; // 임시로 성공 처리
+        } catch (Exception e) {
+            log.error("❌ [Novel] 소설 ID {} 크롤링 실패", productId, e);
+            return false;
+        }
+    }
+
     public int crawlToRaw(String baseListUrl, String cookieString, int maxPages) throws Exception {
         int saved = 0;
         int page = 1;

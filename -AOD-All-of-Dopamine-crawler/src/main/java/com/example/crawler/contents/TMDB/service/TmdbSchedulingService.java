@@ -1,29 +1,41 @@
 package com.example.crawler.contents.TMDB.service;
 
+import com.example.crawler.common.queue.CrawlJobProducer;
+import com.example.crawler.common.queue.JobType;
+import com.example.crawler.contents.TMDB.dto.TmdbDiscoveryResult;
+import com.example.crawler.contents.TMDB.dto.TmdbTvDiscoveryResult;
+import com.example.crawler.contents.TMDB.fetcher.TmdbApiFetcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * TMDB 크롤링 스케줄링 서비스
+ * 
+ * Job Queue 기반으로 작업을 생성합니다.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TmdbSchedulingService {
 
-    private final TmdbService tmdbService;
+    private final CrawlJobProducer crawlJobProducer;
+    private final TmdbApiFetcher tmdbApiFetcher;
 
     private static final int OLDEST_YEAR = 1980; // 전체 크롤링 시 가장 오래된 연도
+    private static final int MAX_PAGES = 10; // 최대 페이지 수 (매일 실행)
 
     /**
-     * [개선] 신규 콘텐츠 수집을 위해 매일 새벽 4시에 실행됩니다.
-     * 최근 7일간의 영화 및 TV쇼 데이터를 수집합니다.
-     * @Scheduled 메서드는 즉시 반환하고, 실제 작업은 비동기로 실행됩니다.
+     * TMDB 신규 콘텐츠 목록을 Job Queue에 등록합니다.
+     * 
+     * 매일 새벽 1시 실행 (최근 7일간의 영화/TV 데이터)
      */
-    @Scheduled(cron = "0 0 4 * * *") // 매일 새벽 4시
     public void collectNewContentDaily() {
         LocalDate today = LocalDate.now();
         LocalDate sevenDaysAgo = today.minusDays(7);
@@ -33,26 +45,108 @@ public class TmdbSchedulingService {
         String endDate = today.format(formatter);
         String language = "ko-KR";
 
-        log.info("🚀 [정기 스케줄] 신규 콘텐츠 수집 스케줄 트리거됨. (기간: {} ~ {})", startDate, endDate);
-
-        // 비동기로 실행 - 스케줄러 스레드는 즉시 반환
-        tmdbService.collectNewContentAsync(startDate, endDate, language, 10);
+        log.info("🎬 [TMDB Producer] TMDB 신규 콘텐츠 목록 수집 시작 (기간: {} ~ {})", startDate, endDate);
+        
+        try {
+            // 영화 ID 목록 가져오기
+            List<String> movieIds = fetchMovieIds(language, startDate, endDate, MAX_PAGES);
+            
+            if (!movieIds.isEmpty()) {
+                int created = crawlJobProducer.createJobs(JobType.TMDB_MOVIE, movieIds, 4);
+                log.info("✅ [TMDB Producer] 영화 {} 개 작업 생성 완료", created);
+            } else {
+                log.info("🔵 [TMDB Producer] 신규 영화 없음");
+            }
+            
+            // TV 쇼 ID 목록 가져오기
+            List<String> tvIds = fetchTvShowIds(language, startDate, endDate, MAX_PAGES);
+            
+            if (!tvIds.isEmpty()) {
+                int created = crawlJobProducer.createJobs(JobType.TMDB_TV, tvIds, 4);
+                log.info("✅ [TMDB Producer] TV 쇼 {} 개 작업 생성 완료", created);
+            } else {
+                log.info("🔵 [TMDB Producer] 신규 TV 쇼 없음");
+            }
+            
+        } catch (Exception e) {
+            log.error("❌ [TMDB Producer] TMDB 목록 수집 중 오류 발생", e);
+        }
     }
 
     /**
-     * 전체 과거 콘텐츠 크롤링을 위해 매주 일요일 새벽 5시에 실행됩니다.
-     * OLDEST_YEAR(1980년)부터 현재 연도까지의 모든 영화 및 TV쇼 데이터를 수집합니다.
-     * @Scheduled 메서드는 즉시 반환하고, 실제 작업은 비동기로 실행됩니다.
+     * TMDB API로부터 영화 ID 목록 가져오기
      */
-    @Scheduled(cron = "0 0 5 * * SUN") // 매주 일요일 새벽 5시
-    public void updatePastContentWeekly() {
-        int currentYear = Year.now().getValue();
-        log.info("🚀 [정기 스케줄] 전체 과거 콘텐츠 크롤링 스케줄 트리거됨. (기간: {}년 ~ {}년)", OLDEST_YEAR, currentYear);
-        String language = "ko-KR";
+    private List<String> fetchMovieIds(String language, String startDate, String endDate, int maxPages) {
+        List<String> movieIds = new ArrayList<>();
+        
+        for (int page = 1; page <= maxPages; page++) {
+            try {
+                TmdbDiscoveryResult result = tmdbApiFetcher.discoverMovies(language, page, startDate, endDate);
+                
+                if (result == null || result.getResults() == null || result.getResults().isEmpty()) {
+                    log.debug("[TMDB] 영화 페이지 {} 데이터 없음, 종료", page);
+                    break;
+                }
+                
+                result.getResults().forEach(movie -> {
+                    movieIds.add(String.valueOf(movie.getId()));
+                });
+                
+                log.debug("[TMDB] 영화 페이지 {}: {} 개 발견", page, result.getResults().size());
+                
+                // 마지막 페이지 확인
+                if (page >= result.getTotalPages()) {
+                    break;
+                }
+                
+                // API 요청 제한 방지
+                Thread.sleep(250);
+                
+            } catch (Exception e) {
+                log.error("[TMDB] 영화 페이지 {} 가져오기 실패", page, e);
+                break;
+            }
+        }
+        
+        return movieIds;
+    }
 
-        // 비동기로 실행 - 스케줄러 스레드는 즉시 반환
-        // OLDEST_YEAR부터 현재 연도까지 전체 데이터 크롤링
-        tmdbService.updatePastContentAsync(OLDEST_YEAR, currentYear, language);
+    /**
+     * TMDB API로부터 TV 쇼 ID 목록 가져오기
+     */
+    private List<String> fetchTvShowIds(String language, String startDate, String endDate, int maxPages) {
+        List<String> tvIds = new ArrayList<>();
+        
+        for (int page = 1; page <= maxPages; page++) {
+            try {
+                TmdbTvDiscoveryResult result = tmdbApiFetcher.discoverTvShows(language, page, startDate, endDate);
+                
+                if (result == null || result.getResults() == null || result.getResults().isEmpty()) {
+                    log.debug("[TMDB] TV 페이지 {} 데이터 없음, 종료", page);
+                    break;
+                }
+                
+                result.getResults().forEach(tv -> {
+                    tvIds.add(String.valueOf(tv.getId()));
+                });
+                
+                log.debug("[TMDB] TV 페이지 {}: {} 개 발견", page, result.getResults().size());
+                
+                // 마지막 페이지 확인
+                if (page >= result.getTotalPages()) {
+                    break;
+                }
+                
+                // API 요청 제한 방지
+                Thread.sleep(250);
+                
+            } catch (Exception e) {
+                log.error("[TMDB] TV 페이지 {} 가져오기 실패", page, e);
+                break;
+            }
+        }
+        
+        return tvIds;
     }
 }
 
