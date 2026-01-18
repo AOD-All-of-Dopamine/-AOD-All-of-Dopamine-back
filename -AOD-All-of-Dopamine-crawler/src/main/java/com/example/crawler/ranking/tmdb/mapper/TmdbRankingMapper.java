@@ -23,7 +23,14 @@ public class TmdbRankingMapper {
 
     private final TmdbRankingFetcher tmdbRankingFetcher;
 
-    public List<ExternalRanking> mapToRankings(JsonNode jsonNode, TmdbPlatformType platformType) {
+    /**
+     * TMDB JSON 데이터를 ExternalRanking 엔티티 리스트로 변환
+     * @param jsonNode TMDB API 응답 데이터
+     * @param platformType 플랫폼 타입 (MOVIE/TV)
+     * @param minVoteCount 최소 투표수 필터링 기준 (이 값 미만인 콘텐츠는 제외)
+     * @return 필터링된 ExternalRanking 리스트
+     */
+    public List<ExternalRanking> mapToRankings(JsonNode jsonNode, TmdbPlatformType platformType, int minVoteCount) {
         if (jsonNode == null || !jsonNode.has("results")) {
             log.warn("유효하지 않은 TMDB 응답 데이터입니다.");
             return new ArrayList<>();
@@ -31,14 +38,30 @@ public class TmdbRankingMapper {
 
         List<ExternalRanking> rankings = new ArrayList<>();
         int rank = 1;
+        int filteredCount = 0;
 
         for (JsonNode item : jsonNode.get("results")) {
             try {
+                // 최소 투표수 필터링
+                int voteCount = item.has("vote_count") ? item.get("vote_count").asInt() : 0;
+                if (voteCount < minVoteCount) {
+                    String title = item.has(platformType.getTitleField()) 
+                            ? item.get(platformType.getTitleField()).asText() 
+                            : "Unknown";
+                    log.debug("최소 투표수 미달로 제외: {} (vote_count: {} < {})", title, voteCount, minVoteCount);
+                    filteredCount++;
+                    continue;
+                }
+
                 ExternalRanking ranking = createRanking(item, rank++, platformType);
                 rankings.add(ranking);
             } catch (Exception e) {
                 log.warn("TMDB 랭킹 항목 변환 중 오류 발생 (건너뜀): {}", e.getMessage());
             }
+        }
+
+        if (filteredCount > 0) {
+            log.info("최소 투표수({}) 미달로 {}개 콘텐츠 제외됨", minVoteCount, filteredCount);
         }
 
         return rankings;

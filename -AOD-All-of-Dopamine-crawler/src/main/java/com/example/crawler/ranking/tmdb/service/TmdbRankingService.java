@@ -29,20 +29,22 @@ public class TmdbRankingService {
     private final RankingUpsertHelper rankingUpsertHelper;
 
     @Transactional
-    public void updatePopularMoviesRanking() {
-        updateRanking(TmdbPlatformType.MOVIE);
+    public void updatePopularMoviesRanking(int minVoteCount) {
+        updateRanking(TmdbPlatformType.MOVIE, minVoteCount);
     }
 
     @Transactional
-    public void updatePopularTvShowsRanking() {
-        updateRanking(TmdbPlatformType.TV);
+    public void updatePopularTvShowsRanking(int minVoteCount) {
+        updateRanking(TmdbPlatformType.TV, minVoteCount);
     }
 
     /**
      * 통합된 랭킹 업데이트 로직 (DRY, SRP 준수)
+     * @param platformType 플랫폼 타입 (MOVIE/TV)
+     * @param minVoteCount 최소 투표수 필터링 기준
      */
-    private void updateRanking(TmdbPlatformType platformType) {
-        log.info("TMDB {} 랭킹 업데이트를 시작합니다.", platformType.name());
+    private void updateRanking(TmdbPlatformType platformType, int minVoteCount) {
+        log.info("TMDB {} 랭킹 업데이트를 시작합니다. (최소 투표수: {})", platformType.name(), minVoteCount);
 
         // 1. API 호출
         JsonNode jsonData = tmdbRankingFetcher.fetchPopularContent(platformType);
@@ -52,8 +54,8 @@ public class TmdbRankingService {
             return;
         }
 
-        // 2. 엔티티 변환
-        List<ExternalRanking> rankings = tmdbRankingMapper.mapToRankings(jsonData, platformType);
+        // 2. 엔티티 변환 (최소 투표수 필터링 적용)
+        List<ExternalRanking> rankings = tmdbRankingMapper.mapToRankings(jsonData, platformType, minVoteCount);
 
         if (rankings.isEmpty()) {
             log.warn("변환된 TMDB {} 랭킹 데이터가 없습니다.", platformType.name());

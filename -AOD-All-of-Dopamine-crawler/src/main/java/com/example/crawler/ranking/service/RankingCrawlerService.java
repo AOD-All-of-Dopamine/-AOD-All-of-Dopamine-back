@@ -54,11 +54,11 @@ public class RankingCrawlerService {
             
             // 4. TMDB 영화
             log.info("4/5 - TMDB 영화 랭킹 크롤링 중...");
-            tmdbRankingService.updatePopularMoviesRanking();
+            tmdbRankingService.updatePopularMoviesRanking(100);
             
             // 5. TMDB TV 쇼
             log.info("5/5 - TMDB TV 쇼 랭킹 크롤링 중...");
-            tmdbRankingService.updatePopularTvShowsRanking();
+            tmdbRankingService.updatePopularTvShowsRanking(100);
             
             log.info("전체 플랫폼 랭킹 크롤링이 완료되었습니다.");
             
@@ -107,8 +107,8 @@ public class RankingCrawlerService {
     @Transactional
     public void crawlTmdbRanking() {
         log.info("TMDB 랭킹 크롤링 시작");
-        tmdbRankingService.updatePopularMoviesRanking();
-        tmdbRankingService.updatePopularTvShowsRanking();
+        tmdbRankingService.updatePopularMoviesRanking(100);
+        tmdbRankingService.updatePopularTvShowsRanking(100);
         log.info("TMDB 랭킹 크롤링 완료");
     }
 }
