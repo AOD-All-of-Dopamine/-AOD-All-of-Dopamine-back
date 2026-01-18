@@ -44,17 +44,20 @@ public class CrawlJobConsumer {
             int tmdbMovieProcessed = processByType(JobType.TMDB_MOVIE, 3);
             int tmdbTvProcessed = processByType(JobType.TMDB_TV, 2);
             int webtoonProcessed = processByType(JobType.NAVER_WEBTOON, 2);
+            int webtoonFinishedProcessed = processByType(JobType.NAVER_WEBTOON_FINISHED, 2);
             int novelProcessed = processByType(JobType.NAVER_SERIES_NOVEL, 2);
 
-            int total = steamProcessed + tmdbMovieProcessed + tmdbTvProcessed + webtoonProcessed + novelProcessed;
-            
+            int total = steamProcessed + tmdbMovieProcessed + tmdbTvProcessed + webtoonProcessed
+                    + webtoonFinishedProcessed + novelProcessed;
+
             if (total > 0) {
-                log.info("📦 [Consumer] 배치 처리 완료 - Steam:{}, TMDB-M:{}, TMDB-TV:{}, 웹툰:{}, 소설:{}", 
-                        steamProcessed, tmdbMovieProcessed, tmdbTvProcessed, webtoonProcessed, novelProcessed);
+                log.info("📦 [Consumer] 배치 처리 완료 - Steam:{}, TMDB-M:{}, TMDB-TV:{}, 웹툰:{}, 완결웹툰:{}, 소설:{}",
+                        steamProcessed, tmdbMovieProcessed, tmdbTvProcessed, webtoonProcessed, webtoonFinishedProcessed,
+                        novelProcessed);
             } else {
                 log.debug("⏸️ [Consumer] 처리할 작업 없음 - 큐가 비어있습니다");
             }
-            
+
         } catch (Exception e) {
             log.error("❌ [Consumer] 배치 처리 중 오류 발생", e);
         }
@@ -65,13 +68,13 @@ public class CrawlJobConsumer {
      */
     private int processByType(JobType jobType, int limit) {
         List<CrawlJob> jobs = crawlJobRepository.findPendingJobsByTypeWithLock(jobType, limit);
-        
+
         if (jobs.isEmpty()) {
             return 0;
         }
 
         log.info("🎯 [Consumer] {} 작업 {}개 처리 시작", jobType, jobs.size());
-        
+
         for (CrawlJob job : jobs) {
             processJob(job);
         }
@@ -85,32 +88,32 @@ public class CrawlJobConsumer {
      */
     private void processJob(CrawlJob job) {
         job.markAsProcessing();
-        
+
         try {
             boolean success = false;
-            
+
             switch (job.getJobType()) {
                 case STEAM_GAME:
                     success = steamCrawlService.collectGameByAppId(Long.parseLong(job.getTargetId()));
                     break;
-                
+
                 case TMDB_MOVIE:
                     success = tmdbService.collectMovieById(job.getTargetId());
                     break;
-                
+
                 case TMDB_TV:
                     success = tmdbService.collectTvShowById(job.getTargetId());
                     break;
-                
+
                 case NAVER_WEBTOON:
                 case NAVER_WEBTOON_FINISHED:
                     success = naverWebtoonService.collectWebtoonById(job.getTargetId());
                     break;
-                
+
                 case NAVER_SERIES_NOVEL:
                     success = naverSeriesCrawler.collectNovelById(job.getTargetId());
                     break;
-                
+
                 default:
                     log.warn("⚠️ 처리 로직이 없는 작업 타입: {}", job.getJobType());
                     job.markAsFailed("지원하지 않는 작업 타입");
@@ -124,10 +127,10 @@ public class CrawlJobConsumer {
                 job.markAsFailed("크롤링 실패 (상세 정보 없음)");
                 log.warn("❌ [Consumer] 작업 실패: {} - {}", job.getJobType(), job.getTargetId());
             }
-            
+
         } catch (Exception e) {
             job.markAsFailed(e.getMessage());
-            log.error("❌ [Consumer] 작업 처리 중 예외 발생: {} - {}", 
+            log.error("❌ [Consumer] 작업 처리 중 예외 발생: {} - {}",
                     job.getJobType(), job.getTargetId(), e);
         }
     }

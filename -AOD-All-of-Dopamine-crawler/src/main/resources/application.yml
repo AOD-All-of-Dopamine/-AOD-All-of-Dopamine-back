@@ -14,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none  # 크롤러는 스키마 변경 금지
+      ddl-auto: create  # Job Queue 테이블 자동 생성
     show-sql: false
     properties:
       hibernate:
@@ -23,14 +23,24 @@ spring:
         default_schema: public
         jdbc:
           batch_size: 50
+          batch_versioned_data: true
+          use_streams_for_binary: true
         order_inserts: true
         order_updates: true
+        default_batch_fetch_size: 50
+        query:
+          plan_cache_max_size: 2048
+          plan_parameter_metadata_max_size: 128
 
   jackson:
     serialization:
       write-dates-as-timestamps: false
     deserialization:
       fail-on-unknown-properties: false
+
+  cache:
+    type: simple
+    cache-names: traditional-recommendations,llm-recommendations
 
 # 스케줄링 설정
 scheduling:
@@ -53,22 +63,68 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,threaddump
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
   metrics:
     export:
       prometheus:
         enabled: true
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active:local}
+    enable:
+      jvm: true
+      process: true
+      system: true
+      tomcat: true
+      logback: true
+      executor: true
+  info:
+    env:
+      enabled: true
+
+# 애플리케이션 정보
+info:
+  app:
+    name: AOD Crawler
+    description: Content Aggregation & Crawling System
+    version: 1.0.0
 
 # Sentry (에러 추적)
 sentry:
-  dsn: ${SENTRY_DSN:}
+  dsn: ${SENTRY_DSN:https://89985b44a757af035a6db5b3680ce954@o4510538930192384.ingest.us.sentry.io/4510538931634176}
   environment: ${spring.profiles.active:local}
-  traces-sample-rate: 1.0
+  traces-sample-rate: 0.1
+  logging:
+    minimum-event-level: error
+    minimum-breadcrumb-level: info
+  send-default-pii: true
+  enable-tracing: true
+  tags:
+    application: ${spring.application.name}
+    version: ${info.app.version:1.0.0}
+  ignored-exceptions-for-type: org.springframework.web.HttpRequestMethodNotSupportedException
 
 # 서버 설정
 server:
   port: 8081  # API 서버와 분리 (8080과 다른 포트)
   shutdown: graceful
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    max-connections: 10000
+    accept-count: 100
+    connection-timeout: 20000
 
 # 크롤러 전용 설정
 crawler:
@@ -96,4 +152,13 @@ openai:
   api:
     key: ${OPENAI_API_KEY}
     url: https://api.openai.com/v1/chat/completions
+
+# 추천 시스템 설정
+recommendation:
+  traditional:
+    max-items-per-category: 10
+  llm:
+    max-tokens: 1500
+    temperature: 0.7
+    model: gpt-3.5-turbo
 

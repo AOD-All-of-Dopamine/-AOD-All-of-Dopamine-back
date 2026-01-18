@@ -16,30 +16,9 @@
         <div class="platform-section">
             <h4>🎬 TMDB (영화/TV쇼)</h4>
             <div class="input-group">
-                <label for="tmdb-start-year">시작 연도:</label>
-                <input type="number" id="tmdb-start-year" value="2025" class="form-input">
-                <label for="tmdb-end-year">종료 연도:</label>
-                <input type="number" id="tmdb-end-year" value="2024" class="form-input">
-                <button onclick="callTmdbApi('/api/crawl/tmdb/movies-by-year', 'TMDB 영화 전체')">영화 전체 수집</button>
-                <button onclick="callTmdbApi('/api/crawl/tmdb/tv-by-year', 'TMDB TV쇼 전체')">TV쇼 전체 수집</button>
+                <button onclick="callApi('/api/crawl/tmdb/new-content', 'POST', null, 'TMDB 신규 콘텐츠')">신규 콘텐츠 수집 (최근 7일)</button>
             </div>
-            <p class="description">지정한 연도 사이의 모든 콘텐츠를 수집합니다. (시간이 오래 걸릴 수 있습니다)</p>
-            <hr>
-            <div class="input-group">
-                <label for="tmdb-sample-pages">인기 샘플 (페이지 수):</label>
-                <input type="number" id="tmdb-sample-pages" value="2" class="form-input">
-                <button onclick="callTmdbPopularSampleApi('/api/test/tmdb/collect/popular-movies', '인기 영화 샘플 수집')">인기 영화 샘플 수집</button>
-                <button onclick="callTmdbPopularSampleApi('/api/test/tmdb/collect/popular-tv', '인기 TV쇼 샘플 수집')">인기 TV쇼 샘플 수집</button>
-            </div>
-            <div class="input-group">
-                <label for="tmdb-sample-year">연도별 샘플 (연도):</label>
-                <input type="number" id="tmdb-sample-year" value="2023" class="form-input">
-                <label for="tmdb-sample-year-pages">페이지 수:</label>
-                <input type="number" id="tmdb-sample-year-pages" value="2" class="form-input">
-                <button onclick="callTmdbYearSampleApi('/api/test/tmdb/collect/movies-by-year/sample', '연도별 영화 샘플 수집')">연도별 영화 샘플 수집</button>
-                <button onclick="callTmdbYearSampleApi('/api/test/tmdb/collect/tv-by-year/sample', '연도별 TV쇼 샘플 수집')">연도별 TV쇼 샘플 수집</button>
-            </div>
-            <p class="description">테스트용으로 소량의 페이지만 샘플 수집합니다.</p>
+            <p class="description">최근 7일간의 영화 및 TV 쇼를 Job Queue에 등록합니다. Consumer가 백그라운드에서 처리합니다.</p>
         </div>
 
         <div class="platform-section">
@@ -57,7 +36,7 @@
                 <label for="steam-end-index">종료 인덱스:</label>
                 <input type="number" id="steam-end-index" value="100" class="form-input">
                 <button onclick="callSteamApi()">범위 지정 수집</button>
-                <button onclick="callApi('/api/steam/collect/all-games', 'POST', null, 'Steam 전체 게임 수집')">전체 게임 수집 (자동 분할)</button>
+                <button onclick="callApi('/api/crawl/steam/all-games', 'POST', null, 'Steam 전체 게임 수집')">전체 게임 수집 (Job Queue 등록)</button>
             </div>
             <p class="description">범위를 지정하거나, 전체 게임(1000개씩 자동 분할)을 수집합니다.</p>
         </div>
@@ -81,7 +60,7 @@
                     <option value="sun">일요일</option>
                 </select>
                 <button onclick="callWebtoonWeekdayApi()">요일별 수집</button>
-                <button onclick="callApi('/api/crawl/naver-webtoon/all-weekdays/sync', 'POST', null, '네이버 웹툰 전체 요일 수집')">전체 요일 수집</button>
+                <button onclick="callApi('/api/crawl/naver-webtoon/all-weekdays', 'POST', null, '네이버 웹툰 전체 요일 수집')">전체 요일 수집 (Job Queue 등록)</button>
             </div>
         </div>
 
@@ -221,14 +200,14 @@
 
         function callWebtoonFinishedApi() {
             const maxPages = document.getElementById('webtoon-pages').value;
-            const body = { maxPages: parseInt(maxPages) };
-            callApi('/api/crawl/naver-webtoon/finished/sync', 'POST', body, '네이버 완결 웹툰 수집');
+            const body = {}; // Job Queue 방식은 파라미터 불필요
+            callApi('/api/crawl/naver-webtoon/finished', 'POST', body, '네이버 완결 웹툰 수집 (Job Queue)');
         }
 
         function callWebtoonWeekdayApi() {
             const weekday = document.getElementById('webtoon-weekday').value;
             const body = { weekday: weekday };
-            callApi('/api/crawl/naver-webtoon/weekday/sync', 'POST', body, `네이버 ${weekday}요일 웹툰 수집`);
+            callApi('/api/crawl/naver-webtoon/weekday', 'POST', body, `네이버 ${weekday}요일 웹툰 수집 (Job Queue)`);
         }
 
         // 네이버 시리즈 API 호출 함수 (Job Queue 패턴 사용)

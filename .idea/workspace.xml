@@ -5,10 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8246d20d-e076-4aa7-8aaa-cea02a51d2af" name="Changes" comment="feat:크롤링 스레드 풀 설정  115">
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/game/steam/fetcher/SteamApiFetcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/game/steam/fetcher/SteamApiFetcher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/admin/controller/AdminTestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/admin/controller/AdminTestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Novel/NaverSeriesNovel/NaverSeriesCrawler.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Novel/NaverSeriesNovel/NaverSeriesCrawler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Webtoon/NaverWebtoon/NaverWebtoonCrawler.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Webtoon/NaverWebtoon/NaverWebtoonCrawler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Webtoon/NaverWebtoon/NaverWebtoonService.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Webtoon/NaverWebtoon/NaverWebtoonService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/admin.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/classes/java/main/com/example/shared/repository/ExternalRankingRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/classes/java/main/com/example/shared/repository/ExternalRankingRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/tmp/compileJava/compileTransaction/stash-dir/DomainRepository.class.uniqueId0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.13/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
     </list>
@@ -33,18 +42,7 @@
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="AOD" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="AOD" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="AOD" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
+                <item name="AOD-All-of-Dopamine-back" type="f1a62948:ProjectNode" />
               </path>
             </expand>
             <select />
@@ -78,12 +76,12 @@
     &quot;assignee&quot;: &quot;dfdfg42&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/AOD-All-of-Dopamine/-AOD-All-of-Dopamine-back&quot;,
-    &quot;accountId&quot;: &quot;5868bb5e-617b-4f9a-98f5-5eb7a098d88d&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/AOD-All-of-Dopamine/-AOD-All-of-Dopamine-back",
+    "accountId": "bdd77fa2-00ae-48ce-acce-48eeef8f05bf"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 2
@@ -92,40 +90,41 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.-AOD-All-of-Dopamine-back [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build -AOD-All-of-Dopamine-back.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.WebnovelMergeIntegrationTest.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.WebnovelMergeIntegrationTest.upsert_naverseries_links_to_same_content.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.WebnovelTransformUnitTest.executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Spring Boot.AodApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/dfdfg/IdeaProjects/-AOD-All-of-Dopamine-back&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.-AOD-All-of-Dopamine-back [build].executor": "Run",
+    "Gradle.Build -AOD-All-of-Dopamine-back.executor": "Run",
+    "Gradle.WebnovelMergeIntegrationTest.executor": "Run",
+    "Gradle.WebnovelMergeIntegrationTest.upsert_naverseries_links_to_same_content.executor": "Run",
+    "Gradle.WebnovelTransformUnitTest.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.AodApplication.executor": "Run",
+    "Spring Boot.CrawlerApplication.executor": "Run",
+    "git-widget-placeholder": "feature/job-queue-pattern",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/AOD/-AOD-All-of-Dopamine-back",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -144,7 +143,7 @@
       <recent name="D:\-AOD-All-of-Dopamine-back\src\test\resources" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.AodApplication">
+  <component name="RunManager" selected="Spring Boot.CrawlerApplication">
     <configuration name="-AOD-All-of-Dopamine-back [build]" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -367,6 +366,7 @@
       <workItem from="1768176795579" duration="10843000" />
       <workItem from="1768348549085" duration="130000" />
       <workItem from="1768348687602" duration="1597000" />
+      <workItem from="1768744809594" duration="1430000" />
     </task>
     <task id="LOCAL-00006" summary="feat: 테스트파일 위치 조정 -&gt; resource 폴더 내로 이동 , 테스트 통과 확인">
       <option name="closed" value="true" />
