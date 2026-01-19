@@ -1,63 +1,150 @@
 package com.example.crawler.contents.Novel.NaverSeriesNovel;
 
+import com.example.crawler.common.queue.CrawlJobProducer;
+import com.example.crawler.common.queue.JobType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- * 네이버 시리즈 정기 크롤링 스케줄러
- * - 신작: 매일 정기 수집 (recentList.series)
- * - 완결작: 주 1회 대규모 수집 (categoryProductList.series)
+ * 네이버 시리즈 크롤링 스케줄링 서비스
+ * 
+ * Job Queue 기반으로 작업을 생성합니다.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class NaverSeriesSchedulingService {
 
-    private final NaverSeriesCrawler naverSeriesCrawler;
+    private final CrawlJobProducer crawlJobProducer;
+
+    private static final String RECENT_NOVELS_URL = "https://series.naver.com/novel/recentList.series?page=";
+    private static final String COMPLETED_NOVELS_URL = "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=finished&page=";
+    private static final Pattern PRODUCT_NO_PATTERN = Pattern.compile("productNo=(\\d+)");
 
     /**
-     * 매일 새벽 2시에 네이버 시리즈 신작 수집
-     * - 신작은 자주 업데이트되므로 매일 크롤링
-     * - recentList.series 페이지 기준 (최신 3페이지, 약 60개)
+     * 네이버 시리즈 신작 목록을 Job Queue에 등록합니다.
+     * <p>
+     * 매일 새벽 2시 실행 (최신 3페이지, 약 60개)
      */
-    @Scheduled(cron = "0 0 2 * * *") // 매일 새벽 2시
     public void collectRecentNovelsDaily() {
-        log.info("🚀 [정기 스케줄] 네이버 시리즈 신작 크롤링 시작");
-        
+        log.info("📖 [Novel Producer] 네이버 시리즈 신작 목록 수집 시작");
+
         try {
-            String cookie = ""; // 쿠키 필요 시 설정
-            int pages = 3; // 신작 최신 3페이지 (페이지당 20개, 총 60개)
-            
-            int saved = naverSeriesCrawler.crawlRecentNovels(cookie, pages);
-            
-            log.info("✅ [정기 스케줄] 네이버 시리즈 신작 크롤링 완료: {}개 저장", saved);
+            List<String> novelIds = fetchNovelIdsByUrl(RECENT_NOVELS_URL, 3); // 최신 3페이지
+
+            if (!novelIds.isEmpty()) {
+                int created = crawlJobProducer.createJobs(JobType.NAVER_SERIES_NOVEL, novelIds, 3);
+                log.info("✅ [Novel Producer] 네이버 시리즈 신작 {} 개 작업 생성 완료", created);
+            } else {
+                log.info("🔵 [Novel Producer] 네이버 시리즈 신작 없음");
+            }
+
         } catch (Exception e) {
-            log.error("❌ [정기 스케줄] 네이버 시리즈 신작 크롤링 실패: {}", e.getMessage(), e);
+            log.error("❌ [Novel Producer] 네이버 시리즈 신작 목록 수집 중 오류 발생", e);
         }
     }
 
     /**
-     * 매주 일요일 새벽 3시에 전체 완결작품 대규모 수집
-     * - 완결작은 변화가 느리므로 주 1회 업데이트
-     * - 최대 50페이지 (1000개 작품)
+     * 네이버 시리즈 완결작 목록을 Job Queue에 등록합니다.
+     * <p>
+     * 매주 일요일 새벽 3시 실행 (최대 50페이지, 약 1000개)
      */
-    @Scheduled(cron = "0 0 3 * * SUN") // 매주 일요일 새벽 3시
     public void collectCompletedNovelsWeekly() {
-        log.info("🚀 [정기 스케줄] 네이버 시리즈 완결작품 대규모 크롤링 시작");
-        
+        log.info("📖 [Novel Producer] 네이버 시리즈 완결작 목록 수집 시작");
+
         try {
-            String cookie = "";
-            int pages = 50; // 완결작품 50페이지 (페이지당 20개, 총 1000개)
-            
-            int saved = naverSeriesCrawler.crawlCompletedNovels(cookie, pages);
-            
-            log.info("✅ [정기 스케줄] 네이버 시리즈 완결작품 크롤링 완료: {}개 저장", saved);
+            List<String> completedIds = fetchNovelIdsByUrl(COMPLETED_NOVELS_URL, 50); // 최대 50페이지
+
+            if (!completedIds.isEmpty()) {
+                int created = crawlJobProducer.createJobs(JobType.NAVER_SERIES_NOVEL, completedIds, 2);
+                log.info("✅ [Novel Producer] 네이버 시리즈 완결작 {} 개 작업 생성 완료", created);
+            } else {
+                log.info("🔵 [Novel Producer] 네이버 시리즈 완결작 없음");
+            }
+
         } catch (Exception e) {
-            log.error("❌ [정기 스케줄] 네이버 시리즈 완결작품 크롤링 실패: {}", e.getMessage(), e);
+            log.error("❌ [Novel Producer] 네이버 시리즈 완결작 목록 수집 중 오류 발생", e);
         }
+    }
+
+    /**
+     * 네이버 시리즈 목록 페이지로부터 소설 ID 목록 가져오기 (Jsoup HTML 파싱)
+     */
+    private List<String> fetchNovelIdsByUrl(String baseUrl, int maxPages) {
+        Set<String> novelIds = new LinkedHashSet<>();
+
+        for (int page = 1; page <= maxPages; page++) {
+            try {
+                String pageUrl = baseUrl + page;
+                log.debug("[Novel Producer] 페이지 {} 크롤링 중: {}", page, pageUrl);
+
+                Document doc = Jsoup.connect(pageUrl)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                        .timeout(10000)
+                        .get();
+
+                // productNo 파라미터가 있는 링크에서 ID 추출
+                int foundOnPage = 0;
+                for (Element a : doc.select("a[href*='/novel/detail.series'][href*='productNo=']")) {
+                    String href = a.attr("href");
+                    Matcher matcher = PRODUCT_NO_PATTERN.matcher(href);
+                    if (matcher.find()) {
+                        String productNo = matcher.group(1);
+                        if (novelIds.add(productNo)) {
+                            foundOnPage++;
+                        }
+                    }
+                }
+
+                // productNo가 없는 경우 전체 detail 링크에서도 시도
+                if (foundOnPage == 0) {
+                    for (Element a : doc.select("a[href*='/novel/detail.series']")) {
+                        String href = a.attr("href");
+                        Matcher matcher = PRODUCT_NO_PATTERN.matcher(href);
+                        if (matcher.find()) {
+                            String productNo = matcher.group(1);
+                            if (novelIds.add(productNo)) {
+                                foundOnPage++;
+                            }
+                        }
+                    }
+                }
+
+                log.debug("[Novel Producer] 페이지 {}: {} 개 발견 (총 {}개)", page, foundOnPage, novelIds.size());
+
+                if (foundOnPage == 0) {
+                    log.debug("[Novel Producer] 페이지 {} 소설 없음, 종료", page);
+                    break;
+                }
+
+                // 요청 제한 방지
+                Thread.sleep(500);
+
+            } catch (Exception e) {
+                log.error("[Novel Producer] 페이지 {} 가져오기 실패", page, e);
+                break;
+            }
+        }
+
+        return new ArrayList<>(novelIds);
+    }
+
+    /**
+     * Admin Controller용 public 메서드
+     */
+    public List<String> fetchNovelIdsByUrlPublic(String baseUrl, int maxPages) {
+        return fetchNovelIdsByUrl(baseUrl, maxPages);
     }
 }
-
 

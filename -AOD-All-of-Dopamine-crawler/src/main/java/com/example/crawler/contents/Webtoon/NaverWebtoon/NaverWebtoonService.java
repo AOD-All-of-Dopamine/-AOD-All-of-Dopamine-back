@@ -1,6 +1,5 @@
 package com.example.crawler.contents.Webtoon.NaverWebtoon;
 
-
 import com.example.crawler.monitoring.CustomMetrics;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
@@ -84,8 +83,7 @@ public class NaverWebtoonService {
             customMetrics.recordCrawlerFailure(platform, e.getClass().getSimpleName());
             log.error("네이버 웹툰 {} 요일 크롤링 중 오류 발생: {}", weekday, e.getMessage(), e);
             return CompletableFuture.failedFuture(e);
-        }
-        finally {
+        } finally {
             customMetrics.recordDuration(sample, platform);
             // ThreadLocal 자원 정리 보장
             cleanupSeleniumResources();
@@ -158,8 +156,33 @@ public class NaverWebtoonService {
     /**
      * 동기 버전 - 완결 웹툰 크롤링
      */
+    /**
+     * 단일 웹툰 크롤링 (Job Queue용)
+     */
+    public boolean collectWebtoonById(String titleId) {
+        try {
+            log.debug("📚 [Webtoon] 웹툰 ID {} 크롤링 시작", titleId);
+
+            // NaverWebtoonCrawler의 단일 크롤링 메서드 호출
+            boolean success = naverWebtoonCrawler.crawlWebtoonByTitleId(titleId);
+
+            if (success) {
+                log.debug("✅ [Webtoon] 웹툰 ID {} 크롤링 완료", titleId);
+            } else {
+                log.warn("⚠️ [Webtoon] 웹툰 ID {} 크롤링 실패", titleId);
+            }
+
+            return success;
+        } catch (Exception e) {
+            log.error("❌ [Webtoon] 웹툰 ID {} 크롤링 실패", titleId, e);
+            return false;
+        } finally {
+            // ThreadLocal 자원 정리
+            cleanupSeleniumResources();
+        }
+    }
+
     public int crawlFinishedWebtoonsSync(int maxPages) throws Exception {
         return naverWebtoonCrawler.crawlFinishedWebtoons(maxPages);
     }
 }
-

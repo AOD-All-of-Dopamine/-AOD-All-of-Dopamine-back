@@ -1,58 +1,59 @@
 package com.example.crawler.game.steam.service;
 
+import com.example.crawler.common.queue.CrawlJobProducer;
+import com.example.crawler.common.queue.JobType;
+import com.example.crawler.game.steam.fetcher.SteamApiFetcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
- * Steam 정기 크롤링 스케줄러
- * - crawlerTaskExecutor 스레드풀 사용
- * - 비동기 실행으로 스케줄러 스레드 블로킹 방지
+ * Steam 크롤링 스케줄링 서비스
+ * 
+ * Job Queue 기반으로 작업을 생성합니다.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SteamSchedulingService {
 
-    private final SteamCrawlService steamCrawlService;
+    private final SteamApiFetcher steamApiFetcher;
+    private final CrawlJobProducer crawlJobProducer;
 
     /**
-     * 매주 목요일 새벽 3시에 Steam 신규 게임 수집
-     * - 전체 게임 목록을 1000개씩 자동 분할 수집
-     * - 비동기 실행으로 대량 데이터 처리
+     * Steam 게임 목록을 Job Queue에 등록합니다.
+     * 
+     * 주 1회 실행 (목요일 새벽 3시)
+     * 15만개 목록을 가져와 DB에 저장합니다.
      */
-    @Scheduled(cron = "0 0 3 * * THU") // 매주 목요일 새벽 3시
     public void collectSteamGamesWeekly() {
-        log.info("🚀 [정기 스케줄] Steam 전체 게임 데이터 수집 시작");
+        log.info("🎮 [Steam Producer] Steam 게임 목록 수집 시작");
         
         try {
-            // 비동기로 실행 - crawlerTaskExecutor 사용
-            // 내부적으로 1000개씩 자동 분할 처리
-            steamCrawlService.collectAllGamesInBatches();
+            // 1. Steam API에서 전체 게임 목록 가져오기 (15만개)
+            List<Map<String, Object>> gameApps = steamApiFetcher.fetchGameApps();
             
-            log.info("✅ [정기 스케줄] Steam 게임 수집 작업 트리거 완료 (비동기 실행 중)");
-        } catch (Exception e) {
-            log.error("❌ [정기 스케줄] Steam 게임 수집 트리거 실패: {}", e.getMessage(), e);
-        }
-    }
+            if (gameApps.isEmpty()) {
+                log.warn("⚠️ [Steam Producer] 게임 목록이 비어있습니다.");
+                return;
+            }
 
-    /**
-     * 매월 15일 새벽 4시에 기존 게임 정보 업데이트
-     * - 가격, 리뷰, 메타크리틱 점수 등 업데이트
-     * - 대규모 작업이므로 월 1회 실행
-     */
-    @Scheduled(cron = "0 0 4 15 * *") // 매월 15일 새벽 4시
-    public void updateExistingGamesMonthly() {
-        log.info("🚀 [정기 스케줄] Steam 기존 게임 정보 업데이트 시작");
-        
-        try {
-            // 비동기로 실행 - 전체 게임 재수집으로 업데이트
-            steamCrawlService.collectAllGamesInBatches();
+            // 2. appId만 추출
+            List<String> appIds = gameApps.stream()
+                    .map(app -> String.valueOf(((Number) app.get("appid")).longValue()))
+                    .collect(Collectors.toList());
+
+            // 3. Job Queue에 등록 (우선순위: 5 - 보통)
+            int created = crawlJobProducer.createJobs(JobType.STEAM_GAME, appIds, 5);
             
-            log.info("✅ [정기 스케줄] Steam 게임 업데이트 작업 트리거 완료 (비동기 실행 중)");
+            log.info("✅ [Steam Producer] Steam 게임 {} 개 작업 생성 완료", created);
+            
         } catch (Exception e) {
-            log.error("❌ [정기 스케줄] Steam 게임 업데이트 트리거 실패: {}", e.getMessage(), e);
+            log.error("❌ [Steam Producer] Steam 게임 목록 수집 중 오류 발생", e);
         }
     }
 }

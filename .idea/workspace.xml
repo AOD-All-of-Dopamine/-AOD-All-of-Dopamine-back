@@ -5,6 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8246d20d-e076-4aa7-8aaa-cea02a51d2af" name="Changes" comment="feat:크롤링 스레드 풀 설정  115">
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/admin/controller/AdminTestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/admin/controller/AdminTestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Novel/NaverSeriesNovel/NaverSeriesCrawler.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Novel/NaverSeriesNovel/NaverSeriesCrawler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Webtoon/NaverWebtoon/NaverWebtoonCrawler.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Webtoon/NaverWebtoon/NaverWebtoonCrawler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Webtoon/NaverWebtoon/NaverWebtoonService.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/contents/Webtoon/NaverWebtoon/NaverWebtoonService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/admin.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/classes/java/main/com/example/shared/repository/ExternalRankingRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/classes/java/main/com/example/shared/repository/ExternalRankingRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/tmp/compileJava/compileTransaction/stash-dir/DomainRepository.class.uniqueId0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-shared/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
     </list>
@@ -30,11 +43,6 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="AOD-All-of-Dopamine-back" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="AOD-All-of-Dopamine-back" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
             </expand>
             <select />
@@ -68,12 +76,12 @@
     &quot;assignee&quot;: &quot;dfdfg42&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/AOD-All-of-Dopamine/-AOD-All-of-Dopamine-back&quot;,
-    &quot;accountId&quot;: &quot;bdd77fa2-00ae-48ce-acce-48eeef8f05bf&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/AOD-All-of-Dopamine/-AOD-All-of-Dopamine-back",
+    "accountId": "bdd77fa2-00ae-48ce-acce-48eeef8f05bf"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 2
@@ -96,9 +104,10 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.AodApplication.executor": "Run",
-    "git-widget-placeholder": "refactor/multi-module-migration",
+    "Spring Boot.CrawlerApplication.executor": "Run",
+    "git-widget-placeholder": "feature/job-queue-pattern",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/AOD/-AOD-All-of-Dopamine-back/-AOD-All-of-Dopamine-api",
+    "last_opened_file_path": "D:/AOD/-AOD-All-of-Dopamine-back",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -107,7 +116,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "configurable.group.appearance",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -127,14 +136,14 @@
       <recent name="D:\-AOD-All-of-Dopamine-back\src\main\resources" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dfdfg\IdeaProjects\-AOD-All-of-Dopamine-back\-AOD-All-of-Dopamine-api\src\main\resources" />
       <recent name="D:\-AOD-All-of-Dopamine-back\src\main\resources" />
       <recent name="D:\-AOD-All-of-Dopamine-back" />
       <recent name="D:\-AOD-All-of-Dopamine-back\src\main\resources\rules" />
       <recent name="D:\-AOD-All-of-Dopamine-back\src\test\resources" />
-      <recent name="D:\-AOD-All-of-Dopamine-back\src\main\java\com\example\AOD\v2\rules\game" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.AodApplication">
+  <component name="RunManager" selected="Spring Boot.CrawlerApplication">
     <configuration name="-AOD-All-of-Dopamine-back [build]" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -230,12 +239,20 @@
       <method v="2" />
     </configuration>
     <configuration name="AodApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="AOD.main" />
+      <module name="AOD-All-of-Dopamine-back.-AOD-All-of-Dopamine-api.main" />
       <selectedOptions>
         <option name="environmentVariables" />
       </selectedOptions>
       <option name="SHORTEN_COMMAND_LINE" value="ARGS_FILE" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.AOD.AodApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CrawlerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AOD-All-of-Dopamine-back.-AOD-All-of-Dopamine-crawler.main" />
+      <option name="SHORTEN_COMMAND_LINE" value="ARGS_FILE" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.crawler.CrawlerApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -251,6 +268,7 @@
       <item itemvalue="Gradle.WebnovelMergeIntegrationTest" />
       <item itemvalue="Gradle.WebnovelMergeIntegrationTest.upsert_naverseries_links_to_same_content" />
       <item itemvalue="Gradle.WebnovelTransformUnitTest" />
+      <item itemvalue="Spring Boot.CrawlerApplication" />
       <item itemvalue="Spring Boot.AodApplication" />
     </list>
     <recent_temporary>
@@ -345,7 +363,10 @@
       <workItem from="1767339457109" duration="2058000" />
       <workItem from="1767403392060" duration="1981000" />
       <workItem from="1767414701377" duration="12000" />
-      <workItem from="1767604315074" duration="197000" />
+      <workItem from="1768176795579" duration="10843000" />
+      <workItem from="1768348549085" duration="130000" />
+      <workItem from="1768348687602" duration="1597000" />
+      <workItem from="1768744809594" duration="1430000" />
     </task>
     <task id="LOCAL-00006" summary="feat: 테스트파일 위치 조정 -&gt; resource 폴더 내로 이동 , 테스트 통과 확인">
       <option name="closed" value="true" />
