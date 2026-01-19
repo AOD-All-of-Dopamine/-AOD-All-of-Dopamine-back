@@ -31,20 +31,17 @@ public class TransformSchedulingService {
             int totalProcessed = 0;
             int processed;
             
-            // 미처리 데이터가 없을 때까지 반복 처리
+            // 미처리 데이터가 완전히 없을 때까지 반복 처리
             do {
                 processed = batchTransformService.processBatch(batchSize);
                 totalProcessed += processed;
                 
                 if (processed > 0) {
                     log.info("📦 배치 처리 완료: {}개 (누적: {}개)", processed, totalProcessed);
-                }
-                
-                // 다음 배치 처리 전 잠시 대기 (DB 부하 완화)
-                if (processed == batchSize) {
+                    // 다음 배치 처리 전 잠시 대기 (DB 부하 완화)
                     Thread.sleep(1000); // 1초 대기
                 }
-            } while (processed == batchSize);
+            } while (processed > 0);
             
             log.info("✅ [정기 스케줄] raw_items 배치 변환 완료: 총 {}개 처리", totalProcessed);
         } catch (Exception e) {
@@ -66,20 +63,17 @@ public class TransformSchedulingService {
             int totalProcessed = 0;
             int processed;
             
-            // 미처리 데이터가 없을 때까지 반복 처리
+            // 미처리 데이터가 완전히 없을 때까지 반복 처리
             do {
                 processed = batchTransformService.processBatch(batchSize);
                 totalProcessed += processed;
                 
                 if (processed > 0) {
                     log.info("📦 대규모 배치 처리 완료: {}개 (누적: {}개)", processed, totalProcessed);
-                }
-                
-                // 다음 배치 처리 전 잠시 대기
-                if (processed == batchSize) {
+                    // 다음 배치 처리 전 잠시 대기 (DB 부하 완화)
                     Thread.sleep(500); // 0.5초 대기
                 }
-            } while (processed == batchSize);
+            } while (processed > 0);
             
             log.info("✅ [정기 스케줄] raw_items 주간 대규모 배치 변환 완료: 총 {}개 처리", totalProcessed);
         } catch (Exception e) {
