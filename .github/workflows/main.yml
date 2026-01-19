@@ -283,44 +283,59 @@ jobs:
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
 
-            # --- Aggressive disk space cleanup before deployment ---
+            # --- CRITICAL: Emergency disk space recovery for Crawler ---
             echo "=> Disk usage before cleanup:"
             df -h || true
             echo "=> Docker system usage before cleanup:"
             docker system df || true
             
-            # 1. Docker cleanup
-            echo "=> Cleaning Docker resources..."
-            docker system prune -af --volumes || sudo docker system prune -af --volumes || true
-            docker image prune -af || true
-            docker volume prune -f || true
+            # 0. Stop existing services first to release locks
+            echo "=> Stopping existing services..."
+            docker compose down --remove-orphans || true
+            
+            # 1. FORCE remove ALL Docker images (we'll pull fresh ones)
+            echo "=> FORCE removing ALL Docker images..."
+            docker rmi -f \$(docker images -aq) 2>/dev/null || true
+            
+            # 2. Aggressive Docker cleanup
+            echo "=> Deep cleaning Docker resources..."
+            sudo docker system prune -af --volumes || true
+            sudo rm -rf /var/lib/docker/overlay2/* || true
+            sudo rm -rf /var/lib/docker/tmp/* || true
             docker builder prune -af || true
             
-            # 2. Remove all stopped containers and dangling volumes
-            docker container prune -f || true
-            docker volume rm \$(docker volume ls -qf dangling=true) 2>/dev/null || true
+            # 3. Kill zombie processes
+            echo "=> Killing zombie processes..."
+            sudo pkill -9 -f defunct || true
             
-            # 3. APT cache cleanup
+            # 4. APT cache cleanup (force unlock)
             echo "=> Cleaning APT cache..."
+            sudo killall apt-get 2>/dev/null || true
+            sudo rm -f /var/lib/apt/lists/lock || true
+            sudo rm -f /var/cache/apt/archives/lock || true
+            sudo rm -f /var/lib/dpkg/lock* || true
             sudo apt-get clean || true
-            sudo apt-get autoclean || true
-            sudo apt-get autoremove -y || true
             sudo rm -rf /var/lib/apt/lists/* || true
+            sudo rm -rf /var/cache/apt/archives/* || true
             
-            # 4. Log files cleanup (older than 7 days)
-            echo "=> Cleaning old log files..."
-            sudo find /var/log -type f -name "*.log" -mtime +7 -delete || true
+            # 5. Log files cleanup (ALL .gz files, older logs)
+            echo "=> Cleaning ALL old logs..."
             sudo find /var/log -type f -name "*.gz" -delete || true
-            sudo journalctl --vacuum-time=7d || true
+            sudo find /var/log -type f -name "*.log" -mtime +3 -delete || true
+            sudo find /var/log -type f -size +10M -delete || true
+            sudo journalctl --vacuum-time=3d || true
+            sudo journalctl --vacuum-size=50M || true
             
-            # 5. Temporary files cleanup
+            # 6. Temporary files cleanup
             echo "=> Cleaning temporary files..."
             sudo rm -rf /tmp/* || true
             sudo rm -rf /var/tmp/* || true
+            sudo rm -rf ~/.cache/* || true
             
-            # 6. Remove old kernels (keep current + 1)
-            echo "=> Removing old kernels..."
-            sudo apt-get autoremove --purge -y || true
+            # 7. Remove crash dumps
+            echo "=> Removing crash dumps..."
+            sudo rm -rf /var/crash/* || true
+            sudo rm -rf /var/core/* || true
             
             echo "=> Disk usage after cleanup:"
             df -h || true
@@ -328,7 +343,7 @@ jobs:
             aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
             echo "✅ ECR login successful for Crawler."
 
-            docker compose down --remove-orphans || true
+            # Pull new image (old ones already deleted)
             docker pull \${CRAWLER_IMAGE_URI}
             docker compose up -d --remove-orphans
 
