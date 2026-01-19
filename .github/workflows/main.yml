@@ -152,6 +152,7 @@ jobs:
             export SENTRY_DSN='${SENTRY_DSN}'
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
+            export DDL_AUTO='update'
 
             # --- Aggressive disk space cleanup before deployment ---
             echo "=> Disk usage before cleanup:"
@@ -282,6 +283,7 @@ jobs:
             export SENTRY_DSN='${SENTRY_DSN}'
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
+            export DDL_AUTO='update'
 
             # --- CRITICAL: Emergency disk space recovery for Crawler ---
             echo "=> Disk usage before cleanup:"
