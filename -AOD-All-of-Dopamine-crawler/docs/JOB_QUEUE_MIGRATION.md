@@ -261,7 +261,64 @@ public class SteamSchedulingService {
 | 스레드 점유 | 3일 | 5초 |
 | 반환 시점 | 크롤링 완료 후 | 작업 등록 즉시 |
 
-### 4. Consumer 구현
+### 4. Strategy Pattern으로 하드코딩 제거
+
+#### JobExecutor 인터페이스
+```java
+public interface JobExecutor {
+    JobType getJobType();                    // 지원하는 작업 타입
+    boolean execute(String targetId);        // 작업 실행
+    long getAverageExecutionTime();          // 평균 처리 시간 (ms)
+    
+    // 5초 기준 권장 배치 크기 자동 계산
+    default int getRecommendedBatchSize() {
+        long avgTime = getAverageExecutionTime();
+        int batchSize = (int) (5000 / avgTime);
+        return Math.max(1, Math.min(20, batchSize));
+    }
+}
+```
+
+#### 플랫폼별 Executor 구현
+```java
+// Jsoup 기반 - 매우 빠름
+@Component
+public class NaverSeriesNovelExecutor implements JobExecutor {
+    @Override public long getAverageExecutionTime() { return 150; }
+    // → 권장 배치: 5000/150 = 33개
+}
+
+// Selenium 기반 - 느림
+@Component
+public class NaverWebtoonExecutor implements JobExecutor {
+    @Override public long getAverageExecutionTime() { return 5000; }
+    // → 권장 배치: 5000/5000 = 1개
+}
+
+// API 기반 - 중간
+@Component
+public class SteamGameExecutor implements JobExecutor {
+    @Override public long getAverageExecutionTime() { return 1000; }
+    // → 권장 배치: 5000/1000 = 5개
+}
+```
+
+#### JobExecutorRegistry (Spring 자동 주입)
+```java
+@Component
+public class JobExecutorRegistry {
+    private final Map<JobType, JobExecutor> executors = new HashMap<>();
+    
+    // Spring이 모든 JobExecutor 빈을 자동 주입
+    public JobExecutorRegistry(List<JobExecutor> jobExecutors) {
+        for (JobExecutor executor : jobExecutors) {
+            executors.put(executor.getJobType(), executor);
+        }
+    }
+}
+```
+
+### 5. Consumer 구현 (동적 처리)
 
 ```java
 @Service
@@ -269,35 +326,43 @@ public class SteamSchedulingService {
 public class CrawlJobConsumer {
     
     private final CrawlJobRepository repository;
-    private final SteamCrawlService steamCrawlService;
-    private final TmdbService tmdbService;
-    // ... 기타 서비스들
+    private final JobExecutorRegistry executorRegistry;
     
     @Scheduled(fixedDelay = 5000) // 5초마다 실행
     @Transactional
     public void processBatchBalanced() {
-        // 타입별 균등 분배
-        int steamProcessed = processByType(JobType.STEAM_GAME, 5);
-        int tmdbMovieProcessed = processByType(JobType.TMDB_MOVIE, 3);
-        int tmdbTvProcessed = processByType(JobType.TMDB_TV, 2);
-        int webtoonProcessed = processByType(JobType.NAVER_WEBTOON, 2);
-        int novelProcessed = processByType(JobType.NAVER_SERIES_NOVEL, 2);
+        Map<JobType, Integer> processedCounts = new HashMap<>();
         
-        int total = steamProcessed + tmdbMovieProcessed + tmdbTvProcessed 
-                  + webtoonProcessed + novelProcessed;
+        // 등록된 모든 Executor에 대해 동적으로 처리
+        for (Map.Entry<JobType, JobExecutor> entry : executorRegistry.getAllExecutors().entrySet()) {
+            JobType jobType = entry.getKey();
+            JobExecutor executor = entry.getValue();
+            
+            // Executor가 권장하는 배치 크기로 자동 조정
+            int batchSize = executor.getRecommendedBatchSize();
+            int processed = processByType(jobType, executor, batchSize);
+            
+            if (processed > 0) {
+                processedCounts.put(jobType, processed);
+            }
+        }
         
-        if (total > 0) {
-            log.info("📦 배치 처리 완료 - Steam:{}, TMDB-M:{}, TMDB-TV:{}, 웹툰:{}, 소설:{}", 
-                    steamProcessed, tmdbMovieProcessed, tmdbTvProcessed, 
-                    webtoonProcessed, novelProcessed);
+        if (!processedCounts.isEmpty()) {
+            log.info("📦 배치 처리 완료 - {}", formatProcessedCounts(processedCounts));
         }
     }
     
-    private int processByType(JobType jobType, int limit) {
+    private int processByType(JobType jobType, JobExecutor executor, int limit) {
         List<CrawlJob> jobs = repository.findPendingJobsByTypeWithLock(jobType, limit);
         
         for (CrawlJob job : jobs) {
-            processJob(job); // 개별 작업 처리
+            // Executor에 위임 (switch-case 완전 제거!)
+            boolean success = executor.execute(job.getTargetId());
+            if (success) {
+                job.markAsCompleted();
+            } else {
+                job.markAsFailed("크롤링 실패");
+            }
         }
         
         repository.saveAll(jobs);
@@ -306,12 +371,13 @@ public class CrawlJobConsumer {
 }
 ```
 
-**핵심 설계**:
-- ⏰ 5초마다 실행: 부하 분산 + 빠른 응답성
-- 🎯 타입별 할당량: Steam 많이(5), TMDB 중간(3+2), 웹툰/소설 적게(2)
-- 🔄 균등 분배: 모든 도메인이 공평하게 처리됨
+**핵심 개선**:
+- ✅ **하드코딩 제거**: switch-case 완전 제거, Executor에 위임
+- ✅ **동적 배치 크기**: 플랫폼별 처리 속도에 따라 자동 조정
+- ✅ **확장성**: 새 플랫폼 추가 시 Executor만 구현하면 끝
+- ✅ **공정성**: 모든 도메인이 처리 속도에 비례하여 균등 처리
 
-### 5. 기존 서비스 적응
+### 6. 기존 서비스 적응
 
 #### 단일 아이템 크롤링 메서드 추가
 ```java
@@ -330,7 +396,7 @@ public boolean collectWebtoonById(String titleId) {
 }
 ```
 
-### 6. Admin 컨트롤러 통합
+### 7. Admin 컨트롤러 통합
 
 ```java
 @RestController
@@ -438,13 +504,41 @@ GROUP BY job_type;
 
 | 시나리오 | 기존 | 개선 |
 |---------|------|------|
-| Steam + TMDB 동시 크롤링 | ❌ 불가능 (순차) | ✅ 가능 (5초마다 5+3+2) |
-| 5개 도메인 동시 크롤링 | ❌ 불가능 | ✅ 가능 (균등 분배) |
+| Steam + TMDB 동시 크롤링 | ❌ 불가능 (순차) | ✅ 가능 (5초마다 자동 배치) |
+| 5개 도메인 동시 크롤링 | ❌ 불가능 | ✅ 가능 (속도별 균등 분배) |
+
+### 4. 장애 복구
+
+| 시나리오 | 기존 | 개선 |
+|---------|------|------|
+| 서버 재시작 | 처음부터 다시 | DB에서 PENDING 작업 이어서 처리 |
+| 부분 실패 | 전체 롤백 | 실패 작업만 RETRY 상태로 재시도 |
+
+### 5. 확장성 및 유지보수성
+
+| 항목 | 기존 | 개선 |
+|------|------|------|
+| 새 플랫폼 추가 | Consumer 코드 수정 (switch-case) | **Executor만 구현** (코드 변경 불필요) |
+| 처리 속도 조정 | 하드코딩된 배치 크기 수동 변경 | **평균 시간만 조정** (자동 계산) |
+| 코드 결합도 | Consumer가 모든 서비스 의존 | **인터페이스로 분리** |
+
+### 6(Selenium) | 5000ms | 2개/5초 | **1개/5초** | 과부하 방지 |
+
+**효과**:
+- 빠른 작업(Jsoup)은 더 많이 처리 → 효율성 극대화
+- 느린 작업(Selenium)은 적게 처리 → 타임아웃 방지
+- 플랫폼별 특성에 맞는 최적 배치 크기 자동 적용
 
 ### 3. 장애 복구
 
 | 시나리오 | 기존 | 개선 |
-|---------|------|------|
+|---✅ 완료된 개선
+
+- [x] **Strategy Pattern 적용**: switch-case 제거, JobExecutor 인터페이스로 추상화
+- [x] **동적 배치 크기**: 플랫폼별 처리 속도에 따라 자동 계산
+- [x] **확장성 극대화**: 새 플랫폼 추가 시 Executor만 구현
+
+### ------|------|------|
 | 서버 재시작 | 처음부터 다시 | DB에서 PENDING 작업 이어서 처리 |
 | 부분 실패 | 전체 롤백 | 실패 작업만 RETRY 상태로 재시도 |
 
@@ -565,17 +659,21 @@ public class RateLimiter {
     }
     
     private Bucket createBucket(JobType type) {
-        switch (type) {
-            case STEAM_GAME:
-                return Bucket.builder()
-                    .addLimit(Bandwidth.simple(200, Duration.ofMinutes(5)))
-                    .build();
-            case TMDB_MOVIE:
-                return Bucket.builder()
-                    .addLimit(Bandwidth.simple(40, Duration.ofSeconds(10)))
-                    .build();
-            // ...
-        }
+        switch (type) { (99.998% 감소)
+2. ✅ **동적 배치 크기**: 플랫폼별 최적 처리량 (Jsoup 33개, Selenium 1개)
+3. ✅ **하드코딩 제거**: Strategy Pattern으로 switch-case 완전 제거
+4. ✅ **동시 처리 지원**: 5개 도메인 속도별 균등 분배
+5. ✅ **장애 복구**: DB 기반 체크포인트
+6. ✅ **확장성**: 멀티 인스턴스 지원 + 새 플랫폼 추가 용이
+7. ✅ **모니터링**: DB 쿼리로 진행률 추적
+
+### 교훈
+- 메모리 최적화보다 **작업 분산**이 더 중요
+- `@Async`는 메서드 진입만 비동기, **내부 로직은 동기**
+- 대량 처리는 **작은 배치로 분할** + **주기적 실행**
+- DB 기반 큐는 **내구성**과 **가시성** 제공
+- **Strategy Pattern**으로 하드코딩 제거 시 확장성 극대화
+- 플랫폼별 **처리 속도 차이**를 고려한 동적 배치 크기 필수
     }
 }
 ```
