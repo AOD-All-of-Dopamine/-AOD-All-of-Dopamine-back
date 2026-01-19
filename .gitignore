@@ -60,7 +60,7 @@ application.properties
 application-prod.properties
 application-dev.properties
 application-test.properties
-application.yml
+# application.yml - 이제 Git에 포함 (민감 정보는 환경변수로 관리)
 application-prod.yml
 application-dev.yml
 application-test.yml
