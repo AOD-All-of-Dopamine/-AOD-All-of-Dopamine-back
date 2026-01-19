@@ -153,15 +153,45 @@ jobs:
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
 
-            # --- Attempt to free disk space on the target host before pulling images ---
+            # --- Aggressive disk space cleanup before deployment ---
             echo "=> Disk usage before cleanup:"
             df -h || true
             echo "=> Docker system usage before cleanup:"
             docker system df || true
-            # Try non-sudo first; fall back to sudo if needed. Do not fail the deploy here if prune itself errors.
+            
+            # 1. Docker cleanup
+            echo "=> Cleaning Docker resources..."
             docker system prune -af --volumes || sudo docker system prune -af --volumes || true
             docker image prune -af || true
             docker volume prune -f || true
+            docker builder prune -af || true
+            
+            # 2. Remove all stopped containers and dangling volumes
+            docker container prune -f || true
+            docker volume rm \$(docker volume ls -qf dangling=true) 2>/dev/null || true
+            
+            # 3. APT cache cleanup
+            echo "=> Cleaning APT cache..."
+            sudo apt-get clean || true
+            sudo apt-get autoclean || true
+            sudo apt-get autoremove -y || true
+            sudo rm -rf /var/lib/apt/lists/* || true
+            
+            # 4. Log files cleanup (older than 7 days)
+            echo "=> Cleaning old log files..."
+            sudo find /var/log -type f -name "*.log" -mtime +7 -delete || true
+            sudo find /var/log -type f -name "*.gz" -delete || true
+            sudo journalctl --vacuum-time=7d || true
+            
+            # 5. Temporary files cleanup
+            echo "=> Cleaning temporary files..."
+            sudo rm -rf /tmp/* || true
+            sudo rm -rf /var/tmp/* || true
+            
+            # 6. Remove old kernels (keep current + 1)
+            echo "=> Removing old kernels..."
+            sudo apt-get autoremove --purge -y || true
+            
             echo "=> Disk usage after cleanup:"
             df -h || true
 
@@ -253,14 +283,45 @@ jobs:
             export AWS_REGION='${AWS_REGION}'
             export ECR_REGISTRY='${ECR_REGISTRY}'
 
-            # --- Attempt to free disk space on the target host before pulling images ---
+            # --- Aggressive disk space cleanup before deployment ---
             echo "=> Disk usage before cleanup:"
             df -h || true
             echo "=> Docker system usage before cleanup:"
             docker system df || true
+            
+            # 1. Docker cleanup
+            echo "=> Cleaning Docker resources..."
             docker system prune -af --volumes || sudo docker system prune -af --volumes || true
             docker image prune -af || true
             docker volume prune -f || true
+            docker builder prune -af || true
+            
+            # 2. Remove all stopped containers and dangling volumes
+            docker container prune -f || true
+            docker volume rm \$(docker volume ls -qf dangling=true) 2>/dev/null || true
+            
+            # 3. APT cache cleanup
+            echo "=> Cleaning APT cache..."
+            sudo apt-get clean || true
+            sudo apt-get autoclean || true
+            sudo apt-get autoremove -y || true
+            sudo rm -rf /var/lib/apt/lists/* || true
+            
+            # 4. Log files cleanup (older than 7 days)
+            echo "=> Cleaning old log files..."
+            sudo find /var/log -type f -name "*.log" -mtime +7 -delete || true
+            sudo find /var/log -type f -name "*.gz" -delete || true
+            sudo journalctl --vacuum-time=7d || true
+            
+            # 5. Temporary files cleanup
+            echo "=> Cleaning temporary files..."
+            sudo rm -rf /tmp/* || true
+            sudo rm -rf /var/tmp/* || true
+            
+            # 6. Remove old kernels (keep current + 1)
+            echo "=> Removing old kernels..."
+            sudo apt-get autoremove --purge -y || true
+            
             echo "=> Disk usage after cleanup:"
             df -h || true
 
