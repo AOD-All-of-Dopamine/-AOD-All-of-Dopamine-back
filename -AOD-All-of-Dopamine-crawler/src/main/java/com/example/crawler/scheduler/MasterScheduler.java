@@ -64,15 +64,11 @@ public class MasterScheduler {
 
     /**
      * ===== Transform 스케줄 =====
+     * 
+     * TransformSchedulingService에서 자체 스케줄링 처리
+     * - 매일 새벽 6시: 100개씩 배치 처리
+     * - 매주 일요일 7시: 200개씩 대규모 배치 처리
      */
-
-    // Transform 배치 - 10분마다
-    // TODO: scheduledTransform 메서드 구현 필요
-    // @Scheduled(fixedDelay = 600000) // 10분 = 600,000ms
-    // public void scheduleTransform() {
-    //     log.info("🔄 [Master] Transform 배치 스케줄 시작");
-    //     transformSchedulingService.scheduledTransform();
-    // }
 
     /**
      * ===== 모니터링 =====
