@@ -2,6 +2,7 @@ package com.example.crawler.util;
 
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -18,6 +19,17 @@ import java.util.List;
 @Component
 public class ChromeDriverProvider {
 
+    /**
+     * 🚀 앱 시작 시 1회만 ChromeDriver 설정
+     * - 매번 setup() 호출 시 HTTP 클라이언트 스레드 누수 발생
+     * - 75분간 462개 HTTP 클라이언트 생성 문제 해결
+     */
+    @PostConstruct
+    public void setupChromeDriver() {
+        log.info("🔧 ChromeDriver 초기 설정 시작 (1회만 실행)");
+        WebDriverManager.chromedriver().setup();
+        log.info("✅ ChromeDriver 설정 완료");
+    }
 
     /*@Value("${SELENIUM_REMOTE_URL:}")
     private String seleniumRemoteUrl;
@@ -51,7 +63,8 @@ public class ChromeDriverProvider {
     }
 
     public WebDriver getDriver() {
-        WebDriverManager.chromedriver().setup();
+        // 🚀 setup()는 @PostConstruct에서 1회만 실행됨
+        // 매번 호출하지 않음!
         ChromeOptions options = new ChromeOptions();
 
         // 기본 옵션
