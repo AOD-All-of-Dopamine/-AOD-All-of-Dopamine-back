@@ -1,0 +1,81 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki-aod:3100/loki/api/v1/push
+
+scrape_configs:
+  # AOD Crawler application logs
+  - job_name: crawler-app
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: crawler
+          app: aod-crawler
+          environment: local
+          __path__: /var/log/aod/crawler.log*
+
+    pipeline_stages:
+      # 로그 라인 파싱 (현재 형식)
+      # 형식: "2026-01-20 09:00:00 [thread] LEVEL logger - message"
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<thread>[^\]]+)\] (?P<level>\w+)\s+(?P<logger>\S+) - (?P<message>.*)$'
+      
+      # Timestamp 추출
+      - timestamp:
+          source: timestamp
+          format: "2006-01-02 15:04:05"
+      
+      # Labels로 색인 (검색 최적화)
+      - labels:
+          level:
+          thread:
+      
+      # Logger에서 component 추출
+      - regex:
+          source: logger
+          expression: '\.(?P<component>crawler|queue|ingest|service|scheduler|util)\.'
+      
+      - labels:
+          component:
+      
+      # 특정 패턴 감지 및 라벨링
+      - match:
+          selector: '{job="crawler"} |~ "(?i)(error|exception|failed)"'
+          stages:
+            - labels:
+                error: "true"
+      
+      - match:
+          selector: '{job="crawler"} |~ "(?i)(timeout|timed out)"'
+          stages:
+            - labels:
+                timeout: "true"
+      
+      - match:
+          selector: '{job="crawler"} |~ "(?i)(outofmemory|out of memory|oom)"'
+          stages:
+            - labels:
+                oom: "true"
+      
+      # Job 관련 로그에서 메타데이터 추출
+      - match:
+          selector: '{job="crawler"} |~ "jobType="'
+          stages:
+            - regex:
+                expression: 'jobType=(?P<job_type>\w+)'
+            - labels:
+                job_type:
+
+  # Docker container logs (선택 - 나중에 추가)
+  # - job_name: docker-containers
+  #   docker_sd_configs:
+  #     - host: unix:///var/run/docker.sock
+  #   relabel_configs:
+  #     - source_labels: ['__meta_docker_container_name']
+  #       target_label: 'container_name'

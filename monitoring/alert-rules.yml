@@ -1,0 +1,73 @@
+groups:
+- name: resource.rules
+  rules:
+  # 1. JVM 메모리 사용률 85% 이상
+  - alert: HighMemoryUsage
+    expr: jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"} > 0.85
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High memory usage detected"
+      description: "JVM heap memory usage is above 85% (current: {{ $value | humanizePercentage }})"
+
+  # 2. CPU 사용률 80% 이상 (5분간 지속)
+  - alert: HighCPUUsage
+    expr: process_cpu_usage > 0.80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage detected"
+      description: "CPU usage is above 80% for more than 5 minutes (current: {{ $value | humanizePercentage }})"
+
+  # 3. HTTP 에러율 5% 이상
+  - alert: HighErrorRate
+    expr: |
+      (
+        rate(http_server_requests_seconds_count{status=~"5.."}[5m]) / 
+        rate(http_server_requests_seconds_count[5m])
+      ) > 0.05
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High HTTP error rate detected"
+      description: "HTTP 5xx error rate is above 5% (current: {{ $value | humanizePercentage }})"
+
+  # 4. 응답시간 P95가 2초 이상
+  - alert: HighResponseTime
+    expr: |
+      histogram_quantile(0.95, 
+        rate(http_server_requests_seconds_bucket[5m])
+      ) > 2
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High response time detected"
+      description: "95th percentile response time is above 2 seconds (current: {{ $value }}s)"
+
+  # 5. 디스크 공간 90% 이상 사용 (시스템 메트릭이 있는 경우)
+  - alert: HighDiskUsage
+    expr: |
+      (
+        (node_filesystem_size_bytes - node_filesystem_free_bytes) / 
+        node_filesystem_size_bytes
+      ) > 0.90
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High disk usage detected"
+      description: "Disk usage is above 90% on {{ $labels.mountpoint }} (current: {{ $value | humanizePercentage }})"
+
+  # 추가: 서비스 다운 감지
+  - alert: ServiceDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Service is down"
+      description: "{{ $labels.job }} service has been down for more than 1 minute"
