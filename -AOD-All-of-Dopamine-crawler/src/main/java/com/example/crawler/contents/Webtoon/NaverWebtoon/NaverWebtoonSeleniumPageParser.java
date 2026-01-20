@@ -210,7 +210,8 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
         } catch (Exception e) {
             log.error("Selenium 웹툰 상세 파싱 중 오류 발생: {}, {}", detailUrl, e.getMessage());
-            // 일반 예외는 드라이버 재사용 (네트워크 오류 등)
+            // 🚀 모든 예외 발생 시 WebDriver 강제 정리 (안전한 상태로 복구)
+            forceCleanupDriver();
             return null;
         }
         // finally 블록 제거: 드라이버를 재사용하므로 매번 quit()하지 않음
