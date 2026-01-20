@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * TMDB API 호출 전담 클래스 (SRP 준수)
  */
@@ -28,12 +31,13 @@ public class TmdbRankingFetcher {
 
     private static final String LANGUAGE = "ko-KR";
     private static final int DEFAULT_PAGE = 1;
+    private static final int MAX_PAGES_TO_FETCH = 3; // 충분한 데이터 확보를 위해 최대 3페이지까지 가져오기
 
     /**
      * 통합된 TMDB 랭킹 데이터 조회 메서드 (DRY 원칙)
      */
     public JsonNode fetchPopularContent(TmdbPlatformType platformType) {
-        String url = buildUrl(platformType);
+        String url = buildUrl(platformType, DEFAULT_PAGE);
         
         try {
             log.debug("TMDB API 호출: {}", url);
@@ -41,6 +45,49 @@ public class TmdbRankingFetcher {
             return objectMapper.readTree(response);
         } catch (Exception e) {
             log.error("TMDB {} 랭킹을 가져오는 중 오류 발생: {}", platformType.name(), e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 다중 페이지에서 TMDB 랭킹 데이터 조회 (필터링 후 충분한 데이터 확보용)
+     * @param platformType 플랫폼 타입 (MOVIE/TV)
+     * @param maxPages 가져올 최대 페이지 수
+     * @return 모든 페이지의 results를 합친 데이터
+     */
+    public JsonNode fetchMultiplePagesContent(TmdbPlatformType platformType, int maxPages) {
+        List<JsonNode> allResults = new ArrayList<>();
+        
+        for (int page = 1; page <= maxPages; page++) {
+            try {
+                String url = buildUrl(platformType, page);
+                log.debug("TMDB API 호출 (페이지 {}): {}", page, url);
+                
+                String response = restTemplate.getForObject(url, String.class);
+                JsonNode jsonData = objectMapper.readTree(response);
+                
+                if (jsonData != null && jsonData.has("results")) {
+                    JsonNode results = jsonData.get("results");
+                    results.forEach(allResults::add);
+                    log.debug("페이지 {}: {}개 항목 수집됨", page, results.size());
+                }
+            } catch (Exception e) {
+                log.error("TMDB {} 랭킹 페이지 {} 조회 실패: {}", platformType.name(), page, e.getMessage());
+                break; // 오류 발생 시 중단
+            }
+        }
+        
+        // 모든 결과를 하나의 JsonNode로 합치기
+        try {
+            com.fasterxml.jackson.databind.node.ObjectNode combined = objectMapper.createObjectNode();
+            com.fasterxml.jackson.databind.node.ArrayNode resultsArray = objectMapper.createArrayNode();
+            allResults.forEach(resultsArray::add);
+            combined.set("results", resultsArray);
+            
+            log.info("총 {}개 페이지에서 {}개 항목 수집 완료", maxPages, allResults.size());
+            return combined;
+        } catch (Exception e) {
+            log.error("결과 병합 중 오류 발생: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -79,13 +126,13 @@ public class TmdbRankingFetcher {
         }
     }
 
-    private String buildUrl(TmdbPlatformType platformType) {
+    private String buildUrl(TmdbPlatformType platformType, int page) {
         return String.format("%s/%s?api_key=%s&language=%s&page=%d",
                 tmdbBaseUrl,
                 platformType.getApiPath(),
                 tmdbApiKey,
                 LANGUAGE,
-                DEFAULT_PAGE);
+                page);
     }
 }
 

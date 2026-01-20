@@ -109,7 +109,59 @@
     </div>
 
     <div class="admin-section">
-        <h3>2. 수집 데이터 통합 처리 (Batch Process)</h3>
+        <h3>2. 랭킹 크롤링 (Ranking Crawling)</h3>
+        <p class="description">
+            각 플랫폼의 최신 랭킹 정보를 수집합니다. 크롤링된 데이터는 즉시 DB에 저장됩니다.
+        </p>
+        
+        <div class="platform-section">
+            <h4>🎯 전체 플랫폼 랭킹</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/all', 'POST', null, '전체 플랫폼 랭킹 크롤링')">전체 플랫폼 랭킹 크롤링</button>
+            </div>
+            <p class="description">네이버 웹툰, 네이버 시리즈, Steam, TMDB 영화, TMDB TV 쇼 랭킹을 한번에 수집합니다.</p>
+        </div>
+
+        <div class="platform-section">
+            <h4>🎬 TMDB 랭킹 (영화 + TV)</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/tmdb', 'POST', null, 'TMDB 랭킹 크롤링')">TMDB 랭킹 크롤링</button>
+            </div>
+            <p class="description">
+                TMDB 인기 영화와 TV 시리즈 랭킹을 수집합니다. 
+                <br>• 최소 투표수: 100 이상
+                <br>• 수집 개수: 각 20개 (다중 페이지 fetch)
+                <br>• Watch Providers 정보 포함
+            </p>
+        </div>
+
+        <div class="platform-section">
+            <h4>📖 네이버 웹툰 랭킹</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/naver-webtoon', 'POST', null, '네이버 웹툰 랭킹 크롤링')">네이버 웹툰 랭킹 크롤링</button>
+            </div>
+            <p class="description">오늘 요일 기준 네이버 웹툰 TOP 20을 수집합니다.</p>
+        </div>
+
+        <div class="platform-section">
+            <h4>📚 네이버 시리즈 랭킹</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/naver-series', 'POST', null, '네이버 시리즈 랭킹 크롤링')">네이버 시리즈 랭킹 크롤링</button>
+            </div>
+            <p class="description">네이버 시리즈 웹소설 일간 인기 TOP 20을 수집합니다.</p>
+        </div>
+
+        <div class="platform-section">
+            <h4>🎮 Steam 랭킹</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/steam', 'POST', null, 'Steam 랭킹 크롤링')">Steam 랭킹 크롤링</button>
+            </div>
+            <p class="description">Steam 최고 판매 게임 TOP 20을 수집합니다.</p>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h3>3. 수집 데이터 통합 처리 (Batch Process)</h3>
         <div class="input-group">
             <label for="batch-size">배치 크기:</label>
             <input type="number" id="batch-size" value="100" class="form-input">
