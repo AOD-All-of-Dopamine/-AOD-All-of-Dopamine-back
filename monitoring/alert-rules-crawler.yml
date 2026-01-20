@@ -1,0 +1,156 @@
+groups:
+- name: crawler.performance
+  interval: 30s
+  rules:
+  # 1. Chrome 좀비 프로세스 감지 (간접적 - 높은 스레드 수)
+  - alert: HighThreadCount
+    expr: jvm_threads_live_threads{application="aod-crawler"} > 100
+    for: 5m
+    labels:
+      severity: warning
+      component: webdriver
+    annotations:
+      summary: "High thread count detected"
+      description: "Thread count is {{ $value }} (threshold: 100). Possible Chrome zombie processes."
+      dashboard: "http://localhost:3000/d/crawler"
+
+  # 2. 메모리 부족 경고 (EC2 t3.small: 2GB)
+  - alert: HighMemoryUsage
+    expr: |
+      (jvm_memory_used_bytes{area="heap",application="aod-crawler"} / 
+       jvm_memory_max_bytes{area="heap",application="aod-crawler"}) > 0.85
+    for: 3m
+    labels:
+      severity: warning
+      component: jvm
+    annotations:
+      summary: "High heap memory usage"
+      description: "Heap usage is {{ $value | humanizePercentage }} (threshold: 85%)"
+
+  # 3. 메모리 부족 위험 (Critical)
+  - alert: CriticalMemoryUsage
+    expr: |
+      (jvm_memory_used_bytes{area="heap",application="aod-crawler"} / 
+       jvm_memory_max_bytes{area="heap",application="aod-crawler"}) > 0.95
+    for: 1m
+    labels:
+      severity: critical
+      component: jvm
+    annotations:
+      summary: "Critical heap memory usage"
+      description: "Heap usage is {{ $value | humanizePercentage }}. OOM imminent!"
+
+  # 4. Job Queue 적체
+  - alert: JobQueueBacklog
+    expr: |
+      sum(crawl_job_queue_size{status="PENDING",application="aod-crawler"}) > 1000
+    for: 10m
+    labels:
+      severity: warning
+      component: job-queue
+    annotations:
+      summary: "Job queue backlog detected"
+      description: "{{ $value }} pending jobs in queue (threshold: 1000)"
+
+  # 5. Crawler 처리 속도 저하
+  - alert: SlowCrawlingSpeed
+    expr: |
+      rate(crawl_job_completed_total{application="aod-crawler"}[5m]) < 0.1
+    for: 10m
+    labels:
+      severity: warning
+      component: crawler
+    annotations:
+      summary: "Slow crawling speed"
+      description: "Job completion rate: {{ $value | humanize }}/sec (threshold: 0.1/sec)"
+
+  # 6. 높은 에러율
+  - alert: HighCrawlerErrorRate
+    expr: |
+      (rate(crawl_job_failed_total{application="aod-crawler"}[5m]) / 
+       rate(crawl_job_total{application="aod-crawler"}[5m])) > 0.20
+    for: 5m
+    labels:
+      severity: warning
+      component: crawler
+    annotations:
+      summary: "High crawler error rate"
+      description: "Error rate: {{ $value | humanizePercentage }} (threshold: 20%)"
+
+  # 7. CPU 과부하
+  - alert: HighCPUUsage
+    expr: system_cpu_usage{application="aod-crawler"} > 0.80
+    for: 5m
+    labels:
+      severity: warning
+      component: system
+    annotations:
+      summary: "High CPU usage"
+      description: "CPU usage: {{ $value | humanizePercentage }} (threshold: 80%)"
+
+  # 8. WebDriver Timeout 빈발
+  - alert: FrequentWebDriverTimeouts
+    expr: |
+      increase(webdriver_timeout_total{application="aod-crawler"}[10m]) > 10
+    for: 5m
+    labels:
+      severity: warning
+      component: webdriver
+    annotations:
+      summary: "Frequent WebDriver timeouts"
+      description: "{{ $value }} timeouts in last 10 minutes (threshold: 10)"
+
+- name: crawler.availability
+  interval: 1m
+  rules:
+  # 서비스 다운 감지
+  - alert: CrawlerServiceDown
+    expr: up{job="crawler"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      component: service
+    annotations:
+      summary: "Crawler service is down"
+      description: "Crawler service has been down for more than 1 minute"
+
+  # actuator/health 실패
+  - alert: CrawlerHealthCheckFailed
+    expr: |
+      up{job="crawler"} == 1 and 
+      (increase(http_server_requests_seconds_count{uri="/actuator/health",status="500"}[5m]) > 0)
+    for: 2m
+    labels:
+      severity: warning
+      component: health
+    annotations:
+      summary: "Health check failures detected"
+      description: "Health endpoint returning errors"
+
+- name: crawler.database
+  interval: 30s
+  rules:
+  # DB 연결 풀 고갈
+  - alert: DatabaseConnectionPoolExhaustion
+    expr: |
+      (hikaricp_connections_active{application="aod-crawler"} / 
+       hikaricp_connections_max{application="aod-crawler"}) > 0.90
+    for: 3m
+    labels:
+      severity: critical
+      component: database
+    annotations:
+      summary: "Database connection pool near exhaustion"
+      description: "{{ $value | humanizePercentage }} connections in use (max: 5)"
+
+  # DB 연결 시간 증가
+  - alert: SlowDatabaseConnections
+    expr: |
+      hikaricp_connections_acquire_seconds{application="aod-crawler",quantile="0.95"} > 1
+    for: 5m
+    labels:
+      severity: warning
+      component: database
+    annotations:
+      summary: "Slow database connection acquisition"
+      description: "P95 connection time: {{ $value }}s (threshold: 1s)"

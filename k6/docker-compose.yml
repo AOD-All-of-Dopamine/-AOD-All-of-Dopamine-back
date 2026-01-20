@@ -1,0 +1,43 @@
+services:
+  influxdb:
+    image: influxdb:1.8
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_USER=k6
+      - INFLUXDB_USER_PASSWORD=k6
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+
+  k6:
+    image: grafana/k6:latest
+    volumes:
+      - ./scripts:/scripts
+      - ./data:/data
+      - ./reports:/reports
+    environment:
+      - K6_OUT=influxdb=http://influxdb:8086/k6
+    depends_on:
+      - influxdb
+
+volumes:
+  influxdb-data:
+  grafana-data:
+
+# 사용법:
+# docker-compose up -d influxdb grafana  # 모니터링 스택 시작
+# docker-compose run --rm k6 run /scripts/smoke-test.js  # 테스트 실행
+# Grafana: http://localhost:3000 (admin/admin)

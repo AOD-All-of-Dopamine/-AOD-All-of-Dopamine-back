@@ -54,13 +54,23 @@ public class ChromeDriverProvider {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
 
+        // 기본 옵션
         options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--mute-audio");
+        
+        // 🚀 메모리 최적화 옵션 (EC2 t3.small용)
+        options.addArguments("--disable-gpu");              // GPU 비활성화
+        options.addArguments("--disable-extensions");       // 확장 프로그램 비활성화
+        options.addArguments("--disable-images");           // 이미지 로딩 비활성화
+        options.addArguments("--blink-settings=imagesEnabled=false");  // Blink 엔진 이미지 비활성화
+        options.addArguments("--disable-plugins");          // 플러그인 비활성화
+        options.addArguments("--disable-software-rasterizer");  // 소프트웨어 래스터라이저 비활성화
 
         options.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
         options.setExperimentalOption("useAutomationExtension", false);
-        options.addArguments("--no-sandbox");
-        options.addArguments("--mute-audio");
-        options.addArguments("--disable-dev-shm-usage");
+        
         return new ChromeDriver(options);
     }
 

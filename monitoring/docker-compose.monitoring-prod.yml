@@ -1,0 +1,70 @@
+networks:
+  default:
+    name: npm_nginx-proxy
+    external: true
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-prod
+    expose:
+      - "9090"
+    env_file:
+      - path: .env.monitoring.prod
+    volumes:
+      - ./prometheus-prod.yml:/etc/prometheus/prometheus.yml
+      - ./alert-rules.yml:/etc/prometheus/alert-rules.yml
+      - ./data/prometheus-data-prod:/prometheus
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager-prod
+    expose:
+      - "9093"
+    env_file:
+      - path: .env.monitoring.prod
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./data/alertmanager-data-prod:/alertmanager
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-prod
+    expose:
+      - "3000"
+    env_file:
+      - path: .env.monitoring.prod
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    volumes:
+      - ./data/grafana-data-prod:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki-prod
+    expose:
+      - "3100"
+    env_file:
+      - path: .env.monitoring.prod
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yaml
+      - ./data/loki-data-prod:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail-prod
+    env_file:
+      - path: .env.monitoring.prod
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki

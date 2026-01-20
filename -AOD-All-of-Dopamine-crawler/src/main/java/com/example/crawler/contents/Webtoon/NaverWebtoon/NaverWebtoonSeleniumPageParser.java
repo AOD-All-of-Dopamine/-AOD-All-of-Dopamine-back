@@ -35,7 +35,7 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
     // WebDriver 재사용을 위한 ThreadLocal (멀티스레드 환경 대응)
     private final ThreadLocal<WebDriver> driverThreadLocal = ThreadLocal.withInitial(() -> null);
     private final ThreadLocal<Integer> usageCount = ThreadLocal.withInitial(() -> 0);
-    private static final int MAX_REUSE_COUNT = 50; // 50회 사용 후 재생성 (메모리 누수 방지)
+    private static final int MAX_REUSE_COUNT = 50;  // 🚀 10 → 50 (EC2 t3.small 최적화) // 50회 사용 후 재생성 (메모리 누수 방지)
 
     public NaverWebtoonSeleniumPageParser(ChromeDriverProvider chromeDriverProvider) {
         this.chromeDriverProvider = chromeDriverProvider;
@@ -145,6 +145,13 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
                 log.debug("React 렌더링 완료 확인");
             } catch (TimeoutException e) {
                 log.warn("React 렌더링 대기 시간 초과: {}", sortedUrl);
+                // 🚀 Timeout은 WebDriver 상태 불안정 가능 → 강제 정리
+                forceCleanupDriver();
+                return null;
+            } catch (WebDriverException e) {
+                log.error("WebDriver 오류 발생: {}, {}", detailUrl, e.getMessage());
+                // 🚀 WebDriver 오류 시 강제 정리 (좀비 프로세스 방지)
+                forceCleanupDriver();
                 return null;
             }
 
@@ -203,10 +210,28 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
         } catch (Exception e) {
             log.error("Selenium 웹툰 상세 파싱 중 오류 발생: {}, {}", detailUrl, e.getMessage());
-            // 일반 예외는 드라이버를 재사용하므로 정리하지 않음
+            // 일반 예외는 드라이버 재사용 (네트워크 오류 등)
             return null;
         }
         // finally 블록 제거: 드라이버를 재사용하므로 매번 quit()하지 않음
+    }
+    
+    /**
+     * WebDriver 강제 정리 (비정상 상태 시)
+     */
+    private void forceCleanupDriver() {
+        try {
+            WebDriver driver = driverThreadLocal.get();
+            if (driver != null) {
+                driver.quit();
+                log.debug("WebDriver 강제 정리 완료 (비정상 상태)");
+            }
+        } catch (Exception e) {
+            log.warn("WebDriver 강제 정리 실패: {}", e.getMessage());
+        } finally {
+            driverThreadLocal.remove();
+            usageCount.remove();
+        }
     }
 
     @Override
