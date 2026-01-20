@@ -102,7 +102,7 @@ public class CrawlJobConsumer {
             effectiveBatchSize = Math.min(effectiveBatchSize, seleniumAvailable);
         }
         
-        List<CrawlJob> jobs = crawlJobRepository.findPendingJobsByType(jobType, effectiveBatchSize);
+        List<CrawlJob> jobs = crawlJobRepository.findPendingJobsByTypeWithLock(jobType, effectiveBatchSize);
         
         if (jobs.isEmpty()) {
             return 0;
