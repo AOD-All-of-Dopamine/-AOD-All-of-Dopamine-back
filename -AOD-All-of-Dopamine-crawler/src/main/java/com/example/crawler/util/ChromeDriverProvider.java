@@ -84,7 +84,17 @@ public class ChromeDriverProvider {
         options.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
         options.setExperimentalOption("useAutomationExtension", false);
         
-        return new ChromeDriver(options);
+        ChromeDriver driver = new ChromeDriver(options);
+        
+        // 🚀 핵심: Timeout 설정 (좀비 프로세스 방지!)
+        // timeout 없이 driver.get() 호출 시 무한 대기 → quit() 도달 못 함 → 좀비 프로세스
+        driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(30));
+        driver.manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(30));
+        driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
+        
+        log.debug("ChromeDriver 생성 완료 (timeout 설정: pageLoad=30s, script=30s, implicit=10s)");
+        
+        return driver;
     }
 
 }
