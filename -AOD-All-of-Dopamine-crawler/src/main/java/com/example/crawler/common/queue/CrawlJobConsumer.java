@@ -30,7 +30,7 @@ public class CrawlJobConsumer {
      * fixedDelay: 이전 작업이 끝나고 5초 후 다시 실행
      * 플랫폼별 처리 속도에 따라 자동으로 배치 크기 조정
      */
-    @Scheduled(fixedDelay = 5000, initialDelay = 3000)
+    @Scheduled(fixedDelay = 10000, initialDelay = 3000)  // 🚀 5초 → 10초 (EC2 t3.small 최적화)
     @Transactional
     public void processBatchBalanced() {
         log.debug("🔍 [Consumer] 배치 처리 시작 - 큐에서 작업 조회 중...");

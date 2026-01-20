@@ -31,6 +31,11 @@ public class NaverSeriesNovelExecutor implements JobExecutor {
 
     @Override
     public long getAverageExecutionTime() {
-        return 150; // Jsoup 기반, 평균 150ms
+        return 2000; // 🚀 150ms → 2000ms (배치 크기 축소 위해 늘림)
+    }
+    
+    @Override
+    public int getRecommendedBatchSize() {
+        return 3; // 🚀 20개 → 3개 (스레드 과다 생성 방지)
     }
 }

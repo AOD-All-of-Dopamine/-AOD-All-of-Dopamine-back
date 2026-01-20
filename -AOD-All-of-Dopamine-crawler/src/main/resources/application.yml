@@ -12,8 +12,8 @@ spring:
     password: ${POSTGRES_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
+      maximum-pool-size: 5   # 🚀 20 → 5 (EC2 t3.small 최적화)
+      minimum-idle: 2        # 🚀 5 → 2
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
@@ -64,6 +64,11 @@ logging:
     org.springframework.web: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/crawler.log      # 로그 파일 경로
+    max-size: 100MB              # 파일 최대 크기 (100MB 초과 시 로테이션)
+    max-history: 30              # 30일치 로그 파일 보관
+    total-size-cap: 3GB          # 전체 로그 파일 최대 용량
 
 # 모니터링 설정
 management:
@@ -127,10 +132,10 @@ server:
   shutdown: graceful
   tomcat:
     threads:
-      max: 200
-      min-spare: 10
-    max-connections: 10000
-    accept-count: 100
+      max: 20      # 🚀 200 → 20 (EC2 t3.small 최적화)
+      min-spare: 2  # 🚀 10 → 2
+    max-connections: 1000    # 🚀 10000 → 1000
+    accept-count: 50         # 🚀 100 → 50
     connection-timeout: 20000
 
 # 크롤러 전용 설정
@@ -143,8 +148,8 @@ crawler:
     api-key: ${TMDB_API_KEY}
     language: ko-KR
   batch:
-    size: 100
-    transform-interval: 600000  # 10분
+    size: 50              # 🚀 100 → 50 (EC2 t3.small 최적화)
+    transform-interval: 900000  # 🚀 10분 → 15분 (600000 → 900000)
 
 # API Keys (환경변수로 주입 필요)
 tmdb:

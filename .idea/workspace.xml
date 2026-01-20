@@ -5,20 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8246d20d-e076-4aa7-8aaa-cea02a51d2af" name="Changes" comment="feat:크롤링 스레드 풀 설정  115">
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/detail.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/explore.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/new.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/ranking.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/demo/recommendation.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/fragments/footer.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/fragments/header.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/resources/templates/layouts/default_layout.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -369,6 +356,7 @@
       <workItem from="1768744809594" duration="1430000" />
       <workItem from="1768798286462" duration="1293000" />
       <workItem from="1768800759001" duration="898000" />
+      <workItem from="1768866078612" duration="1004000" />
     </task>
     <task id="LOCAL-00006" summary="feat: 테스트파일 위치 조정 -&gt; resource 폴더 내로 이동 , 테스트 통과 확인">
       <option name="closed" value="true" />
