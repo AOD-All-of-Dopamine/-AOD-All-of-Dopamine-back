@@ -23,6 +23,16 @@ public class CrawlJobConsumer {
 
     private final CrawlJobRepository crawlJobRepository;
     private final JobExecutorRegistry executorRegistry;
+    
+    // 🚀 리소스 제어: EC2 t3.small 안전 한계
+    private static final int MAX_CONCURRENT_JOBS = 10;  // 전역 최대 동시 처리
+    private static final int MAX_SELENIUM_JOBS = 2;     // Selenium 최대 동시 처리
+    
+    // 현재 처리 중인 Job 수 추적
+    private final java.util.concurrent.atomic.AtomicInteger currentProcessing = 
+        new java.util.concurrent.atomic.AtomicInteger(0);
+    private final java.util.concurrent.atomic.AtomicInteger seleniumProcessing = 
+        new java.util.concurrent.atomic.AtomicInteger(0);
 
     /**
      * 주기적으로 큐에서 작업을 동적으로 가져와 처리합니다.
@@ -65,22 +75,70 @@ public class CrawlJobConsumer {
     /**
      * 특정 타입의 작업을 지정된 개수만큼 처리
      */
-    private int processByType(JobType jobType, JobExecutor executor, int limit) {
-        List<CrawlJob> jobs = crawlJobRepository.findPendingJobsByTypeWithLock(jobType, limit);
-
+    private int processByType(JobType jobType, JobExecutor executor, int batchSize) {
+        // 🚀 Phase 1: 전역 동시 처리 제한 체크
+        int currentJobs = currentProcessing.get();
+        if (currentJobs >= MAX_CONCURRENT_JOBS) {
+            log.warn("🚫 [Consumer] 전역 동시 처리 한계 도달 ({}/{}), {} 작업 대기",
+                currentJobs, MAX_CONCURRENT_JOBS, jobType);
+            return 0;
+        }
+        
+        // 🚀 Phase 1: Selenium Job 특별 제한 체크
+        boolean isSeleniumJob = isSeleniumJob(jobType);
+        if (isSeleniumJob && seleniumProcessing.get() >= MAX_SELENIUM_JOBS) {
+            log.warn("🚫 [Consumer] Selenium Job 한계 도달 ({}/{}), {} 작업 대기",
+                seleniumProcessing.get(), MAX_SELENIUM_JOBS, jobType);
+            return 0;
+        }
+        
+        // 처리 가능한 Job 수 계산
+        int available = MAX_CONCURRENT_JOBS - currentJobs;
+        int effectiveBatchSize = Math.min(batchSize, available);
+        
+        // Selenium Job인 경우 추가 제한
+        if (isSeleniumJob) {
+            int seleniumAvailable = MAX_SELENIUM_JOBS - seleniumProcessing.get();
+            effectiveBatchSize = Math.min(effectiveBatchSize, seleniumAvailable);
+        }
+        
+        List<CrawlJob> jobs = crawlJobRepository.findPendingJobsByType(jobType, effectiveBatchSize);
+        
         if (jobs.isEmpty()) {
             return 0;
         }
-
-        log.info("🎯 [Consumer] {} 작업 {}개 처리 시작 (권장 배치: {}, 평균 {}ms)",
-                jobType, jobs.size(), executor.getRecommendedBatchSize(), executor.getAverageExecutionTime());
-
+        
+        log.info("🎯 [Consumer] {} 작업 {}개 처리 시작 (권장: {}, 제한 적용: {}, 평균 {}ms)",
+                jobType, jobs.size(), batchSize, effectiveBatchSize, executor.getAverageExecutionTime());
+        
+        int processed = 0;
         for (CrawlJob job : jobs) {
-            processJob(job, executor);
+            // 처리 시작 전 카운터 증가
+            currentProcessing.incrementAndGet();
+            if (isSeleniumJob) {
+                seleniumProcessing.incrementAndGet();
+            }
+            
+            try {
+                processJob(job, executor);
+                processed++;
+            } finally {
+                // 처리 완료 후 카운터 감소
+                currentProcessing.decrementAndGet();
+                if (isSeleniumJob) {
+                    seleniumProcessing.decrementAndGet();
+                }
+            }
         }
-
-        crawlJobRepository.saveAll(jobs);
-        return jobs.size();
+        
+        return processed;
+    }
+    
+    /**
+     * Selenium을 사용하는 Job인지 확인
+     */
+    private boolean isSeleniumJob(JobType jobType) {
+        return jobType == JobType.NAVER_WEBTOON;
     }
 
     /**

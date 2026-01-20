@@ -150,6 +150,12 @@ crawler:
   batch:
     size: 50              # 🚀 100 → 50 (EC2 t3.small 최적화)
     transform-interval: 900000  # 🚀 10분 → 15분 (600000 → 900000)
+  
+  # 🚀 리소스 제어 (EC2 t3.small 안전 한계)
+  # CrawlJobConsumer에서 하드코딩됨:
+  # - MAX_CONCURRENT_JOBS = 10  (전역 최대 동시 처리)
+  # - MAX_SELENIUM_JOBS = 2     (Selenium 최대 동시 처리)
+  # Phase 2에서 환경변수로 변경 예정
 
 # API Keys (환경변수로 주입 필요)
 tmdb:
