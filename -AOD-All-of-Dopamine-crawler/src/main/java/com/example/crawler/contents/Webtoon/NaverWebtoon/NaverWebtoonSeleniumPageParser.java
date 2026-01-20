@@ -35,7 +35,9 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
     // WebDriver 재사용을 위한 ThreadLocal (멀티스레드 환경 대응)
     private final ThreadLocal<WebDriver> driverThreadLocal = ThreadLocal.withInitial(() -> null);
     private final ThreadLocal<Integer> usageCount = ThreadLocal.withInitial(() -> 0);
-    private static final int MAX_REUSE_COUNT = 50;  // 🚀 10 → 50 (EC2 t3.small 최적화) // 50회 사용 후 재생성 (메모리 누수 방지)
+    // 🚀 50 → 5로 축소: 에러 누적 방지 및 더 자주 재생성하여 안정성 확보
+    // 망가진 WebDriver를 오래 사용하지 않고 빠르게 새로 만들어 좀비 프로세스 방지
+    private static final int MAX_REUSE_COUNT = 5;
 
     public NaverWebtoonSeleniumPageParser(ChromeDriverProvider chromeDriverProvider) {
         this.chromeDriverProvider = chromeDriverProvider;
