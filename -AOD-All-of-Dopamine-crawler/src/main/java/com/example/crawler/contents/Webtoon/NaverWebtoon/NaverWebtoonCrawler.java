@@ -7,10 +7,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.*;
 
 /**
@@ -26,7 +22,6 @@ public class NaverWebtoonCrawler {
     private final CollectorService collector;
     private final WebtoonPageParser pageParser;
     private final MobileListParser mobileListParser;
-    private final HttpClient httpClient;  // Connection Pool 사용
 
     // URL 상수들
     private static final String BASE_WEEKDAY_URL = "https://m.comic.naver.com/webtoon/weekday?week=";
@@ -34,11 +29,10 @@ public class NaverWebtoonCrawler {
     private static final String[] WEEKDAYS = { "mon", "tue", "wed", "thu", "fri", "sat", "sun" };
 
     public NaverWebtoonCrawler(CollectorService collector, WebtoonPageParser pageParser,
-            MobileListParser mobileListParser, HttpClient httpClient) {
+            MobileListParser mobileListParser) {
         this.collector = collector;
         this.pageParser = pageParser;
         this.mobileListParser = mobileListParser;
-        this.httpClient = httpClient;
     }
 
     /**
@@ -396,41 +390,16 @@ public class NaverWebtoonCrawler {
 
     // ==== 유틸리티 메서드들 ====
 
-    /**
-     * HttpClient를 사용하여 HTML 가져오기 (Connection Pool 사용)
-     * Jsoup의 매 요청마다 새 소켓/스레드 생성 문제를 해결
-     */
     private Document get(String url) throws Exception {
         // URL에 따라 적절한 User-Agent 선택
         String userAgent = url.contains(NaverWebtoonSelectors.MOBILE_DOMAIN)
                 ? NaverWebtoonSelectors.MOBILE_USER_AGENT
                 : NaverWebtoonSelectors.PC_USER_AGENT;
 
-        // HttpClient로 HTML 가져오기 (Connection Pool 재사용)
-        String html = fetchHtml(url, userAgent);
-        
-        // Jsoup으로 파싱만 수행 (연결은 HttpClient가 담당)
-        return Jsoup.parse(html, url);
-    }
-
-    /**
-     * HttpClient로 HTML 가져오기
-     * Connection Pool을 사용하여 스레드 생성 최소화
-     */
-    private String fetchHtml(String url, String userAgent) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("User-Agent", userAgent)
-                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                .header("Accept-Language", "ko-KR,ko;q=0.9,en;q=0.8")
-                .header("Connection", "keep-alive")
-                .GET()
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        
-        // 200 OK가 아니어도 HTML은 반환 (404 페이지 등 처리)
-        return response.body();
+        return Jsoup.connect(url)
+                .userAgent(userAgent)
+                .timeout(NaverWebtoonSelectors.CONNECTION_TIMEOUT)
+                .get();
     }
 
     private String nz(String str) {
