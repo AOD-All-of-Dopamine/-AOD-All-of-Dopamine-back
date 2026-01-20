@@ -47,6 +47,10 @@ services:
           cpus: '0.5'
           memory: 512M
 
+    # 🚀 로그 파일 영구 저장 (호스트에 마운트)
+    volumes:
+      - ./logs:/app/logs  # 로그 파일을 호스트에 저장
+    
     networks:
       - aod-crawler-network
     restart: unless-stopped

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <!-- 로그 파일 경로 (환경변수로 오버라이드 가능) -->
+    <property name="LOG_FILE" value="${LOG_FILE:-logs/crawler.log}"/>
+    <property name="LOG_PATH" value="${LOG_PATH:-logs}"/>
+    
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    
+    <!-- File Appender (자동 디렉토리 생성) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 🚀 디렉토리 자동 생성 -->
+        <file>${LOG_FILE}</file>
+        
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        
+        <!-- Rolling Policy -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 날짜별 + 크기별 롤링 -->
+            <fileNamePattern>${LOG_PATH}/crawler.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    
+    <!-- Spring Profile별 설정 -->
+    <springProfile name="local,dev">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+    
+    <!-- 🚀 GitHub Actions / Docker: 콘솔만 사용 (파일 로그 비활성화) -->
+    <springProfile name="ci,docker">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+    
+    <!-- Production: 파일만 사용 (stdout은 Docker logs로 확인) -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+        
+        <!-- 프로덕션에서는 DEBUG 레벨 제한 -->
+        <logger name="com.example.crawler" level="INFO"/>
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="org.springframework.web" level="INFO"/>
+    </springProfile>
+    
+    <!-- 기본 설정 (profile 없을 때) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+    
+    <!-- 패키지별 로그 레벨 -->
+    <logger name="com.example.crawler" level="DEBUG"/>
+    <logger name="com.example.crawler.ingest" level="INFO"/>
+    <logger name="com.example.crawler.service" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.springframework.web" level="INFO"/>
+</configuration>
