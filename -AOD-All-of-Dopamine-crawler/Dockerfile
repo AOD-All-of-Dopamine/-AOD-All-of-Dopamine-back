@@ -25,12 +25,13 @@ RUN ./gradlew :-AOD-All-of-Dopamine-crawler:bootJar -x test --no-daemon
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# Install Chrome and dependencies for Selenium
+# Install tini (zombie process reaper) + Chrome and dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
     curl \
     unzip \
+    tini \
     # Chrome dependencies
     fonts-liberation \
     libasound2t64 \
@@ -80,8 +81,9 @@ EXPOSE 8081
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:8081/actuator/health || exit 1
 
-# Run application
-ENTRYPOINT ["java", \
+# Run application with tini to handle zombie processes
+# tini acts as PID 1 and properly reaps zombie Chrome processes
+ENTRYPOINT ["/usr/bin/tini", "--", "java", \
     "-Xms512m", \
     "-Xmx2048m", \
     "-XX:+HeapDumpOnOutOfMemoryError", \
