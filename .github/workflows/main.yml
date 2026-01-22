@@ -289,8 +289,12 @@ jobs:
             echo "==> Docker system usage before cleanup:"
             docker system df || true
             
-            # 0. FIRST: Remove massive unnecessary snap packages (7GB!)
-            echo "==> REMOVING GUI SNAP PACKAGES (7GB recovery expected)..."
+            # 0. FIRST: Clean snapd cache (2.5GB!)
+            echo "==> CLEANING SNAPD CACHE (2.5GB expected)..."
+            sudo rm -rf /var/lib/snapd/cache/* || true
+            
+            # Remove unnecessary snap packages if any
+            echo "==> Removing unnecessary snap packages..."
             sudo snap remove gnome-46-2404 --purge 2>/dev/null || true
             sudo snap remove gnome-42-2204 --purge 2>/dev/null || true
             sudo snap remove mesa-2404 --purge 2>/dev/null || true
@@ -300,7 +304,7 @@ jobs:
             
             # Remove old snap revisions (disabled versions)
             echo "==> Removing old snap revisions..."
-            snap list --all | awk '/disabled/{print $1, $3}' | while read snapname revision; do
+            snap list --all 2>/dev/null | awk '/disabled/{print $1, $3}' | while read snapname revision; do
                 sudo snap remove "$snapname" --revision="$revision" 2>/dev/null || true
             done
             
