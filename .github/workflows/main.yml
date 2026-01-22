@@ -304,9 +304,7 @@ jobs:
             
             # Remove old snap revisions (disabled versions)
             echo "==> Removing old snap revisions..."
-            snap list --all 2>/dev/null | awk '/disabled/{print $1, $3}' | while read snapname revision; do
-                sudo snap remove "$snapname" --revision="$revision" 2>/dev/null || true
-            done
+            snap list --all 2>/dev/null | awk '/disabled/{print $1, "--revision=" $3}' | xargs -rn2 sudo snap remove 2>/dev/null || true
             
             echo "==> Snap cleanup complete. Current disk usage:"
             df -h || true
