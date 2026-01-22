@@ -63,6 +63,14 @@ public class MasterScheduler {
     }
 
     /**
+     * ===== 랭킹 크롤링 스케줄 =====
+     * 
+     * RankingScheduler에서 자체 스케줄링 처리
+     * - 매일 새벽 4시: 모든 플랫폼 랭킹 크롤링
+     *   (네이버 웹툰, 네이버 시리즈, Steam, TMDB 영화/TV)
+     */
+
+    /**
      * ===== Transform 스케줄 =====
      * 
      * TransformSchedulingService에서 자체 스케줄링 처리
