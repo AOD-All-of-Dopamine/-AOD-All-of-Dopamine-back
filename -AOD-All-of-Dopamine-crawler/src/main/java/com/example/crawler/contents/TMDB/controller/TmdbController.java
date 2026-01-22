@@ -22,11 +22,12 @@ public class TmdbController {
 
     /**
      * 지정된 기간 동안의 모든 영화 데이터를 TMDB에서 수집합니다.
-     * @param startYear 수집 시작 연도 (기본값: 현재 연도)
-     * @param endYear   수집 종료 연도 (기본값: 1980)
-     * @return 작업 시작 확인 메시지
+     * 
+     * @deprecated Job Queue 패턴 사용 권장 - AdminTestController의 /api/crawl/tmdb/movies-by-year 사용
+     * 이 엔드포인트는 직접 크롤링 방식으로 동기 처리되어 서버 부하 발생 가능
      */
-    @PostMapping("/movies-by-year")
+    @Deprecated
+    @PostMapping("/movies-by-year-direct")
     public ResponseEntity<Map<String, String>> startMoviesCollectionByYear(
             @RequestParam(defaultValue = "0") int startYear,
             @RequestParam(defaultValue = "1980") int endYear) {
@@ -38,11 +39,12 @@ public class TmdbController {
 
     /**
      * 지정된 기간 동안의 모든 TV쇼 데이터를 TMDB에서 수집합니다.
-     * @param startYear 수집 시작 연도 (기본값: 현재 연도)
-     * @param endYear   수집 종료 연도 (기본값: 1980)
-     * @return 작업 시작 확인 메시지
+     * 
+     * @deprecated Job Queue 패턴 사용 권장 - AdminTestController의 /api/crawl/tmdb/tv-by-year 사용
+     * 이 엔드포인트는 직접 크롤링 방식으로 동기 처리되어 서버 부하 발생 가능
      */
-    @PostMapping("/tv-by-year")
+    @Deprecated
+    @PostMapping("/tv-by-year-direct")
     public ResponseEntity<Map<String, String>> startTvShowsCollectionByYear(
             @RequestParam(defaultValue = "0") int startYear,
             @RequestParam(defaultValue = "1980") int endYear) {

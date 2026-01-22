@@ -28,8 +28,9 @@ public class TmdbSchedulingService {
     private final CrawlJobProducer crawlJobProducer;
     private final TmdbApiFetcher tmdbApiFetcher;
 
-    private static final int OLDEST_YEAR = 1980; // 전체 크롤링 시 가장 오래된 연도
+    private static final int OLDEST_YEAR = 1970; // 전체 크롤링 시 가장 오래된 연도
     private static final int MAX_PAGES = 10; // 최대 페이지 수 (매일 실행)
+    private static final int MAX_PAGES_FULL_CRAWL = 500; // 전체 크롤링 시 페이지 수
 
     /**
      * TMDB 신규 콘텐츠 목록을 Job Queue에 등록합니다.
@@ -147,6 +148,122 @@ public class TmdbSchedulingService {
         }
         
         return tvIds;
+    }
+
+    /**
+     * TMDB 전체 영화 목록을 Job Queue에 등록합니다.
+     * 
+     * Admin 페이지에서 수동 실행용 (1970년 ~ 현재)
+     */
+    public void collectAllMovies() {
+        int currentYear = Year.now().getValue();
+        collectMoviesByYearRange(OLDEST_YEAR, currentYear);
+    }
+
+    /**
+     * TMDB 영화 목록을 특정 연도 범위로 Job Queue에 등록합니다.
+     * 
+     * @param startYear 시작 연도 (예: 2010)
+     * @param endYear 끝 연도 (예: 2020)
+     */
+    public void collectMoviesByYearRange(int startYear, int endYear) {
+        String language = "ko-KR";
+        
+        log.info("🎬 [TMDB Producer] TMDB 영화 목록 수집 시작 ({}년 ~ {}년)", startYear, endYear);
+        
+        try {
+            int totalCount = 0;
+            
+            for (int year = startYear; year <= endYear; year++) {
+                String startDate = year + "-01-01";
+                String endDate = year + "-12-31";
+                
+                List<String> movieIds = fetchMovieIds(language, startDate, endDate, MAX_PAGES_FULL_CRAWL);
+                
+                if (!movieIds.isEmpty()) {
+                    int created = crawlJobProducer.createJobs(JobType.TMDB_MOVIE, movieIds, 4);
+                    totalCount += created;
+                    log.info("✅ [TMDB Producer] {}년 영화 {} 개 작업 생성", year, created);
+                }
+                
+                // API 요청 제한 방지 (연도별 간격)
+                Thread.sleep(500);
+            }
+            
+            log.info("✅ [TMDB Producer] 영화 수집 완료 ({}년~{}년): 총 {} 개 작업 생성", startYear, endYear, totalCount);
+            
+        } catch (Exception e) {
+            log.error("❌ [TMDB Producer] TMDB 영화 목록 수집 중 오류 발생 ({}년~{}년)", startYear, endYear, e);
+        }
+    }
+
+    /**
+     * TMDB 전체 TV 쇼 목록을 Job Queue에 등록합니다.
+     * 
+     * Admin 페이지에서 수동 실행용 (1970년 ~ 현재)
+     */
+    public void collectAllTvShows() {
+        int currentYear = Year.now().getValue();
+        collectTvShowsByYearRange(OLDEST_YEAR, currentYear);
+    }
+
+    /**
+     * TMDB TV 쇼 목록을 특정 연도 범위로 Job Queue에 등록합니다.
+     * 
+     * @param startYear 시작 연도 (예: 2010)
+     * @param endYear 끝 연도 (예: 2020)
+     */
+    public void collectTvShowsByYearRange(int startYear, int endYear) {
+        String language = "ko-KR";
+        
+        log.info("📺 [TMDB Producer] TMDB TV 쇼 목록 수집 시작 ({}년 ~ {}년)", startYear, endYear);
+        
+        try {
+            int totalCount = 0;
+            
+            for (int year = startYear; year <= endYear; year++) {
+                String startDate = year + "-01-01";
+                String endDate = year + "-12-31";
+                
+                List<String> tvIds = fetchTvShowIds(language, startDate, endDate, MAX_PAGES_FULL_CRAWL);
+                
+                if (!tvIds.isEmpty()) {
+                    int created = crawlJobProducer.createJobs(JobType.TMDB_TV, tvIds, 4);
+                    totalCount += created;
+                    log.info("✅ [TMDB Producer] {}년 TV 쇼 {} 개 작업 생성", year, created);
+                }
+                
+                // API 요청 제한 방지 (연도별 간격)
+                Thread.sleep(500);
+            }
+            
+            log.info("✅ [TMDB Producer] TV 쇼 수집 완료 ({}년~{}년): 총 {} 개 작업 생성", startYear, endYear, totalCount);
+            
+        } catch (Exception e) {
+            log.error("❌ [TMDB Producer] TMDB TV 쇼 목록 수집 중 오류 발생 ({}년~{}년)", startYear, endYear, e);
+        }
+    }
+
+    /**
+     * TMDB 전체 콘텐츠 (영화 + TV 쇼) 목록을 Job Queue에 등록합니다.
+     * 
+     * Admin 페이지에서 수동 실행용
+     */
+    public void collectAllContent() {
+        log.info("🎬📺 [TMDB Producer] TMDB 전체 콘텐츠 목록 수집 시작");
+        
+        try {
+            // 영화 전체 수집
+            collectAllMovies();
+            
+            // TV 쇼 전체 수집
+            collectAllTvShows();
+            
+            log.info("✅ [TMDB Producer] TMDB 전체 콘텐츠 수집 완료");
+            
+        } catch (Exception e) {
+            log.error("❌ [TMDB Producer] TMDB 전체 콘텐츠 목록 수집 중 오류 발생", e);
+        }
     }
 }
 
