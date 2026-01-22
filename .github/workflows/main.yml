@@ -15,7 +15,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     outputs:
       api-image: ${{ steps.api-image.outputs.image }}
       crawler-image: ${{ steps.crawler-image.outputs.image }}
@@ -51,345 +50,134 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Create ECR repositories if not exist
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          # Create API repository
-          aws ecr describe-repositories --repository-names $API_ECR_REPOSITORY --region $AWS_REGION || \
-            aws ecr create-repository --repository-name $API_ECR_REPOSITORY --region $AWS_REGION
-          
-          # Create Crawler repository
-          aws ecr describe-repositories --repository-names $CRAWLER_ECR_REPOSITORY --region $AWS_REGION || \
-            aws ecr create-repository --repository-name $CRAWLER_ECR_REPOSITORY --region $AWS_REGION
-
       - name: Build and push API image to ECR
         id: api-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f -AOD-All-of-Dopamine-api/Dockerfile -t $ECR_REGISTRY/$API_ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$API_ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$API_ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$API_ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$API_ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$API_ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -f ./AOD-All-of-Dopamine-api/Dockerfile -t ${{ steps.login-ecr.outputs.registry }}/$API_ECR_REPOSITORY:${{ github.sha }} .
+          docker tag ${{ steps.login-ecr.outputs.registry }}/$API_ECR_REPOSITORY:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/$API_ECR_REPOSITORY:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/$API_ECR_REPOSITORY:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/$API_ECR_REPOSITORY:latest
+          echo "image=${{ steps.login-ecr.outputs.registry }}/$API_ECR_REPOSITORY:${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Build and push Crawler image to ECR
         id: crawler-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f -AOD-All-of-Dopamine-crawler/Dockerfile -t $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$CRAWLER_ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -f ./AOD-All-of-Dopamine-crawler/Dockerfile -t ${{ steps.login-ecr.outputs.registry }}/$CRAWLER_ECR_REPOSITORY:${{ github.sha }} .
+          docker tag ${{ steps.login-ecr.outputs.registry }}/$CRAWLER_ECR_REPOSITORY:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/$CRAWLER_ECR_REPOSITORY:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/$CRAWLER_ECR_REPOSITORY:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/$CRAWLER_ECR_REPOSITORY:latest
+          echo "image=${{ steps.login-ecr.outputs.registry }}/$CRAWLER_ECR_REPOSITORY:${{ github.sha }}" >> $GITHUB_OUTPUT
 
   deploy-api:
     needs: build
     runs-on: ubuntu-latest
     if: success()
-
     steps:
-      - name: Check for required secrets
-        run: |
-          if [ -z "${{ secrets.API_EC2_HOST }}" ]; then echo "API_EC2_HOST secret is missing!"; exit 1; fi
-          if [ -z "${{ secrets.POSTGRES_HOST }}" ]; then echo "POSTGRES_HOST secret is missing!"; exit 1; fi
-          if [ -z "${{ secrets.POSTGRES_USER }}" ]; then echo "POSTGRES_USER secret is missing!"; exit 1; fi
-          if [ -z "${{ secrets.POSTGRES_PASSWORD }}" ]; then echo "POSTGRES_PASSWORD secret is missing!"; exit 1; fi
-
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Deploy API to EC2
         env:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           HOST: ${{ secrets.API_EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          APP_IMAGE_URI: ${{ needs.build.outputs.api-image }}
-          SPRING_PROFILE: prod
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT: 5432
-          POSTGRES_DB: postgres
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          NAVER_ID: ${{ secrets.NAVER_ID }}
-          NAVER_PW: ${{ secrets.NAVER_PW }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          ECR_REGISTRY: ${{ needs.build.outputs.registry }}
-          AWS_REGION: ${{ env.AWS_REGION }}
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-api"
-
-          scp -i private_key.pem -o StrictHostKeyChecking=no \
-            ./-AOD-All-of-Dopamine-api/docker-compose.yml \
-            ${USER}@${HOST}:/home/${USER}/aod-api/
-
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
+          scp -i private_key.pem -o StrictHostKeyChecking=no ./AOD-All-of-Dopamine-api/docker-compose.yml ${USER}@${HOST}:/home/${USER}/aod-api/
+          
+          # 'EOF' 따옴표가 환경변수 보호의 핵심입니다.
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'EOF'
             set -e
             cd /home/${USER}/aod-api
 
-            export APP_IMAGE_URI='${APP_IMAGE_URI}'
-            export SPRING_PROFILE='${SPRING_PROFILE}'
-            export POSTGRES_HOST='${POSTGRES_HOST}'
-            export POSTGRES_PORT='${POSTGRES_PORT}'
-            export POSTGRES_DB='${POSTGRES_DB}'
-            export POSTGRES_USER='${POSTGRES_USER}'
-            export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
-            export TMDB_API_KEY='${TMDB_API_KEY}'
-            export STEAM_API_KEY='${STEAM_API_KEY}'
-            export OPENAI_API_KEY='${OPENAI_API_KEY}'
-            export NAVER_ID='${NAVER_ID}'
-            export NAVER_PW='${NAVER_PW}'
-            export SENTRY_DSN='${SENTRY_DSN}'
-            export AWS_REGION='${AWS_REGION}'
-            export ECR_REGISTRY='${ECR_REGISTRY}'
+            # 1. 긴급 디스크 확보 (Snap 전체 제거)
+            echo "==> Purging Snap system..."
+            sudo snap remove amazon-ssm-agent core22 core24 snapd --purge || true
+            sudo apt-get purge snapd -y || true
+            sudo rm -rf /var/lib/snapd /snap || true
 
-            # --- Aggressive disk space cleanup before deployment ---
-            echo "=> Disk usage before cleanup:"
-            df -h || true
-            echo "=> Docker system usage before cleanup:"
-            docker system df || true
-            
-            # 1. Docker cleanup
-            echo "=> Cleaning Docker resources..."
-            docker system prune -af --volumes || sudo docker system prune -af --volumes || true
-            docker image prune -af || true
-            docker volume prune -f || true
-            docker builder prune -af || true
-            
-            # 2. Remove all stopped containers and dangling volumes
-            docker container prune -f || true
-            docker volume rm \$(docker volume ls -qf dangling=true) 2>/dev/null || true
-            
-            # 3. APT cache cleanup
-            echo "=> Cleaning APT cache..."
-            sudo apt-get clean || true
-            sudo apt-get autoclean || true
-            sudo apt-get autoremove -y || true
-            sudo rm -rf /var/lib/apt/lists/* || true
-            
-            # 4. Log files cleanup (older than 7 days)
-            echo "=> Cleaning old log files..."
-            sudo find /var/log -type f -name "*.log" -mtime +7 -delete || true
-            sudo find /var/log -type f -name "*.gz" -delete || true
-            sudo journalctl --vacuum-time=7d || true
-            
-            # 5. Temporary files cleanup
-            echo "=> Cleaning temporary files..."
-            sudo rm -rf /tmp/* || true
-            sudo rm -rf /var/tmp/* || true
-            
-            # 6. Remove old kernels (keep current + 1)
-            echo "=> Removing old kernels..."
-            sudo apt-get autoremove --purge -y || true
-            
-            echo "=> Disk usage after cleanup:"
-            df -h || true
+            # 2. Docker 리소스 초기화 (Pull 전 공간 확보)
+            docker compose down || true
+            docker system prune -af --volumes || true
+            sudo apt-get clean && sudo journalctl --vacuum-time=1d
 
-            aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
-            echo "✅ ECR login successful for API."
+            # 3. 환경변수 설정 및 배포
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ needs.build.outputs.registry }}
+            
+            export APP_IMAGE_URI='${{ needs.build.outputs.api-image }}'
+            export SPRING_PROFILE='prod'
+            export POSTGRES_HOST='${{ secrets.POSTGRES_HOST }}'
+            export POSTGRES_USER='${{ secrets.POSTGRES_USER }}'
+            export POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}'
+            export TMDB_API_KEY='${{ secrets.TMDB_API_KEY }}'
+            export STEAM_API_KEY='${{ secrets.STEAM_API_KEY }}'
+            export OPENAI_API_KEY='${{ secrets.OPENAI_API_KEY }}'
+            export NAVER_ID='${{ secrets.NAVER_ID }}'
+            export NAVER_PW='${{ secrets.NAVER_PW }}'
+            export SENTRY_DSN='${{ secrets.SENTRY_DSN }}'
 
-            docker compose down --remove-orphans || true
-            docker pull \${APP_IMAGE_URI}
-            docker compose up -d --remove-orphans
-
-            echo "Waiting 40 seconds for API to start..."
-            sleep 40
-
-            if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
-              echo "✅ API health check successful!"
-            else
-              echo "❌ API health check failed!"
-              docker compose ps
-              docker compose logs --tail 100
-              exit 1
-            fi
-
-            docker image prune -af
+            docker pull $APP_IMAGE_URI
+            docker compose up -d
+            docker image prune -f
           EOF
-
           rm -f private_key.pem
 
   deploy-crawler:
     needs: build
     runs-on: ubuntu-latest
     if: success()
-
     steps:
-      - name: Check for required secrets
-        run: |
-          if [ -z "${{ secrets.CRAWLER_EC2_HOST }}" ]; then echo "CRAWLER_EC2_HOST secret is missing!"; exit 1; fi
-          if [ -z "${{ secrets.POSTGRES_HOST }}" ]; then echo "POSTGRES_HOST secret is missing!"; exit 1; fi
-
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Deploy Crawler to EC2
         env:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           HOST: ${{ secrets.CRAWLER_EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          CRAWLER_IMAGE_URI: ${{ needs.build.outputs.crawler-image }}
-          SPRING_PROFILE: prod
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT: 5432
-          POSTGRES_DB: postgres
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          NAVER_ID: ${{ secrets.NAVER_ID }}
-          NAVER_PW: ${{ secrets.NAVER_PW }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          ECR_REGISTRY: ${{ needs.build.outputs.registry }}
-          AWS_REGION: ${{ env.AWS_REGION }}
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "mkdir -p /home/${USER}/aod-crawler"
-
-          scp -i private_key.pem -o StrictHostKeyChecking=no \
-            ./-AOD-All-of-Dopamine-crawler/docker-compose.yml \
-            ${USER}@${HOST}:/home/${USER}/aod-crawler/
-
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
+          scp -i private_key.pem -o StrictHostKeyChecking=no ./AOD-All-of-Dopamine-crawler/docker-compose.yml ${USER}@${HOST}:/home/${USER}/aod-crawler/
+          
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'EOF'
             set -e
             cd /home/${USER}/aod-crawler
 
-            export CRAWLER_IMAGE_URI='${CRAWLER_IMAGE_URI}'
-            export SPRING_PROFILE='${SPRING_PROFILE}'
-            export POSTGRES_HOST='${POSTGRES_HOST}'
-            export POSTGRES_PORT='${POSTGRES_PORT}'
-            export POSTGRES_DB='${POSTGRES_DB}'
-            export POSTGRES_USER='${POSTGRES_USER}'
-            export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
-            export TMDB_API_KEY='${TMDB_API_KEY}'
-            export STEAM_API_KEY='${STEAM_API_KEY}'
-            export OPENAI_API_KEY='${OPENAI_API_KEY}'
-            export NAVER_ID='${NAVER_ID}'
-            export NAVER_PW='${NAVER_PW}'
-            export SENTRY_DSN='${SENTRY_DSN}'
-            export AWS_REGION='${AWS_REGION}'
-            export ECR_REGISTRY='${ECR_REGISTRY}'
+            # 1. Snap 완전 제거 (Crawler는 Selenium 때문에 더 많은 공간 필요)
+            echo "==> Emergency Disk Space Recovery..."
+            sudo snap remove amazon-ssm-agent core22 core24 snapd --purge || true
+            sudo apt-get purge snapd -y || true
+            sudo rm -rf /var/lib/snapd /snap || true
 
-            # --- CRITICAL: Emergency disk space recovery for Crawler ---
-            echo "==> Disk usage before cleanup:"
-            df -h || true
-            echo "==> Docker system usage before cleanup:"
-            docker system df || true
-            
-            # 0. FIRST: Clean snapd cache (2.5GB!)
-            echo "==> CLEANING SNAPD CACHE (2.5GB expected)..."
-            sudo rm -rf /var/lib/snapd/cache/* || true
-            
-            # Remove unnecessary snap packages if any
-            echo "==> Removing unnecessary snap packages..."
-            sudo snap remove gnome-46-2404 --purge 2>/dev/null || true
-            sudo snap remove gnome-42-2204 --purge 2>/dev/null || true
-            sudo snap remove mesa-2404 --purge 2>/dev/null || true
-            sudo snap remove chromium --purge 2>/dev/null || true
-            sudo snap remove gtk-common-themes --purge 2>/dev/null || true
-            sudo snap remove cups --purge 2>/dev/null || true
-            
-            # Remove old snap revisions (disabled versions)
-            echo "==> Removing old snap revisions..."
-            snap list --all 2>/dev/null | awk '/disabled/{print $1, "--revision=" $3}' | xargs -rn2 sudo snap remove 2>/dev/null || true
-            
-            echo "==> Snap cleanup complete. Current disk usage:"
-            df -h || true
-            
-            # 1. Stop existing services first to release locks
-            echo "==> Stopping existing services..."
-            docker compose down --remove-orphans || true
-            
-            # 1. FORCE remove ALL Docker images (we'll pull fresh ones)
-            echo "=> FORCE removing ALL Docker images..."
-            docker rmi -f \$(docker images -aq) 2>/dev/null || true
-            
-            # 2. Aggressive Docker cleanup (MUST stop Docker first)
-            echo "=> Deep cleaning Docker resources..."
-            sudo systemctl stop docker || true
-            sudo rm -rf /var/lib/docker/overlay2/* || true
-            sudo rm -rf /var/lib/docker/tmp/* || true
-            sudo rm -rf /var/lib/docker/containers/*/*-json.log || true
-            sudo systemctl start docker || true
-            sleep 5  # Wait for Docker to fully start
+            # 2. 시스템 로그 및 Docker 청소
+            docker compose down || true
             docker system prune -af --volumes || true
-            docker builder prune -af || true
-            
-            # 3. Kill zombie processes
-            echo "=> Killing zombie processes..."
-            sudo pkill -9 -f defunct || true
-            
-            # 4. APT cache cleanup (force unlock)
-            echo "=> Cleaning APT cache..."
-            sudo killall apt-get 2>/dev/null || true
-            sudo rm -f /var/lib/apt/lists/lock || true
-            sudo rm -f /var/cache/apt/archives/lock || true
-            sudo rm -f /var/lib/dpkg/lock* || true
-            sudo apt-get clean || true
-            sudo rm -rf /var/lib/apt/lists/* || true
-            sudo rm -rf /var/cache/apt/archives/* || true
-            
-            # 5. Application log files cleanup (CRITICAL - often huge)
-            echo "=> Cleaning application log files..."
-            sudo rm -rf /home/*/aod-crawler/logs/* || true
-            sudo rm -rf /home/*/aod-api/logs/* || true
-            sudo find /home -name "*.log" -type f -size +10M -delete || true
-            sudo find /home -name "*.log.*" -type f -delete || true
-            
-            # 6. System log files cleanup
-            echo "=> Cleaning system logs..."
-            sudo find /var/log -type f -name "*.gz" -delete || true
-            sudo find /var/log -type f -name "*.log" -mtime +3 -delete || true
-            sudo find /var/log -type f -size +10M -delete || true
-            sudo journalctl --vacuum-time=1d || true
-            sudo journalctl --vacuum-size=20M || true
-            
-            # 7. Temporary files cleanup
-            echo "=> Cleaning temporary files..."
-            sudo rm -rf /tmp/* || true
-            sudo rm -rf /var/tmp/* || true
-            sudo rm -rf ~/.cache/* || true
-            
-            # 8. Remove crash dumps
-            echo "=> Removing crash dumps..."
-            sudo rm -rf /var/crash/* || true
-            sudo rm -rf /var/core/* || true
-            
-            echo "=> Disk usage after cleanup:"
-            df -h || true
+            sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*
+            sudo journalctl --vacuum-time=1d
 
-            aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
-            echo "✅ ECR login successful for Crawler."
+            # 3. 배포 (이미지 Pull 전 공간 확인)
+            df -h /
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ needs.build.outputs.registry }}
+            
+            export CRAWLER_IMAGE_URI='${{ needs.build.outputs.crawler-image }}'
+            export SPRING_PROFILE='prod'
+            export POSTGRES_HOST='${{ secrets.POSTGRES_HOST }}'
+            export POSTGRES_USER='${{ secrets.POSTGRES_USER }}'
+            export POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}'
+            export TMDB_API_KEY='${{ secrets.TMDB_API_KEY }}'
+            export STEAM_API_KEY='${{ secrets.STEAM_API_KEY }}'
+            export OPENAI_API_KEY='${{ secrets.OPENAI_API_KEY }}'
+            export NAVER_ID='${{ secrets.NAVER_ID }}'
+            export NAVER_PW='${{ secrets.NAVER_PW }}'
+            export SENTRY_DSN='${{ secrets.SENTRY_DSN }}'
 
-            # Pull new image (old ones already deleted)
-            docker pull \${CRAWLER_IMAGE_URI}
-            docker compose up -d --remove-orphans
-
-            echo "Waiting 60 seconds for Crawler to initialize..."
-            sleep 60
-
-            if curl -f http://localhost:8081/actuator/health > /dev/null 2>&1; then
-              echo "✅ Crawler health check successful!"
-            else
-              echo "⚠️ Crawler starting... (may take longer for first sync)"
-              docker compose ps
-              docker compose logs --tail 50
-            fi
-
-            docker image prune -af
+            docker pull $CRAWLER_IMAGE_URI
+            docker compose up -d
+            
+            docker image prune -f
+            echo "✅ Deployment Complete. Remaining Space:"
+            df -h /
           EOF
-
           rm -f private_key.pem
