@@ -26,11 +26,11 @@
         
         <!-- Rolling Policy -->
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- 날짜별 + 크기별 롤링 -->
+            <!-- 날짜별 + 크기별 롤링 (디스크 공간 보호를 위해 작은 크기로 설정) -->
             <fileNamePattern>${LOG_PATH}/crawler.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
         </rollingPolicy>
     </appender>
     

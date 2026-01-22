@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8246d20d-e076-4aa7-8aaa-cea02a51d2af" name="Changes" comment="feat:크롤링 스레드 풀 설정  115">
+      <change beforePath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/util/ChromeDriverProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/-AOD-All-of-Dopamine-crawler/src/main/java/com/example/crawler/util/ChromeDriverProvider.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -94,7 +95,7 @@
     "Spring Boot.CrawlerApplication.executor": "Run",
     "git-widget-placeholder": "feature/job-queue-pattern",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/dfdfg/IdeaProjects/nyum-tolic",
+    "last_opened_file_path": "C:/Users/dfdfg/IdeaProjects/-AOD-All-of-Dopamine-back",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -358,6 +359,7 @@
       <workItem from="1768800759001" duration="898000" />
       <workItem from="1768866078612" duration="7349000" />
       <workItem from="1768889683840" duration="108000" />
+      <workItem from="1768961724994" duration="2147000" />
     </task>
     <task id="LOCAL-00006" summary="feat: 테스트파일 위치 조정 -&gt; resource 폴더 내로 이동 , 테스트 통과 확인">
       <option name="closed" value="true" />
