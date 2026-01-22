@@ -284,48 +284,24 @@ jobs:
             export ECR_REGISTRY='${ECR_REGISTRY}'
 
             # --- CRITICAL: Emergency disk space recovery for Crawler ---
-            echo "==> Disk usage before cleanup:"
+            echo "=> Disk usage before cleanup:"
             df -h || true
-            echo "==> Docker system usage before cleanup:"
+            echo "=> Docker system usage before cleanup:"
             docker system df || true
             
-            # 0. FIRST: Clean snapd cache (2.5GB!)
-            echo "==> CLEANING SNAPD CACHE (2.5GB expected)..."
-            sudo rm -rf /var/lib/snapd/cache/* || true
-            
-            # Remove unnecessary snap packages if any
-            echo "==> Removing unnecessary snap packages..."
-            sudo snap remove gnome-46-2404 --purge 2>/dev/null || true
-            sudo snap remove gnome-42-2204 --purge 2>/dev/null || true
-            sudo snap remove mesa-2404 --purge 2>/dev/null || true
-            sudo snap remove chromium --purge 2>/dev/null || true
-            sudo snap remove gtk-common-themes --purge 2>/dev/null || true
-            sudo snap remove cups --purge 2>/dev/null || true
-            
-            # Remove old snap revisions (disabled versions)
-            echo "==> Removing old snap revisions..."
-            snap list --all 2>/dev/null | awk '/disabled/{print $1, "--revision=" $3}' | xargs -rn2 sudo snap remove 2>/dev/null || true
-            
-            echo "==> Snap cleanup complete. Current disk usage:"
-            df -h || true
-            
-            # 1. Stop existing services first to release locks
-            echo "==> Stopping existing services..."
+            # 0. Stop existing services first to release locks
+            echo "=> Stopping existing services..."
             docker compose down --remove-orphans || true
             
             # 1. FORCE remove ALL Docker images (we'll pull fresh ones)
             echo "=> FORCE removing ALL Docker images..."
             docker rmi -f \$(docker images -aq) 2>/dev/null || true
             
-            # 2. Aggressive Docker cleanup (MUST stop Docker first)
+            # 2. Aggressive Docker cleanup
             echo "=> Deep cleaning Docker resources..."
-            sudo systemctl stop docker || true
+            sudo docker system prune -af --volumes || true
             sudo rm -rf /var/lib/docker/overlay2/* || true
             sudo rm -rf /var/lib/docker/tmp/* || true
-            sudo rm -rf /var/lib/docker/containers/*/*-json.log || true
-            sudo systemctl start docker || true
-            sleep 5  # Wait for Docker to fully start
-            docker system prune -af --volumes || true
             docker builder prune -af || true
             
             # 3. Kill zombie processes
@@ -342,28 +318,21 @@ jobs:
             sudo rm -rf /var/lib/apt/lists/* || true
             sudo rm -rf /var/cache/apt/archives/* || true
             
-            # 5. Application log files cleanup (CRITICAL - often huge)
-            echo "=> Cleaning application log files..."
-            sudo rm -rf /home/*/aod-crawler/logs/* || true
-            sudo rm -rf /home/*/aod-api/logs/* || true
-            sudo find /home -name "*.log" -type f -size +10M -delete || true
-            sudo find /home -name "*.log.*" -type f -delete || true
-            
-            # 6. System log files cleanup
-            echo "=> Cleaning system logs..."
+            # 5. Log files cleanup (ALL .gz files, older logs)
+            echo "=> Cleaning ALL old logs..."
             sudo find /var/log -type f -name "*.gz" -delete || true
             sudo find /var/log -type f -name "*.log" -mtime +3 -delete || true
             sudo find /var/log -type f -size +10M -delete || true
-            sudo journalctl --vacuum-time=1d || true
-            sudo journalctl --vacuum-size=20M || true
+            sudo journalctl --vacuum-time=3d || true
+            sudo journalctl --vacuum-size=50M || true
             
-            # 7. Temporary files cleanup
+            # 6. Temporary files cleanup
             echo "=> Cleaning temporary files..."
             sudo rm -rf /tmp/* || true
             sudo rm -rf /var/tmp/* || true
             sudo rm -rf ~/.cache/* || true
             
-            # 8. Remove crash dumps
+            # 7. Remove crash dumps
             echo "=> Removing crash dumps..."
             sudo rm -rf /var/crash/* || true
             sudo rm -rf /var/core/* || true
