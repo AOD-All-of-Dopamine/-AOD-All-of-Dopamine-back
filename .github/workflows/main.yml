@@ -140,25 +140,25 @@ jobs:
             ./-AOD-All-of-Dopamine-api/docker-compose.yml \
             ${USER}@${HOST}:/home/${USER}/aod-api/
           
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'ENDSSH'
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
           set -e
           cd /home/${USER}/aod-api
           
-          export APP_IMAGE_URI='${APP_IMAGE_URI}'
-          export SPRING_PROFILE='${SPRING_PROFILE}'
-          export POSTGRES_HOST='${POSTGRES_HOST}'
-          export POSTGRES_PORT='${POSTGRES_PORT}'
-          export POSTGRES_DB='${POSTGRES_DB}'
-          export POSTGRES_USER='${POSTGRES_USER}'
-          export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
-          export TMDB_API_KEY='${TMDB_API_KEY}'
-          export STEAM_API_KEY='${STEAM_API_KEY}'
-          export OPENAI_API_KEY='${OPENAI_API_KEY}'
-          export NAVER_ID='${NAVER_ID}'
-          export NAVER_PW='${NAVER_PW}'
-          export SENTRY_DSN='${SENTRY_DSN}'
-          export AWS_REGION='${AWS_REGION}'
-          export ECR_REGISTRY='${ECR_REGISTRY}'
+          export APP_IMAGE_URI="${APP_IMAGE_URI}"
+          export SPRING_PROFILE="${SPRING_PROFILE}"
+          export POSTGRES_HOST="${POSTGRES_HOST}"
+          export POSTGRES_PORT="${POSTGRES_PORT}"
+          export POSTGRES_DB="${POSTGRES_DB}"
+          export POSTGRES_USER="${POSTGRES_USER}"
+          export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+          export TMDB_API_KEY="${TMDB_API_KEY}"
+          export STEAM_API_KEY="${STEAM_API_KEY}"
+          export OPENAI_API_KEY="${OPENAI_API_KEY}"
+          export NAVER_ID="${NAVER_ID}"
+          export NAVER_PW="${NAVER_PW}"
+          export SENTRY_DSN="${SENTRY_DSN}"
+          export AWS_REGION="${AWS_REGION}"
+          export ECR_REGISTRY="${ECR_REGISTRY}"
           
           # --- Aggressive disk space cleanup before deployment ---
           echo "=> Disk usage before cleanup:"
@@ -176,7 +176,7 @@ jobs:
           
           # 2. Remove all stopped containers and dangling volumes
           docker container prune -f || true
-          docker volume rm $(docker volume ls -qf dangling=true) 2>/dev/null || true
+          docker volume rm \$(docker volume ls -qf dangling=true) 2>/dev/null || true
           
           # 3. APT cache cleanup
           echo "=> Cleaning APT cache..."
@@ -203,11 +203,11 @@ jobs:
           echo "=> Disk usage after cleanup:"
           df -h || true
           
-          aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+          aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
           echo "✅ ECR login successful for API."
           
           docker compose down --remove-orphans || true
-          docker pull ${APP_IMAGE_URI}
+          docker pull \${APP_IMAGE_URI}
           docker compose up -d --remove-orphans
           
           echo "Waiting 40 seconds for API to start..."
@@ -223,7 +223,7 @@ jobs:
           fi
           
           docker image prune -af
-          ENDSSH
+          EOF
           
           rm -f private_key.pem
 
@@ -275,25 +275,25 @@ jobs:
             ./-AOD-All-of-Dopamine-crawler/docker-compose.yml \
             ${USER}@${HOST}:/home/${USER}/aod-crawler/
           
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'ENDSSH'
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << EOF
           set -e
           cd /home/${USER}/aod-crawler
           
-          export CRAWLER_IMAGE_URI='${CRAWLER_IMAGE_URI}'
-          export SPRING_PROFILE='${SPRING_PROFILE}'
-          export POSTGRES_HOST='${POSTGRES_HOST}'
-          export POSTGRES_PORT='${POSTGRES_PORT}'
-          export POSTGRES_DB='${POSTGRES_DB}'
-          export POSTGRES_USER='${POSTGRES_USER}'
-          export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'
-          export TMDB_API_KEY='${TMDB_API_KEY}'
-          export STEAM_API_KEY='${STEAM_API_KEY}'
-          export OPENAI_API_KEY='${OPENAI_API_KEY}'
-          export NAVER_ID='${NAVER_ID}'
-          export NAVER_PW='${NAVER_PW}'
-          export SENTRY_DSN='${SENTRY_DSN}'
-          export AWS_REGION='${AWS_REGION}'
-          export ECR_REGISTRY='${ECR_REGISTRY}'
+          export CRAWLER_IMAGE_URI="${CRAWLER_IMAGE_URI}"
+          export SPRING_PROFILE="${SPRING_PROFILE}"
+          export POSTGRES_HOST="${POSTGRES_HOST}"
+          export POSTGRES_PORT="${POSTGRES_PORT}"
+          export POSTGRES_DB="${POSTGRES_DB}"
+          export POSTGRES_USER="${POSTGRES_USER}"
+          export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+          export TMDB_API_KEY="${TMDB_API_KEY}"
+          export STEAM_API_KEY="${STEAM_API_KEY}"
+          export OPENAI_API_KEY="${OPENAI_API_KEY}"
+          export NAVER_ID="${NAVER_ID}"
+          export NAVER_PW="${NAVER_PW}"
+          export SENTRY_DSN="${SENTRY_DSN}"
+          export AWS_REGION="${AWS_REGION}"
+          export ECR_REGISTRY="${ECR_REGISTRY}"
           
           # --- CRITICAL: Emergency disk space recovery for Crawler ---
           echo "=> Disk usage before cleanup:"
@@ -308,7 +308,7 @@ jobs:
           
           # 1. FORCE remove ALL Docker images (we'll pull fresh ones)
           echo "=> FORCE removing ALL Docker images..."
-          docker rmi -f $(docker images -aq) 2>/dev/null || true
+          docker rmi -f \$(docker images -aq) 2>/dev/null || true
           
           # 2. Aggressive Docker cleanup
           echo "=> Deep cleaning Docker resources..."
@@ -353,11 +353,11 @@ jobs:
           echo "=> Disk usage after cleanup:"
           df -h || true
           
-          aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+          aws ecr get-login-password --region \${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY}
           echo "✅ ECR login successful for Crawler."
           
           # Pull new image (old ones already deleted)
-          docker pull ${CRAWLER_IMAGE_URI}
+          docker pull \${CRAWLER_IMAGE_URI}
           docker compose up -d --remove-orphans
           
           echo "Waiting 60 seconds for Crawler to initialize..."
@@ -372,6 +372,6 @@ jobs:
           fi
           
           docker image prune -af
-          ENDSSH
+          EOF
           
           rm -f private_key.pem
