@@ -22,6 +22,7 @@ import com.example.crawler.service.UpsertService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Year;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -312,6 +313,119 @@ public class AdminTestController {
                     "message", "TMDB 신규 콘텐츠 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.",
                     "note", "최근 7일간의 영화 및 TV 쇼가 크롤링 대상입니다.");
 
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage());
+        }
+    }
+
+    // TMDB 전체 영화 크롤링 (Job Queue 등록)
+    @PostMapping("/crawl/tmdb/all-movies")
+    public Map<String, Object> crawlTmdbAllMovies() {
+        try {
+            tmdbSchedulingService.collectAllMovies();
+            return Map.of(
+                    "success", true,
+                    "message", "TMDB 전체 영화 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage());
+        }
+    }
+
+    // TMDB 전체 TV 쇼 크롤링 (Job Queue 등록)
+    @PostMapping("/crawl/tmdb/all-tv")
+    public Map<String, Object> crawlTmdbAllTvShows() {
+        try {
+            tmdbSchedulingService.collectAllTvShows();
+            return Map.of(
+                    "success", true,
+                    "message", "TMDB 전체 TV 쇼 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage());
+        }
+    }
+
+    // TMDB 전체 콘텐츠 크롤링 (영화 + TV 쇼, Job Queue 등록)
+    @PostMapping("/crawl/tmdb/all-content")
+    public Map<String, Object> crawlTmdbAllContent() {
+        try {
+            tmdbSchedulingService.collectAllContent();
+            return Map.of(
+                    "success", true,
+                    "message", "TMDB 전체 콘텐츠(영화+TV) 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage());
+        }
+    }
+
+    // TMDB 연도 범위 지정 영화 크롤링 (Job Queue 등록)
+    @PostMapping("/crawl/tmdb/movies-by-year")
+    public Map<String, Object> crawlTmdbMoviesByYear(@RequestParam int startYear, @RequestParam int endYear) {
+        try {
+            int currentYear = Year.now().getValue();
+            
+            // 유효성 검사
+            if (startYear < 1900 || startYear > currentYear) {
+                return Map.of(
+                        "success", false,
+                        "error", "시작 연도는 1900년부터 " + currentYear + "년 사이여야 합니다.");
+            }
+            if (endYear < 1900 || endYear > currentYear) {
+                return Map.of(
+                        "success", false,
+                        "error", "종료 연도는 1900년부터 " + currentYear + "년 사이여야 합니다.");
+            }
+            if (startYear > endYear) {
+                return Map.of(
+                        "success", false,
+                        "error", "시작 연도가 종료 연도보다 클 수 없습니다.");
+            }
+            
+            tmdbSchedulingService.collectMoviesByYearRange(startYear, endYear);
+            return Map.of(
+                    "success", true,
+                    "message", String.format("TMDB %d년~%d년 영화 크롤링 작업이 Job Queue에 등록되었습니다.", startYear, endYear));
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage());
+        }
+    }
+
+    // TMDB 연도 범위 지정 TV 쇼 크롤링 (Job Queue 등록)
+    @PostMapping("/crawl/tmdb/tv-by-year")
+    public Map<String, Object> crawlTmdbTvShowsByYear(@RequestParam int startYear, @RequestParam int endYear) {
+        try {
+            int currentYear = Year.now().getValue();
+            
+            // 유효성 검사
+            if (startYear < 1900 || startYear > currentYear) {
+                return Map.of(
+                        "success", false,
+                        "error", "시작 연도는 1900년부터 " + currentYear + "년 사이여야 합니다.");
+            }
+            if (endYear < 1900 || endYear > currentYear) {
+                return Map.of(
+                        "success", false,
+                        "error", "종료 연도는 1900년부터 " + currentYear + "년 사이여야 합니다.");
+            }
+            if (startYear > endYear) {
+                return Map.of(
+                        "success", false,
+                        "error", "시작 연도가 종료 연도보다 클 수 없습니다.");
+            }
+            
+            tmdbSchedulingService.collectTvShowsByYearRange(startYear, endYear);
+            return Map.of(
+                    "success", true,
+                    "message", String.format("TMDB %d년~%d년 TV 쇼 크롤링 작업이 Job Queue에 등록되었습니다.", startYear, endYear));
         } catch (Exception e) {
             return Map.of(
                     "success", false,

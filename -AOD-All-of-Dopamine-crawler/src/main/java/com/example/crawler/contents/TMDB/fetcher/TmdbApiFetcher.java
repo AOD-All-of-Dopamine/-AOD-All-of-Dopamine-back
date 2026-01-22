@@ -39,7 +39,7 @@ public class TmdbApiFetcher {
                 .queryParam("language", language)
                 .queryParam("page", page)
                 .queryParam("sort_by", "popularity.desc")
-                .queryParam("with_watch_providers", "8|97|337|356") // Netflix, Watcha, Disney Plus, Wavve (OR 조건)
+                .queryParam("with_watch_providers", "8|97|337|356|474") // Netflix, Watcha, Disney Plus, Wavve, Tving (OR 조건)
                 .queryParam("watch_region", "KR");
         
         // null이 아닐 때만 날짜 파라미터 추가 (null 문자열 방지)
@@ -79,7 +79,7 @@ public class TmdbApiFetcher {
                 .queryParam("language", language)
                 .queryParam("page", page)
                 .queryParam("sort_by", "popularity.desc")
-                .queryParam("with_watch_providers", "8|97|337|356") // Netflix, Watcha, Disney Plus, Wavve (OR 조건)
+                .queryParam("with_watch_providers", "8|97|337|356|474") // Netflix, Watcha, Disney Plus, Wavve, Tving (OR 조건)
                 .queryParam("watch_region", "KR");
         
         // null이 아닐 때만 날짜 파라미터 추가 (null 문자열 방지)

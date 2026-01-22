@@ -19,6 +19,23 @@
                 <button onclick="callApi('/api/crawl/tmdb/new-content', 'POST', null, 'TMDB 신규 콘텐츠')">신규 콘텐츠 수집 (최근 7일)</button>
             </div>
             <p class="description">최근 7일간의 영화 및 TV 쇼를 Job Queue에 등록합니다. Consumer가 백그라운드에서 처리합니다.</p>
+            <hr>
+            <div class="input-group">
+                <label for="tmdb-start-year">시작 연도:</label>
+                <input type="number" id="tmdb-start-year" value="2020" min="1900" class="form-input">
+                <label for="tmdb-end-year">종료 연도:</label>
+                <input type="number" id="tmdb-end-year" value="2025" min="1900" class="form-input">
+                <button onclick="callTmdbByYearRange('movies')">연도별 영화 수집</button>
+                <button onclick="callTmdbByYearRange('tv')">연도별 TV 쇼 수집</button>
+            </div>
+            <p class="description">특정 연도 범위의 영화 또는 TV 쇼를 수집합니다. (연도별로 최대 500페이지씩 수집)</p>
+            <hr>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawl/tmdb/all-movies', 'POST', null, 'TMDB 전체 영화 수집')">전체 영화 수집 (Job Queue 등록)</button>
+                <button onclick="callApi('/api/crawl/tmdb/all-tv', 'POST', null, 'TMDB 전체 TV 쇼 수집')">전체 TV 쇼 수집 (Job Queue 등록)</button>
+                <button onclick="callApi('/api/crawl/tmdb/all-content', 'POST', null, 'TMDB 전체 콘텐츠 수집')">전체 콘텐츠 수집 (영화+TV)</button>
+            </div>
+            <p class="description">1970년부터 현재까지의 인기 영화 및 TV 쇼 전체 목록을 수집합니다. (연도별로 최대 500페이지씩 수집)</p>
         </div>
 
         <div class="platform-section">
@@ -109,7 +126,59 @@
     </div>
 
     <div class="admin-section">
-        <h3>2. 수집 데이터 통합 처리 (Batch Process)</h3>
+        <h3>2. 랭킹 크롤링 (Ranking Crawling)</h3>
+        <p class="description">
+            각 플랫폼의 최신 랭킹 정보를 수집합니다. 크롤링된 데이터는 즉시 DB에 저장됩니다.
+        </p>
+        
+        <div class="platform-section">
+            <h4>🎯 전체 플랫폼 랭킹</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/all', 'POST', null, '전체 플랫폼 랭킹 크롤링')">전체 플랫폼 랭킹 크롤링</button>
+            </div>
+            <p class="description">네이버 웹툰, 네이버 시리즈, Steam, TMDB 영화, TMDB TV 쇼 랭킹을 한번에 수집합니다.</p>
+        </div>
+
+        <div class="platform-section">
+            <h4>🎬 TMDB 랭킹 (영화 + TV)</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/tmdb', 'POST', null, 'TMDB 랭킹 크롤링')">TMDB 랭킹 크롤링</button>
+            </div>
+            <p class="description">
+                TMDB 인기 영화와 TV 시리즈 랭킹을 수집합니다. 
+                <br>• 최소 투표수: 100 이상
+                <br>• 수집 개수: 각 20개 (다중 페이지 fetch)
+                <br>• Watch Providers 정보 포함
+            </p>
+        </div>
+
+        <div class="platform-section">
+            <h4>📖 네이버 웹툰 랭킹</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/naver-webtoon', 'POST', null, '네이버 웹툰 랭킹 크롤링')">네이버 웹툰 랭킹 크롤링</button>
+            </div>
+            <p class="description">오늘 요일 기준 네이버 웹툰 TOP 20을 수집합니다.</p>
+        </div>
+
+        <div class="platform-section">
+            <h4>📚 네이버 시리즈 랭킹</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/naver-series', 'POST', null, '네이버 시리즈 랭킹 크롤링')">네이버 시리즈 랭킹 크롤링</button>
+            </div>
+            <p class="description">네이버 시리즈 웹소설 일간 인기 TOP 20을 수집합니다.</p>
+        </div>
+
+        <div class="platform-section">
+            <h4>🎮 Steam 랭킹</h4>
+            <div class="input-group">
+                <button onclick="callApi('/api/crawler/rankings/steam', 'POST', null, 'Steam 랭킹 크롤링')">Steam 랭킹 크롤링</button>
+            </div>
+            <p class="description">Steam 최고 판매 게임 TOP 20을 수집합니다.</p>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h3>3. 수집 데이터 통합 처리 (Batch Process)</h3>
         <div class="input-group">
             <label for="batch-size">배치 크기:</label>
             <input type="number" id="batch-size" value="100" class="form-input">
@@ -198,6 +267,31 @@
             const end = document.getElementById('steam-end-index').value;
             const endpoint = `/api/test/steam/collect-games-by-range?start=${start}&end=${end}`;
             callApi(endpoint, 'POST', null, 'Steam 범위 지정 수집');
+        }
+
+        function callTmdbByYearRange(type) {
+            const startYear = document.getElementById('tmdb-start-year').value;
+            const endYear = document.getElementById('tmdb-end-year').value;
+            
+            if (!startYear || !endYear) {
+                alert('시작 연도와 종료 연도를 모두 입력해주세요.');
+                return;
+            }
+            
+            const start = parseInt(startYear);
+            const end = parseInt(endYear);
+            
+            if (start > end) {
+                alert('시작 연도가 종료 연도보다 클 수 없습니다.');
+                return;
+            }
+            
+            const endpoint = type === 'movies' 
+                ? `/api/crawl/tmdb/movies-by-year?startYear=${start}&endYear=${end}`
+                : `/api/crawl/tmdb/tv-by-year?startYear=${start}&endYear=${end}`;
+            
+            const typeName = type === 'movies' ? '영화' : 'TV 쇼';
+            callApi(endpoint, 'POST', null, `TMDB ${start}년~${end}년 ${typeName} 수집`);
         }
 
         function callWebtoonFinishedApi() {

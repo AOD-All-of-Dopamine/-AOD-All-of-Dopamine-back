@@ -1,5 +1,6 @@
 package com.example.shared.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,6 +32,7 @@ public class ExternalRanking {
     @Column(nullable = false)
     private String platformSpecificId;          // 플랫폼별 고유 ID (예: Steam appId, 네이버 titleId)
 
+    @JsonIgnore  // JSON 직렬화 시 제외 (Hibernate Proxy 문제 방지)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id")
     private Content content;  // 내부 작품 매핑 (저장 시점 매핑, nullable)
