@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TmdbPlatformType {
-    MOVIE("TMDB_MOVIE", "title", "movie/popular"),
-    TV("TMDB_TV", "name", "tv/popular");
+    MOVIE("TMDB_MOVIE", "title", "discover/movie"),
+    TV("TMDB_TV", "name", "discover/tv");
 
     private final String platformName;
     private final String titleField;

@@ -32,6 +32,9 @@ public class TmdbRankingFetcher {
     private static final String LANGUAGE = "ko-KR";
     private static final int DEFAULT_PAGE = 1;
     private static final int MAX_PAGES_TO_FETCH = 3; // 충분한 데이터 확보를 위해 최대 3페이지까지 가져오기
+    // 한국 OTT 플랫폼 필터 (Netflix, Watcha, Disney Plus, Wavve, Tving)
+    private static final String WATCH_PROVIDERS = "8|97|337|356|474";
+    private static final String WATCH_REGION = "KR";
 
     /**
      * 통합된 TMDB 랭킹 데이터 조회 메서드 (DRY 원칙)
@@ -127,12 +130,16 @@ public class TmdbRankingFetcher {
     }
 
     private String buildUrl(TmdbPlatformType platformType, int page) {
-        return String.format("%s/%s?api_key=%s&language=%s&page=%d",
+        // with_watch_providers의 | 문자가 URL 인코딩되면 TMDB API가 OR 연산을 인식하지 못하므로
+        // 수동으로 URL을 구성하여 인코딩 방지
+        return String.format("%s/%s?api_key=%s&language=%s&page=%d&sort_by=popularity.desc&with_watch_providers=%s&watch_region=%s",
                 tmdbBaseUrl,
                 platformType.getApiPath(),
                 tmdbApiKey,
                 LANGUAGE,
-                page);
+                page,
+                WATCH_PROVIDERS,
+                WATCH_REGION);
     }
 }
 
