@@ -72,6 +72,7 @@ public class ChromeDriverProvider {
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--mute-audio");
+        options.addArguments("--no-zygote");  // 🚀 Chrome zygote 프로세스 생성 방지 (좀비 방지)
         
         // 🚀 메모리 최적화 옵션 (EC2 t3.small용)
         options.addArguments("--disable-gpu");              // GPU 비활성화

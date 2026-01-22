@@ -11,6 +11,7 @@ import com.example.crawler.contents.Webtoon.NaverWebtoon.NaverWebtoonService;
 import com.example.crawler.game.steam.service.SteamSchedulingService;
 import com.example.crawler.ingest.BatchTransformService;
 import com.example.crawler.ingest.BatchTransformServiceOptimized;
+import com.example.crawler.ingest.TransformSchedulingService;
 import com.example.shared.entity.RawItem;
 import com.example.shared.repository.RawItemRepository;
 import com.example.crawler.rules.MappingRule;
@@ -42,6 +43,7 @@ public class AdminTestController {
 
     private final BatchTransformService batchService;
     private final BatchTransformServiceOptimized batchServiceOptimized;
+    private final TransformSchedulingService transformSchedulingService;
     private final RawItemRepository rawRepo;
     private final RuleLoader ruleLoader;
     private final TransformEngine transformEngine;
@@ -57,6 +59,7 @@ public class AdminTestController {
             CrawlJobProducer crawlJobProducer,
             BatchTransformService batchService,
             BatchTransformServiceOptimized batchServiceOptimized,
+            TransformSchedulingService transformSchedulingService,
             RawItemRepository rawRepo,
             RuleLoader ruleLoader,
             TransformEngine transformEngine,
@@ -71,6 +74,7 @@ public class AdminTestController {
         this.crawlJobProducer = crawlJobProducer;
         this.batchService = batchService;
         this.batchServiceOptimized = batchServiceOptimized;
+        this.transformSchedulingService = transformSchedulingService;
         this.rawRepo = rawRepo;
         this.ruleLoader = ruleLoader;
         this.transformEngine = transformEngine;
@@ -358,6 +362,21 @@ public class AdminTestController {
     }
 
     /* ===================== BATCH / TRANSFORM / UPSERT ===================== */
+
+    // 🚀 수동으로 일일 배치 변환 트리거 (스케줄러와 동일한 로직)
+    @PostMapping("/batch/transform-daily")
+    public Map<String, Object> triggerDailyTransform() {
+        try {
+            transformSchedulingService.transformRawItemsDaily();
+            return Map.of(
+                    "success", true,
+                    "message", "일일 배치 변환이 시작되었습니다. 로그를 확인하세요.");
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage());
+        }
+    }
 
     // 배치 변환/업서트 실행 (raw_items → contents/platform_data)
     @PostMapping(path = "/batch/process", consumes = MediaType.APPLICATION_JSON_VALUE)
