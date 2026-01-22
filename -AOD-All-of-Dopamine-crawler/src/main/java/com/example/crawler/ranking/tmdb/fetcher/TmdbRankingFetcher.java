@@ -120,7 +120,7 @@ public class TmdbRankingFetcher {
                 tmdbApiKey);
         
         try {
-            log.debug("TMDB Watch Providers API 호출: {}", url);
+            // log.debug("TMDB Watch Providers API 호출: {}", url);
             String response = restTemplate.getForObject(url, String.class);
             return objectMapper.readTree(response);
         } catch (Exception e) {
