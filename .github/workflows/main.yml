@@ -297,11 +297,15 @@ jobs:
             echo "=> FORCE removing ALL Docker images..."
             docker rmi -f \$(docker images -aq) 2>/dev/null || true
             
-            # 2. Aggressive Docker cleanup
+            # 2. Aggressive Docker cleanup (MUST stop Docker first)
             echo "=> Deep cleaning Docker resources..."
-            sudo docker system prune -af --volumes || true
+            sudo systemctl stop docker || true
             sudo rm -rf /var/lib/docker/overlay2/* || true
             sudo rm -rf /var/lib/docker/tmp/* || true
+            sudo rm -rf /var/lib/docker/containers/*/*-json.log || true
+            sudo systemctl start docker || true
+            sleep 5  # Wait for Docker to fully start
+            docker system prune -af --volumes || true
             docker builder prune -af || true
             
             # 3. Kill zombie processes
@@ -318,21 +322,28 @@ jobs:
             sudo rm -rf /var/lib/apt/lists/* || true
             sudo rm -rf /var/cache/apt/archives/* || true
             
-            # 5. Log files cleanup (ALL .gz files, older logs)
-            echo "=> Cleaning ALL old logs..."
+            # 5. Application log files cleanup (CRITICAL - often huge)
+            echo "=> Cleaning application log files..."
+            sudo rm -rf /home/*/aod-crawler/logs/* || true
+            sudo rm -rf /home/*/aod-api/logs/* || true
+            sudo find /home -name "*.log" -type f -size +10M -delete || true
+            sudo find /home -name "*.log.*" -type f -delete || true
+            
+            # 6. System log files cleanup
+            echo "=> Cleaning system logs..."
             sudo find /var/log -type f -name "*.gz" -delete || true
             sudo find /var/log -type f -name "*.log" -mtime +3 -delete || true
             sudo find /var/log -type f -size +10M -delete || true
-            sudo journalctl --vacuum-time=3d || true
-            sudo journalctl --vacuum-size=50M || true
+            sudo journalctl --vacuum-time=1d || true
+            sudo journalctl --vacuum-size=20M || true
             
-            # 6. Temporary files cleanup
+            # 7. Temporary files cleanup
             echo "=> Cleaning temporary files..."
             sudo rm -rf /tmp/* || true
             sudo rm -rf /var/tmp/* || true
             sudo rm -rf ~/.cache/* || true
             
-            # 7. Remove crash dumps
+            # 8. Remove crash dumps
             echo "=> Removing crash dumps..."
             sudo rm -rf /var/crash/* || true
             sudo rm -rf /var/core/* || true
