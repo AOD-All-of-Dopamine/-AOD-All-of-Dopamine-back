@@ -26,7 +26,7 @@ public class SteamRankingFetcher {
 
     private static final long PAGE_LOAD_WAIT_MS = 5000; // 5초 대기
     private static final String STEAM_MAIN_URL = "https://store.steampowered.com";
-    private static final String TOP_SELLERS_URL = "https://store.steampowered.com/charts/topsellers/KR";
+    private static final String TOP_SELLERS_URL = "https://store.steampowered.com/charts/topselling/KR";
 
     private final SteamRankingParser steamRankingParser;
     private final ChromeDriverProvider chromeDriverProvider;

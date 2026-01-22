@@ -19,7 +19,8 @@ import java.util.regex.Pattern;
 public class SteamRankingParser {
 
     private static final Pattern APP_ID_PATTERN = Pattern.compile("/app/(\\d+)/");
-    private static final int MAX_ITEMS = 100;
+    private static final Pattern APPS_ID_PATTERN = Pattern.compile("/apps/(\\d+)/");
+    private static final int MAX_ITEMS = 20;
 
     /**
      * Steam HTML Document에서 게임 랭킹 데이터 추출
@@ -73,10 +74,13 @@ public class SteamRankingParser {
      * 개별 행 파싱
      */
     private SteamGameData parseRow(Element row, int currentRank) {
-        // AppID 추출 (data-ds-appid 속성 우선, 없으면 URL에서 추출)
-        Long appId = extractAppIdFromAttribute(row);
+        // AppID 추출 (이미지 URL 우선, 그 다음 링크 URL, 마지막으로 속성)
+        Long appId = extractAppIdFromImageUrl(row);
         if (appId == null) {
             appId = extractAppIdFromUrl(row);
+        }
+        if (appId == null) {
+            appId = extractAppIdFromAttribute(row);
         }
         if (appId == null) return null;
 
@@ -99,6 +103,27 @@ public class SteamRankingParser {
         }
 
         return new SteamGameData(rank, title, appId, thumbnailUrl);
+    }
+
+    /**
+     * 이미지 URL에서 AppID 추출 (/apps/ID/ 형식)
+     */
+    private Long extractAppIdFromImageUrl(Element row) {
+        try {
+            Element img = row.selectFirst("img");
+            if (img != null) {
+                String src = img.attr("src");
+                if (src != null && !src.isEmpty()) {
+                    Matcher matcher = APPS_ID_PATTERN.matcher(src);
+                    if (matcher.find()) {
+                        return Long.parseLong(matcher.group(1));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("이미지 URL에서 AppID 추출 실패: {}", e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -161,20 +186,25 @@ public class SteamRankingParser {
      * 제목 추출 (여러 선택자 시도)
      */
     private String extractTitle(Element row) {
-        // 1. GameName 클래스 패턴
-        Element titleElement = row.selectFirst("[class*='GameName']");
+        // 1. td[3]/a/div 패턴 (새 차트 페이지)
+        Element titleElement = row.selectFirst("td:nth-child(3) a div");
         
-        // 2. _1n_4 패턴 (이전 버전)
+        // 2. GameName 클래스 패턴
+        if (titleElement == null) {
+            titleElement = row.selectFirst("[class*='GameName']");
+        }
+        
+        // 3. _1n_4 패턴 (이전 버전)
         if (titleElement == null) {
             titleElement = row.selectFirst("div[class*='_1n_4']");
         }
         
-        // 3. 링크 텍스트
+        // 4. 링크 텍스트
         if (titleElement == null) {
             titleElement = row.selectFirst("a[href*='/app/']");
         }
 
-        // 4. fallback: 숫자가 아닌 텍스트를 가진 첫 번째 div
+        // 5. fallback: 숫자가 아닌 텍스트를 가진 첫 번째 div
         if (titleElement == null) {
             for (Element div : row.select("div")) {
                 String text = div.ownText().trim();
