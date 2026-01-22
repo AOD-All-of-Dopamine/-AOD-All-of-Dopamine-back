@@ -53,14 +53,20 @@ public class RankingCrawlerController {
      * POST /api/crawler/rankings/naver-webtoon
      */
     @PostMapping("/naver-webtoon")
-    public ResponseEntity<String> crawlNaverWebtoonRanking() {
+    public ResponseEntity<java.util.Map<String, Object>> crawlNaverWebtoonRanking() {
         try {
             rankingCrawlerService.crawlNaverWebtoonRanking();
-            return ResponseEntity.ok("네이버 웹툰 랭킹 크롤링 완료");
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "네이버 웹툰 랭킹 크롤링 완료",
+                "status", "success"
+            ));
         } catch (Exception e) {
             log.error("네이버 웹툰 랭킹 크롤링 실패", e);
             return ResponseEntity.internalServerError()
-                    .body("크롤링 실패: " + e.getMessage());
+                    .body(java.util.Map.of(
+                        "message", "크롤링 실패: " + e.getMessage(),
+                        "status", "error"
+                    ));
         }
     }
 
@@ -69,14 +75,20 @@ public class RankingCrawlerController {
      * POST /api/crawler/rankings/naver-series
      */
     @PostMapping("/naver-series")
-    public ResponseEntity<String> crawlNaverSeriesRanking() {
+    public ResponseEntity<java.util.Map<String, Object>> crawlNaverSeriesRanking() {
         try {
             rankingCrawlerService.crawlNaverSeriesRanking();
-            return ResponseEntity.ok("네이버 시리즈 랭킹 크롤링 완료");
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "네이버 시리즈 랭킹 크롤링 완료",
+                "status", "success"
+            ));
         } catch (Exception e) {
             log.error("네이버 시리즈 랭킹 크롤링 실패", e);
             return ResponseEntity.internalServerError()
-                    .body("크롤링 실패: " + e.getMessage());
+                    .body(java.util.Map.of(
+                        "message", "크롤링 실패: " + e.getMessage(),
+                        "status", "error"
+                    ));
         }
     }
 
@@ -85,14 +97,20 @@ public class RankingCrawlerController {
      * POST /api/crawler/rankings/steam
      */
     @PostMapping("/steam")
-    public ResponseEntity<String> crawlSteamRanking() {
+    public ResponseEntity<java.util.Map<String, Object>> crawlSteamRanking() {
         try {
             rankingCrawlerService.crawlSteamRanking();
-            return ResponseEntity.ok("Steam 랭킹 크롤링 완료");
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "Steam 랭킹 크롤링 완료",
+                "status", "success"
+            ));
         } catch (Exception e) {
             log.error("Steam 랭킹 크롤링 실패", e);
             return ResponseEntity.internalServerError()
-                    .body("크롤링 실패: " + e.getMessage());
+                    .body(java.util.Map.of(
+                        "message", "크롤링 실패: " + e.getMessage(),
+                        "status", "error"
+                    ));
         }
     }
 
@@ -101,14 +119,20 @@ public class RankingCrawlerController {
      * POST /api/crawler/rankings/tmdb
      */
     @PostMapping("/tmdb")
-    public ResponseEntity<String> crawlTmdbRanking() {
+    public ResponseEntity<java.util.Map<String, Object>> crawlTmdbRanking() {
         try {
             rankingCrawlerService.crawlTmdbRanking();
-            return ResponseEntity.ok("TMDB 랭킹 크롤링 완료");
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "TMDB 랭킹 크롤링 완료",
+                "status", "success"
+            ));
         } catch (Exception e) {
             log.error("TMDB 랭킹 크롤링 실패", e);
             return ResponseEntity.internalServerError()
-                    .body("크롤링 실패: " + e.getMessage());
+                    .body(java.util.Map.of(
+                        "message", "크롤링 실패: " + e.getMessage(),
+                        "status", "error"
+                    ));
         }
     }
 }
