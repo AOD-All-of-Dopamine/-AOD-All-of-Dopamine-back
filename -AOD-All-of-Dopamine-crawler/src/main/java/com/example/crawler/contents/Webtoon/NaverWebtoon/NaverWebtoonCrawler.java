@@ -330,12 +330,13 @@ public class NaverWebtoonCrawler {
      */
     private NaverWebtoonDTO mergeBasicAndDetailedInfo(NaverWebtoonDTO basicDTO, NaverWebtoonDTO detailedDTO) {
         return NaverWebtoonDTO.builder()
-                // 목록에서 수집한 정보 우선 사용
-                .title(basicDTO.getTitle())
+                // [수정] Job Queue 모드에서는 basicDTO가 비어있으므로 detailedDTO 우선 사용
+                .title(basicDTO.getTitle() != null ? basicDTO.getTitle() : detailedDTO.getTitle())
                 .author(basicDTO.getAuthor() != null ? basicDTO.getAuthor() : detailedDTO.getAuthor())
                 .imageUrl(basicDTO.getImageUrl() != null ? basicDTO.getImageUrl() : detailedDTO.getImageUrl())
                 .titleId(basicDTO.getTitleId())
-                .weekday(basicDTO.getWeekday())
+                .weekday(basicDTO.getWeekday() != null && !basicDTO.getWeekday().isEmpty() 
+                        ? basicDTO.getWeekday() : detailedDTO.getWeekday())
                 .status(basicDTO.getStatus() != null ? basicDTO.getStatus() : detailedDTO.getStatus())
                 .likeCount(basicDTO.getLikeCount() != null ? basicDTO.getLikeCount() : detailedDTO.getLikeCount())
                 .serviceType(
