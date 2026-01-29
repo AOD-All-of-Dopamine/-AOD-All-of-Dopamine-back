@@ -21,7 +21,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: ${DDL_AUTO:create}  # Job Queue 테이블 자동 생성/수정
+      ddl-auto: ${DDL_AUTO:update}  # Job Queue 테이블 자동 생성/수정
     show-sql: false
     properties:
       hibernate:
