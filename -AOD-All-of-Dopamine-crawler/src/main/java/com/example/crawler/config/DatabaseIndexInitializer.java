@@ -29,27 +29,35 @@ public class DatabaseIndexInitializer {
      * Hibernate DDL 작업 완료 후 실행됨
      */
     @EventListener(ApplicationReadyEvent.class)
-    public void ensureGenreIndexes() {
-        log.info("Checking and creating genre GIN indexes for text[] arrays...");
+    public void ensureAllIndexes() {
+        log.info("Checking and creating GIN indexes for text[] arrays...");
         
         try {
-            // 각 테이블의 genres 컬럼에 GIN 인덱스 생성
-            ensureIndexExists("movie_contents", "idx_movie_genres");
-            ensureIndexExists("tv_contents", "idx_tv_genres");
-            ensureIndexExists("game_contents", "idx_game_genres");
-            ensureIndexExists("webtoon_contents", "idx_webtoon_genres");
-            ensureIndexExists("webnovel_contents", "idx_webnovel_genres");
+            // 장르 인덱스
+            ensureArrayIndexExists("movie_contents", "idx_movie_genres", "genres");
+            ensureArrayIndexExists("tv_contents", "idx_tv_genres", "genres");
+            ensureArrayIndexExists("game_contents", "idx_game_genres", "genres");
+            ensureArrayIndexExists("webtoon_contents", "idx_webtoon_genres", "genres");
+            ensureArrayIndexExists("webnovel_contents", "idx_webnovel_genres", "genres");
             
-            log.info("✅ Genre GIN indexes verified/created successfully");
+            // 플랫폼 인덱스
+            ensureArrayIndexExists("movie_contents", "idx_movie_platforms", "platforms");
+            ensureArrayIndexExists("tv_contents", "idx_tv_platforms", "platforms");
+            ensureArrayIndexExists("game_contents", "idx_game_platforms", "platforms");
+            ensureArrayIndexExists("webtoon_contents", "idx_webtoon_platforms", "platforms");
+            ensureArrayIndexExists("webnovel_contents", "idx_webnovel_platforms", "platforms");
+            
+            log.info("✅ All GIN indexes verified/created successfully");
         } catch (Exception e) {
-            log.error("❌ Failed to ensure genre indexes: {}", e.getMessage(), e);
+            log.error("❌ Failed to ensure indexes: {}", e.getMessage(), e);
         }
     }
     
     /**
-     * 인덱스 존재 여부 확인 후 없으면 생성
+     * text[] 배열 컬럼에 GIN 인덱스 생성
+     * genres와 platforms 모두 동일한 방식으로 처리
      */
-    private void ensureIndexExists(String tableName, String indexName) {
+    private void ensureArrayIndexExists(String tableName, String indexName, String columnName) {
         try {
             // 1. 테이블 존재 여부 확인
             Boolean tableExists = jdbcTemplate.queryForObject(
@@ -62,7 +70,7 @@ public class DatabaseIndexInitializer {
             );
             
             if (!Boolean.TRUE.equals(tableExists)) {
-                log.debug("  ⏭ Table {} does not exist yet, skipping index creation", tableName);
+                log.debug("  ⏭ Table {} does not exist yet, skipping", tableName);
                 return;
             }
             
@@ -80,21 +88,22 @@ public class DatabaseIndexInitializer {
             );
             
             if (Boolean.TRUE.equals(indexExists)) {
-                log.debug("  ✓ Index {} already exists on {}", indexName, tableName);
+                log.debug("  ✓ Index {} already exists on {}.{}", indexName, tableName, columnName);
                 return;
             }
             
-            // 3. 인덱스 생성 (CREATE INDEX IF NOT EXISTS는 PostgreSQL 9.5+에서 지원)
+            // 3. GIN 인덱스 생성
             String sql = String.format(
-                "CREATE INDEX IF NOT EXISTS %s ON %s USING GIN (genres)",
-                indexName, tableName
+                "CREATE INDEX IF NOT EXISTS %s ON %s USING GIN (%s)",
+                indexName, tableName, columnName
             );
             jdbcTemplate.execute(sql);
-            log.info("  ✓ Created GIN index: {} on {} (text[] array)", indexName, tableName);
+            log.info("  ✅ Created GIN index: {} on {}.{} (text[] array)", 
+                     indexName, tableName, columnName);
             
         } catch (Exception e) {
-            log.warn("  ⚠ Failed to ensure index {} on {}: {}", 
-                     indexName, tableName, e.getMessage());
+            log.warn("  ⚠ Failed to ensure index {} on {}.{}: {}", 
+                     indexName, tableName, columnName, e.getMessage());
         }
     }
 }

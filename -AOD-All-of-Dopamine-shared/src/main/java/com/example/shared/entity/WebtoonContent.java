@@ -44,6 +44,10 @@ public class WebtoonContent implements Persistable<Long> {
     @Column(name = "genres", columnDefinition = "text[]")
     private List<String> genres = new ArrayList<>();
 
+    // 플랫폼 정보 (데이터 소스: NaverWebtoon 등)
+    @Column(name = "platforms", columnDefinition = "text[]")
+    private List<String> platforms = new ArrayList<>();
+
     // getters/setters...
 
     @Override

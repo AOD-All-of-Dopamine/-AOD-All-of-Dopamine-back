@@ -25,6 +25,9 @@ domainObjectMappings:
   genres:
     targetField: genres
     type: list
+  platforms:
+    targetField: platforms
+    type: list
   runtime:
     targetField: runtime
     type: integer

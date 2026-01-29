@@ -41,14 +41,18 @@ public class GameContent implements Persistable<Long> {
     @Column(length = 200)
     private String publisher;
 
-    // platforms는 객체이므로 JSONB 유지
+    // OS 플랫폼 정보 (Windows, Mac 등) - JSONB 유지
     @Type(JsonType.class)
-    @Column(columnDefinition="jsonb")
-    private Map<String,Object> platforms; // {windows:true, mac:false, ...}
+    @Column(name = "os_platforms", columnDefinition="jsonb")
+    private Map<String,Object> osPlatforms; // {windows:true, mac:false, ...}
 
     // 장르 목록 (PostgreSQL text[] 배열)
     @Column(name = "genres", columnDefinition = "text[]")
     private List<String> genres = new ArrayList<>();
+
+    // 플랫폼 정보 (데이터 소스: Steam 등)
+    @Column(name = "platforms", columnDefinition = "text[]")
+    private List<String> platforms = new ArrayList<>();
 
     // getters/setters...
 

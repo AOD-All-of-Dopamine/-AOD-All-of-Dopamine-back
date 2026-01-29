@@ -32,6 +32,9 @@ domainObjectMappings:
   genres:
     targetField: genres
     type: list
+  platforms:
+    targetField: platforms
+    type: list
   weekday:
     targetField: weekday
     type: string

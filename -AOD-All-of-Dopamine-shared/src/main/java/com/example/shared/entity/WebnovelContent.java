@@ -42,6 +42,10 @@ public class WebnovelContent implements Persistable<Long> {
     @Column(name = "genres", columnDefinition = "text[]")
     private List<String> genres = new ArrayList<>();
 
+    // 플랫폼 정보 (데이터 소스: NaverSeries, KakaoPage 등)
+    @Column(name = "platforms", columnDefinition = "text[]")
+    private List<String> platforms = new ArrayList<>();
+
     @Override
     public Long getId() {
         return contentId;

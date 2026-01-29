@@ -51,14 +51,13 @@ public class TvContent implements Persistable<Long> {
     @Column(name = "genres", columnDefinition = "text[]")
     private List<String> genres = new ArrayList<>();
 
+    // 플랫폼 정보 (데이터 소스 + OTT 플랫폼)
+    @Column(name = "platforms", columnDefinition = "text[]")
+    private List<String> platforms = new ArrayList<>();
+
     // 출연진 목록 (PostgreSQL text[] 배열)
     @Column(name = "cast_members", columnDefinition = "text[]")
     private List<String> cast = new ArrayList<>();
-
-    // TODO: OTT 플랫폼 정보 추가 (예: ["Netflix", "Disney Plus", "Watcha"])
-    // @Type(JsonType.class)
-    // @Column(columnDefinition = "jsonb")
-    // private List<String> watchProviders;
 
     @Override
     public Long getId() {

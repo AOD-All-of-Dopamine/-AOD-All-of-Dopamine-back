@@ -16,12 +16,44 @@ public interface GameContentRepository extends JpaRepository<GameContent, Long> 
      * PostgreSQL 배열 연산자 @> 사용 (contains)
      */
     @Query(value = "SELECT g.* FROM game_contents g " +
+           "JOIN contents c ON g.content_id = c.content_id " +
            "WHERE g.genres @> CAST(:genres AS text[]) " +
-           "ORDER BY g.content_id",
+           "ORDER BY c.release_date DESC NULLS LAST",
            countQuery = "SELECT COUNT(*) FROM game_contents g " +
                        "WHERE g.genres @> CAST(:genres AS text[])",
            nativeQuery = true)
     Page<GameContent> findByGenresContainingAll(@Param("genres") String[] genres, Pageable pageable);
+    
+    /**
+     * 플랫폼 필터링 (AND 조건) - 모든 플랫폼을 제공하는 게임만 반환
+     * genres 필터링과 동일한 패턴
+     */
+    @Query(value = "SELECT g.* FROM game_contents g " +
+           "JOIN contents c ON g.content_id = c.content_id " +
+           "WHERE g.platforms @> CAST(:platforms AS text[]) " +
+           "ORDER BY c.release_date DESC NULLS LAST",
+           countQuery = "SELECT COUNT(*) FROM game_contents g " +
+                       "WHERE g.platforms @> CAST(:platforms AS text[])",
+           nativeQuery = true)
+    Page<GameContent> findByPlatformsContainingAll(@Param("platforms") String[] platforms, Pageable pageable);
+    
+    /**
+     * 장르 + 플랫폼 복합 필터링
+     */
+    @Query(value = "SELECT g.* FROM game_contents g " +
+           "JOIN contents c ON g.content_id = c.content_id " +
+           "WHERE g.genres @> CAST(:genres AS text[]) " +
+           "AND g.platforms @> CAST(:platforms AS text[]) " +
+           "ORDER BY c.release_date DESC NULLS LAST",
+           countQuery = "SELECT COUNT(*) FROM game_contents g " +
+                       "WHERE g.genres @> CAST(:genres AS text[]) " +
+                       "AND g.platforms @> CAST(:platforms AS text[])",
+           nativeQuery = true)
+    Page<GameContent> findByGenresAndPlatforms(
+        @Param("genres") String[] genres,
+        @Param("platforms") String[] platforms,
+        Pageable pageable
+    );
     
     /**
      * Developer로 게임 작품 검색 (중복 탐지용)

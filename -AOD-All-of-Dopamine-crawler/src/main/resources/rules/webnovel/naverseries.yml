@@ -43,6 +43,9 @@ domainObjectMappings:
   genres:
     targetField: genres
     type: list
+  platforms:
+    targetField: platforms
+    type: list
 
 normalizers:
   - type: strip_parentheses

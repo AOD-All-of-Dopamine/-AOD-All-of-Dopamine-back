@@ -13,7 +13,7 @@ fieldMappings:
   # === Domain Mappings (for domainDoc) ===
   developers[0]: domain.developer
   publishers[0]: domain.publisher
-  platforms: domain.platforms
+  platforms: domain.os_platforms
   genres: domain.genres
 
   # === Platform Attributes ===
@@ -32,9 +32,12 @@ domainObjectMappings:
   publisher:
     targetField: publisher
     type: string
+  os_platforms:
+    targetField: osPlatforms
+    type: map
   platforms:
     targetField: platforms
-    type: map
+    type: list
   genres:
     targetField: genres
     type: list
