@@ -20,10 +20,11 @@ public class SteamRankingParser {
 
     private static final Pattern APP_ID_PATTERN = Pattern.compile("/app/(\\d+)/");
     private static final Pattern APPS_ID_PATTERN = Pattern.compile("/apps/(\\d+)/");
-    private static final int MAX_ITEMS = 20;
+    private static final int MAX_ITEMS = 100;
 
     /**
      * Steam HTML Document에서 게임 랭킹 데이터 추출
+     * Steam 검색 페이지 구조 (a.search_result_row)를 우선 처리
      */
     public List<SteamGameData> parseRankings(Document doc) {
         if (doc == null) {
@@ -31,11 +32,16 @@ public class SteamRankingParser {
             return new ArrayList<>();
         }
 
-        // 여러 선택자 시도 (Steam 페이지 구조 변경 대응)
-        Elements rows = doc.select("tr[data-ds-appid]");
+        // Steam 검색 페이지 구조 (a.search_result_row)
+        Elements rows = doc.select("#search_resultsRows a.search_result_row");
         
         if (rows.isEmpty()) {
-            rows = doc.select("tr[class]");
+            rows = doc.select("a.search_result_row");
+        }
+
+        // 폴백: 기존 차트 페이지 구조 (tr 기반)
+        if (rows.isEmpty()) {
+            rows = doc.select("tr[data-ds-appid]");
         }
         
         if (rows.isEmpty()) {
@@ -143,17 +149,27 @@ public class SteamRankingParser {
 
     /**
      * AppID 추출 (URL에서 정규식으로 추출)
+     * 검색 페이지에서는 row 자체가 <a> 태그이므로 row의 href도 확인
      */
     private Long extractAppIdFromUrl(Element row) {
         try {
+            // 1. row 자체의 href 확인 (검색 페이지: row가 <a> 태그)
+            String href = row.attr("href");
+            if (href != null && !href.isEmpty() && href.contains("/app/")) {
+                Matcher matcher = APP_ID_PATTERN.matcher(href);
+                if (matcher.find()) {
+                    return Long.parseLong(matcher.group(1));
+                }
+            }
+
+            // 2. 자식 <a> 태그에서 확인 (차트 페이지: row가 <tr> 태그)
             Element linkElement = row.selectFirst("a[href*='/app/']");
-            if (linkElement == null) return null;
-
-            String href = linkElement.attr("href");
-            Matcher matcher = APP_ID_PATTERN.matcher(href);
-
-            if (matcher.find()) {
-                return Long.parseLong(matcher.group(1));
+            if (linkElement != null) {
+                href = linkElement.attr("href");
+                Matcher matcher = APP_ID_PATTERN.matcher(href);
+                if (matcher.find()) {
+                    return Long.parseLong(matcher.group(1));
+                }
             }
         } catch (Exception e) {
             log.debug("AppID URL 추출 실패: {}", e.getMessage());
@@ -186,25 +202,30 @@ public class SteamRankingParser {
      * 제목 추출 (여러 선택자 시도)
      */
     private String extractTitle(Element row) {
-        // 1. td[3]/a/div 패턴 (새 차트 페이지)
-        Element titleElement = row.selectFirst("td:nth-child(3) a div");
+        // 1. span.title 패턴 (검색 페이지)
+        Element titleElement = row.selectFirst("span.title");
+
+        // 2. td[3]/a/div 패턴 (차트 페이지)
+        if (titleElement == null) {
+            titleElement = row.selectFirst("td:nth-child(3) a div");
+        }
         
-        // 2. GameName 클래스 패턴
+        // 3. GameName 클래스 패턴
         if (titleElement == null) {
             titleElement = row.selectFirst("[class*='GameName']");
         }
         
-        // 3. _1n_4 패턴 (이전 버전)
+        // 4. _1n_4 패턴 (이전 버전)
         if (titleElement == null) {
             titleElement = row.selectFirst("div[class*='_1n_4']");
         }
         
-        // 4. 링크 텍스트
+        // 5. 링크 텍스트 (자식 <a> 태그)
         if (titleElement == null) {
             titleElement = row.selectFirst("a[href*='/app/']");
         }
 
-        // 5. fallback: 숫자가 아닌 텍스트를 가진 첫 번째 div
+        // 6. fallback: 숫자가 아닌 텍스트를 가진 첫 번째 div
         if (titleElement == null) {
             for (Element div : row.select("div")) {
                 String text = div.ownText().trim();

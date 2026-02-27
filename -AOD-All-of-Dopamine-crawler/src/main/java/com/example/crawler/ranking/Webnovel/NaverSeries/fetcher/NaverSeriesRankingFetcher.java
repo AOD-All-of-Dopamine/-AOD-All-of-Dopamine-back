@@ -16,23 +16,26 @@ import java.io.IOException;
 @Component
 public class NaverSeriesRankingFetcher {
 
-    private static final String TOP_100_URL = "https://series.naver.com/novel/top100List.series?rankingTypeCode=DAILY&categoryCode=ALL&page=1";
+    private static final String TOP_100_BASE_URL = "https://series.naver.com/novel/top100List.series?rankingTypeCode=DAILY&categoryCode=ALL&page=";
 
     /**
-     * 일간 TOP 100 페이지 가져오기 (첫 페이지만)
+     * 일간 TOP 100 특정 페이지 가져오기
+     * @param page 페이지 번호 (1부터 시작)
+     * @return 해당 페이지의 Document (실패 시 null)
      */
-    public Document fetchDailyTop100() {
-        log.info("네이버 시리즈 일간 TOP 100 페이지 가져오기: {}", TOP_100_URL);
+    public Document fetchDailyTop100(int page) {
+        String url = TOP_100_BASE_URL + page;
+        log.info("네이버 시리즈 일간 TOP 100 페이지 가져오기: {}", url);
         
         try {
-            return Jsoup.connect(TOP_100_URL)
+            return Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
                     .referrer("https://series.naver.com/")
                     .header("Accept-Language", "ko-KR,ko;q=0.9")
                     .timeout(15000)
                     .get();
         } catch (IOException e) {
-            log.error("네이버 시리즈 랭킹 페이지를 가져오는 중 오류 발생: url={}, error={}", TOP_100_URL, e.getMessage());
+            log.error("네이버 시리즈 랭킹 페이지를 가져오는 중 오류 발생: url={}, error={}", url, e.getMessage());
             return null;
         }
     }

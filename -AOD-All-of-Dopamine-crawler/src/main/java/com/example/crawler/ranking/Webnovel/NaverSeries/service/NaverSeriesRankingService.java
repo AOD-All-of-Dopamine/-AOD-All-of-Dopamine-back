@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,43 +31,61 @@ public class NaverSeriesRankingService {
     private final NaverSeriesDetailParser detailParser; // 랭킹용 파서 (제목 추출 전용)
     private final RankingUpsertHelper rankingUpsertHelper;
 
-    private static final int MAX_RANKING_SIZE = 20;
+    private static final int MAX_RANKING_SIZE = 100;
+    private static final int MAX_PAGES_TO_FETCH = 5; // 페이지당 약 20개, 5페이지 = 100개
 
-    @Transactional
     public void updateDailyRanking() {
         log.info("네이버 시리즈 일간 랭킹 업데이트를 시작합니다.");
-        
-        Document doc = fetcher.fetchDailyTop100();
-        
-        if (doc == null) {
-            log.warn("네이버 시리즈 랭킹 페이지를 가져오지 못해 작업을 중단합니다.");
-            return;
-        }
 
         try {
-            // 기존 크롤러와 동일한 로직: 먼저 productNo가 있는 링크 찾고, 없으면 폴백
+            // 다중 페이지에서 상세 URL 수집 (LinkedHashSet으로 순서 유지 및 중복 제거)
             Set<String> detailUrls = new java.util.LinkedHashSet<>();
-            
-            // 1차 시도: productNo가 명시된 링크
-            for (Element a : doc.select("a[href*='/novel/detail.series'][href*='productNo=']")) {
-                String href = a.attr("href");
-                if (!href.startsWith("http")) {
-                    href = "https://series.naver.com" + href;
+
+            for (int page = 1; page <= MAX_PAGES_TO_FETCH; page++) {
+                Document doc = fetcher.fetchDailyTop100(page);
+
+                if (doc == null) {
+                    log.warn("네이버 시리즈 랭킹 {}페이지를 가져오지 못했습니다. 이전 페이지까지의 데이터로 진행합니다.", page);
+                    break;
                 }
-                detailUrls.add(href);
-            }
-            
-            // 2차 시도 (폴백): productNo 없이 detail.series 링크
-            if (detailUrls.isEmpty()) {
-                for (Element a : doc.select("a[href*='/novel/detail.series']")) {
+
+                int beforeSize = detailUrls.size();
+
+                // 1차 시도: productNo가 명시된 링크
+                for (Element a : doc.select("a[href*='/novel/detail.series'][href*='productNo=']")) {
                     String href = a.attr("href");
                     if (!href.startsWith("http")) {
                         href = "https://series.naver.com" + href;
                     }
                     detailUrls.add(href);
                 }
+
+                // 2차 시도 (폴백): productNo 없이 detail.series 링크 (해당 페이지에서 못 찾은 경우만)
+                if (detailUrls.size() == beforeSize) {
+                    for (Element a : doc.select("a[href*='/novel/detail.series']")) {
+                        String href = a.attr("href");
+                        if (!href.startsWith("http")) {
+                            href = "https://series.naver.com" + href;
+                        }
+                        detailUrls.add(href);
+                    }
+                }
+
+                int newItems = detailUrls.size() - beforeSize;
+                log.info("{}페이지에서 {}개 항목 발견 (누적: {}개)", page, newItems, detailUrls.size());
+
+                // 이미 충분히 모았으면 중단
+                if (detailUrls.size() >= MAX_RANKING_SIZE) {
+                    break;
+                }
+
+                // 새 항목이 없으면 더 이상 페이지가 없는 것
+                if (newItems == 0) {
+                    log.info("{}페이지에서 새 항목이 없어 페이지 순회를 중단합니다.", page);
+                    break;
+                }
             }
-            
+
             if (detailUrls.isEmpty()) {
                 log.error("랭킹 항목을 찾을 수 없습니다. 페이지 구조가 변경되었을 수 있습니다.");
                 return;

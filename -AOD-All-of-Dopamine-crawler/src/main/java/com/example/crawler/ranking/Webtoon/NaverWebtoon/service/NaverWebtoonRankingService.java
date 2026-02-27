@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +29,8 @@ public class NaverWebtoonRankingService {
     private final MobileListParser mobileListParser; // 기존 파서 재사용
     private final RankingUpsertHelper rankingUpsertHelper;
 
-    private static final int MAX_RANKING_SIZE = 20;
+    private static final int MAX_RANKING_SIZE = 100;
 
-    @Transactional
     public void updateTodayWebtoonRanking() {
         String todayWeekday = fetcher.getTodayWeekdayString();
         log.info("네이버 웹툰 오늘 요일({}) 랭킹 업데이트를 시작합니다.", todayWeekday);

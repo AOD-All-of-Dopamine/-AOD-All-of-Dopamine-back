@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,15 +27,13 @@ public class TmdbRankingService {
     private final TmdbRankingMapper tmdbRankingMapper;
     private final RankingUpsertHelper rankingUpsertHelper;
 
-    private static final int MAX_RANKING_SIZE = 20; // 최종적으로 저장할 랭킹 개수
-    private static final int MAX_PAGES_TO_FETCH = 3; // 충분한 데이터 확보를 위해 최대 3페이지까지
+    private static final int MAX_RANKING_SIZE = 100; // 최종적으로 저장할 랭킹 개수
+    private static final int MAX_PAGES_TO_FETCH = 7; // 충분한 데이터 확보를 위해 최대 8페이지까지
 
-    @Transactional(timeout = 60) // Watch Providers 조회로 시간이 걸리므로 60초로 설정
     public void updatePopularMoviesRanking(int minVoteCount) {
         updateRanking(TmdbPlatformType.MOVIE, minVoteCount);
     }
 
-    @Transactional(timeout = 60) // Watch Providers 조회로 시간이 걸리므로 60초로 설정
     public void updatePopularTvShowsRanking(int minVoteCount) {
         updateRanking(TmdbPlatformType.TV, minVoteCount);
     }

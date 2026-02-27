@@ -7,6 +7,7 @@ import com.example.shared.repository.PlatformDataRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ public class RankingUpsertHelper {
      * @param newRankings 새로운 랭킹 데이터 목록
      * @param platform 플랫폼 이름 (e.g., "TMDB_MOVIE", "STEAM_GAME")
      */
+    @Transactional
     public void upsertRankings(List<ExternalRanking> newRankings, String platform) {
         if (newRankings == null || newRankings.isEmpty()) {
             log.warn("업데이트할 랭킹 데이터가 없습니다. platform={}", platform);
@@ -115,6 +117,7 @@ public class RankingUpsertHelper {
      * 
      * @param platform 플랫폼 이름
      */
+    @Transactional
     public void deleteAllByPlatform(String platform) {
         List<ExternalRanking> rankings = rankingRepository.findByPlatform(platform);
         if (!rankings.isEmpty()) {
