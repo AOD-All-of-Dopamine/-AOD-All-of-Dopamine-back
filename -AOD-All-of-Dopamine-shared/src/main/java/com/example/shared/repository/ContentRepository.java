@@ -18,6 +18,13 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     // 도메인별 페이징 조회
     Page<Content> findByDomain(Domain domain, Pageable pageable);
     
+    // 도메인별 페이징 조회 (NULLS LAST + Tie-breaker 보장)
+    @Query(value = "SELECT * FROM contents WHERE domain = :domain " +
+           "ORDER BY release_date DESC NULLS LAST, content_id ASC",
+           countQuery = "SELECT COUNT(*) FROM contents WHERE domain = :domain",
+           nativeQuery = true)
+    Page<Content> findByDomainOrderByReleaseDateDesc(@Param("domain") String domain, Pageable pageable);
+    
     // 검색을 위한 메서드
     @Query("SELECT c FROM Content c WHERE c.domain = :domain AND " +
            "(LOWER(c.masterTitle) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
