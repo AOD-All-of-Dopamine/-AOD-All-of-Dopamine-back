@@ -18,7 +18,7 @@ public interface WebtoonContentRepository extends JpaRepository<WebtoonContent, 
     @Query(value = "SELECT w.* FROM webtoon_contents w " +
            "JOIN contents c ON w.content_id = c.content_id " +
            "WHERE w.genres @> CAST(:genres AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, w.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM webtoon_contents w " +
                        "WHERE w.genres @> CAST(:genres AS text[])",
            nativeQuery = true)
@@ -31,7 +31,7 @@ public interface WebtoonContentRepository extends JpaRepository<WebtoonContent, 
     @Query(value = "SELECT w.* FROM webtoon_contents w " +
            "JOIN contents c ON w.content_id = c.content_id " +
            "WHERE w.platforms @> CAST(:platforms AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, w.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM webtoon_contents w " +
                        "WHERE w.platforms @> CAST(:platforms AS text[])",
            nativeQuery = true)
@@ -44,7 +44,7 @@ public interface WebtoonContentRepository extends JpaRepository<WebtoonContent, 
            "JOIN contents c ON w.content_id = c.content_id " +
            "WHERE w.genres @> CAST(:genres AS text[]) " +
            "AND w.platforms @> CAST(:platforms AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, w.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM webtoon_contents w " +
                        "WHERE w.genres @> CAST(:genres AS text[]) " +
                        "AND w.platforms @> CAST(:platforms AS text[])",

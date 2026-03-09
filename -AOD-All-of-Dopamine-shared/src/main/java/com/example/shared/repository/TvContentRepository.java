@@ -18,7 +18,7 @@ public interface TvContentRepository extends JpaRepository<TvContent, Long> {
     @Query(value = "SELECT t.* FROM tv_contents t " +
            "JOIN contents c ON t.content_id = c.content_id " +
            "WHERE t.genres @> CAST(:genres AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, t.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM tv_contents t " +
                        "WHERE t.genres @> CAST(:genres AS text[])",
            nativeQuery = true)
@@ -31,7 +31,7 @@ public interface TvContentRepository extends JpaRepository<TvContent, Long> {
     @Query(value = "SELECT t.* FROM tv_contents t " +
            "JOIN contents c ON t.content_id = c.content_id " +
            "WHERE t.platforms @> CAST(:platforms AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, t.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM tv_contents t " +
                        "WHERE t.platforms @> CAST(:platforms AS text[])",
            nativeQuery = true)
@@ -44,7 +44,7 @@ public interface TvContentRepository extends JpaRepository<TvContent, Long> {
            "JOIN contents c ON t.content_id = c.content_id " +
            "WHERE t.genres @> CAST(:genres AS text[]) " +
            "AND t.platforms @> CAST(:platforms AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, t.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM tv_contents t " +
                        "WHERE t.genres @> CAST(:genres AS text[]) " +
                        "AND t.platforms @> CAST(:platforms AS text[])",
