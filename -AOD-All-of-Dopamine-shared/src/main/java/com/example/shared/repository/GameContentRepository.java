@@ -18,7 +18,7 @@ public interface GameContentRepository extends JpaRepository<GameContent, Long> 
     @Query(value = "SELECT g.* FROM game_contents g " +
            "JOIN contents c ON g.content_id = c.content_id " +
            "WHERE g.genres @> CAST(:genres AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, g.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM game_contents g " +
                        "WHERE g.genres @> CAST(:genres AS text[])",
            nativeQuery = true)
@@ -31,7 +31,7 @@ public interface GameContentRepository extends JpaRepository<GameContent, Long> 
     @Query(value = "SELECT g.* FROM game_contents g " +
            "JOIN contents c ON g.content_id = c.content_id " +
            "WHERE g.platforms @> CAST(:platforms AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, g.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM game_contents g " +
                        "WHERE g.platforms @> CAST(:platforms AS text[])",
            nativeQuery = true)
@@ -44,7 +44,7 @@ public interface GameContentRepository extends JpaRepository<GameContent, Long> 
            "JOIN contents c ON g.content_id = c.content_id " +
            "WHERE g.genres @> CAST(:genres AS text[]) " +
            "AND g.platforms @> CAST(:platforms AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, g.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM game_contents g " +
                        "WHERE g.genres @> CAST(:genres AS text[]) " +
                        "AND g.platforms @> CAST(:platforms AS text[])",
