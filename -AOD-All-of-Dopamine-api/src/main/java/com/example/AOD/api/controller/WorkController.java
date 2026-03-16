@@ -45,7 +45,8 @@ public class WorkController {
             }
         }
 
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy)
+                        .and(Sort.by(Sort.Direction.ASC, "contentId"));
         Pageable pageable = PageRequest.of(page, size, sort);
 
         PageResponse<WorkSummaryDTO> response = workApiService.getWorks(domainEnum, keyword, platforms, genres, pageable);

@@ -18,7 +18,7 @@ public interface MovieContentRepository extends JpaRepository<MovieContent, Long
     @Query(value = "SELECT m.* FROM movie_contents m " +
            "JOIN contents c ON m.content_id = c.content_id " +
            "WHERE m.genres @> CAST(:genres AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, m.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM movie_contents m " +
                        "WHERE m.genres @> CAST(:genres AS text[])",
            nativeQuery = true)
@@ -31,7 +31,7 @@ public interface MovieContentRepository extends JpaRepository<MovieContent, Long
     @Query(value = "SELECT m.* FROM movie_contents m " +
            "JOIN contents c ON m.content_id = c.content_id " +
            "WHERE m.platforms @> CAST(:platforms AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, m.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM movie_contents m " +
                        "WHERE m.platforms @> CAST(:platforms AS text[])",
            nativeQuery = true)
@@ -44,7 +44,7 @@ public interface MovieContentRepository extends JpaRepository<MovieContent, Long
            "JOIN contents c ON m.content_id = c.content_id " +
            "WHERE m.genres @> CAST(:genres AS text[]) " +
            "AND m.platforms @> CAST(:platforms AS text[]) " +
-           "ORDER BY c.release_date DESC NULLS LAST",
+           "ORDER BY c.release_date DESC NULLS LAST, m.content_id ASC",
            countQuery = "SELECT COUNT(*) FROM movie_contents m " +
                        "WHERE m.genres @> CAST(:genres AS text[]) " +
                        "AND m.platforms @> CAST(:platforms AS text[])",
