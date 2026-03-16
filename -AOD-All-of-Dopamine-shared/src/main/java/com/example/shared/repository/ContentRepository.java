@@ -18,7 +18,7 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     // 도메인별 페이징 조회
     Page<Content> findByDomain(Domain domain, Pageable pageable);
     
-    // 도메인별 페이징 조회 (NULLS LAST + Tie-breaker 보장, 오늘 기준 1년 이내만 노출)
+       // 도메인별 페이징 조회 (NULLS LAST + Tie-breaker 보장, release_date가 :maxDate 이하인 콘텐츠만 노출)
     @Query(value = "SELECT * FROM contents WHERE domain = :domain AND (release_date IS NULL OR release_date <= :maxDate) " +
            "ORDER BY release_date DESC NULLS LAST, content_id ASC",
            countQuery = "SELECT COUNT(*) FROM contents WHERE domain = :domain AND (release_date IS NULL OR release_date <= :maxDate)",
@@ -58,7 +58,7 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     
     // 특정 날짜 이후 출시 예정인 작품 (공개예정) - 도메인별 (오늘 기준 1년 이내 상한선)
     @Query("SELECT c FROM Content c WHERE c.domain = :domain AND c.releaseDate > :startDate AND c.releaseDate <= :endDate " +
-           "ORDER BY c.releaseDate ASC")
+           "ORDER BY c.releaseDate ASC, c.contentId ASC")
     Page<Content> findUpcomingReleases(@Param("domain") Domain domain,
                                        @Param("startDate") LocalDate startDate,
                                        @Param("endDate") LocalDate endDate,
@@ -66,7 +66,7 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     
     // 특정 날짜 이후 출시 예정인 작품 (공개예정) - 전체 도메인 (오늘 기준 1년 이내 상한선)
     @Query("SELECT c FROM Content c WHERE c.releaseDate > :startDate AND c.releaseDate <= :endDate " +
-           "ORDER BY c.releaseDate ASC")
+           "ORDER BY c.releaseDate ASC, c.contentId ASC")
     Page<Content> findUpcomingReleases(@Param("startDate") LocalDate startDate,
                                        @Param("endDate") LocalDate endDate,
                                        Pageable pageable);

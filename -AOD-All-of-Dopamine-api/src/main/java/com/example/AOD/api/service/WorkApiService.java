@@ -259,7 +259,7 @@ public class WorkApiService {
                 .page(0).size(0).totalElements(0L).totalPages(0)
                 .first(true).last(true).build();
     }
-    
+
     /**
      * ⚠️ Deprecated: 기존 Watch Providers 기반 필터링 (복잡한 로직)
      * 새로운 platforms 컬럼 방식으로 대체됨
@@ -338,7 +338,9 @@ public class WorkApiService {
                 contentPage = contentRepository.searchByKeyword(keyword, pageable);
             }
         } else if (domain != null) {
-            contentPage = contentRepository.findByDomain(domain, pageable);
+            Pageable pageableWithoutSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+            LocalDate maxDate = LocalDate.now().plusYears(1);
+            contentPage = contentRepository.findByDomainOrderByReleaseDateDesc(domain.name(), maxDate, pageableWithoutSort);
         } else {
             contentPage = contentRepository.findAll(pageable);
         }
@@ -401,25 +403,32 @@ public class WorkApiService {
             
             switch (order.getProperty()) {
                 case "masterTitle":
-                    orderComparator = Comparator.comparing(Content::getMasterTitle, 
-                            Comparator.nullsLast(String::compareTo));
+                    if (order.getDirection() == Sort.Direction.DESC) {
+                        orderComparator = Comparator.comparing(Content::getMasterTitle,
+                                Comparator.nullsLast(Comparator.reverseOrder()));
+                    } else {
+                        orderComparator = Comparator.comparing(Content::getMasterTitle,
+                                Comparator.nullsLast(Comparator.naturalOrder()));
+                    }
                     break;
                 case "releaseDate":
-                    orderComparator = Comparator.comparing(Content::getReleaseDate,
-                            Comparator.nullsLast(LocalDate::compareTo));
+                    if (order.getDirection() == Sort.Direction.DESC) {
+                        orderComparator = Comparator.comparing(Content::getReleaseDate,
+                                Comparator.nullsLast(Comparator.reverseOrder()));
+                    } else {
+                        orderComparator = Comparator.comparing(Content::getReleaseDate,
+                                Comparator.nullsLast(Comparator.naturalOrder()));
+                    }
                     break;
                 default:
                     orderComparator = Comparator.comparing(Content::getContentId);
-            }
-            
-            if (order.getDirection() == Sort.Direction.DESC) {
-                orderComparator = orderComparator.reversed();
             }
             
             comparator = (comparator == null) ? orderComparator : comparator.thenComparing(orderComparator);
         }
         
         if (comparator != null) {
+            comparator = comparator.thenComparing(Content::getContentId);
             return contents.stream().sorted(comparator).collect(Collectors.toList());
         }
         
@@ -625,12 +634,13 @@ public class WorkApiService {
      */
     public PageResponse<WorkSummaryDTO> getUpcomingReleases(Domain domain, List<String> platforms, Pageable pageable) {
         LocalDate now = LocalDate.now();
+        LocalDate oneYearLater = now.plusYears(1);
         
         List<Content> allContent;
         if (domain != null) {
-            allContent = contentRepository.findUpcomingReleases(domain, now, Pageable.unpaged()).getContent();
+            allContent = contentRepository.findUpcomingReleases(domain, now, oneYearLater, Pageable.unpaged()).getContent();
         } else {
-            allContent = contentRepository.findUpcomingReleases(now, Pageable.unpaged()).getContent();
+            allContent = contentRepository.findUpcomingReleases(now, oneYearLater, Pageable.unpaged()).getContent();
         }
 
         // 플랫폼 필터링 - MOVIE/TV는 watchProviders, 나머지는 PlatformData
