@@ -5,7 +5,7 @@ import com.example.AOD.api.dto.WorkResponseDTO;
 import com.example.AOD.api.dto.WorkSummaryDTO;
 import com.example.shared.entity.Content;
 import com.example.shared.entity.*;
-// import com.example.AOD.recommendation.repository.ContentRatingRepository;
+import com.example.AOD.repo.ReviewRepository;
 import com.example.shared.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class WorkApiService {
     private final WebtoonContentRepository webtoonContentRepository;
     private final WebnovelContentRepository webnovelContentRepository;
     private final PlatformDataRepository platformDataRepository;
-    // private final ContentRatingRepository contentRatingRepository;
+    private final ReviewRepository reviewRepository;
     
     // OTT Watch Providers (영화/시리즈에서 watchProviders 필터링에 사용)
     private static final Set<String> OTT_WATCH_PROVIDERS = Set.of(
@@ -441,7 +441,7 @@ public class WorkApiService {
                 .releaseDate(content.getReleaseDate() != null ? content.getReleaseDate().toString() : null)
                 .thumbnail(content.getPosterImageUrl())
                 .synopsis(content.getSynopsis())
-                .score(calculateAverageScore(contentId))
+                .score(content.getAverageScore())
                 .build();
 
         // 도메인별 상세 정보 추가
@@ -462,24 +462,12 @@ public class WorkApiService {
                 .domain(content.getDomain().name())
                 .title(content.getMasterTitle())
                 .thumbnail(content.getPosterImageUrl())
-                .score(calculateAverageScore(content.getContentId()))
+                .score(content.getAverageScore())
                 .releaseDate(content.getReleaseDate() != null ? content.getReleaseDate().toString() : null)
                 .build();
     }
 
-    /**
-     * 평균 평점 계산
-     */
-    private Double calculateAverageScore(Long contentId) {
-        // ContentRating의 contentType은 domain을 의미, contentId로 평균 계산
-        // TODO: 추천 기능 추가 후 활성화
-        // Double avg = contentRatingRepository.getAverageRatingByContentTypeAndId("GAME", contentId);
-        // if (avg == null) avg = contentRatingRepository.getAverageRatingByContentTypeAndId("AV", contentId);
-        // if (avg == null) avg = contentRatingRepository.getAverageRatingByContentTypeAndId("WEBTOON", contentId);
-        // if (avg == null) avg = contentRatingRepository.getAverageRatingByContentTypeAndId("WEBNOVEL", contentId);
-        // return avg != null ? avg : 0.0;
-        return 0.0;
-    }
+
 
     /**
      * 도메인별 상세 정보 추출
@@ -617,6 +605,37 @@ public class WorkApiService {
                 .totalPages(totalPages)
                 .first(pageable.getPageNumber() == 0)
                 .last(pageable.getPageNumber() >= totalPages - 1)
+                .build();
+    }
+
+    /**
+     * [✨ 신규 기능] 최근 리뷰가 달린 작품 조회
+     */
+    public PageResponse<WorkSummaryDTO> getRecentReviewedWorks(Domain domain, List<String> platforms, Pageable pageable) {
+        Page<Content> contentPage;
+        if (domain != null) {
+            contentPage = contentRepository.findRecentlyReviewedContentsByDomainNative(domain.name(), pageable);
+        } else {
+            contentPage = contentRepository.findRecentlyReviewedContentsNative(pageable);
+        }
+
+        List<Content> allContent = contentPage.getContent();
+
+        // 플랫폼 필터링 - MOVIE/TV는 watchProviders, 나머지는 PlatformData
+        List<Content> filteredContent = filterContentByPlatforms(allContent, domain, platforms);
+
+        List<WorkSummaryDTO> pagedContent = filteredContent.stream()
+                .map(this::toWorkSummary)
+                .collect(Collectors.toList());
+
+        return PageResponse.<WorkSummaryDTO>builder()
+                .content(pagedContent)
+                .page(contentPage.getNumber())
+                .size(contentPage.getSize())
+                .totalElements(contentPage.getTotalElements())
+                .totalPages(contentPage.getTotalPages())
+                .first(contentPage.isFirst())
+                .last(contentPage.isLast())
                 .build();
     }
 

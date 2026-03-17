@@ -42,9 +42,10 @@ public class RankingService {
      */
     @Transactional(readOnly = true)
     public List<ExternalRanking> getRankingsByDomain(String domain) {
-        return rankingRepository.findAll().stream()
+        String upperDomain = domain != null ? domain.toUpperCase() : "";
+        return rankingRepository.findAllWithContent().stream()
             .filter(r -> r.getContent() != null && 
-                        r.getContent().getDomain().name().equals(domain))
+                        r.getContent().getDomain().name().equals(upperDomain))
             .toList();
     }
 }

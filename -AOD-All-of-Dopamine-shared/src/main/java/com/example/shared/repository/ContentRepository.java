@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
@@ -114,4 +115,29 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     Page<Content> findByKeywordAndPlatforms(@Param("keyword") String keyword,
                                            @Param("platforms") List<String> platforms,
                                            Pageable pageable);
+
+    // [✨ 최적화: 벌크 업데이트 (Dirty Checking 방지)]
+    // 엔티티를 조회(Select)하고 값 변경 후 자동 감지(Dirty Checking)를 쓰면 N+1 쿼리가 또 발생하므로,
+    // Native Update 쿼리로 한 방에 별점만 갱신하여 Lock 점유 시간을 최소화합니다.
+    @Modifying
+    @Query("UPDATE Content c SET c.averageScore = :avg, c.reviewCount = :cnt WHERE c.contentId = :contentId")
+    void updateRatingInfo(@Param("contentId") Long contentId, @Param("avg") Double avg, @Param("cnt") Integer cnt);
+
+    // [✨ 신규 기능: 최근 리뷰 달린 작품 목록 조회]
+    @Query(value = "SELECT c.* FROM contents c " +
+                   "JOIN (SELECT content_id, MAX(created_at) as latest_review FROM reviews GROUP BY content_id) r " +
+                   "ON c.content_id = r.content_id " +
+                   "ORDER BY r.latest_review DESC",
+           countQuery = "SELECT COUNT(DISTINCT content_id) FROM reviews",
+           nativeQuery = true)
+    Page<Content> findRecentlyReviewedContentsNative(Pageable pageable);
+
+    @Query(value = "SELECT c.* FROM contents c " +
+                   "JOIN (SELECT content_id, MAX(created_at) as latest_review FROM reviews GROUP BY content_id) r " +
+                   "ON c.content_id = r.content_id " +
+                   "WHERE c.domain = :domain " +
+                   "ORDER BY r.latest_review DESC",
+           countQuery = "SELECT COUNT(DISTINCT r.content_id) FROM reviews r JOIN contents c ON r.content_id = c.content_id WHERE c.domain = :domain",
+           nativeQuery = true)
+    Page<Content> findRecentlyReviewedContentsByDomainNative(@Param("domain") String domain, Pageable pageable);
 }

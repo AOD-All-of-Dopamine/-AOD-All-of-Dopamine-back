@@ -76,6 +76,10 @@ public class ReviewService {
         review.setReviewContent(request.getContent());
 
         Review saved = reviewRepository.save(review);
+        
+        // 동기화 로직 호출
+        syncContentRating(contentId);
+        
         return ReviewResponseDTO.from(saved, username);
     }
 
@@ -95,6 +99,9 @@ public class ReviewService {
         review.updateReview(request.getRating(), request.getTitle(), request.getContent());
         Review updated = reviewRepository.save(review);
 
+        // 동기화 로직 호출
+        syncContentRating(updated.getContent().getContentId());
+
         return ReviewResponseDTO.from(updated, username);
     }
 
@@ -111,7 +118,15 @@ public class ReviewService {
             throw new RuntimeException("리뷰 삭제 권한이 없습니다.");
         }
 
+        
+        Long contentIdForSync = review.getContent().getContentId();
         reviewRepository.delete(review);
+        
+        // 삭제 쿼리가 먼저 나가도록 flush 강제 호출 (영속성 컨텍스트 비우기)
+        reviewRepository.flush(); 
+        
+        // 동기화 로직 호출 (남은 리뷰 기준으로 재계산)
+        syncContentRating(contentIdForSync);
     }
 
     /**
@@ -136,6 +151,26 @@ public class ReviewService {
                 .first(reviewPage.isFirst())
                 .last(reviewPage.isLast())
                 .build();
+    }
+    
+    // [✨ 최적화: 트랜잭션 동기화 방식의 역정규화]
+    // 리뷰 작성/수정/삭제 후 같은 트랜잭션 내에서 이 메서드를 호출합니다.
+    // 만약 updateRatingInfo 도중 DB 에러가 발생하면, 앞서 수행한 리뷰 관련 작업도
+    // 모두 롤백(Rollback)되어 데이터 정합성(최종 일관성)이 100% 보장됩니다.
+    /**
+     * 리뷰 변경 시 해당 Content의 평균 평점과 리뷰 개수 동기화
+     */
+    private void syncContentRating(Long contentId) {
+        // 1. 최신 통계 조회
+        Double newAvg = reviewRepository.getAverageRatingByContentId(contentId);
+        Long count = reviewRepository.countByContentId(contentId);
+        
+        // null 처리 (리뷰가 모두 지워졌을 때)
+        Double finalAvg = newAvg != null ? newAvg : 0.0;
+        Integer finalCount = count != null ? count.intValue() : 0;
+        
+        // 2. Content 원장 테이블 즉시 업데이트 (동기식)
+        contentRepository.updateRatingInfo(contentId, finalAvg, finalCount);
     }
 }
 
