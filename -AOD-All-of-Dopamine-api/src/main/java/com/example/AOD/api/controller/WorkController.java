@@ -89,6 +89,31 @@ public class WorkController {
     }
 
     /**
+     * [✨ 신규 기능] 최근 리뷰가 달린 작품 조회
+     * GET /api/works/recent-reviews?domain=GAME&platforms=steam,epic&page=0&size=20
+     */
+    @GetMapping("/recent-reviews")
+    public ResponseEntity<PageResponse<WorkSummaryDTO>> getRecentReviewedWorks(
+            @RequestParam(required = false) String domain,
+            @RequestParam(required = false) java.util.List<String> platforms,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Domain domainEnum = null;
+        if (domain != null && !domain.isBlank()) {
+            try {
+                domainEnum = Domain.valueOf(domain.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid domain parameter: {}", domain);
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        PageResponse<WorkSummaryDTO> response = workApiService.getRecentReviewedWorks(domainEnum, platforms, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * 출시 예정작 조회
      * GET /api/releases/upcoming?domain=GAME&platforms=steam,epic&page=0&size=20
      */

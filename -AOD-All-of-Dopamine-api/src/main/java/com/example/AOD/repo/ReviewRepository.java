@@ -31,9 +31,17 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 특정 작품의 리뷰 존재 여부
     boolean existsByContentAndUser(Content content, User user);
     
+    // [✨ 최적화: 데이터베이스 내장 함수 (AVG, COUNT) 활용]
+    // 자바 메모리(WAS)로 데이터를 긁어와서 루프를 돌며 계산하지 않고,
+    // 데이터베이스 엔진(DBMS)에서 가장 빠르게 집계 연산을 수행한 결과 스칼라 값만 받아옵니다.
+    
     // 특정 작품의 평균 평점 계산
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.content.contentId = :contentId")
     Double getAverageRatingByContentId(@Param("contentId") Long contentId);
+    
+    // 특정 작품의 리뷰 총 개수
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.content.contentId = :contentId")
+    Long countByContentId(@Param("contentId") Long contentId);
     
     // 특정 작품의 리뷰 개수
     long countByContent(Content content);

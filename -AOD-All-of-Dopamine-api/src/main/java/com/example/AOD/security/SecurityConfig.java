@@ -55,7 +55,9 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://aod-all-of-dopamine-front-3ww3xgg0u-dfdfg42s-projects.vercel.app", // Vercel 프리뷰 주소
                 "https://allofdophamin.com",  // 나중에 연결할 실제 프로덕션 도메인
-                "http://localhost:3000"      // 로컬 개발용 (vite.config.ts)
+            "http://localhost:3000",     // 로컬 개발용
+            "http://localhost:3001",     // 로컬 개발용
+            "http://localhost:5173"      // Vite 기본 포트
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

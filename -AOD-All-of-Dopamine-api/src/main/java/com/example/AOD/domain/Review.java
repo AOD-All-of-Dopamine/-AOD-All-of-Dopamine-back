@@ -13,7 +13,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reviews", 
-       uniqueConstraints = @UniqueConstraint(columnNames = {"content_id", "user_id"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"content_id", "user_id"}),
+       // [✨ 최적화: 커버링 인덱스 (Covering Index)]
+       // AVG()와 COUNT() 집계 쿼리 실행 시 실제 데이터 블록(Disk I/O)에 접근하지 않고
+       // 메모리에 올라온 인덱스 트리만 읽기(Index-Only Scan) 가능하도록 (content_id, rating) 복합 인덱스 설정
+       indexes = @Index(name = "idx_review_content_rating", columnList = "content_id, rating"))
 @Getter
 @Setter
 @NoArgsConstructor
