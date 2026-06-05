@@ -62,6 +62,20 @@ public class MasterScheduler {
         naverWebtoonSchedulingService.collectFinishedWebtoonsWeekly();
     }
 
+    // 네이버 시리즈 웹소설 신작 - 매일 새벽 1시 30분
+    @Scheduled(cron = "0 30 1 * * *")
+    public void scheduleNaverSeriesNovel() {
+        log.info("🚀 [Master] 네이버 시리즈 웹소설 신작 Job Queue 등록 시작");
+        naverSeriesSchedulingService.collectRecentNovelsDaily();
+    }
+
+    // 네이버 시리즈 웹소설 완결작 - 매주 토요일 새벽 3시 30분
+    @Scheduled(cron = "0 30 3 * * SAT")
+    public void scheduleNaverSeriesNovelCompleted() {
+        log.info("🚀 [Master] 네이버 시리즈 웹소설 완결작 Job Queue 등록 시작");
+        naverSeriesSchedulingService.collectCompletedNovelsWeekly();
+    }
+
     /**
      * ===== 랭킹 크롤링 스케줄 =====
      * 
