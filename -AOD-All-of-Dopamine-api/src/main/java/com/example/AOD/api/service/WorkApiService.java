@@ -13,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,10 @@ public class WorkApiService {
     private static final Set<String> OTT_WATCH_PROVIDERS = Set.of(
             "netflix", "watcha", "disney plus", "tving", "wavve", "coupang play", "apple tv"
     );
+
+    // 장르 필터 + 키워드/플랫폼 복합 조건에서 후보를 메모리로 가져올 때의 상한 (무제한 로드 방지)
+    private static final int GENRE_FILTER_CANDIDATE_CAP = 2000;
+    private static final Pageable GENRE_CANDIDATE_PAGEABLE = PageRequest.of(0, GENRE_FILTER_CANDIDATE_CAP);
 
     /**
      * 작품 목록 조회 (필터링, 페이징)
@@ -75,36 +82,59 @@ public class WorkApiService {
         }
         
         String[] genreArray = genres.toArray(new String[0]);
+
+        // ✅ Fast path: 장르 필터만 있는 경우 — DB에서 페이징까지 처리 (테이블 전체 로드 제거)
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        boolean hasPlatforms = platforms != null && !platforms.isEmpty();
+        if (!hasKeyword && !hasPlatforms) {
+            Pageable dbPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+            Page<?> domainPage = findDomainPageByGenres(domain, genreArray, dbPageable);
+            List<WorkSummaryDTO> dtos = domainPage.getContent().stream()
+                    .map(d -> domainToContent(domain, d))
+                    .filter(Objects::nonNull)
+                    .map(this::toWorkSummary)
+                    .collect(Collectors.toList());
+            return PageResponse.<WorkSummaryDTO>builder()
+                    .content(dtos)
+                    .page(domainPage.getNumber())
+                    .size(domainPage.getSize())
+                    .totalElements(domainPage.getTotalElements())
+                    .totalPages(domainPage.getTotalPages())
+                    .first(domainPage.isFirst())
+                    .last(domainPage.isLast())
+                    .build();
+        }
+
         List<Long> filteredContentIds = new ArrayList<>();
         
         // 각 도메인별로 DB에서 장르 필터링
         switch (domain) {
             case MOVIE:
-                Page<MovieContent> moviePage = movieContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                Page<MovieContent> moviePage = movieContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
                 filteredContentIds = moviePage.getContent().stream()
                         .map(MovieContent::getContentId)
                         .collect(Collectors.toList());
                 break;
             case TV:
-                Page<TvContent> tvPage = tvContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                Page<TvContent> tvPage = tvContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
                 filteredContentIds = tvPage.getContent().stream()
                         .map(TvContent::getContentId)
                         .collect(Collectors.toList());
                 break;
             case GAME:
-                Page<GameContent> gamePage = gameContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                Page<GameContent> gamePage = gameContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
                 filteredContentIds = gamePage.getContent().stream()
                         .map(GameContent::getContentId)
                         .collect(Collectors.toList());
                 break;
             case WEBTOON:
-                Page<WebtoonContent> webtoonPage = webtoonContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                Page<WebtoonContent> webtoonPage = webtoonContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
                 filteredContentIds = webtoonPage.getContent().stream()
                         .map(WebtoonContent::getContentId)
                         .collect(Collectors.toList());
                 break;
             case WEBNOVEL:
-                Page<WebnovelContent> webnovelPage = webnovelContentRepository.findByGenresContainingAll(genreArray, Pageable.unpaged());
+                Page<WebnovelContent> webnovelPage = webnovelContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
                 filteredContentIds = webnovelPage.getContent().stream()
                         .map(WebnovelContent::getContentId)
                         .collect(Collectors.toList());
@@ -117,13 +147,18 @@ public class WorkApiService {
                         .first(true).last(true).build();
         }
         
+        if (filteredContentIds.size() >= GENRE_FILTER_CANDIDATE_CAP) {
+            log.warn("Genre-filter candidate set hit cap {} for domain {}; keyword/platform results may be truncated",
+                    GENRE_FILTER_CANDIDATE_CAP, domain);
+        }
+
         if (filteredContentIds.isEmpty()) {
             return PageResponse.<WorkSummaryDTO>builder()
                     .content(Collections.emptyList())
                     .page(0).size(0).totalElements(0L).totalPages(0)
                     .first(true).last(true).build();
         }
-        
+
         // Content ID로 Content 조회
         List<Content> filteredContents = contentRepository.findByContentIdIn(filteredContentIds);
         
@@ -169,7 +204,35 @@ public class WorkApiService {
         // 정렬 및 페이징 적용
         return applyPaginationAndMapping(filteredContents, pageable);
     }
-    
+
+    /**
+     * 도메인별 장르 필터 Page 조회 (genres @> 연산자, DB 페이징)
+     */
+    private Page<?> findDomainPageByGenres(Domain domain, String[] genreArray, Pageable pageable) {
+        switch (domain) {
+            case MOVIE:    return movieContentRepository.findByGenresContainingAll(genreArray, pageable);
+            case TV:       return tvContentRepository.findByGenresContainingAll(genreArray, pageable);
+            case GAME:     return gameContentRepository.findByGenresContainingAll(genreArray, pageable);
+            case WEBTOON:  return webtoonContentRepository.findByGenresContainingAll(genreArray, pageable);
+            case WEBNOVEL: return webnovelContentRepository.findByGenresContainingAll(genreArray, pageable);
+            default:       return Page.empty(pageable);
+        }
+    }
+
+    /**
+     * 도메인 엔티티 -> Content 변환
+     */
+    private Content domainToContent(Domain domain, Object d) {
+        switch (domain) {
+            case MOVIE:    return ((MovieContent) d).getContent();
+            case TV:       return ((TvContent) d).getContent();
+            case GAME:     return ((GameContent) d).getContent();
+            case WEBTOON:  return ((WebtoonContent) d).getContent();
+            case WEBNOVEL: return ((WebnovelContent) d).getContent();
+            default:       return null;
+        }
+    }
+
     /**
      * 플랫폼 필터링만 있는 경우
      * ✨ 개선: 도메인 테이블의 platforms 컬럼을 이용한 직접 쿼리 (genres와 동일한 패턴)
@@ -835,6 +898,7 @@ public class WorkApiService {
     /**
      * 도메인별 사용 가능한 장르 목록 조회
      */
+    @Cacheable(value = "availableGenres", key = "#domain != null ? #domain.name() : 'ALL'")
     public List<String> getAvailableGenres(Domain domain) {
         Set<String> genresSet = new HashSet<>();
         
@@ -858,6 +922,7 @@ public class WorkApiService {
     /**
      * 도메인별 장르별 작품 수 조회 (작품 수 기준 내림차순 정렬)
      */
+    @Cacheable(value = "genresWithCount", key = "#domain != null ? #domain.name() : 'ALL'")
     public Map<String, Long> getGenresWithCount(Domain domain) {
         Map<String, Long> genreCounts = new HashMap<>();
         
@@ -884,46 +949,45 @@ public class WorkApiService {
     }
 
     /**
+     * 장르 캐시 주기적 무효화 — 크롤러가 새 콘텐츠를 추가하면 장르 분포가 바뀌므로 30분마다 갱신
+     */
+    @Scheduled(fixedRate = 1_800_000L)
+    @CacheEvict(value = {"genresWithCount", "availableGenres"}, allEntries = true)
+    public void evictGenreCaches() {
+        log.debug("Evicted genre caches (scheduled refresh)");
+    }
+
+    /**
      * 특정 도메인의 장르별 작품 수 카운트
      */
     private void addGenreCountsForDomain(Map<String, Long> genreCounts, Domain domain) {
-        Collection<?> contents;
-        
+        List<Object[]> rows;
+
         switch (domain) {
             case MOVIE:
-                contents = movieContentRepository.findAll();
+                rows = movieContentRepository.countByGenre();
                 break;
             case TV:
-                contents = tvContentRepository.findAll();
+                rows = tvContentRepository.countByGenre();
                 break;
             case GAME:
-                contents = gameContentRepository.findAll();
+                rows = gameContentRepository.countByGenre();
                 break;
             case WEBTOON:
-                contents = webtoonContentRepository.findAll();
+                rows = webtoonContentRepository.countByGenre();
                 break;
             case WEBNOVEL:
-                contents = webnovelContentRepository.findAll();
+                rows = webnovelContentRepository.countByGenre();
                 break;
             default:
                 return;
         }
-        
-        for (Object obj : contents) {
-            List<String> genres = null;
-            if (obj instanceof MovieContent) genres = ((MovieContent) obj).getGenres();
-            else if (obj instanceof TvContent) genres = ((TvContent) obj).getGenres();
-            else if (obj instanceof GameContent) genres = ((GameContent) obj).getGenres();
-            else if (obj instanceof WebtoonContent) genres = ((WebtoonContent) obj).getGenres();
-            else if (obj instanceof WebnovelContent) genres = ((WebnovelContent) obj).getGenres();
-            
-            if (genres != null) {
-                for (String genre : genres) {
-                    if (genre != null && !genre.isBlank()) {
-                        genreCounts.merge(genre, 1L, Long::sum);
-                    }
-                }
-            }
+
+        for (Object[] row : rows) {
+            String genre = (String) row[0];
+            if (genre == null || genre.isBlank()) continue;
+            long count = ((Number) row[1]).longValue();
+            genreCounts.merge(genre, count, Long::sum);
         }
     }
 
@@ -931,47 +995,14 @@ public class WorkApiService {
      * 특정 도메인의 장르 목록 수집
      */
     private Set<String> getGenresForDomain(Domain domain) {
-        Set<String> genres = new HashSet<>();
-        
         switch (domain) {
-            case MOVIE:
-                movieContentRepository.findAll().forEach(movie -> {
-                    if (movie.getGenres() != null) {
-                        genres.addAll(movie.getGenres());
-                    }
-                });
-                break;
-            case TV:
-                tvContentRepository.findAll().forEach(tv -> {
-                    if (tv.getGenres() != null) {
-                        genres.addAll(tv.getGenres());
-                    }
-                });
-                break;
-            case GAME:
-                gameContentRepository.findAll().forEach(game -> {
-                    if (game.getGenres() != null) {
-                        genres.addAll(game.getGenres());
-                    }
-                });
-                break;
-            case WEBTOON:
-                webtoonContentRepository.findAll().forEach(webtoon -> {
-                    if (webtoon.getGenres() != null) {
-                        genres.addAll(webtoon.getGenres());
-                    }
-                });
-                break;
-            case WEBNOVEL:
-                webnovelContentRepository.findAll().forEach(novel -> {
-                    if (novel.getGenres() != null) {
-                        genres.addAll(novel.getGenres());
-                    }
-                });
-                break;
+            case MOVIE:    return new HashSet<>(movieContentRepository.findDistinctGenres());
+            case TV:       return new HashSet<>(tvContentRepository.findDistinctGenres());
+            case GAME:     return new HashSet<>(gameContentRepository.findDistinctGenres());
+            case WEBTOON:  return new HashSet<>(webtoonContentRepository.findDistinctGenres());
+            case WEBNOVEL: return new HashSet<>(webnovelContentRepository.findDistinctGenres());
+            default:       return new HashSet<>();
         }
-        
-        return genres;
     }
 
     /**

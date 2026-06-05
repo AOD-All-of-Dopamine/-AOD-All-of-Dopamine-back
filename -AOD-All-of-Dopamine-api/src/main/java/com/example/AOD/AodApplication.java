@@ -3,11 +3,13 @@ package com.example.AOD;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling // 스케줄링 기능 활성화
+@EnableCaching // 캐시 기능 활성화 (장르 집계 등 무거운 조회 캐싱)
 @EntityScan(basePackages = {"com.example.AOD", "com.example.shared.entity"})
 @EnableJpaRepositories(basePackages = {"com.example.AOD", "com.example.shared.repository"})
 public class AodApplication {

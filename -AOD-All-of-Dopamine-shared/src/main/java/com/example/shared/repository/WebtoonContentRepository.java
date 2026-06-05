@@ -65,4 +65,18 @@ public interface WebtoonContentRepository extends JpaRepository<WebtoonContent, 
      * Content ID 목록으로 조회
      */
     List<WebtoonContent> findByContentIdIn(List<Long> contentIds);
+
+    /**
+     * 장르별 작품 수 집계 (UNNEST + GROUP BY) — 테이블 전체 로드 없이 DB에서 카운트
+     */
+    @Query(value = "SELECT g AS genre, COUNT(*) AS cnt FROM webtoon_contents, UNNEST(genres) AS g " +
+           "WHERE g IS NOT NULL AND g <> '' GROUP BY g ORDER BY cnt DESC", nativeQuery = true)
+    List<Object[]> countByGenre();
+
+    /**
+     * 사용 중인 장르 목록 (중복 제거)
+     */
+    @Query(value = "SELECT DISTINCT g FROM webtoon_contents, UNNEST(genres) AS g " +
+           "WHERE g IS NOT NULL AND g <> ''", nativeQuery = true)
+    List<String> findDistinctGenres();
 }
