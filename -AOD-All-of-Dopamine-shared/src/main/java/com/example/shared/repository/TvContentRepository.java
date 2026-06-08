@@ -56,6 +56,25 @@ public interface TvContentRepository extends JpaRepository<TvContent, Long> {
     );
     
     /**
+     * 통합 필터 조회: 장르/플랫폼(@>, AND) + 키워드(ILIKE). 각 파라미터가 null이면 해당 조건 무시.
+     * platforms 컬럼에 OTT(watch_providers)도 포함되어 OTT 필터도 이 경로로 처리됨.
+     */
+    @Query(value = "SELECT d.* FROM tv_contents d JOIN contents c ON d.content_id = c.content_id " +
+           "WHERE (CAST(:genres AS text[]) IS NULL OR d.genres @> CAST(:genres AS text[])) " +
+           "AND (CAST(:platforms AS text[]) IS NULL OR d.platforms @> CAST(:platforms AS text[])) " +
+           "AND (CAST(:keyword AS text) IS NULL OR c.master_title ILIKE ('%' || :keyword || '%') OR c.original_title ILIKE ('%' || :keyword || '%')) " +
+           "ORDER BY c.release_date DESC NULLS LAST, d.content_id ASC",
+           countQuery = "SELECT COUNT(*) FROM tv_contents d JOIN contents c ON d.content_id = c.content_id " +
+           "WHERE (CAST(:genres AS text[]) IS NULL OR d.genres @> CAST(:genres AS text[])) " +
+           "AND (CAST(:platforms AS text[]) IS NULL OR d.platforms @> CAST(:platforms AS text[])) " +
+           "AND (CAST(:keyword AS text) IS NULL OR c.master_title ILIKE ('%' || :keyword || '%') OR c.original_title ILIKE ('%' || :keyword || '%'))",
+           nativeQuery = true)
+    Page<TvContent> findWorks(@Param("genres") String[] genres,
+                              @Param("platforms") String[] platforms,
+                              @Param("keyword") String keyword,
+                              Pageable pageable);
+
+    /**
      * Content ID 목록으로 조회
      */
     List<TvContent> findByContentIdIn(List<Long> contentIds);

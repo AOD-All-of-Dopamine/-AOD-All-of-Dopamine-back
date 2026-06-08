@@ -43,10 +43,6 @@ public class WorkApiService {
             "netflix", "watcha", "disney plus", "tving", "wavve", "coupang play", "apple tv"
     );
 
-    // 장르 필터 + 키워드/플랫폼 복합 조건에서 후보를 메모리로 가져올 때의 상한 (무제한 로드 방지)
-    private static final int GENRE_FILTER_CANDIDATE_CAP = 2000;
-    private static final Pageable GENRE_CANDIDATE_PAGEABLE = PageRequest.of(0, GENRE_FILTER_CANDIDATE_CAP);
-
     /**
      * 작품 목록 조회 (필터링, 페이징)
      * - 장르 필터링은 DB 레벨에서 처리 (성능 최적화)
@@ -61,9 +57,9 @@ public class WorkApiService {
             return getWorksByGenresWithDbFiltering(domain, keyword, platforms, genres, pageable);
         }
         
-        // 장르 필터링이 없고 플랫폼 필터링만 있는 경우 - 메모리 필터링
+        // 플랫폼만 있는 경우도 동일 통합 경로(findWorks 단일 쿼리)로 처리
         if (platforms != null && !platforms.isEmpty()) {
-            return getWorksByPlatforms(domain, keyword, platforms, pageable);
+            return getWorksByGenresWithDbFiltering(domain, keyword, platforms, genres, pageable);
         }
         
         // 필터링 없는 기본 조회
@@ -75,148 +71,42 @@ public class WorkApiService {
      */
     private PageResponse<WorkSummaryDTO> getWorksByGenresWithDbFiltering(
             Domain domain, String keyword, List<String> platforms, List<String> genres, Pageable pageable) {
-        
         if (domain == null) {
-            log.warn("Genre filtering requires domain to be specified");
+            log.warn("Genre/platform filtering requires domain to be specified");
             return getWorksWithoutFiltering(null, keyword, pageable);
         }
-        
-        String[] genreArray = genres.toArray(new String[0]);
 
-        // ✅ Fast path: 장르 필터만 있는 경우 — DB에서 페이징까지 처리 (테이블 전체 로드 제거)
-        boolean hasKeyword = keyword != null && !keyword.isBlank();
-        boolean hasPlatforms = platforms != null && !platforms.isEmpty();
-        if (!hasKeyword && !hasPlatforms) {
-            Pageable dbPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
-            Page<?> domainPage = findDomainPageByGenres(domain, genreArray, dbPageable);
-            List<WorkSummaryDTO> dtos = domainPage.getContent().stream()
-                    .map(d -> domainToContent(domain, d))
-                    .filter(Objects::nonNull)
-                    .map(this::toWorkSummary)
-                    .collect(Collectors.toList());
-            return PageResponse.<WorkSummaryDTO>builder()
-                    .content(dtos)
-                    .page(domainPage.getNumber())
-                    .size(domainPage.getSize())
-                    .totalElements(domainPage.getTotalElements())
-                    .totalPages(domainPage.getTotalPages())
-                    .first(domainPage.isFirst())
-                    .last(domainPage.isLast())
-                    .build();
-        }
+        String[] genreArr = (genres == null || genres.isEmpty()) ? null : genres.toArray(new String[0]);
+        String[] platformArr = (platforms == null || platforms.isEmpty()) ? null : platforms.toArray(new String[0]);
+        String kw = (keyword == null || keyword.isBlank()) ? null : keyword;
+        // ORDER BY가 쿼리에 고정되어 있으므로 Sort 제거
+        Pageable pageReq = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
-        List<Long> filteredContentIds = new ArrayList<>();
-        
-        // 각 도메인별로 DB에서 장르 필터링
+        Page<?> page;
         switch (domain) {
-            case MOVIE:
-                Page<MovieContent> moviePage = movieContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
-                filteredContentIds = moviePage.getContent().stream()
-                        .map(MovieContent::getContentId)
-                        .collect(Collectors.toList());
-                break;
-            case TV:
-                Page<TvContent> tvPage = tvContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
-                filteredContentIds = tvPage.getContent().stream()
-                        .map(TvContent::getContentId)
-                        .collect(Collectors.toList());
-                break;
-            case GAME:
-                Page<GameContent> gamePage = gameContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
-                filteredContentIds = gamePage.getContent().stream()
-                        .map(GameContent::getContentId)
-                        .collect(Collectors.toList());
-                break;
-            case WEBTOON:
-                Page<WebtoonContent> webtoonPage = webtoonContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
-                filteredContentIds = webtoonPage.getContent().stream()
-                        .map(WebtoonContent::getContentId)
-                        .collect(Collectors.toList());
-                break;
-            case WEBNOVEL:
-                Page<WebnovelContent> webnovelPage = webnovelContentRepository.findByGenresContainingAll(genreArray, GENRE_CANDIDATE_PAGEABLE);
-                filteredContentIds = webnovelPage.getContent().stream()
-                        .map(WebnovelContent::getContentId)
-                        .collect(Collectors.toList());
-                break;
-            default:
-                log.warn("Unsupported domain for genre filtering: {}", domain);
-                return PageResponse.<WorkSummaryDTO>builder()
-                        .content(Collections.emptyList())
-                        .page(0).size(0).totalElements(0L).totalPages(0)
-                        .first(true).last(true).build();
-        }
-        
-        if (filteredContentIds.size() >= GENRE_FILTER_CANDIDATE_CAP) {
-            log.warn("Genre-filter candidate set hit cap {} for domain {}; keyword/platform results may be truncated",
-                    GENRE_FILTER_CANDIDATE_CAP, domain);
+            case MOVIE:    page = movieContentRepository.findWorks(genreArr, platformArr, kw, pageReq); break;
+            case TV:       page = tvContentRepository.findWorks(genreArr, platformArr, kw, pageReq); break;
+            case GAME:     page = gameContentRepository.findWorks(genreArr, platformArr, kw, pageReq); break;
+            case WEBTOON:  page = webtoonContentRepository.findWorks(genreArr, platformArr, kw, pageReq); break;
+            case WEBNOVEL: page = webnovelContentRepository.findWorks(genreArr, platformArr, kw, pageReq); break;
+            default:       return emptyResponse();
         }
 
-        if (filteredContentIds.isEmpty()) {
-            return PageResponse.<WorkSummaryDTO>builder()
-                    .content(Collections.emptyList())
-                    .page(0).size(0).totalElements(0L).totalPages(0)
-                    .first(true).last(true).build();
-        }
+        List<WorkSummaryDTO> dtos = page.getContent().stream()
+                .map(d -> domainToContent(domain, d))
+                .filter(Objects::nonNull)
+                .map(this::toWorkSummary)
+                .collect(Collectors.toList());
 
-        // Content ID로 Content 조회
-        List<Content> filteredContents = contentRepository.findByContentIdIn(filteredContentIds);
-        
-        // 키워드 필터링 (있는 경우)
-        if (keyword != null && !keyword.isBlank()) {
-            String lowerKeyword = keyword.toLowerCase();
-            filteredContents = filteredContents.stream()
-                    .filter(c -> c.getMasterTitle().toLowerCase().contains(lowerKeyword) ||
-                               (c.getOriginalTitle() != null && c.getOriginalTitle().toLowerCase().contains(lowerKeyword)))
-                    .collect(Collectors.toList());
-        }
-        
-        // 플랫폼 필터링 (있는 경우) - MOVIE/TV는 watchProviders, 나머지는 PlatformData
-        if (platforms != null && !platforms.isEmpty()) {
-            if (domain == Domain.MOVIE || domain == Domain.TV) {
-                // OTT 플랫폼과 데이터 소스 플랫폼 분리
-                List<String> lowerPlatforms = platforms.stream()
-                        .map(String::toLowerCase)
-                        .collect(Collectors.toList());
-                List<String> ottPlatforms = lowerPlatforms.stream()
-                        .filter(OTT_WATCH_PROVIDERS::contains)
-                        .collect(Collectors.toList());
-                
-                if (!ottPlatforms.isEmpty()) {
-                    // watchProviders로 필터링
-                    filteredContents = filteredContents.stream()
-                            .filter(c -> filterByWatchProviders(c, ottPlatforms))
-                            .collect(Collectors.toList());
-                } else {
-                    // 데이터 소스 플랫폼으로 필터링
-                    filteredContents = filteredContents.stream()
-                            .filter(c -> filterByPlatforms(c, platforms))
-                            .collect(Collectors.toList());
-                }
-            } else {
-                // GAME, WEBTOON, WEBNOVEL: 기존 방식
-                filteredContents = filteredContents.stream()
-                        .filter(c -> filterByPlatforms(c, platforms))
-                        .collect(Collectors.toList());
-            }
-        }
-        
-        // 정렬 및 페이징 적용
-        return applyPaginationAndMapping(filteredContents, pageable);
-    }
-
-    /**
-     * 도메인별 장르 필터 Page 조회 (genres @> 연산자, DB 페이징)
-     */
-    private Page<?> findDomainPageByGenres(Domain domain, String[] genreArray, Pageable pageable) {
-        switch (domain) {
-            case MOVIE:    return movieContentRepository.findByGenresContainingAll(genreArray, pageable);
-            case TV:       return tvContentRepository.findByGenresContainingAll(genreArray, pageable);
-            case GAME:     return gameContentRepository.findByGenresContainingAll(genreArray, pageable);
-            case WEBTOON:  return webtoonContentRepository.findByGenresContainingAll(genreArray, pageable);
-            case WEBNOVEL: return webnovelContentRepository.findByGenresContainingAll(genreArray, pageable);
-            default:       return Page.empty(pageable);
-        }
+        return PageResponse.<WorkSummaryDTO>builder()
+                .content(dtos)
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .build();
     }
 
     /**
