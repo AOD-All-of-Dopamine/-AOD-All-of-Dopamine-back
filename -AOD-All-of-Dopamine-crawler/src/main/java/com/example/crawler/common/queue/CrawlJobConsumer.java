@@ -1,5 +1,6 @@
 package com.example.crawler.common.queue;
 
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,7 @@ public class CrawlJobConsumer {
 
     private final CrawlJobRepository crawlJobRepository;
     private final JobExecutorRegistry executorRegistry;
+    private final CrawlJobMetrics crawlJobMetrics;
     
     // 🚀 리소스 제어: EC2 t3.small 안전 한계
     private static final int MAX_CONCURRENT_JOBS = 10;  // 전역 최대 동시 처리
@@ -147,21 +149,28 @@ public class CrawlJobConsumer {
     private void processJob(CrawlJob job, JobExecutor executor) {
         job.markAsProcessing();
 
+        JobType jobType = job.getJobType();
+        Timer.Sample sample = crawlJobMetrics.startTimer();
         try {
             boolean success = executor.execute(job.getTargetId());
 
             if (success) {
                 job.markAsCompleted();
+                crawlJobMetrics.recordCompleted(jobType);
                 log.debug("✅ [Consumer] 작업 성공: {} - {}", job.getJobType(), job.getTargetId());
             } else {
                 job.markAsFailed("크롤링 실패 (상세 정보 없음)");
+                crawlJobMetrics.recordFailed(jobType);
                 log.warn("❌ [Consumer] 작업 실패: {} - {}", job.getJobType(), job.getTargetId());
             }
 
         } catch (Exception e) {
             job.markAsFailed(e.getMessage());
+            crawlJobMetrics.recordFailed(jobType);
             log.error("❌ [Consumer] 작업 처리 중 예외 발생: {} - {}",
                     job.getJobType(), job.getTargetId(), e);
+        } finally {
+            crawlJobMetrics.recordDuration(sample, jobType);
         }
     }
 

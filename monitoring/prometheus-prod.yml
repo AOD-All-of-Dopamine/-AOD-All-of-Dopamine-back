@@ -1,0 +1,53 @@
+# ==============================================================================
+# Prometheus PROD config (AOD backend monitoring)
+# Mounted at /etc/prometheus/prometheus.yml inside the prometheus container.
+#
+# The two Spring Boot apps run on SEPARATE EC2 instances and expose
+# Micrometer/Prometheus at /actuator/prometheus. Actuator is NOT public.
+#
+# !!! YOU MUST EDIT THE TARGETS BELOW BEFORE DEPLOY !!!
+#   - Replace API_PRIVATE_IP with the EC2 PRIVATE IP of the api app  (port 8080)
+#   - Replace CRAWLER_PRIVATE_IP with the EC2 PRIVATE IP of the crawler (port 8081)
+#   - The security group of EACH app instance MUST allow inbound TCP from the
+#     Prometheus host's private IP / SG on :8080 and :8081 respectively.
+#     Do NOT expose actuator publicly.
+# Use private IPs (same VPC) so /actuator stays off the public internet.
+# ==============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: prod
+
+rule_files:
+  # Single consolidated rules file (provided by the alerting agent).
+  - /etc/prometheus/alert-rules.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+scrape_configs:
+  # Prometheus self-monitoring.
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # AOD api app  (port 8080). job_name MUST stay exactly "api".
+  - job_name: api
+    metrics_path: /actuator/prometheus
+    scheme: http
+    static_configs:
+      # TODO: set to the api app's EC2 PRIVATE IP. SG must allow Prometheus -> :8080.
+      - targets: ['API_PRIVATE_IP:8080']
+
+  # AOD crawler app  (port 8081). job_name MUST stay exactly "crawler".
+  - job_name: crawler
+    metrics_path: /actuator/prometheus
+    scheme: http
+    static_configs:
+      # TODO: set to the crawler app's EC2 PRIVATE IP. SG must allow Prometheus -> :8081.
+      - targets: ['CRAWLER_PRIVATE_IP:8081']

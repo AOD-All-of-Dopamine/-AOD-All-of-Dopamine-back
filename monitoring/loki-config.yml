@@ -23,3 +23,15 @@ schema_config:
       index:
         prefix: index_
         period: 24h
+
+# Enforce a bounded log retention so the small EC2 disk does not fill up.
+limits_config:
+  retention_period: 168h  # 7 days
+
+compactor:
+  working_directory: /loki/compactor
+  retention_enabled: true
+  delete_request_store: filesystem
+  compaction_interval: 10m
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
