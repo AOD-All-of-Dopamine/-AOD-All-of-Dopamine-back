@@ -1,5 +1,6 @@
 package com.example.crawler.contents.TMDB.source;
 
+import com.example.crawler.crawl.CrawlPipeline;
 import com.example.crawler.crawl.support.GoldenFiles;
 import com.example.crawler.crawl.support.SaveRawCapture;
 import com.example.crawler.contents.TMDB.fetcher.TmdbApiFetcher;
@@ -39,6 +40,20 @@ class TmdbMovieGoldenTest {
 
         TmdbService legacy = new TmdbService(fetcher, collector, processor);
         legacy.collectMovieById(String.valueOf(MOVIE_ID));
+
+        GoldenFiles.assertMatchesGolden("tmdb-movie-27205.json",
+                SaveRawCapture.from(collector).toCanonicalJson());
+    }
+
+    @Test
+    void tmdbMovieSourceMatchesGolden() throws Exception {
+        TmdbApiFetcher fetcher = mock(TmdbApiFetcher.class);
+        CollectorService collector = mock(CollectorService.class);
+        TmdbPayloadProcessor processor = new TmdbPayloadProcessor();
+        when(fetcher.getMovieDetails(eq(MOVIE_ID), eq("ko-KR"))).thenReturn(loadFixture());
+
+        TmdbMovieSource source = new TmdbMovieSource(fetcher, processor);
+        new CrawlPipeline(collector).run(source, String.valueOf(MOVIE_ID));
 
         GoldenFiles.assertMatchesGolden("tmdb-movie-27205.json",
                 SaveRawCapture.from(collector).toCanonicalJson());
