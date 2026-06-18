@@ -55,10 +55,19 @@ public class NaverSeriesNovelParser {
         Element head = doc.selectFirst("div.end_head");
         BigDecimal rating = extractRating(doc);
 
+        // 다운로드(=관심) 수: 1순위 a.btn_download>span, 2순위 div.end_head 텍스트 폴백.
+        // 폴백은 기존 crawlToRaw(관리자 일괄 경로)에만 있던 로직으로, 두 경로를 통합하며 파서에 추가함.
         Long downloadCount = null;
         Element downloadBtnSpan = doc.selectFirst("a.btn_download > span");
         if (downloadBtnSpan != null) {
             downloadCount = parseKoreanCount(downloadBtnSpan.text());
+        }
+        if (downloadCount == null && head != null) {
+            String headText = head.text();
+            Matcher m = Pattern.compile("관심\\s*([\\d.,]+\\s*(?:억|만|천)|[\\d,]+)").matcher(headText);
+            if (m.find()) {
+                downloadCount = parseKoreanCount(m.group(1));
+            }
         }
 
         Long commentCount = extractCommentCount(doc, head);
@@ -125,8 +134,6 @@ public class NaverSeriesNovelParser {
 
         return new CrawlPayload(titleId, productUrl, payload);
     }
-
-    // --- helpers moved VERBATIM from NaverSeriesCrawler ---
 
     private static String text(Element e) {
         return e == null ? "" : e.text().replace(' ', ' ').trim();
@@ -259,7 +266,7 @@ public class NaverSeriesNovelParser {
         }
     }
 
-    // --- public static helpers (also used by the ranking module) — moved VERBATIM ---
+    // --- public static helpers (also used by the ranking module) ---
 
     /**
      * URL에서 쿼리 파라미터 추출 (공개 유틸리티 메서드)

@@ -34,14 +34,12 @@ public class NaverSeriesNovelFetcher {
         return get(detailUrl, cookieString);
     }
 
-    // --- moved VERBATIM from NaverSeriesCrawler (body unchanged) ---
-
-    // [추가됨] 1화 날짜 추출 로직
+    // 1화 날짜 추출 로직
     private String extractFirstEpisodeDate(String productNo, String cookieString) throws Exception {
         // sortOrder=ASC 파라미터를 사용하여 1화부터 정렬된 리스트를 요청
         String apiUrl = "https://series.naver.com/novel/volumeList.series?productNo=" + productNo
                 + "&sortOrder=ASC&page=1";
-        System.out.println("[DEBUG] Fetching first episode date for productNo=" + productNo);
+        log.debug("Fetching first episode date for productNo={}", productNo);
 
         // JSON 응답을 받음
         var conn = Jsoup.connect(apiUrl)
@@ -62,12 +60,12 @@ public class NaverSeriesNovelFetcher {
         String jsonResponse = null;
         try {
             jsonResponse = conn.execute().body();
-            System.out.println("[DEBUG] JSON response length: " + jsonResponse.length() + " chars");
+            log.debug("JSON response length: {} chars", jsonResponse.length());
 
             // JSON에서 lastVolumeUpdateDate 추출 (간단한 문자열 파싱)
             // 형식: "lastVolumeUpdateDate":"2025-08-20 00:01:38"
             int idx = jsonResponse.indexOf("\"lastVolumeUpdateDate\"");
-            System.out.println("[DEBUG] lastVolumeUpdateDate field found at index: " + idx);
+            log.debug("lastVolumeUpdateDate field found at index: {}", idx);
 
             if (idx >= 0) {
                 int startQuote = jsonResponse.indexOf("\"", idx + 23);
@@ -75,19 +73,19 @@ public class NaverSeriesNovelFetcher {
                     int endQuote = jsonResponse.indexOf("\"", startQuote + 1);
                     if (endQuote >= 0) {
                         String dateTime = jsonResponse.substring(startQuote + 1, endQuote);
-                        System.out.println("[DEBUG] Extracted dateTime: " + dateTime);
+                        log.debug("Extracted dateTime: {}", dateTime);
 
                         // "2025-08-20 00:01:38" -> "2025-08-20" (ISO 8601 형식 유지, LocalDate.parse() 호환)
                         if (dateTime != null && dateTime.length() >= 10) {
                             String formattedDate = dateTime.substring(0, 10); // yyyy-MM-dd 형식 유지
-                            System.out.println("[DEBUG] Formatted date: " + formattedDate);
+                            log.debug("Formatted date: {}", formattedDate);
                             return formattedDate;
                         }
                     }
                 }
             }
 
-            System.out.println("[DEBUG] Failed to extract date for productNo=" + productNo);
+            log.debug("Failed to extract date for productNo={}", productNo);
             return null;
         } finally {
             // 🚀 연결 리소스 해제
