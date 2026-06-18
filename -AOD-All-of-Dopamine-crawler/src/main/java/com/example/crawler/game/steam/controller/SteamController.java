@@ -15,6 +15,8 @@ import java.util.Map;
 public class SteamController {
 
     private final SteamCrawlService steamCrawlService;
+    private final com.example.crawler.crawl.CrawlPipeline crawlPipeline;
+    private final com.example.crawler.game.steam.source.SteamGameSource steamGameSource;
 
     /**
      * (메인) 모든 Steam 게임의 상세 정보를 수집하는 전체 프로세스를 시작합니다.
@@ -39,7 +41,7 @@ public class SteamController {
     public ResponseEntity<Map<String, Object>> collectGameByAppId(@org.springframework.web.bind.annotation.RequestBody Map<String, Object> request) {
         try {
             Long appId = ((Number) request.get("appId")).longValue();
-            boolean success = steamCrawlService.collectGameByAppId(appId);
+            boolean success = crawlPipeline.run(steamGameSource, String.valueOf(appId)).isSuccess();
             
             if (success) {
                 return ResponseEntity.ok(Map.of(

@@ -1,8 +1,8 @@
 package com.example.crawler.game.steam.service;
 
+import com.example.crawler.crawl.CrawlPipeline;
 import com.example.crawler.game.steam.fetcher.SteamApiFetcher;
-import com.example.crawler.game.steam.processor.SteamPayloadProcessor;
-import com.example.crawler.ingest.CollectorService;
+import com.example.crawler.game.steam.source.SteamGameSource;
 import com.example.crawler.util.InterruptibleSleep;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 public class SteamCrawlService {
 
     private final SteamApiFetcher steamApiFetcher;
-    private final CollectorService collectorService;
-    private final SteamPayloadProcessor payloadProcessor;
+    private final CrawlPipeline crawlPipeline;
+    private final SteamGameSource steamGameSource;
 
     @Async("crawlerTaskExecutor")
     public CompletableFuture<Integer> collectAllGamesInBatches() {
@@ -86,71 +86,12 @@ public class SteamCrawlService {
                 continue;
             }
 
-            try {
-                // Rate Limiter가 자동으로 요청 제한을 처리하므로 별도 딜레이 불필요
-                Map<String, Object> gameDetails = steamApiFetcher.fetchGameDetails(appId);
-
-                if (gameDetails != null && "game".equals(gameDetails.get("type"))) {
-                    Map<String, Object> processedDetails = payloadProcessor.process(gameDetails);
-                    collectorService.saveRaw(
-                            "Steam",
-                            "GAME",
-                            processedDetails,
-                            String.valueOf(appId),
-                            "https://store.steampowered.com/app/" + appId);
-                    collectedCount++;
-                    log.info("Steam 게임 수집 성공: {} (ID: {})", appName, appId);
-                } else {
-                    log.debug("Skipping AppID {} ({}): Not a game or details unavailable.", appId, appName);
-                }
-
-            } catch (Exception e) {
-                log.error("Steam 게임 ID {} ({}) 처리 중 오류 발생: {}", appId, appName, e.getMessage());
+            // 단일 경로(CrawlPipeline + SteamGameSource)로 통일 — fetch/process/save 중복 제거
+            if (crawlPipeline.run(steamGameSource, String.valueOf(appId)).isSuccess()) {
+                collectedCount++;
             }
         }
         log.info("Steam 게임 데이터 수집 완료. 현재 작업에서 총 {}개의 유효한 게임을 수집했습니다.", collectedCount);
         return collectedCount;
     }
-
-    /**
-     * 특정 AppID의 Steam 게임 상세 정보를 수집하여 저장합니다.
-     * 
-     * @param appId Steam 게임의 고유 ID
-     * @return 수집 성공 여부
-     */
-    public boolean collectGameByAppId(Long appId) {
-        log.info("Steam 게임 AppID {} 데이터 수집 시작", appId);
-        
-        try {
-            Map<String, Object> gameDetails = steamApiFetcher.fetchGameDetails(appId);
-            
-            if (gameDetails == null) {
-                log.warn("AppID {}의 상세 정보를 가져올 수 없습니다.", appId);
-                return false;
-            }
-            
-            if (!"game".equals(gameDetails.get("type"))) {
-                log.warn("AppID {}는 게임이 아닙니다. Type: {}", appId, gameDetails.get("type"));
-                return false;
-            }
-            
-            String appName = (String) gameDetails.get("name");
-            Map<String, Object> processedDetails = payloadProcessor.process(gameDetails);
-            
-            collectorService.saveRaw(
-                    "Steam",
-                    "GAME",
-                    processedDetails,
-                    String.valueOf(appId),
-                    "https://store.steampowered.com/app/" + appId);
-            
-            log.info("Steam 게임 수집 성공: {} (AppID: {})", appName, appId);
-            return true;
-            
-        } catch (Exception e) {
-            log.error("Steam 게임 AppID {} 처리 중 오류 발생: {}", appId, e.getMessage(), e);
-            return false;
-        }
-    }
 }
-

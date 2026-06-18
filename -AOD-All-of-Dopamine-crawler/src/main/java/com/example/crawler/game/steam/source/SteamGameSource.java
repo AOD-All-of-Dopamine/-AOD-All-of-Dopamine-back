@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * Steam game ContentSource. Fetch delegates to SteamApiFetcher, parse delegates to
- * SteamPayloadProcessor — identical to the legacy SteamCrawlService.collectGameByAppId path.
+ * SteamPayloadProcessor — behaviour-identical to the former SteamCrawlService single-item path.
  */
 @Component
 @RequiredArgsConstructor
