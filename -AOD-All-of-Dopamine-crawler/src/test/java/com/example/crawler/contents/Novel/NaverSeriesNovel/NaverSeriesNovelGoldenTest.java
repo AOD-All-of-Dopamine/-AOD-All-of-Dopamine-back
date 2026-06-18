@@ -1,5 +1,6 @@
 package com.example.crawler.contents.Novel.NaverSeriesNovel;
 
+import com.example.crawler.crawl.CrawlPipeline;
 import com.example.crawler.crawl.support.GoldenFiles;
 import com.example.crawler.crawl.support.SaveRawCapture;
 import com.example.crawler.ingest.CollectorService;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class NaverSeriesNovelGoldenTest {
 
@@ -44,6 +46,19 @@ class NaverSeriesNovelGoldenTest {
         };
 
         legacy.collectNovelById(PRODUCT_ID);
+
+        GoldenFiles.assertMatchesGolden("naverseries-novel-12345.json",
+                SaveRawCapture.from(collector).toCanonicalJson());
+    }
+
+    @Test
+    void naverSeriesNovelSourceMatchesGolden() throws Exception {
+        CollectorService collector = mock(CollectorService.class);
+        NaverSeriesNovelFetcher fetcher = mock(NaverSeriesNovelFetcher.class);
+        when(fetcher.fetchDetail(PRODUCT_ID)).thenReturn(new NaverSeriesDetail(fixtureDoc(), FIRST_DATE));
+
+        NaverSeriesNovelSource source = new NaverSeriesNovelSource(fetcher, new NaverSeriesNovelParser());
+        new CrawlPipeline(collector).run(source, PRODUCT_ID);
 
         GoldenFiles.assertMatchesGolden("naverseries-novel-12345.json",
                 SaveRawCapture.from(collector).toCanonicalJson());
