@@ -28,29 +28,6 @@ class NaverSeriesNovelGoldenTest {
         }
     }
 
-    /** Characterization of CURRENT collectNovelById via a test seam (no network). Removed in Task 3. */
-    @Test
-    void legacyCollectNovelByIdMatchesGolden() throws Exception {
-        CollectorService collector = mock(CollectorService.class);
-        Document doc = fixtureDoc();
-
-        NaverSeriesCrawler legacy = new NaverSeriesCrawler(collector) {
-            @Override
-            protected Document get(String url, String cookieString) {
-                return doc;
-            }
-            @Override
-            protected String extractFirstEpisodeDate(String productNo, String cookieString) {
-                return FIRST_DATE;
-            }
-        };
-
-        legacy.collectNovelById(PRODUCT_ID);
-
-        GoldenFiles.assertMatchesGolden("naverseries-novel-12345.json",
-                SaveRawCapture.from(collector).toCanonicalJson());
-    }
-
     @Test
     void naverSeriesNovelSourceMatchesGolden() throws Exception {
         CollectorService collector = mock(CollectorService.class);

@@ -2,22 +2,23 @@ package com.example.crawler.common.queue.executors;
 
 import com.example.crawler.common.queue.JobExecutor;
 import com.example.crawler.common.queue.JobType;
-import com.example.crawler.contents.Novel.NaverSeriesNovel.NaverSeriesCrawler;
+import com.example.crawler.contents.Novel.NaverSeriesNovel.NaverSeriesNovelSource;
+import com.example.crawler.crawl.CrawlPipeline;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * 네이버 시리즈 소설 크롤링 Executor
- * 
- * Jsoup 기반으로 매우 빠름 (~100-200ms)
+ * 네이버 시리즈 소설 크롤링 Executor — delegates to the unified CrawlPipeline + NaverSeriesNovelSource.
+ * (Removed in P4 when the Consumer talks to ContentSourceRegistry directly.)
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class NaverSeriesNovelExecutor implements JobExecutor {
 
-    private final NaverSeriesCrawler naverSeriesCrawler;
+    private final CrawlPipeline crawlPipeline;
+    private final NaverSeriesNovelSource naverSeriesNovelSource;
 
     @Override
     public JobType getJobType() {
@@ -26,16 +27,16 @@ public class NaverSeriesNovelExecutor implements JobExecutor {
 
     @Override
     public boolean execute(String targetId) {
-        return naverSeriesCrawler.collectNovelById(targetId);
+        return crawlPipeline.run(naverSeriesNovelSource, targetId).isSuccess();
     }
 
     @Override
     public long getAverageExecutionTime() {
-        return 2000; // 🚀 150ms → 2000ms (배치 크기 축소 위해 늘림)
+        return 2000;
     }
-    
+
     @Override
     public int getRecommendedBatchSize() {
-        return 3; // 🚀 20개 → 3개 (스레드 과다 생성 방지)
+        return 3;
     }
 }
