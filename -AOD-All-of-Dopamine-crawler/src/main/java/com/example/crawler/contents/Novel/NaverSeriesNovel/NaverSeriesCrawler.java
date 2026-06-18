@@ -360,7 +360,7 @@ public class NaverSeriesCrawler {
     /* ================= helpers ================ */
 
     // [추가됨] 1화 날짜 추출 로직
-    private String extractFirstEpisodeDate(String productNo, String cookieString) throws Exception {
+    protected String extractFirstEpisodeDate(String productNo, String cookieString) throws Exception {
         // sortOrder=ASC 파라미터를 사용하여 1화부터 정렬된 리스트를 요청
         String apiUrl = "https://series.naver.com/novel/volumeList.series?productNo=" + productNo
                 + "&sortOrder=ASC&page=1";
@@ -418,7 +418,7 @@ public class NaverSeriesCrawler {
         }
     }
 
-    private Document get(String url, String cookieString) throws Exception {
+    protected Document get(String url, String cookieString) throws Exception {
         var conn = Jsoup.connect(url)
                 .userAgent(
                         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")

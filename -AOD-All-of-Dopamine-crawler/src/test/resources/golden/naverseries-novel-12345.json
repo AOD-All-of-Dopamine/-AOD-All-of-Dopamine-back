@@ -1,0 +1,26 @@
+{
+  "domain" : "WEBNOVEL",
+  "payload" : {
+    "ageRating" : "전체 이용가",
+    "author" : "홍길동",
+    "commentCount" : 56,
+    "downloadCount" : 1234,
+    "episodeCount" : 100,
+    "firstDate" : "2020-01-01",
+    "genres" : [
+      "판타지",
+      "액션"
+    ],
+    "imageUrl" : "https://series.naver.com/cover/12345.jpg",
+    "productUrl" : "https://series.naver.com/novel/detail.series?productNo=12345",
+    "publisher" : "네이버출판",
+    "rating" : 9.5,
+    "status" : "연재중",
+    "synopsis" : "재미있는 이야기입니다.",
+    "title" : "홍길동전",
+    "titleId" : "12345"
+  },
+  "platformName" : "NaverSeries",
+  "platformSpecificId" : "12345",
+  "url" : "https://series.naver.com/novel/detail.series?productNo=12345"
+}
