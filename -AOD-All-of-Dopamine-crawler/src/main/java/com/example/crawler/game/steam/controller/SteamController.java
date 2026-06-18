@@ -1,6 +1,8 @@
 package com.example.crawler.game.steam.controller;
 
+import com.example.crawler.crawl.CrawlPipeline;
 import com.example.crawler.game.steam.service.SteamCrawlService;
+import com.example.crawler.game.steam.source.SteamGameSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,8 +17,8 @@ import java.util.Map;
 public class SteamController {
 
     private final SteamCrawlService steamCrawlService;
-    private final com.example.crawler.crawl.CrawlPipeline crawlPipeline;
-    private final com.example.crawler.game.steam.source.SteamGameSource steamGameSource;
+    private final CrawlPipeline crawlPipeline;
+    private final SteamGameSource steamGameSource;
 
     /**
      * (메인) 모든 Steam 게임의 상세 정보를 수집하는 전체 프로세스를 시작합니다.
