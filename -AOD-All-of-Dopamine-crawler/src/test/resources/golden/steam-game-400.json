@@ -1,0 +1,30 @@
+{
+  "domain" : "GAME",
+  "payload" : {
+    "categories" : [
+      "Single-player",
+      "Steam Achievements"
+    ],
+    "developers" : [
+      "Valve"
+    ],
+    "genres" : [
+      "Action",
+      "Indie"
+    ],
+    "header_image" : "https://cdn.akamai.steamstatic.com/steam/apps/400/header.jpg",
+    "is_free" : false,
+    "name" : "Portal",
+    "publishers" : [
+      "Valve"
+    ],
+    "release_date" : "2007년 10월 10일",
+    "required_age" : 0,
+    "short_description" : "Portal is a new single player game from Valve.",
+    "steam_appid" : 400,
+    "type" : "game"
+  },
+  "platformName" : "Steam",
+  "platformSpecificId" : "400",
+  "url" : "https://store.steampowered.com/app/400"
+}
