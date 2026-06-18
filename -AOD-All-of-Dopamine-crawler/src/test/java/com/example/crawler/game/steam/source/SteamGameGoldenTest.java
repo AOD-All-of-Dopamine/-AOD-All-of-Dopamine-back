@@ -1,5 +1,6 @@
 package com.example.crawler.game.steam.source;
 
+import com.example.crawler.crawl.CrawlPipeline;
 import com.example.crawler.crawl.support.GoldenFiles;
 import com.example.crawler.crawl.support.SaveRawCapture;
 import com.example.crawler.game.steam.fetcher.SteamApiFetcher;
@@ -40,6 +41,24 @@ class SteamGameGoldenTest {
 
         SteamCrawlService legacy = new SteamCrawlService(fetcher, collector, processor);
         legacy.collectGameByAppId(APP_ID);
+
+        GoldenFiles.assertMatchesGolden("steam-game-400.json",
+                SaveRawCapture.from(collector).toCanonicalJson());
+    }
+
+    /**
+     * The new unified path (SteamGameSource via CrawlPipeline) must produce the SAME saveRaw
+     * record as the legacy path — guarded by the same golden file.
+     */
+    @Test
+    void steamGameSourceMatchesGolden() throws Exception {
+        SteamApiFetcher fetcher = mock(SteamApiFetcher.class);
+        CollectorService collector = mock(CollectorService.class);
+        SteamPayloadProcessor processor = new SteamPayloadProcessor();
+        when(fetcher.fetchGameDetails(eq(APP_ID))).thenReturn(loadFixture());
+
+        SteamGameSource source = new SteamGameSource(fetcher, processor);
+        new CrawlPipeline(collector).run(source, String.valueOf(APP_ID));
 
         GoldenFiles.assertMatchesGolden("steam-game-400.json",
                 SaveRawCapture.from(collector).toCanonicalJson());
