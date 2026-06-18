@@ -1,0 +1,31 @@
+{
+  "domain" : "TV",
+  "payload" : {
+    "cast" : [
+      "Bryan Cranston",
+      "Aaron Paul"
+    ],
+    "episode_run_time" : [
+      47
+    ],
+    "first_air_date" : "2008-01-20",
+    "genres" : [
+      "Drama"
+    ],
+    "id" : 1396,
+    "name" : "Breaking Bad",
+    "number_of_seasons" : 5,
+    "original_name" : "Breaking Bad",
+    "overview" : "A high school chemistry teacher turned methamphetamine producer.",
+    "poster_image_url" : "https://image.tmdb.org/t/p/w500/breakingbad.jpg",
+    "watch_providers" : [
+      "Netflix"
+    ],
+    "writers" : [
+      "Vince Gilligan"
+    ]
+  },
+  "platformName" : "TMDB_TV",
+  "platformSpecificId" : "1396",
+  "url" : "https://www.themoviedb.org/tv/1396"
+}

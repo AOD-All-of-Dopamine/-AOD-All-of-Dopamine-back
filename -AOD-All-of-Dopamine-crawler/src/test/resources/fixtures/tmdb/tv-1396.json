@@ -1,0 +1,27 @@
+{
+  "id": 1396,
+  "name": "Breaking Bad",
+  "original_name": "Breaking Bad",
+  "overview": "A high school chemistry teacher turned methamphetamine producer.",
+  "first_air_date": "2008-01-20",
+  "episode_run_time": [47],
+  "number_of_seasons": 5,
+  "popularity": 410.2,
+  "vote_count": 12000,
+  "poster_path": "/breakingbad.jpg",
+  "genres": [
+    {"id": 18, "name": "Drama"}
+  ],
+  "credits": {
+    "cast": [
+      {"name": "Bryan Cranston"},
+      {"name": "Aaron Paul"}
+    ],
+    "crew": [
+      {"job": "Writer", "name": "Vince Gilligan"}
+    ]
+  },
+  "watch/providers": {
+    "results": {"KR": {"flatrate": [{"provider_name": "Netflix"}]}}
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "domain" : "MOVIE",
+  "payload" : {
+    "cast" : [
+      "Leonardo DiCaprio",
+      "Joseph Gordon-Levitt"
+    ],
+    "directors" : [
+      "Christopher Nolan"
+    ],
+    "genres" : [
+      "Action",
+      "Science Fiction"
+    ],
+    "id" : 27205,
+    "original_title" : "Inception",
+    "overview" : "A thief who steals corporate secrets through dream-sharing technology.",
+    "poster_image_url" : "https://image.tmdb.org/t/p/w500/inception.jpg",
+    "release_date" : "2010-07-16",
+    "runtime" : 148,
+    "title" : "Inception",
+    "watch_providers" : [
+      "Netflix",
+      "Watcha"
+    ],
+    "writers" : [
+      "Christopher Nolan"
+    ]
+  },
+  "platformName" : "TMDB_MOVIE",
+  "platformSpecificId" : "27205",
+  "url" : "https://www.themoviedb.org/movie/27205"
+}

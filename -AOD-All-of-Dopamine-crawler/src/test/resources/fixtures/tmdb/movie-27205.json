@@ -1,0 +1,28 @@
+{
+  "id": 27205,
+  "title": "Inception",
+  "original_title": "Inception",
+  "overview": "A thief who steals corporate secrets through dream-sharing technology.",
+  "release_date": "2010-07-16",
+  "runtime": 148,
+  "popularity": 82.5,
+  "vote_count": 34000,
+  "poster_path": "/inception.jpg",
+  "genres": [
+    {"id": 28, "name": "Action"},
+    {"id": 878, "name": "Science Fiction"}
+  ],
+  "credits": {
+    "cast": [
+      {"name": "Leonardo DiCaprio"},
+      {"name": "Joseph Gordon-Levitt"}
+    ],
+    "crew": [
+      {"job": "Director", "name": "Christopher Nolan"},
+      {"job": "Writer", "name": "Christopher Nolan"}
+    ]
+  },
+  "watch/providers": {
+    "results": {"KR": {"flatrate": [{"provider_name": "Netflix"}, {"provider_name": "Watcha"}]}}
+  }
+}
