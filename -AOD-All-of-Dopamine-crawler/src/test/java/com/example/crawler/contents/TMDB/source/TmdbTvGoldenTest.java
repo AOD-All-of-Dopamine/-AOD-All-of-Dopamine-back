@@ -5,7 +5,6 @@ import com.example.crawler.crawl.support.GoldenFiles;
 import com.example.crawler.crawl.support.SaveRawCapture;
 import com.example.crawler.contents.TMDB.fetcher.TmdbApiFetcher;
 import com.example.crawler.contents.TMDB.processor.TmdbPayloadProcessor;
-import com.example.crawler.contents.TMDB.service.TmdbService;
 import com.example.crawler.ingest.CollectorService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,21 +27,6 @@ class TmdbTvGoldenTest {
             Objects.requireNonNull(in, "fixture not found: /fixtures/tmdb/tv-1396.json");
             return new ObjectMapper().readValue(in, new TypeReference<Map<String, Object>>() {});
         }
-    }
-
-    /** Characterization of the CURRENT single-item TV path. Removed in Task 3. */
-    @Test
-    void legacyCollectTvShowByIdMatchesGolden() throws Exception {
-        TmdbApiFetcher fetcher = mock(TmdbApiFetcher.class);
-        CollectorService collector = mock(CollectorService.class);
-        TmdbPayloadProcessor processor = new TmdbPayloadProcessor();
-        when(fetcher.getTvShowDetails(eq(TV_ID), eq("ko-KR"))).thenReturn(loadFixture());
-
-        TmdbService legacy = new TmdbService(fetcher, collector, processor);
-        legacy.collectTvShowById(String.valueOf(TV_ID));
-
-        GoldenFiles.assertMatchesGolden("tmdb-tv-1396.json",
-                SaveRawCapture.from(collector).toCanonicalJson());
     }
 
     @Test
