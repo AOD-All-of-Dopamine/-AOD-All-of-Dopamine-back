@@ -106,21 +106,7 @@ public class GenericDomainUpserter {
     }
 
     private LocalDate parseDate(Object s) {
-        if (s == null) return null;
-        String v = s.toString().trim();
-        String[] patterns = {"uuuu년 M월 d일", "yyyy-MM-dd", "yyyy.MM.dd", "yyyy/MM/dd", "MMM d, yyyy"};
-        for (String p : patterns) {
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(p, Locale.KOREAN);
-                return LocalDate.parse(v, formatter);
-            } catch (Exception ignored) {
-            }
-        }
-        try {
-            return LocalDate.of(Integer.parseInt(v), 1, 1);
-        } catch (Exception ignored) {
-        }
-        return null;
+        return com.example.crawler.util.FlexibleDateParser.parse(s); // RF-6: 단일 파서로 통합
     }
 }
 
