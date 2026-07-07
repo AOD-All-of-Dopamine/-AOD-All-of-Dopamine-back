@@ -5,7 +5,7 @@ import com.example.shared.entity.Domain;
 import com.example.shared.entity.RawItem;
 import com.example.shared.repository.RawItemRepository;
 import com.example.crawler.rules.MappingRule;
-import com.example.crawler.service.RuleLoader;
+import com.example.crawler.service.RuleRegistry;
 import com.example.crawler.service.TransformEngine;
 import com.example.crawler.service.UpsertService;
 import lombok.RequiredArgsConstructor;
@@ -20,37 +20,9 @@ public class BatchTransformService {
 
     private final RawItemRepository rawRepo;
     private final TransformRunRepository runRepo;
-    private final RuleLoader ruleLoader;
+    private final RuleRegistry ruleRegistry;
     private final TransformEngine transform;
     private final UpsertService upsert;
-
-    // 플랫폼/도메인 → 규칙 경로 매핑
-    private String rulePath(String domain, String platformName) {
-        return switch (domain) {
-            case "WEBNOVEL" -> switch (platformName) {
-                case "NaverSeries" -> "rules/webnovel/naverseries.yml";
-                case "KakaoPage"   -> "rules/webnovel/kakaopage.yml";
-                default -> throw new IllegalArgumentException("No rule for webnovel platform: " + platformName);
-            };
-            case "MOVIE" -> switch (platformName) {
-                case "TMDB_MOVIE" -> "rules/movie/tmdb_movie.yml";
-                default -> throw new IllegalArgumentException("No rule for MOVIE platform: " + platformName);
-            };
-            case "TV" -> switch (platformName) {
-                case "TMDB_TV" -> "rules/tv/tmdb_tv.yml";
-                default -> throw new IllegalArgumentException("No rule for TV platform: " + platformName);
-            };
-            case "GAME" -> switch (platformName) {
-                case "Steam" -> "rules/game/steam.yml";
-                default -> throw new IllegalArgumentException("No rule for GAME platform: " + platformName);
-            };
-            case "WEBTOON" -> switch (platformName) {
-                case "NaverWebtoon" -> "rules/webtoon/naverwebtoon.yml";
-                default -> throw new IllegalArgumentException("No rule for WEBTOON platform: " + platformName);
-            };
-            default -> throw new IllegalArgumentException("No rule for domain "+domain);
-        };
-    }
 
     @Transactional
     public int processBatch(int batchSize) {
@@ -64,10 +36,8 @@ public class BatchTransformService {
             run.setPlatformName(raw.getPlatformName());
             run.setDomain(raw.getDomain());
             try {
-                String rp = rulePath(raw.getDomain(), raw.getPlatformName());
-                run.setRulePath(rp);
-
-                MappingRule rule = ruleLoader.load(rp);
+                MappingRule rule = ruleRegistry.resolve(raw.getDomain(), raw.getPlatformName());
+                run.setRulePath(ruleRegistry.pathOf(raw.getPlatformName()));
                 var tri = transform.transform(raw.getSourcePayload(), rule);
 
                 // [수정] Steam의 steam_appid를 가져오도록 경로 추가

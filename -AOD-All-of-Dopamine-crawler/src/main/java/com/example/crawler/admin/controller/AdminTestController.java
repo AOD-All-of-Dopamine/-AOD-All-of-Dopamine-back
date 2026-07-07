@@ -47,6 +47,7 @@ public class AdminTestController {
     private final TransformSchedulingService transformSchedulingService;
     private final RawItemRepository rawRepo;
     private final RuleLoader ruleLoader;
+    private final com.example.crawler.service.RuleRegistry ruleRegistry;
     private final TransformEngine transformEngine;
     private final UpsertService upsertService;
 
@@ -63,6 +64,7 @@ public class AdminTestController {
             TransformSchedulingService transformSchedulingService,
             RawItemRepository rawRepo,
             RuleLoader ruleLoader,
+            com.example.crawler.service.RuleRegistry ruleRegistry,
             TransformEngine transformEngine,
             UpsertService upsertService) {
         this.naverSeriesCrawler = naverSeriesCrawler;
@@ -78,6 +80,7 @@ public class AdminTestController {
         this.transformSchedulingService = transformSchedulingService;
         this.rawRepo = rawRepo;
         this.ruleLoader = ruleLoader;
+        this.ruleRegistry = ruleRegistry;
         this.transformEngine = transformEngine;
         this.upsertService = upsertService;
     }
@@ -563,25 +566,14 @@ public class AdminTestController {
     }
 
     private String defaultRulePath(String domain, String platform) {
-        if ("WEBNOVEL".equalsIgnoreCase(domain)) {
-            if ("NaverSeries".equalsIgnoreCase(platform))
-                return "rules/webnovel/naverseries.yml";
-            if ("KakaoPage".equalsIgnoreCase(platform))
-                return "rules/webnovel/kakaopage.yml";
-        }
-        if ("WEBTOON".equalsIgnoreCase(domain)) {
-            if ("NaverWebtoon".equalsIgnoreCase(platform))
-                return "rules/webtoon/naverwebtoon.yml";
-        }
-        if ("AV".equalsIgnoreCase(domain)) {
-            if ("TMDB".equalsIgnoreCase(platform))
-                return "rules/av/tmdb.yml";
-        }
-        if ("GAME".equalsIgnoreCase(domain)) {
-            if ("Steam".equalsIgnoreCase(platform))
-                return "rules/game/steam.yml";
-        }
-        throw new IllegalArgumentException("No default rule for domain=" + domain + ", platform=" + platform);
+        // RuleRegistry 위임 — yml이 진실 공급원. 어드민 편의상 대소문자 무시 매칭.
+        return ruleRegistry.all().stream()
+                .filter(r -> r.getPlatformName().equalsIgnoreCase(platform)
+                        && r.getDomain().equalsIgnoreCase(domain))
+                .findFirst()
+                .map(r -> ruleRegistry.pathOf(r.getPlatformName()))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No default rule for domain=" + domain + ", platform=" + platform));
     }
 
     /* ===================== 요청 DTO ===================== */
