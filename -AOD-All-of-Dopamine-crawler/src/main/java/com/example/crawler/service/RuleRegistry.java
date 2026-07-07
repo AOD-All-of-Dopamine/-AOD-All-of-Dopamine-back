@@ -52,12 +52,24 @@ public class RuleRegistry {
         }
     }
 
-    /** Resource → RuleLoader가 이해하는 classpath 상대경로("rules/...") 추출. */
+    /**
+     * Resource → RuleLoader가 이해하는 classpath 상대경로("rules/...") 추출.
+     * 첫 "rules/" 매칭은 상위 디렉토리명(예: /opt/app-rules/)에 오탐할 수 있어,
+     * "이후에 '!'가 없고 .yml로 끝나는" 마지막 "rules/" 후보를 취한다 (리뷰 F#2).
+     */
     private String resourcePath(Resource res) throws java.io.IOException {
         String url = res.getURL().toString().replace('\\', '/');
-        int i = url.indexOf("rules/");
-        if (i < 0) throw new IllegalStateException("classpath rules 경로 아님: " + url);
-        return url.substring(i);
+        String found = null;
+        int idx = url.indexOf("rules/");
+        while (idx >= 0) {
+            String candidate = url.substring(idx);
+            if (candidate.endsWith(".yml") && !candidate.contains("!")) {
+                found = candidate; // 더 뒤의(짧은) 후보로 계속 갱신
+            }
+            idx = url.indexOf("rules/", idx + 1);
+        }
+        if (found == null) throw new IllegalStateException("classpath rules 경로 아님: " + url);
+        return found;
     }
 
     public Optional<MappingRule> byPlatform(String platformName) {

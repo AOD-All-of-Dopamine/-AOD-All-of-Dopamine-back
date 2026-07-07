@@ -1,3 +1,7 @@
+# ⚠️ 미완성 룰 (리뷰 F#1 문서화): domainObjectMappings/defaults 미선언 상태.
+# RuleRegistry 자동발견으로 이 룰은 이제 '활성'이다 — Epic 크롤러가 생겨 RawItem이 흐르기 시작하면
+# GameContent 도메인 필드(developer/publisher/genres/platforms)가 채워지지 않아 중복병합·필터가 동작하지 않는다.
+# Epic 수집을 시작하기 전에 반드시 domainObjectMappings를 완성할 것. (현재는 Epic RawItem 생산처가 없어 휴면)
 platformName: Epic
 domain: GAME
 schemaVersion: 1

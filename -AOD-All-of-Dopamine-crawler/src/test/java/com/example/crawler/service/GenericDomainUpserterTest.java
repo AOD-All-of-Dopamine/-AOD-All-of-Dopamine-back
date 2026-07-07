@@ -68,4 +68,14 @@ class GenericDomainUpserterTest {
         upserter.upsert(e, Map.of("status", "휴재"), Map.of("status", m));
         assertEquals("휴재", e.getStatus()); // 맵에 없으면 원본 유지
     }
+
+    @Test
+    void valueMapDoesNotStringifyUnmappedNonStringValues() {
+        // 리뷰 F#5: valueMap 미매칭 시 비문자열 값의 타입을 훼손하면 안 된다
+        DomainObjectMapping m = mapping("genres", "list");
+        m.setValueMap(Map.of("something", "다른것"));
+        TestEntity e = new TestEntity();
+        upserter.upsert(e, Map.of("genres", List.of("판타지", "액션")), Map.of("genres", m));
+        assertEquals(List.of("판타지", "액션"), e.getGenres()); // "[판타지, 액션]" 문자열화 금지
+    }
 }

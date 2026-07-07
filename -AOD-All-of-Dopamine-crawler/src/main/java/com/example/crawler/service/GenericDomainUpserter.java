@@ -34,9 +34,11 @@ public class GenericDomainUpserter {
             if (mapping != null && value != null) {
                 String targetField = mapping.getTargetField(); // 엔티티의 필드명 (e.g., "author")
                 try {
-                    // RF-5: yml valueMap 선언이 있으면 원본 값을 먼저 치환 (없는 값은 원본 유지)
+                    // RF-5: yml valueMap 선언이 있으면 원본 값을 먼저 치환.
+                    // 매칭 없으면 원본을 '타입 그대로' 유지 (List 등 비문자열 값 훼손 금지 — 리뷰 F#5)
                     if (mapping.getValueMap() != null) {
-                        value = mapping.getValueMap().getOrDefault(value.toString(), value.toString());
+                        String mapped = mapping.getValueMap().get(value.toString());
+                        if (mapped != null) value = mapped;
                     }
                     Object convertedValue = convertType(value, mapping.getType());
 
