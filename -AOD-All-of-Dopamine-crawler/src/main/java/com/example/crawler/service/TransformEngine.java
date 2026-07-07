@@ -113,27 +113,26 @@ public class TransformEngine {
             }
         }
         applyNormalizers(master, rule.getNormalizers());
-        
-        // platforms 배열 생성 (도메인 테이블용)
+
+        // platforms 배열 생성 (도메인 테이블용): 자기 플랫폼명 + yml platformsFrom 선언 attribute 병합 (RF-4)
         List<String> platformNames = new ArrayList<>();
         platformNames.add(rule.getPlatformName());  // "TMDB_MOVIE", "Steam" 등 - 대소문자 유지
-        
-        // watch_providers가 있으면 추가 (TMDB만)
-        Map<String,Object> attrs = platform.attributes();
-        if (attrs.containsKey("watch_providers")) {
-            Object wpObj = attrs.get("watch_providers");
-            if (wpObj instanceof List) {
-                @SuppressWarnings("unchecked")
-                List<String> watchProviders = (List<String>) wpObj;
-                platformNames.addAll(watchProviders);  // 대소문자 그대로 저장 (Netflix, Disney Plus 등)
+
+        if (rule.getPlatformsFrom() != null) {
+            Map<String, Object> attrs = platform.attributes();
+            for (String attrKey : rule.getPlatformsFrom()) {
+                if (attrs.get(attrKey) instanceof List<?> extra) {
+                    for (Object v : extra) {
+                        if (v instanceof String s) platformNames.add(s); // 대소문자 그대로 (Netflix, Disney Plus 등)
+                    }
+                }
+                // attribute 자체는 attributes에 유지 (상세 페이지에서 참조)
             }
-            // watch_providers는 attributes에도 유지 (상세 페이지에서 참조)
-            // platforms 컬럼에도 저장되어 필터링에 사용됨
         }
-        
+
         // domainDoc에 platforms 추가 (도메인 테이블에 저장하기 위해)
         domain.put("platforms", platformNames);
-        
+
         return new Triple(master, platform, domain);
     }
 

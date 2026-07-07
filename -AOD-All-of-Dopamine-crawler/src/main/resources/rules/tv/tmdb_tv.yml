@@ -43,3 +43,7 @@ normalizers:
     fields: [master_title, original_title]
   - type: nfkc
     fields: [master_title, original_title]
+
+# RF-4: watch_providers를 domain.platforms 배열에 병합 (과거 엔진 하드코딩 특례 대체)
+platformsFrom:
+  - watch_providers

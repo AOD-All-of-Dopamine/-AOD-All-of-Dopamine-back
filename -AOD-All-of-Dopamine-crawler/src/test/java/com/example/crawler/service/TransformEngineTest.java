@@ -88,10 +88,10 @@ class TransformEngineTest {
     }
 
     @Test
-    void platformsArrayContainsPlatformNameAndWatchProviders() {
-        // 현재 동작: watch_providers 특례 하드코딩.
-        // RF-4 이후: yml platformsFrom 선언으로 동일 출력이 재현되어야 함
+    void platformsFromDeclarationMergesAttributeIntoPlatformsArray() {
+        // RF-4: platforms 병합은 하드코딩 특례가 아니라 yml platformsFrom 선언이 결정한다.
         var rule = rule(Map.of("wp", "platform.attributes.watch_providers"));
+        rule.setPlatformsFrom(List.of("watch_providers"));
         var out = engine.transform(
                 Map.of("wp", List.of("Netflix", "Disney Plus")), rule);
 
@@ -100,6 +100,14 @@ class TransformEngineTest {
         // attributes에도 유지 (상세 페이지 참조용)
         assertEquals(List.of("Netflix", "Disney Plus"),
                 out.platform().attributes().get("watch_providers"));
+    }
+
+    @Test
+    void withoutPlatformsFromDeclarationNoAttributeIsMerged() {
+        // 선언이 없으면 attribute가 있어도 platforms에 병합하지 않는다
+        var rule = rule(Map.of("wp", "platform.attributes.watch_providers"));
+        var out = engine.transform(Map.of("wp", List.of("Netflix")), rule);
+        assertEquals(List.of("TestPlatform"), out.domain().get("platforms"));
     }
 
     @Test
