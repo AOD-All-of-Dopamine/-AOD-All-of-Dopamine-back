@@ -51,8 +51,11 @@ public class RecommendService {
         this.objectMapper = objectMapper;
     }
 
+    // M2 명시 한계(리뷰 반영, silent drop 방지):
+    // - page는 M2 미지원(항상 동일 Top-N 블록) — 오프셋 페이지네이션은 M3에서 구현.
+    // - 캐시 evict(§1.2 프로파일 변경/야간) 미구현 — M4 캐시 마일스톤에서 TTL/evict 도입.
     @Cacheable(value = "homeRecommendations",
-               key = "#req.userId() + ':' + #req.page()",
+               key = "#req.userId() + ':' + #req.page() + ':' + #req.size()",
                condition = "#req.location() == 'home'")
     public List<RecommendationItem> recommend(RecRequest req) {
         // M2: 무조건 콜드스타트(quality/popularity fallback). positive_count 분기·온보딩 시드는 M3.
