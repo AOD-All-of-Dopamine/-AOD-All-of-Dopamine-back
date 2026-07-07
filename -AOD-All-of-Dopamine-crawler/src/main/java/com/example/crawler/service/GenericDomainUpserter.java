@@ -36,6 +36,10 @@ public class GenericDomainUpserter {
             if (mapping != null && value != null) {
                 String targetField = mapping.getTargetField(); // 엔티티의 필드명 (e.g., "author")
                 try {
+                    // RF-5: yml valueMap 선언이 있으면 원본 값을 먼저 치환 (없는 값은 원본 유지)
+                    if (mapping.getValueMap() != null) {
+                        value = mapping.getValueMap().getOrDefault(value.toString(), value.toString());
+                    }
                     Object convertedValue = convertType(value, mapping.getType());
 
                     // 대상 필드 타입 확인 및 변환
@@ -68,7 +72,7 @@ public class GenericDomainUpserter {
         return switch (type) {
             case "integer" -> convertToInteger(value);
             case "long" -> (value instanceof Number n) ? n.longValue() : Long.parseLong(value.toString());
-            case "webtoon_status" -> "true".equalsIgnoreCase(value.toString()) ? "완결" : "연재중";
+            // "webtoon_status" 제거(RF-5): 도메인 값 치환은 yml valueMap 선언으로 (어떤 yml도 미사용이던 사문)
             case "date" -> parseDate(value);
             case "list" -> (value instanceof List<?> list) ? list : List.of(value);
             // TODO: double 등 필요한 타입 변환 로직 추가
