@@ -42,6 +42,10 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'   // BOM으로 버전 관리 (중복/명시 버전 제거)
 	runtimeOnly 'com.h2database:h2'
 
+	// === Flyway (aod_ai grant 마이그레이션 V4 적용) ===
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+
 	// JSONB 매핑 (Hibernate Types)
 	implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
 
