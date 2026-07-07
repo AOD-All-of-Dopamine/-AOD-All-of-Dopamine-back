@@ -91,16 +91,9 @@ public class TransformEngine {
 
                 Object val = deepGet(raw, src);
 
-                // 값이 null일 경우, platform.attributes 필드에 한해 기본값 설정
-                if (val == null && dst.startsWith("platform.attributes.")) {
-                    String attrName = dst.substring("platform.attributes.".length());
-                    if (attrName.contains("count") || attrName.contains("runtime")) {
-                        val = 0;
-                    } else if (attrName.equals("cast") || attrName.equals("crew")) {
-                        val = Collections.emptyList();
-                    } else {
-                        val = "";
-                    }
+                // 값이 없으면 yml defaults 선언에서 채움 (선언 없으면 스킵 — RF-3)
+                if (val == null && rule.getDefaults() != null) {
+                    val = rule.getDefaults().get(dst);
                 }
 
                 if (val == null) continue;

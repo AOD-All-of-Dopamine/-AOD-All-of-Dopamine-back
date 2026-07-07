@@ -51,3 +51,7 @@ normalizers:
     fields: [master_title]
   - type: collapse_spaces
     fields: [master_title]
+# RF-3: 원본 누락 시 명시적 기본값 (과거 필드명 휴리스틱 대체)
+defaults:
+  platform.attributes.like_count: 0
+  platform.attributes.episode_count: 0

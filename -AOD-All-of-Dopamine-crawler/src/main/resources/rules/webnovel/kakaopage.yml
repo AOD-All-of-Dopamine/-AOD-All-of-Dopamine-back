@@ -48,3 +48,7 @@ normalizers:
     fields: [master_title]
   - type: nfkc
     fields: [master_title, platform.attributes.author, platform.attributes.publisher]
+# RF-3: 원본 누락 시 명시적 기본값 (과거 필드명 휴리스틱 대체)
+defaults:
+  platform.attributes.view_count: 0
+  platform.attributes.comment_count: 0

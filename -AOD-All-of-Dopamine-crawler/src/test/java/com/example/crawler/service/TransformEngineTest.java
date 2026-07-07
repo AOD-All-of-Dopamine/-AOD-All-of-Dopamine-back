@@ -54,18 +54,29 @@ class TransformEngineTest {
     }
 
     @Test
-    void missingPlatformAttributeGetsTypeAwareDefault() {
-        // 현재 동작: 이름 휴리스틱 (count/runtime→0, cast/crew→[], 그 외 "")
-        // RF-3 이후: yml defaults 선언으로 동일 출력이 재현되어야 함
+    void missingFieldGetsYmlDeclaredDefault() {
+        // RF-3: 기본값은 이름 휴리스틱이 아니라 yml defaults 선언에서 온다.
         var rule = rule(Map.of(
                 "missingCount", "platform.attributes.comment_count",
-                "missingCast", "platform.attributes.cast",
-                "missingEtc", "platform.attributes.note"));
+                "missingList", "platform.attributes.tags",
+                "missingAuthor", "domain.author"));
+        rule.setDefaults(Map.of(
+                "platform.attributes.comment_count", 0,
+                "platform.attributes.tags", List.of(),
+                "domain.author", "미상"));
         var out = engine.transform(Map.of(), rule);
 
         assertEquals(0, out.platform().attributes().get("comment_count"));
-        assertEquals(List.of(), out.platform().attributes().get("cast"));
-        assertEquals("", out.platform().attributes().get("note"));
+        assertEquals(List.of(), out.platform().attributes().get("tags"));
+        assertEquals("미상", out.domain().get("author"));
+    }
+
+    @Test
+    void missingAttributeWithoutDeclaredDefaultIsSkipped() {
+        // RF-3: 선언 없는 필드는 조용히 스킵 — 과거의 "" 주입(정크) 제거
+        var rule = rule(Map.of("missingEtc", "platform.attributes.note"));
+        var out = engine.transform(Map.of(), rule);
+        assertFalse(out.platform().attributes().containsKey("note"));
     }
 
     @Test
