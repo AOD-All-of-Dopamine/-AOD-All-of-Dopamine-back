@@ -16,7 +16,7 @@ public class TransformRun {
     @Column(nullable=false, length=50) private String domain;
     @Column(length=500) private String rulePath;           // ex: rules/webnovel/naverseries.yml
 
-    @Column(nullable=false, length=50) private String status; // SUCCESS/FAILED
+    @Column(nullable=false, length=50) private String status; // SUCCESS / SUCCESS_DUPLICATE / SKIPPED / FAILED
     @Column(columnDefinition="text") private String error;
 
     private Long producedContentId;

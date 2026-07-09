@@ -66,6 +66,20 @@ class DomainCatalogTest {
     }
 
     @Test
+    void webtoonCandidatesAndGameCreateLink() {
+        Content owner = new Content();
+        WebtoonContent existingToon = new WebtoonContent(owner);
+        WebtoonContent probe = new WebtoonContent(new Content());
+        probe.setAuthor("비가");
+        when(webtoonRepo.findByAuthor("비가")).thenReturn(List.of(existingToon));
+        assertEquals(List.of(owner), catalog.duplicateCandidates(Domain.WEBTOON, probe));
+
+        Content c = new Content();
+        GameContent g = (GameContent) catalog.create(Domain.GAME, c);
+        assertSame(c, g.getContent());
+    }
+
+    @Test
     void saveDelegatesToDomainRepositoryAndFindByContentIdLoads() {
         WebnovelContent w = new WebnovelContent(new Content());
         catalog.save(Domain.WEBNOVEL, w);

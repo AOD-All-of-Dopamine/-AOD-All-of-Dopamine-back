@@ -43,7 +43,7 @@ public class DomainCatalog {
     /** 병합 시 기존 도메인 엔티티 로드. */
     public Optional<Object> findByContentId(Domain domain, Long contentId) {
         return switch (domain) {
-            case MOVIE -> movieRepo.findById(contentId).map(e -> e);
+            case MOVIE -> movieRepo.findById(contentId).map(e -> e); // Optional<T> → Optional<Object> 업캐스트
             case TV -> tvRepo.findById(contentId).map(e -> e);
             case GAME -> gameRepo.findById(contentId).map(e -> e);
             case WEBTOON -> webtoonRepo.findById(contentId).map(e -> e);
@@ -54,9 +54,11 @@ public class DomainCatalog {
     /**
      * 중복 후보: 같은 author(웹툰/웹소설)·developer(게임)의 기존 작품들.
      * MOVIE/TV는 기존 시스템과 동일하게 미지원(빈 목록). author/developer 없으면 검색하지 않는다.
+     * entity는 반드시 이 카탈로그가 만든/로드한 인스턴스여야 한다 (타입 불일치 시 즉시 실패).
      */
     public List<Content> duplicateCandidates(Domain domain, Object entity) {
         return switch (domain) {
+            // 동일 author/developer 전작품 무제한 조회 — 기존 시스템과 동일(알려진 특성), Slice 규칙 예외
             case GAME -> {
                 String dev = ((GameContent) entity).getDeveloper();
                 yield isBlank(dev) ? List.of()
