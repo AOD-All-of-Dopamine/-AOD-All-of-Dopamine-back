@@ -39,6 +39,7 @@ public final class Values {
         return cur;
     }
 
+    /** null-안전 String.valueOf — psid/url 문자열화용 (IngestPipeline). */
     public static String str(Object v) {
         return v == null ? null : String.valueOf(v);
     }

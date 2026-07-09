@@ -80,7 +80,8 @@ class DraftAssemblerTest {
         assertEquals(9.9, pd.getAttributes().get("rating"));
         assertEquals(0, pd.getAttributes().get("download_count"));     // default 채움 (RF-3)
 
-        assertTrue(d.boundDomainProps().containsAll(List.of("author", "publisher", "ageRating", "genres", "platforms")));
+        // yml mappings 선언 순서 + platforms 엔진 주입 (정확한 순서 핀)
+        assertEquals(List.of("author", "publisher", "ageRating", "genres", "platforms"), d.boundDomainProps());
     }
 
     private static final String TMDB_MOVIE_V4 = """
@@ -123,6 +124,22 @@ class DraftAssemblerTest {
         assertEquals(List.of("TMDB_MOVIE", "Netflix", "Disney Plus"), m.getPlatforms());
         assertEquals(List.of("Netflix", "Disney Plus"), d.platformData().getAttributes().get("watch_providers"));
         assertEquals("693134", d.platformData().getPlatformSpecificId()); // 중첩경로 + String 변환
+    }
+
+    @Test
+    void domainDefaultIsBoundAndRecordedInBoundProps() {
+        PlatformRule r = rule("""
+                platformName: X
+                domain: WEBNOVEL
+                mappings:
+                  title: master.masterTitle
+                  ageRating: domain.ageRating
+                defaults:
+                  domain.ageRating: 전체이용가
+                """);
+        DraftAssembler.IngestDraft d = assembler.assemble(Map.of("title", "t"), r);
+        assertEquals("전체이용가", ((WebnovelContent) d.domainEntity()).getAgeRating());
+        assertTrue(d.boundDomainProps().contains("ageRating"));
     }
 
     @Test

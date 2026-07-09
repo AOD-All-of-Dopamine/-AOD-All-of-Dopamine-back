@@ -67,6 +67,8 @@ public record PlatformRule(
         for (Map.Entry<String, Object> e : normalizersRaw.entrySet()) {
             if (!(e.getValue() instanceof List<?> steps))
                 throw new IllegalStateException(path + ": normalizers." + e.getKey() + " 는 스텝 리스트여야 함");
+            if (!e.getKey().startsWith("master."))
+                throw new IllegalStateException(path + ": normalizer 키는 master.*만 지원 — " + e.getKey());
             normalizers.put(e.getKey(), (List<String>) steps);
         }
 

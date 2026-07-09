@@ -37,6 +37,19 @@ class ValuesTest {
     }
 
     @Test
+    void strIsNullSafe() {
+        assertNull(Values.str(null));
+        assertEquals("42", Values.str(42));
+    }
+
+    @Test
+    void everyDeclaredNormalizerStepIsExecutable() {
+        for (String step : Values.NORMALIZERS)
+            assertDoesNotThrow(() -> Values.normalize("x (y) [z]", List.of(step)),
+                    "NORMALIZERS 집합과 normalize switch가 어긋남: " + step);
+    }
+
+    @Test
     void normalizeAppliesStepsInOrder() {
         assertEquals("제목", Values.normalize("제목  (개정판)  ", List.of("strip_parentheses", "collapse_spaces")));
         assertEquals("전지적 독자 시점", Values.normalize("[신작] 전지적 독자 시점 외전", List.of("strip_brackets", "strip_series_qualifiers", "collapse_spaces")));
