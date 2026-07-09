@@ -514,7 +514,7 @@ public class AdminTestController {
                 "itemsPerSecond", processed * 1000L / Math.max(elapsed, 1));
     }
 
-    // 🔥 병렬 배치 처리 (초고속 대량 처리)
+    // 대량 배치 처리 (구 병렬 엔드포인트 — 순차 루프로 대체, 경로는 호환용 유지)
     @PostMapping(path = "/batch/process-parallel", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> runBatchParallel(@RequestBody BatchRequestParallel req) {
         long startTime = System.currentTimeMillis();

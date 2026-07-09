@@ -1,3 +1,7 @@
+> ⚠️ 이 문서는 **구(v3) yml 엔진** 기준 트레이스다. 2026-07 typed 파이프라인 재작성(feature/readable-ingest,
+> [설계 스펙](superpowers/specs/2026-07-09-readable-ingest-rewrite-design.md)) 이후의 흐름은:
+> `IngestPipeline` → `DraftAssembler`(+`RuleRegistry` v4) → `DomainCatalog`. 값 여정은 "yml 1줄 → 프로퍼티명 검색" 2홉.
+
 # Ingest 파이프라인 트레이스: RawItem → Transform → Upsert
 
 > 이 문서는 "값 하나가 어디를 거쳐 어느 테이블에 도착하는지"를 따라가는 **런타임 트레이스**다.

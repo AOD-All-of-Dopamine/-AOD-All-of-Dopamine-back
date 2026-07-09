@@ -77,7 +77,7 @@ public class RuleRegistry {
             if (!rule.mappings().containsValue(dst))
                 throw new IllegalStateException(path + ": 죽은 defaults — 어떤 매핑도 목적지 '" + dst + "'를 사용하지 않음");
         for (String key : rule.platformsFrom())
-            if (!rule.mappings().containsValue("attr." + key) && !rule.defaults().containsKey("attr." + key))
+            if (!rule.mappings().containsValue("attr." + key) && !rule.defaults().containsKey("attr." + key)) // 방어적 — orphan-defaults 린트가 선행 보장하므로 사실상 도달 불가
                 throw new IllegalStateException(path + ": platformsFrom '" + key + "' — attr." + key + " 를 만드는 매핑/기본값이 없음");
 
         for (Map.Entry<String, List<String>> n : rule.normalizers().entrySet()) {
