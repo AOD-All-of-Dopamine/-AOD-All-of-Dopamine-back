@@ -17,6 +17,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -73,6 +74,7 @@ public class IngestPipeline {
                     return null;
                 });
             } catch (Exception e) {                        // 개선 ①: item 격리 — 배치 계속
+                run.setProducedContentId(null);            // 롤백된 contentId가 감사에 남으면 안 됨
                 run.setStatus("FAILED");
                 run.setError(e.toString());
                 log.warn("ingest 실패 rawId={} platform={}: {}", raw.getRawId(), raw.getPlatformName(), e.toString());
@@ -104,6 +106,7 @@ public class IngestPipeline {
         Domain domain = Domain.valueOf(rule.domain());
 
         Content merged = findAndMergeDuplicate(domain, draft);
+        if (merged == null) merged = findByPlatformIdentity(domain, draft); // 재수집 = 같은 작품 갱신
         Long contentId;
         if (merged != null) {
             contentId = merged.getContentId();
@@ -141,8 +144,26 @@ public class IngestPipeline {
     }
 
     /**
+     * 재수집 라우팅: 중복후보가 없어도 (platform, psid)가 이미 아는 행이면 그 작품으로 병합.
+     * 없으면 null → 신규 경로. (신규경로가 같은 psid를 다시 insert → uk_platform_id 위반으로
+     * 재수집이 영구 FAILED 루프에 빠지던 Critical 수정)
+     */
+    private Content findByPlatformIdentity(Domain domain, DraftAssembler.IngestDraft draft) {
+        PlatformData pd = draft.platformData();
+        if (!notBlank(pd.getPlatformSpecificId())) return null;
+        Content owner = platformRepo.findByPlatformNameAndPlatformSpecificId(
+                        pd.getPlatformName(), pd.getPlatformSpecificId())
+                .map(PlatformData::getContent).orElse(null);
+        if (owner == null) return null;
+        mergeInto(domain, owner, draft);
+        return owner;
+    }
+
+    /**
      * 기존 작품에 병합 (구 ContentMergeService.mergeContent 동작 보존):
-     * ① Content는 null인 필드만 채움 ② PlatformData는 (platform,psid) 부재 시에만 추가
+     * ① Content는 null인 필드만 채움 ② PlatformData는 (platform,psid) 기존 행이 있으면
+     *    url/attributes/lastSeenAt 갱신(재수집 반영 — 구 신규경로 upsert의 유용한 절반을 복원한
+     *    의도적 결정), 없으면 추가
      * ③ 도메인 필드는 이번에 바인딩된 프로퍼티를 '덮어쓰기'.
      * ⚠ ③은 platforms 배열도 교체한다(크로스플랫폼 병합 시 기존 플랫폼 유실) — 기존 시스템과 동일한
      *   알려진 이슈로, 동작 보존 원칙에 따라 그대로 두고 별도 이슈로 다룬다.
@@ -156,20 +177,29 @@ public class IngestPipeline {
         contentRepo.save(existing);
 
         PlatformData pd = draft.platformData();
-        boolean platformExists = platformRepo.findByPlatformNameAndPlatformSpecificId(
-                pd.getPlatformName(), pd.getPlatformSpecificId()).isPresent();
-        if (!platformExists) {
-            pd.setContent(existing);
-            platformRepo.save(pd);
-        }
+        platformRepo.findByPlatformNameAndPlatformSpecificId(pd.getPlatformName(), pd.getPlatformSpecificId())
+                .ifPresentOrElse(prior -> {                // 재수집: 신선도 갱신 — 최신 크롤이 진실
+                    prior.setAttributes(pd.getAttributes());
+                    prior.setLastSeenAt(Instant.now());
+                    if (notBlank(pd.getUrl())) prior.setUrl(pd.getUrl());
+                    if (prior.getContent() != null && !Objects.equals(
+                            prior.getContent().getContentId(), existing.getContentId()))
+                        log.warn("크로스링크 PlatformData — (platform={}, psid={})가 contentId={}에 연결된 채 contentId={}로 병합됨",
+                                pd.getPlatformName(), pd.getPlatformSpecificId(),
+                                prior.getContent().getContentId(), existing.getContentId());
+                    platformRepo.save(prior);              // content 포인터는 건드리지 않음
+                }, () -> {
+                    pd.setContent(existing);
+                    platformRepo.save(pd);
+                });
 
-        catalog.findByContentId(domain, existing.getContentId()).ifPresent(existingEntity -> {
+        catalog.findByContentId(domain, existing.getContentId()).ifPresentOrElse(existingEntity -> {
             BeanWrapper from = PropertyAccessorFactory.forBeanPropertyAccess(draft.domainEntity());
             BeanWrapper to = PropertyAccessorFactory.forBeanPropertyAccess(existingEntity);
             for (String prop : draft.boundDomainProps())
                 to.setPropertyValue(prop, from.getPropertyValue(prop));
             catalog.save(domain, existingEntity);
-        });
+        }, () -> log.warn("도메인 행 없음 — 도메인 필드 병합 스킵 contentId={}", existing.getContentId()));
     }
 
     private TransformRun newRun(RawItem raw) {

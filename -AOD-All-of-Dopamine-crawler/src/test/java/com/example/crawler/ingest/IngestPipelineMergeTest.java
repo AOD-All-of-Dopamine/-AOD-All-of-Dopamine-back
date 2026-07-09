@@ -12,6 +12,7 @@ import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.yaml.snakeyaml.Yaml;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +28,7 @@ class IngestPipelineMergeTest {
     private ContentRepository contentRepo;
     private PlatformDataRepository platformRepo;
     private WebnovelContentRepository webnovelRepo;
+    private MovieContentRepository movieRepo;
     private IngestPipeline pipeline;
 
     private static final String KAKAO_V4 = """
@@ -40,6 +42,15 @@ class IngestPipelineMergeTest {
               seriesId: platform.platformSpecificId
             """;
 
+    private static final String TMDB_MOVIE_V4 = """
+            platformName: TMDB_MOVIE
+            domain: MOVIE
+            mappings:
+              title: master.masterTitle
+              overview: master.synopsis
+              movie_details.id: platform.platformSpecificId
+            """;
+
     @BeforeEach
     void setUp() {
         rawRepo = mock(RawItemRepository.class);
@@ -47,13 +58,17 @@ class IngestPipelineMergeTest {
         contentRepo = mock(ContentRepository.class);
         platformRepo = mock(PlatformDataRepository.class);
         webnovelRepo = mock(WebnovelContentRepository.class);
+        movieRepo = mock(MovieContentRepository.class);
         DomainCatalog catalog = new DomainCatalog(
-                mock(MovieContentRepository.class), mock(TvContentRepository.class),
+                movieRepo, mock(TvContentRepository.class),
                 mock(GameContentRepository.class), mock(WebtoonContentRepository.class), webnovelRepo);
         RuleRegistry registry = mock(RuleRegistry.class);
         when(registry.resolve("WEBNOVEL", "KakaoPage"))
                 .thenReturn(PlatformRule.parse("t", new Yaml().load(KAKAO_V4)));
         when(registry.pathOf("KakaoPage")).thenReturn("rules/webnovel/kakaopage.yml");
+        when(registry.resolve("MOVIE", "TMDB_MOVIE"))
+                .thenReturn(PlatformRule.parse("t", new Yaml().load(TMDB_MOVIE_V4)));
+        when(registry.pathOf("TMDB_MOVIE")).thenReturn("rules/movie/tmdb_movie.yml");
         PlatformTransactionManager ptm = mock(PlatformTransactionManager.class);
         when(ptm.getTransaction(any())).thenReturn(new SimpleTransactionStatus());
         pipeline = new IngestPipeline(rawRepo, runRepo, registry, new DraftAssembler(catalog),
@@ -119,7 +134,7 @@ class IngestPipelineMergeTest {
     }
 
     @Test
-    void existingPlatformDataIsNotDuplicated() {
+    void existingPlatformDataIsRefreshedNotDuplicated() {              // 리뷰 Critical: 재수집 신선도 반영
         Content existing = new Content();
         existing.setContentId(100L);
         existing.setDomain(Domain.WEBNOVEL);
@@ -128,15 +143,23 @@ class IngestPipelineMergeTest {
         existingNovel.setAuthor("싱숑");
         when(webnovelRepo.findByAuthor("싱숑")).thenReturn(List.of(existingNovel));
         when(webnovelRepo.findById(100L)).thenReturn(Optional.of(existingNovel));
+
+        PlatformData prior = new PlatformData();                       // 이미 존재하는 행
+        prior.setPlatformName("KakaoPage");
+        prior.setPlatformSpecificId("K-77");
+        prior.setContent(existing);
+        prior.setLastSeenAt(Instant.EPOCH);                            // 갱신 여부 확인용
         when(platformRepo.findByPlatformNameAndPlatformSpecificId("KakaoPage", "K-77"))
-                .thenReturn(Optional.of(new PlatformData()));          // 이미 존재
+                .thenReturn(Optional.of(prior));
 
         RawItem r = kakaoRaw(6L, Map.of("title", "전지적 독자 시점", "author", "싱숑", "seriesId", "K-77"));
         when(rawRepo.lockNextBatch(10)).thenReturn(List.of(r));
 
         pipeline.processBatch(10);
 
-        verify(platformRepo, never()).save(any());                     // 중복 추가 안 함 (기존 동작)
+        verify(platformRepo, times(1)).save(same(prior));              // 같은 행 갱신 — 두 번째 insert 없음
+        assertTrue(prior.getLastSeenAt().isAfter(Instant.EPOCH));      // lastSeenAt 갱신됨
+        assertSame(existing, prior.getContent());                      // content 포인터 불변
     }
 
     @Test
@@ -188,5 +211,91 @@ class IngestPipelineMergeTest {
 
         assertEquals(2, processed);
         verify(runRepo, times(2)).save(any());                         // 두 번째 item도 계속 처리됨
+    }
+
+    @Test
+    void movieReingestBySamePlatformIdMergesInsteadOfFailing() {       // 리뷰 Critical 핀: 중복후보 없는 도메인
+        Content existing = new Content();
+        existing.setContentId(200L);
+        existing.setDomain(Domain.MOVIE);
+        existing.setMasterTitle("듄");
+        existing.setSynopsis(null);                                    // null-fill 대상
+        MovieContent existingMovie = new MovieContent(existing);
+        PlatformData prior = new PlatformData();
+        prior.setPlatformName("TMDB_MOVIE");
+        prior.setPlatformSpecificId("693134");
+        prior.setContent(existing);
+
+        when(platformRepo.findByPlatformNameAndPlatformSpecificId("TMDB_MOVIE", "693134"))
+                .thenReturn(Optional.of(prior));
+        when(movieRepo.findById(200L)).thenReturn(Optional.of(existingMovie));
+
+        RawItem r = new RawItem();
+        r.setRawId(11L);
+        r.setPlatformName("TMDB_MOVIE");
+        r.setDomain("MOVIE");
+        r.setSourcePayload(Map.of("title", "듄", "overview", "새 줄거리",
+                "movie_details", Map.of("id", 693134)));
+        when(rawRepo.lockNextBatch(10)).thenReturn(List.of(r));
+
+        pipeline.processBatch(10);
+
+        ArgumentCaptor<TransformRun> run = ArgumentCaptor.forClass(TransformRun.class);
+        verify(runRepo).save(run.capture());
+        assertEquals("SUCCESS", run.getValue().getStatus());           // 재수집 = 같은 작품 갱신 (FAILED 아님)
+        assertEquals(200L, run.getValue().getProducedContentId());
+
+        verify(contentRepo, times(1)).save(any());                     // 신규 Content 저장 없음
+        verify(contentRepo).save(same(existing));                      // null-fill 병합
+        assertEquals("새 줄거리", existing.getSynopsis());
+        verify(platformRepo).save(same(prior));                        // 같은 PD 행 갱신 (uk_platform_id 위반 없음)
+    }
+
+    @Test
+    void blankRawPsidFallsThroughToPayloadKey() {                      // blank 폴백 패리티 핀
+        RawItem r = kakaoRaw(12L, Map.of(
+                "title", "신작소설",
+                "author", "무명",
+                "platformSpecificId", "P-9"));                         // seriesId 없음 → payload 공용 키 폴백
+        r.setPlatformSpecificId("  ");                                 // raw 컬럼 blank
+        when(rawRepo.lockNextBatch(10)).thenReturn(List.of(r));
+        when(webnovelRepo.findByAuthor("무명")).thenReturn(List.of()); // 중복후보 없음
+        when(platformRepo.findByPlatformNameAndPlatformSpecificId("KakaoPage", "P-9"))
+                .thenReturn(Optional.empty());                         // 동일성 라우팅도 미적중 → 신규 경로
+        when(contentRepo.save(any())).thenAnswer(inv -> {
+            Content c = inv.getArgument(0);
+            c.setContentId(300L);
+            return c;
+        });
+
+        pipeline.processBatch(10);
+
+        ArgumentCaptor<PlatformData> savedPd = ArgumentCaptor.forClass(PlatformData.class);
+        verify(platformRepo).save(savedPd.capture());
+        assertEquals("P-9", savedPd.getValue().getPlatformSpecificId());
+    }
+
+    @Test
+    void missingDomainRowSkipsDomainMergeWithoutThrow() {              // 도메인 행 부재 = WARN 후 스킵
+        Content existing = new Content();
+        existing.setContentId(100L);
+        existing.setDomain(Domain.WEBNOVEL);
+        existing.setMasterTitle("전지적 독자 시점");
+        WebnovelContent existingNovel = new WebnovelContent(existing);
+        existingNovel.setAuthor("싱숑");
+        when(webnovelRepo.findByAuthor("싱숑")).thenReturn(List.of(existingNovel));
+        when(webnovelRepo.findById(100L)).thenReturn(Optional.empty()); // 도메인 행 없음
+        when(platformRepo.findByPlatformNameAndPlatformSpecificId("KakaoPage", "K-77"))
+                .thenReturn(Optional.empty());
+
+        RawItem r = kakaoRaw(13L, Map.of("title", "전지적 독자 시점", "author", "싱숑", "seriesId", "K-77"));
+        when(rawRepo.lockNextBatch(10)).thenReturn(List.of(r));
+
+        pipeline.processBatch(10);
+
+        ArgumentCaptor<TransformRun> run = ArgumentCaptor.forClass(TransformRun.class);
+        verify(runRepo).save(run.capture());
+        assertEquals("SUCCESS", run.getValue().getStatus());           // 예외 없이 완료
+        verify(webnovelRepo, never()).save(any());                     // 도메인 병합만 스킵
     }
 }
