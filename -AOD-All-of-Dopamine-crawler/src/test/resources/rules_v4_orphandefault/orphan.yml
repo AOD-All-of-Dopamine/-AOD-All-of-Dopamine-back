@@ -1,0 +1,6 @@
+platformName: Orphan
+domain: WEBNOVEL
+mappings:
+  title: master.masterTitle
+defaults:
+  attr.view_count: 0

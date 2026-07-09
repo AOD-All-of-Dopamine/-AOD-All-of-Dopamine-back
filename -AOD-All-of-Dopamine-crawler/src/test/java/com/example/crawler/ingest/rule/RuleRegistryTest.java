@@ -68,4 +68,18 @@ class RuleRegistryTest {
         assertTrue(e.getMessage().contains("releaseDate") && e.getMessage().contains("String"),
                 "비문자열 타깃과 요구타입이 메시지에: " + e.getMessage());
     }
+
+    @Test
+    void bootFailsOnOrphanDefault() {
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> new RuleRegistry("classpath*:rules_v4_orphandefault/*.yml", catalog()));
+        assertTrue(e.getMessage().contains("attr.view_count"), e.getMessage());
+    }
+
+    @Test
+    void bootFailsOnPlatformsFromWithoutProducer() {
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> new RuleRegistry("classpath*:rules_v4_badplatformsfrom/*.yml", catalog()));
+        assertTrue(e.getMessage().contains("watch_providers"), e.getMessage());
+    }
 }

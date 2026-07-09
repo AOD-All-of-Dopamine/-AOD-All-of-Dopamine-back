@@ -73,6 +73,12 @@ public class RuleRegistry {
 
         for (String dst : rule.mappings().values()) requireProperty(path, dst, master, dom, platform);
         for (String dst : rule.defaults().keySet()) requireProperty(path, dst, master, dom, platform);
+        for (String dst : rule.defaults().keySet())
+            if (!rule.mappings().containsValue(dst))
+                throw new IllegalStateException(path + ": 죽은 defaults — 어떤 매핑도 목적지 '" + dst + "'를 사용하지 않음");
+        for (String key : rule.platformsFrom())
+            if (!rule.mappings().containsValue("attr." + key) && !rule.defaults().containsKey("attr." + key))
+                throw new IllegalStateException(path + ": platformsFrom '" + key + "' — attr." + key + " 를 만드는 매핑/기본값이 없음");
 
         for (Map.Entry<String, List<String>> n : rule.normalizers().entrySet()) {
             requireProperty(path, n.getKey(), master, dom, platform);
