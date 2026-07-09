@@ -10,6 +10,8 @@ import com.example.shared.repository.ContentRepository;
 import com.example.shared.repository.PlatformDataRepository;
 import com.example.shared.repository.RawItemRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
@@ -76,7 +78,11 @@ public class IngestPipeline {
                 log.warn("ingest 실패 rawId={} platform={}: {}", raw.getRawId(), raw.getPlatformName(), e.toString());
             } finally {
                 run.setFinishedAt(Instant.now());
-                runRepo.save(run);
+                try {
+                    runRepo.save(run);
+                } catch (Exception ex) {                   // 감사 기록 실패가 배치를 죽이면 안 됨 (T6 리뷰)
+                    log.error("TransformRun 기록 실패 rawId={}", raw.getRawId(), ex);
+                }
             }
         }
         return batch.size();
@@ -116,14 +122,14 @@ public class IngestPipeline {
     /** psid/url 결정: raw 컬럼 우선 → yml 매핑(draft) → payload 공용 키 (구 fallback 체인의 축소 보존). */
     private void fillPlatformIds(RawItem raw, PlatformData pd) {
         if (notBlank(raw.getPlatformSpecificId())) pd.setPlatformSpecificId(raw.getPlatformSpecificId());
-        else if (pd.getPlatformSpecificId() == null)
+        else if (!notBlank(pd.getPlatformSpecificId()))    // blank도 fallback (구 firstNonNull 패리티, T6 리뷰)
             pd.setPlatformSpecificId(Values.str(Values.deepGet(raw.getSourcePayload(), "platformSpecificId")));
         if (notBlank(raw.getUrl())) pd.setUrl(raw.getUrl());
-        else if (pd.getUrl() == null)
+        else if (!notBlank(pd.getUrl()))
             pd.setUrl(Values.str(Values.deepGet(raw.getSourcePayload(), "url")));
     }
 
-    /** Task 7에서 병합 구현 — 지금은 후보 순회만 (빈 후보 = null). */
+    /** 후보 중 제목 동일 작품이 있으면 병합 (빈 후보/불일치 = null → 신규 경로). */
     private Content findAndMergeDuplicate(Domain domain, DraftAssembler.IngestDraft draft) {
         for (Content candidate : catalog.duplicateCandidates(domain, draft.domainEntity())) {
             if (Values.sameTitle(draft.content().getMasterTitle(), candidate.getMasterTitle())) {
@@ -134,8 +140,36 @@ public class IngestPipeline {
         return null;
     }
 
+    /**
+     * 기존 작품에 병합 (구 ContentMergeService.mergeContent 동작 보존):
+     * ① Content는 null인 필드만 채움 ② PlatformData는 (platform,psid) 부재 시에만 추가
+     * ③ 도메인 필드는 이번에 바인딩된 프로퍼티를 '덮어쓰기'.
+     * ⚠ ③은 platforms 배열도 교체한다(크로스플랫폼 병합 시 기존 플랫폼 유실) — 기존 시스템과 동일한
+     *   알려진 이슈로, 동작 보존 원칙에 따라 그대로 두고 별도 이슈로 다룬다.
+     */
     private void mergeInto(Domain domain, Content existing, DraftAssembler.IngestDraft draft) {
-        throw new UnsupportedOperationException("Task 7"); // 다음 태스크에서 구현
+        Content incoming = draft.content();
+        if (existing.getOriginalTitle() == null) existing.setOriginalTitle(incoming.getOriginalTitle());
+        if (existing.getReleaseDate() == null) existing.setReleaseDate(incoming.getReleaseDate());
+        if (existing.getPosterImageUrl() == null) existing.setPosterImageUrl(incoming.getPosterImageUrl());
+        if (existing.getSynopsis() == null) existing.setSynopsis(incoming.getSynopsis());
+        contentRepo.save(existing);
+
+        PlatformData pd = draft.platformData();
+        boolean platformExists = platformRepo.findByPlatformNameAndPlatformSpecificId(
+                pd.getPlatformName(), pd.getPlatformSpecificId()).isPresent();
+        if (!platformExists) {
+            pd.setContent(existing);
+            platformRepo.save(pd);
+        }
+
+        catalog.findByContentId(domain, existing.getContentId()).ifPresent(existingEntity -> {
+            BeanWrapper from = PropertyAccessorFactory.forBeanPropertyAccess(draft.domainEntity());
+            BeanWrapper to = PropertyAccessorFactory.forBeanPropertyAccess(existingEntity);
+            for (String prop : draft.boundDomainProps())
+                to.setPropertyValue(prop, from.getPropertyValue(prop));
+            catalog.save(domain, existingEntity);
+        });
     }
 
     private TransformRun newRun(RawItem raw) {
