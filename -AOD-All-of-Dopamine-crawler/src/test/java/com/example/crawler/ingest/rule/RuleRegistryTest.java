@@ -44,4 +44,28 @@ class RuleRegistryTest {
         assertThrows(IllegalStateException.class,
                 () -> new RuleRegistry("classpath*:rules_v4_none/*.yml", catalog()));
     }
+
+    @Test
+    void bootFailsOnDuplicatePlatformName() {
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> new RuleRegistry("classpath*:rules_v4_dup/*.yml", catalog()));
+        assertTrue(e.getMessage().contains("중복") && e.getMessage().contains("Dup"),
+                "중복 platformName과 원인이 메시지에: " + e.getMessage());
+    }
+
+    @Test
+    void bootFailsOnUnknownNormalizerStep() {
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> new RuleRegistry("classpath*:rules_v4_badstep/*.yml", catalog()));
+        assertTrue(e.getMessage().contains("nfck") && e.getMessage().contains("badstep.yml"),
+                "미지 스텝명과 파일 경로가 메시지에: " + e.getMessage());
+    }
+
+    @Test
+    void bootFailsOnNonStringNormalizerTarget() {
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> new RuleRegistry("classpath*:rules_v4_badnormtype/*.yml", catalog()));
+        assertTrue(e.getMessage().contains("releaseDate") && e.getMessage().contains("String"),
+                "비문자열 타깃과 요구타입이 메시지에: " + e.getMessage());
+    }
 }

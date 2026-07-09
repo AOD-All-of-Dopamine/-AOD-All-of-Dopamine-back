@@ -75,8 +75,6 @@ public class RuleRegistry {
         for (String dst : rule.defaults().keySet()) requireProperty(path, dst, master, dom, platform);
 
         for (Map.Entry<String, List<String>> n : rule.normalizers().entrySet()) {
-            if (!n.getKey().startsWith("master."))
-                throw new IllegalStateException(path + ": normalizer는 master.*만 지원 — " + n.getKey());
             requireProperty(path, n.getKey(), master, dom, platform);
             String prop = n.getKey().substring("master.".length());
             if (!String.class.equals(master.getPropertyType(prop)))
@@ -112,7 +110,7 @@ public class RuleRegistry {
     }
 
     private static String shortPath(String url) {
-        int i = url.lastIndexOf("rules");
-        return i >= 0 ? url.substring(i) : url;
+        int i = url.lastIndexOf("/rules/");
+        return i >= 0 ? url.substring(i + 1) : url;
     }
 }

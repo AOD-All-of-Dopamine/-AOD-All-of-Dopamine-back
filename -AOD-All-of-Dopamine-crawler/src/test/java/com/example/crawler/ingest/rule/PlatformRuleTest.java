@@ -124,4 +124,14 @@ class PlatformRuleTest {
                 schemaVersion: four
                 """).getMessage().contains("schemaVersion"), "비숫자 schemaVersion 거부");
     }
+
+    @Test
+    void rejectsNonMasterNormalizerKey() {
+        assertTrue(parseError("""
+                platformName: X
+                domain: GAME
+                normalizers:
+                  platform.url: [nfkc]
+                """).getMessage().contains("platform.url"), "normalizer 키는 master.*만 허용");
+    }
 }
