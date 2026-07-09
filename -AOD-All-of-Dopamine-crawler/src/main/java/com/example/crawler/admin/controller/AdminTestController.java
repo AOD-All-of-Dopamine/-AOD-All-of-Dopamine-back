@@ -9,15 +9,12 @@ import com.example.crawler.contents.TMDB.service.TmdbSchedulingService;
 import com.example.crawler.contents.Webtoon.NaverWebtoon.NaverWebtoonSchedulingService;
 import com.example.crawler.contents.Webtoon.NaverWebtoon.NaverWebtoonService;
 import com.example.crawler.game.steam.service.SteamSchedulingService;
-import com.example.crawler.ingest.BatchTransformService;
-import com.example.crawler.ingest.BatchTransformServiceOptimized;
+import com.example.crawler.ingest.DraftAssembler;
+import com.example.crawler.ingest.IngestPipeline;
 import com.example.crawler.ingest.TransformSchedulingService;
+import com.example.crawler.ingest.rule.RuleRegistry;
 import com.example.shared.entity.RawItem;
 import com.example.shared.repository.RawItemRepository;
-import com.example.crawler.rules.MappingRule;
-import com.example.crawler.service.RuleLoader;
-import com.example.crawler.service.TransformEngine;
-import com.example.crawler.service.UpsertService;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -42,14 +39,11 @@ public class AdminTestController {
     private final NaverSeriesSchedulingService naverSeriesSchedulingService;
     private final CrawlJobProducer crawlJobProducer;
 
-    private final BatchTransformService batchService;
-    private final BatchTransformServiceOptimized batchServiceOptimized;
+    private final IngestPipeline ingestPipeline;
     private final TransformSchedulingService transformSchedulingService;
     private final RawItemRepository rawRepo;
-    private final RuleLoader ruleLoader;
-    private final com.example.crawler.service.RuleRegistry ruleRegistry;
-    private final TransformEngine transformEngine;
-    private final UpsertService upsertService;
+    private final RuleRegistry ingestRuleRegistry;
+    private final DraftAssembler draftAssembler;
 
     public AdminTestController(NaverSeriesCrawler naverSeriesCrawler,
             KakaoPageCrawler kakaoPageCrawler,
@@ -59,14 +53,11 @@ public class AdminTestController {
             NaverWebtoonSchedulingService webtoonSchedulingService,
             NaverSeriesSchedulingService naverSeriesSchedulingService,
             CrawlJobProducer crawlJobProducer,
-            BatchTransformService batchService,
-            BatchTransformServiceOptimized batchServiceOptimized,
+            IngestPipeline ingestPipeline,
             TransformSchedulingService transformSchedulingService,
             RawItemRepository rawRepo,
-            RuleLoader ruleLoader,
-            com.example.crawler.service.RuleRegistry ruleRegistry,
-            TransformEngine transformEngine,
-            UpsertService upsertService) {
+            RuleRegistry ingestRuleRegistry,
+            DraftAssembler draftAssembler) {
         this.naverSeriesCrawler = naverSeriesCrawler;
         this.kakaoPageCrawler = kakaoPageCrawler;
         this.naverWebtoonService = naverWebtoonService;
@@ -75,14 +66,11 @@ public class AdminTestController {
         this.webtoonSchedulingService = webtoonSchedulingService;
         this.naverSeriesSchedulingService = naverSeriesSchedulingService;
         this.crawlJobProducer = crawlJobProducer;
-        this.batchService = batchService;
-        this.batchServiceOptimized = batchServiceOptimized;
+        this.ingestPipeline = ingestPipeline;
         this.transformSchedulingService = transformSchedulingService;
         this.rawRepo = rawRepo;
-        this.ruleLoader = ruleLoader;
-        this.ruleRegistry = ruleRegistry;
-        this.transformEngine = transformEngine;
-        this.upsertService = upsertService;
+        this.ingestRuleRegistry = ingestRuleRegistry;
+        this.draftAssembler = draftAssembler;
     }
 
     // 헬스체크
@@ -499,7 +487,7 @@ public class AdminTestController {
     @PostMapping(path = "/batch/process", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> runBatch(@RequestBody BatchRequest req) {
         int size = (req.batchSize() == null || req.batchSize() <= 0) ? 100 : req.batchSize();
-        int processed = batchService.processBatch(size);
+        int processed = ingestPipeline.processBatch(size);
         long stillPending = rawRepo.countByProcessedFalse();
 
         return Map.of(
@@ -514,7 +502,7 @@ public class AdminTestController {
         long startTime = System.currentTimeMillis();
         int batchSize = req.batchSize() != null && req.batchSize() > 0 ? req.batchSize() : 500;
 
-        int processed = batchServiceOptimized.processBatchOptimized(batchSize);
+        int processed = ingestPipeline.processBatch(batchSize);
         long stillPending = rawRepo.countByProcessedFalse();
         long elapsed = System.currentTimeMillis() - startTime;
 
@@ -535,7 +523,15 @@ public class AdminTestController {
         int batchSize = req.batchSize() != null && req.batchSize() > 0 ? req.batchSize() : 500;
         int numWorkers = req.numWorkers() != null && req.numWorkers() > 0 ? req.numWorkers() : 4;
 
-        int processed = batchServiceOptimized.processInParallel(totalItems, batchSize, numWorkers);
+        // 구 processInParallel(스레드풀) 대체: IngestPipeline은 item별 트랜잭션 격리라 순차 루프로 동일 계약 유지
+        // (numWorkers는 하위호환용으로 받되 무시 — 병렬화는 컷오버로 제거됨)
+        int processed = 0;
+        int iterations = (int) Math.ceil((double) totalItems / batchSize);
+        for (int i = 0; i < iterations; i++) {
+            int n = ingestPipeline.processBatch(batchSize);
+            processed += n;
+            if (n == 0) break;
+        }
         long stillPending = rawRepo.countByProcessedFalse();
         long elapsed = System.currentTimeMillis() - startTime;
 
@@ -549,31 +545,17 @@ public class AdminTestController {
                 "itemsPerSecond", processed * 1000L / Math.max(elapsed, 1));
     }
 
-    // 규칙 프리뷰: payload + rulePath로 transform만 수행해 확인 (DB 반영 X)
+    // 규칙 프리뷰: payload로 assemble만 수행해 확인 (DB 반영 X)
+    // 컷오버 노트: 룰은 (domain, platformName)으로 레지스트리에서 해석 — 임의 rulePath 로드는 폐지(req.rulePath 무시).
     @PostMapping(path = "/transform/preview", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> previewTransform(@RequestBody PreviewRequest req) {
-        String rulePath = (req.rulePath() != null && !req.rulePath().isBlank())
-                ? req.rulePath()
-                : defaultRulePath(req.domain(), req.platformName());
-
-        MappingRule rule = ruleLoader.load(rulePath);
-        var tri = transformEngine.transform(req.payload(), rule);
+        var rule = ingestRuleRegistry.resolve(req.domain(), req.platformName());
+        var draft = draftAssembler.assemble(req.payload(), rule);
         return Map.of(
-                "rulePath", rulePath,
-                "master", tri.master(),
-                "platform", tri.platform(),
-                "domain", tri.domain());
-    }
-
-    private String defaultRulePath(String domain, String platform) {
-        // RuleRegistry 위임 — yml이 진실 공급원. 어드민 편의상 대소문자 무시 매칭.
-        return ruleRegistry.all().stream()
-                .filter(r -> r.getPlatformName().equalsIgnoreCase(platform)
-                        && r.getDomain().equalsIgnoreCase(domain))
-                .findFirst()
-                .map(r -> ruleRegistry.pathOf(r.getPlatformName()))
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No default rule for domain=" + domain + ", platform=" + platform));
+                "rulePath", ingestRuleRegistry.pathOf(rule.platformName()),
+                "master", draft.content(),
+                "platform", draft.platformData(),
+                "domain", draft.domainEntity());
     }
 
     /* ===================== 요청 DTO ===================== */
@@ -612,15 +594,6 @@ public class AdminTestController {
     public record PreviewRequest(String platformName, String domain, String rulePath, Map<String, Object> payload) {
     }
 
-    public record UpsertDirectRequest(String domain,
-            Map<String, Object> master,
-            Map<String, Object> platform,
-            Map<String, Object> domainDoc,
-            String platformSpecificId,
-            String url,
-            String rulePath) {
-    }
-
     /**
      * 중복 검사 테스트용: 특정 RawItem을 다시 처리하도록 강제
      */
@@ -635,7 +608,7 @@ public class AdminTestController {
         rawRepo.save(raw);
 
         // 다시 처리
-        int processed = batchService.processBatch(1);
+        int processed = ingestPipeline.processBatch(1);
 
         return Map.of(
                 "message", "RawItem 재처리 완료",
@@ -662,7 +635,7 @@ public class AdminTestController {
         rawRepo.saveAll(recentRaws);
 
         // 다시 처리
-        int processed = batchService.processBatch(count);
+        int processed = ingestPipeline.processBatch(count);
 
         return Map.of(
                 "message", "최근 " + count + "개 RawItem 재처리 완료",
@@ -677,7 +650,7 @@ public class AdminTestController {
     public Map<String, Object> processBatch(@RequestParam(defaultValue = "100") int batchSize) {
         try {
             long pendingCount = rawRepo.countByProcessedFalse();
-            int processed = batchService.processBatch(batchSize);
+            int processed = ingestPipeline.processBatch(batchSize);
 
             return Map.of(
                     "success", true,

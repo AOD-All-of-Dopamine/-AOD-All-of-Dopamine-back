@@ -36,16 +36,19 @@ flowchart TD
 - **성능과 속도 보장:** 가공된 10만 건 이상의 데이터를 개별 저장하지 않고 Hibernate Batch Insert 기능을 통해 50개 단위로 트랜잭션을 묶어 삽입합니다. (2.8시간 분량을 단 3분으로 단축)
 - **무결성 방어:** 파서를 돌며 값이 NULL이 되거나 타입 캐스팅(String->Integer)이 불가능한 경우 Validator가 데이터를 파기하여 서버의 장애를 예방합니다.
 
-## 4. YML 룰 스키마 (선언 가능한 것들)
+## 4. YML 룰 스키마 v4 (선언 가능한 것들)
 
 | 섹션 | 역할 | 예시 |
 |---|---|---|
 | `platformName` / `domain` | RuleRegistry 인덱스 키 (필수) | `NaverSeries` / `WEBNOVEL` |
-| `fieldMappings` | 원본 경로 → 목적지 라우팅. 목적지 접두사가 저장 위치를 결정: 없음=`contents`(마스터), `domain.`=도메인 테이블, `platform.`=platform_data, `platform.attributes.`=JSONB | `viewCount: platform.attributes.view_count` |
-| `defaults` | 원본에 값이 없을 때 채울 명시적 기본값 (key=목적지 경로). 선언 없으면 해당 필드는 스킵 | `platform.attributes.comment_count: 0` |
-| `platformsFrom` | `domain.platforms` 배열에 병합할 attributes 키 목록 (예: TMDB OTT 제공자) | `- watch_providers` |
-| `domainObjectMappings` | domainDoc 키 → 엔티티 필드 매핑 + 타입 변환(`string`/`integer`/`long`/`date`/`list`) + `valueMap`(원본값 치환표) | `status: {targetField: status, type: string, valueMap: {"true": 완결}}` |
-| `normalizers` | 마스터 필드 정규화 파이프 (`nfkc`, `strip_parentheses`, `strip_brackets`, `collapse_spaces`, `strip_series_qualifiers`, `lowercase`) | — |
+| `mappings` | 원본 경로 → 목적지. 접두사가 저장 위치 결정: `master.*`=contents(프로퍼티명), `domain.*`=도메인 엔티티(프로퍼티명), `platform.*`=platform_data(프로퍼티명), `attr.*`=JSONB 키 리터럴 | `author: domain.author` |
+| `defaults` | 원본 누락 시 채울 명시적 기본값 (key=목적지). 선언 없으면 스킵 | `attr.comment_count: 0` |
+| `platformsFrom` | `platforms` 배열에 병합할 attr 키 목록 | `- watch_providers` |
+| `normalizers` | master 프로퍼티별 정규화 파이프 (`nfkc`, `strip_parentheses`, `strip_brackets`, `collapse_spaces`, `strip_series_qualifiers`, `lowercase`) | `master.masterTitle: [nfkc]` |
+
+> 목적지 프로퍼티명 오타·엔티티 rename 미반영은 **부팅 실패**로 잡힌다 (RuleRegistry 기동 검증).
+> 구 v3의 `domainObjectMappings`/`valueMap`은 폐지 — 목적지가 프로퍼티명 직결이라 2중 매핑이 불필요.
+> 런타임 트레이스는 [8_INGEST_PIPELINE_TRACE.md](8_INGEST_PIPELINE_TRACE.md) 참고(구 엔진 기준 — 갱신 예정).
 
 > **새 플랫폼 추가 절차**: `rules/<domain>/<platform>.yml` 파일 1개 작성이 전부다. 자바 코드 수정 불필요.
 > 날짜 문자열은 `FlexibleDateParser`가 한국어/ISO/점·슬래시/영어 표기를 모두 처리한다.

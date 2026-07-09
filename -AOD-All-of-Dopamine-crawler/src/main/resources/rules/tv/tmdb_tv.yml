@@ -1,49 +1,23 @@
-# src/main/resources/rules/tv/tmdb_tv.yml
-
 platformName: TMDB_TV
-domain: TV                 # AV → TV로 변경
-schemaVersion: 3
+domain: TV
+schemaVersion: 4
 
-fieldMappings:
-  # === Master & Platform Mappings ===
-  name: master_title
-  original_name: original_title
-  poster_image_url: poster_image_url
-  overview: synopsis
-  first_air_date: release_date  # Content의 releaseDate 필드로 매핑됨 (TV는 첫 방영일)
-
-  # === Domain Mappings (for domainDoc) ===
-  genres: domain.genres
-  number_of_seasons: domain.season_count
-  episode_run_time: domain.episode_runtime
-  cast: domain.cast
-
-  # === Platform Attributes ===
-  watch_providers: platform.attributes.watch_providers
-
-domainObjectMappings:
-  genres:
-    targetField: genres
-    type: list
-  platforms:
-    targetField: platforms
-    type: list
-  season_count:
-    targetField: seasonCount
-    type: integer
-  episode_runtime:
-    targetField: episodeRuntime
-    type: integer
-  cast:
-    targetField: cast
-    type: list
+mappings:
+  name:               master.masterTitle
+  original_name:      master.originalTitle
+  poster_image_url:   master.posterImageUrl
+  overview:           master.synopsis
+  first_air_date:     master.releaseDate
+  tv_details.id:      platform.platformSpecificId  # 구 BatchTransformService fallback 흡수
+  genres:             domain.genres
+  number_of_seasons:  domain.seasonCount
+  episode_run_time:   domain.episodeRuntime
+  cast:               domain.cast
+  watch_providers:    attr.watch_providers
 
 normalizers:
-  - type: collapse_spaces
-    fields: [master_title, original_title]
-  - type: nfkc
-    fields: [master_title, original_title]
+  master.masterTitle:   [collapse_spaces, nfkc]
+  master.originalTitle: [collapse_spaces, nfkc]
 
-# RF-4: watch_providers를 domain.platforms 배열에 병합 (과거 엔진 하드코딩 특례 대체)
 platformsFrom:
   - watch_providers
