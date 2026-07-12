@@ -1,0 +1,6 @@
+platformName: BadNormType
+domain: WEBNOVEL
+mappings:
+  firstDate: master.releaseDate
+normalizers:
+  master.releaseDate: [nfkc]

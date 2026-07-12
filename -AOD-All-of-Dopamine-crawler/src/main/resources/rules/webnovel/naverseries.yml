@@ -1,61 +1,28 @@
 platformName: NaverSeries
 domain: WEBNOVEL
-schemaVersion: 3
+schemaVersion: 4
 
-fieldMappings:
-  # === Contents (마스터 공통) ===
-  title: master_title
-  imageUrl: poster_image_url
-  synopsis: synopsis
+mappings:
+  title:         master.masterTitle
+  imageUrl:      master.posterImageUrl
+  synopsis:      master.synopsis
+  firstDate:     master.releaseDate
+  author:        domain.author
+  publisher:     domain.publisher
+  ageRating:     domain.ageRating
+  genres:        domain.genres
+  productUrl:    platform.url
+  titleId:       platform.platformSpecificId
+  status:        attr.status
+  rating:        attr.rating
+  downloadCount: attr.download_count
+  commentCount:  attr.comment_count
+  episodeCount:  attr.episode_count
 
-  # === webnovel_contents (도메인 코어) ===
-  author: domain.author
-  publisher: domain.publisher
-  ageRating: domain.age_rating
-  genres: domain.genres
-
-  # === Contents (1화 날짜를 release_date로) ===
-  firstDate: release_date
-
-  # === Platform_Data ===
-  productUrl: platform.url
-  titleId: platform.platform_specific_id
-
-  # === Platform_Data.attributes (JSONB) ===
-
-  # 기존 attributes
-  status: platform.attributes.status
-  rating: platform.attributes.rating
-  downloadCount: platform.attributes.download_count
-  commentCount: platform.attributes.comment_count
-  episodeCount: platform.attributes.episode_count
-
-domainObjectMappings:
-  author:
-    targetField: author
-    type: string
-  publisher:
-    targetField: publisher
-    type: string
-  age_rating:
-    targetField: ageRating
-    type: string
-  genres:
-    targetField: genres
-    type: list
-  platforms:
-    targetField: platforms
-    type: list
+defaults:
+  attr.download_count: 0
+  attr.comment_count: 0
+  attr.episode_count: 0
 
 normalizers:
-  - type: strip_parentheses
-    fields: [master_title]
-  - type: collapse_spaces
-    fields: [master_title]
-  - type: nfkc
-    fields: [master_title, domain.author, platform.attributes.publisher]
-# RF-3: 원본 누락 시 명시적 기본값 (과거 필드명 휴리스틱 대체)
-defaults:
-  platform.attributes.download_count: 0
-  platform.attributes.comment_count: 0
-  platform.attributes.episode_count: 0
+  master.masterTitle: [strip_parentheses, collapse_spaces, nfkc]

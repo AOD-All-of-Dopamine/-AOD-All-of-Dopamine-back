@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TransformSchedulingService {
 
-    private final BatchTransformService batchTransformService;
+    private final IngestPipeline ingestPipeline;
 
     /**
      * 매일 새벽 6시에 미처리 raw_items 배치 변환
@@ -33,9 +33,9 @@ public class TransformSchedulingService {
             
             // 미처리 데이터가 완전히 없을 때까지 반복 처리
             do {
-                processed = batchTransformService.processBatch(batchSize);
+                processed = ingestPipeline.processBatch(batchSize);
                 totalProcessed += processed;
-                
+
                 if (processed > 0) {
                     log.info("📦 배치 처리 완료: {}개 (누적: {}개)", processed, totalProcessed);
                     // 다음 배치 처리 전 잠시 대기 (DB 부하 완화)
@@ -65,9 +65,9 @@ public class TransformSchedulingService {
             
             // 미처리 데이터가 완전히 없을 때까지 반복 처리
             do {
-                processed = batchTransformService.processBatch(batchSize);
+                processed = ingestPipeline.processBatch(batchSize);
                 totalProcessed += processed;
-                
+
                 if (processed > 0) {
                     log.info("📦 대규모 배치 처리 완료: {}개 (누적: {}개)", processed, totalProcessed);
                     // 다음 배치 처리 전 잠시 대기 (DB 부하 완화)

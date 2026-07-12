@@ -1,0 +1,9 @@
+platformName: NaverSeries
+domain: WEBNOVEL
+mappings:
+  title: master.masterTitle
+  author: domain.author
+  titleId: platform.platformSpecificId
+  rating: attr.rating
+normalizers:
+  master.masterTitle: [nfkc]

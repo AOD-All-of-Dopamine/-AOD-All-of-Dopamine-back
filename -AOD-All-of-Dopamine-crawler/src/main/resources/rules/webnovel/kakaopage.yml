@@ -1,54 +1,26 @@
 platformName: KakaoPage
 domain: WEBNOVEL
-schemaVersion: 3
+schemaVersion: 4
 
-fieldMappings:
-  # === Contents (마스터 공통) ===
-  title: master_title
-  imageUrl: poster_image_url
-  synopsis: synopsis
-  author: domain.author
-  publisher: domain.publisher
-  ageRating: domain.age_rating
-  genres: domain.genres
+mappings:
+  title:        master.masterTitle
+  imageUrl:     master.posterImageUrl
+  synopsis:     master.synopsis
+  author:       domain.author
+  publisher:    domain.publisher
+  ageRating:    domain.ageRating
+  genres:       domain.genres
+  productUrl:   platform.url
+  seriesId:     platform.platformSpecificId
+  status:       attr.status
+  keywords:     attr.keywords
+  rating:       attr.rating
+  viewCount:    attr.view_count
+  commentCount: attr.comment_count
 
-  # === Platform_Data ===
-  productUrl: platform.url
-  seriesId: platform.platform_specific_id
-
-  # === Platform_Data.attributes(JSONB) ===
-
-  status: platform.attributes.status
-  keywords: platform.attributes.keywords
-  rating: platform.attributes.rating
-  viewCount: platform.attributes.view_count
-  commentCount: platform.attributes.comment_count
-
-domainObjectMappings:
-  author:
-    targetField: author
-    type: string
-  publisher:
-    targetField: publisher
-    type: string
-  age_rating:
-    targetField: ageRating
-    type: string
-  genres:
-    targetField: genres
-    type: list
-  platforms:
-    targetField: platforms
-    type: list
+defaults:
+  attr.view_count: 0
+  attr.comment_count: 0
 
 normalizers:
-  - type: strip_parentheses
-    fields: [master_title]
-  - type: collapse_spaces
-    fields: [master_title]
-  - type: nfkc
-    fields: [master_title, platform.attributes.author, platform.attributes.publisher]
-# RF-3: 원본 누락 시 명시적 기본값 (과거 필드명 휴리스틱 대체)
-defaults:
-  platform.attributes.view_count: 0
-  platform.attributes.comment_count: 0
+  master.masterTitle: [strip_parentheses, collapse_spaces, nfkc]

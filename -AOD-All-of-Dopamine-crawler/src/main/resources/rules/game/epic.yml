@@ -1,25 +1,20 @@
-# ⚠️ 미완성 룰 (리뷰 F#1 문서화): domainObjectMappings/defaults 미선언 상태.
-# RuleRegistry 자동발견으로 이 룰은 이제 '활성'이다 — Epic 크롤러가 생겨 RawItem이 흐르기 시작하면
-# GameContent 도메인 필드(developer/publisher/genres/platforms)가 채워지지 않아 중복병합·필터가 동작하지 않는다.
-# Epic 수집을 시작하기 전에 반드시 domainObjectMappings를 완성할 것. (현재는 Epic RawItem 생산처가 없어 휴면)
+# 휴면 룰: Epic RawItem 생산처(크롤러/executor) 없음. 수집 시작 전 매핑 재검토 필요.
+# 구 v3의 data.platforms → domain.platforms 는 死매핑이라 제거 (엔진이 platforms를 항상 주입).
 platformName: Epic
 domain: GAME
-schemaVersion: 1
-fieldMappings:
-  data.title: master_title
-  data.effectiveDate: release_date
-  data.developer: domain.developer
-  data.publisher: domain.publisher
-  data.platforms: domain.platforms
-  data.categories: domain.genres
-  data.description: synopsis
-  data.keyImages[0].url: poster_image_url
+schemaVersion: 4
 
-  data.price.totalPrice.originalPrice: platform.attributes.price_original
-  data.price.totalPrice.discountPrice: platform.attributes.price_discount
-  data.price.totalPrice.currencyCode: platform.attributes.currency
+mappings:
+  data.title:                              master.masterTitle
+  data.description:                        master.synopsis
+  data.effectiveDate:                      master.releaseDate
+  data.keyImages[0].url:                   master.posterImageUrl
+  data.developer:                          domain.developer
+  data.publisher:                          domain.publisher
+  data.categories:                         domain.genres
+  data.price.totalPrice.originalPrice:     attr.price_original
+  data.price.totalPrice.discountPrice:     attr.price_discount
+  data.price.totalPrice.currencyCode:      attr.currency
+
 normalizers:
-  - type: nfkc
-    fields: [master_title]
-  - type: collapse_spaces
-    fields: [master_title]
+  master.masterTitle: [nfkc, collapse_spaces]

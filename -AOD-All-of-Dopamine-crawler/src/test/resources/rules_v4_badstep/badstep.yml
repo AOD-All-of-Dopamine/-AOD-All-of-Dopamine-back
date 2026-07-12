@@ -1,0 +1,6 @@
+platformName: BadStep
+domain: WEBNOVEL
+mappings:
+  title: master.masterTitle
+normalizers:
+  master.masterTitle: [nfck]
