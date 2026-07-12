@@ -1,51 +1,27 @@
 platformName: Steam
 domain: GAME
-schemaVersion: 2
+schemaVersion: 4
 
-fieldMappings:
-  # === Master & Platform Mappings ===
-  name: master_title
-  header_image: poster_image_url
-  short_description: synopsis
-  steam_appid: platform.platform_specific_id
-  release_date: release_date
+mappings:
+  name:                  master.masterTitle
+  header_image:          master.posterImageUrl
+  short_description:     master.synopsis
+  release_date:          master.releaseDate
+  steam_appid:           platform.platformSpecificId
+  developers[0]:         domain.developer
+  publishers[0]:         domain.publisher
+  platforms:             domain.osPlatforms
+  genres:                domain.genres
+  price_overview:        attr.price_overview
+  metacritic:            attr.metacritic
+  is_free:               attr.is_free
+  required_age:          attr.required_age
+  detailed_description:  attr.detailed_description
+  categories:            attr.categories
+  recommendations.total: attr.recommendation_count
 
-  # === Domain Mappings (for domainDoc) ===
-  developers[0]: domain.developer
-  publishers[0]: domain.publisher
-  platforms: domain.os_platforms
-  genres: domain.genres
-
-  # === Platform Attributes ===
-  price_overview: platform.attributes.price_overview
-  metacritic: platform.attributes.metacritic
-  is_free: platform.attributes.is_free
-  required_age: platform.attributes.required_age
-  detailed_description: platform.attributes.detailed_description
-  categories: platform.attributes.categories
-  recommendations.total: platform.attributes.recommendation_count
-
-domainObjectMappings:
-  developer:
-    targetField: developer
-    type: string
-  publisher:
-    targetField: publisher
-    type: string
-  os_platforms:
-    targetField: osPlatforms
-    type: map
-  platforms:
-    targetField: platforms
-    type: list
-  genres:
-    targetField: genres
-    type: list
+defaults:
+  attr.recommendation_count: 0
 
 normalizers:
-  - type: nfkc
-    fields: [master_title]
-  - type: strip_parentheses
-    fields: [master_title]
-  - type: collapse_spaces
-    fields: [master_title]
+  master.masterTitle: [nfkc, strip_parentheses, collapse_spaces]

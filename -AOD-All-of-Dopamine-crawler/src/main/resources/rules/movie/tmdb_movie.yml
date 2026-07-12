@@ -1,45 +1,23 @@
-# src/main/resources/rules/movie/tmdb_movie.yml
-
 platformName: TMDB_MOVIE
-domain: MOVIE              # AV → MOVIE로 변경
-schemaVersion: 3
+domain: MOVIE
+schemaVersion: 4
 
-fieldMappings:
-  # === Master & Platform Mappings ===
-  title: master_title
-  original_title: original_title
-  poster_image_url: poster_image_url
-  overview: synopsis
-  release_date: release_date  # Content의 releaseDate 필드로 매핑됨
-
-  # === Domain Mappings (for domainDoc) ===
-  genres: domain.genres
-  runtime: domain.runtime
-  directors: domain.directors
-  cast: domain.cast
-
-  # === Platform Attributes ===
-  watch_providers: platform.attributes.watch_providers
-
-domainObjectMappings:
-  genres:
-    targetField: genres
-    type: list
-  platforms:
-    targetField: platforms
-    type: list
-  runtime:
-    targetField: runtime
-    type: integer
-  directors:
-    targetField: directors
-    type: list
-  cast:
-    targetField: cast
-    type: list
+mappings:
+  title:            master.masterTitle
+  original_title:   master.originalTitle
+  poster_image_url: master.posterImageUrl
+  overview:         master.synopsis
+  release_date:     master.releaseDate
+  movie_details.id: platform.platformSpecificId    # 구 BatchTransformService fallback 흡수
+  genres:           domain.genres
+  runtime:          domain.runtime
+  directors:        domain.directors
+  cast:             domain.cast
+  watch_providers:  attr.watch_providers
 
 normalizers:
-  - type: collapse_spaces
-    fields: [master_title, original_title]
-  - type: nfkc
-    fields: [master_title, original_title]
+  master.masterTitle:   [collapse_spaces, nfkc]
+  master.originalTitle: [collapse_spaces, nfkc]
+
+platformsFrom:
+  - watch_providers

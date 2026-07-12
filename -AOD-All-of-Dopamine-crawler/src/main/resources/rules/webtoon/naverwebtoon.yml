@@ -1,53 +1,25 @@
 platformName: NaverWebtoon
 domain: WEBTOON
-schemaVersion: 3
+schemaVersion: 4
 
-fieldMappings:
-  # === Master & Platform Mappings ===
-  title: master_title
-  imageUrl: poster_image_url
-  synopsis: synopsis
-  productUrl: platform.url
-  titleId: platform.platform_specific_id
-  likeCount: platform.attributes.like_count
-  episodeCount: platform.attributes.episode_count
+mappings:
+  title:        master.masterTitle
+  imageUrl:     master.posterImageUrl
+  synopsis:     master.synopsis
+  releaseDate:  master.releaseDate
+  author:       domain.author
+  status:       domain.status
+  tags:         domain.genres
+  weekday:      domain.weekday
+  ageRating:    domain.ageRating
+  productUrl:   platform.url
+  titleId:      platform.platformSpecificId
+  likeCount:    attr.like_count
+  episodeCount: attr.episode_count
 
-  # === Domain Mappings (for domainDoc) ===
-  author: domain.author
-  status: domain.status
-  tags: domain.genres
-  weekday: domain.weekday
-  ageRating: domain.ageRating
-  releaseDate: release_date
-
-# [ ✨ 핵심 수정 ]
-# domainDoc의 키를 실제 Entity의 필드(속성)에 매핑하는 규칙
-domainObjectMappings:
-  author:
-    targetField: author
-    type: string
-  status:
-    targetField: status
-    type: string
-  genres:
-    targetField: genres
-    type: list
-  platforms:
-    targetField: platforms
-    type: list
-  weekday:
-    targetField: weekday
-    type: string
-  ageRating:
-    targetField: ageRating
-    type: string
+defaults:
+  attr.like_count: 0
+  attr.episode_count: 0
 
 normalizers:
-  - type: nfkc
-    fields: [master_title, domain.author]
-  - type: strip_brackets
-    fields: [master_title]
-  - type: strip_series_qualifiers
-    fields: [master_title]
-  - type: collapse_spaces
-    fields: [master_title]
+  master.masterTitle: [nfkc, strip_brackets, strip_series_qualifiers, collapse_spaces]

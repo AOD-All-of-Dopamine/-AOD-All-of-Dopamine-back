@@ -1,0 +1,5 @@
+platformName: BadPf
+domain: WEBNOVEL
+mappings:
+  title: master.masterTitle
+platformsFrom: [watch_providers]

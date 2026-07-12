@@ -1,21 +1,20 @@
+# 휴면 룰: Epic RawItem 생산처(크롤러/executor) 없음. 수집 시작 전 매핑 재검토 필요.
+# 구 v3의 data.platforms → domain.platforms 는 死매핑이라 제거 (엔진이 platforms를 항상 주입).
 platformName: Epic
 domain: GAME
-schemaVersion: 1
-fieldMappings:
-  data.title: master_title
-  data.effectiveDate: release_date
-  data.developer: domain.developer
-  data.publisher: domain.publisher
-  data.platforms: domain.platforms
-  data.categories: domain.genres
-  data.description: synopsis
-  data.keyImages[0].url: poster_image_url
+schemaVersion: 4
 
-  data.price.totalPrice.originalPrice: platform.attributes.price_original
-  data.price.totalPrice.discountPrice: platform.attributes.price_discount
-  data.price.totalPrice.currencyCode: platform.attributes.currency
+mappings:
+  data.title:                              master.masterTitle
+  data.description:                        master.synopsis
+  data.effectiveDate:                      master.releaseDate
+  data.keyImages[0].url:                   master.posterImageUrl
+  data.developer:                          domain.developer
+  data.publisher:                          domain.publisher
+  data.categories:                         domain.genres
+  data.price.totalPrice.originalPrice:     attr.price_original
+  data.price.totalPrice.discountPrice:     attr.price_discount
+  data.price.totalPrice.currencyCode:      attr.currency
+
 normalizers:
-  - type: nfkc
-    fields: [master_title]
-  - type: collapse_spaces
-    fields: [master_title]
+  master.masterTitle: [nfkc, collapse_spaces]
