@@ -2,7 +2,7 @@ package com.example.crawler.common.queue.executors;
 
 import com.example.crawler.common.queue.JobExecutor;
 import com.example.crawler.common.queue.JobType;
-import com.example.crawler.contents.Novel.NaverSeriesNovel.NaverSeriesCrawler;
+import com.example.crawler.contents.novel.naverseries.NaverSeriesCrawler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

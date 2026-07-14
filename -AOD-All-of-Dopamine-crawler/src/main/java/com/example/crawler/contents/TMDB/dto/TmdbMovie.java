@@ -1,6 +1,6 @@
 // src/main/java/com/example/AOD/TMDB/dto/TmdbMovie.java
 
-package com.example.crawler.contents.TMDB.dto;
+package com.example.crawler.contents.tmdb.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

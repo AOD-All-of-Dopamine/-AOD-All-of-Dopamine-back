@@ -1,4 +1,4 @@
-package com.example.crawler.contents.Webtoon.NaverWebtoon;
+package com.example.crawler.contents.webtoon.naverwebtoon;
 
 /**
  * 네이버 웹툰 CSS 셀렉터 설정 클래스

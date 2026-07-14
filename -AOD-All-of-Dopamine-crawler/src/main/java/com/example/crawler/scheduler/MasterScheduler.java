@@ -1,10 +1,9 @@
 package com.example.crawler.scheduler;
 
-import com.example.crawler.contents.TMDB.service.TmdbService;
-import com.example.crawler.contents.TMDB.service.TmdbSchedulingService;
-import com.example.crawler.contents.Webtoon.NaverWebtoon.NaverWebtoonSchedulingService;
-import com.example.crawler.contents.Novel.NaverSeriesNovel.NaverSeriesSchedulingService;
-import com.example.crawler.game.steam.service.SteamSchedulingService;
+import com.example.crawler.contents.tmdb.TmdbSchedulingService;
+import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
+import com.example.crawler.contents.novel.naverseries.NaverSeriesSchedulingService;
+import com.example.crawler.contents.game.steam.SteamSchedulingService;
 import com.example.crawler.ingest.TransformSchedulingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

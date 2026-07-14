@@ -2,7 +2,7 @@ package com.example.crawler.common.queue.executors;
 
 import com.example.crawler.common.queue.JobExecutor;
 import com.example.crawler.common.queue.JobType;
-import com.example.crawler.contents.Webtoon.NaverWebtoon.NaverWebtoonService;
+import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

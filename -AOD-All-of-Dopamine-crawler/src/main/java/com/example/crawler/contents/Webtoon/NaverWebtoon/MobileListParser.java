@@ -1,4 +1,4 @@
-package com.example.crawler.contents.Webtoon.NaverWebtoon;
+package com.example.crawler.contents.webtoon.naverwebtoon;
 
 
 import lombok.extern.slf4j.Slf4j;

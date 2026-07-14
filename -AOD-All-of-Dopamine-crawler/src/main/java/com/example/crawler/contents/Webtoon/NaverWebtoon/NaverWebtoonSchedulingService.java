@@ -1,4 +1,4 @@
-package com.example.crawler.contents.Webtoon.NaverWebtoon;
+package com.example.crawler.contents.webtoon.naverwebtoon;
 
 import com.example.crawler.common.queue.CrawlJobProducer;
 import com.example.crawler.common.queue.JobType;

@@ -1,0 +1,138 @@
+package com.example.crawler.ranking;
+
+import com.example.crawler.ranking.RankingCrawlerService;
+import com.example.shared.entity.ExternalRanking;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * 통합 랭킹 크롤링 컨트롤러 (Crawler 서버)
+ * - 모든 플랫폼의 랭킹을 크롤링하는 API 제공
+ * 
+ * 엔드포인트:
+ * - POST /api/crawler/rankings/all: 전체 플랫폼 랭킹 크롤링
+ * - POST /api/crawler/rankings/naver-webtoon: 네이버 웹툰 랭킹만 크롤링
+ * - POST /api/crawler/rankings/naver-series: 네이버 시리즈 랭킹만 크롤링
+ * - POST /api/crawler/rankings/steam: Steam 랭킹만 크롤링
+ * - POST /api/crawler/rankings/tmdb: TMDB 랭킹만 크롤링
+ */
+@Slf4j
+@RestController
+@RequestMapping("/api/crawler/rankings")
+@RequiredArgsConstructor
+public class RankingCrawlerController {
+
+    private final RankingCrawlerService rankingCrawlerService;
+
+    /**
+     * 전체 플랫폼 랭킹 크롤링
+     * POST /api/crawler/rankings/all
+     * 
+     * @return 크롤링된 전체 랭킹 리스트
+     */
+    @PostMapping("/all")
+    public ResponseEntity<List<ExternalRanking>> crawlAllRankings() {
+        try {
+            log.info("전체 플랫폼 랭킹 크롤링 요청 수신");
+            List<ExternalRanking> rankings = rankingCrawlerService.crawlAndGetAllRankings();
+            return ResponseEntity.ok(rankings);
+        } catch (Exception e) {
+            log.error("전체 랭킹 크롤링 실패", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 네이버 웹툰 랭킹만 크롤링
+     * POST /api/crawler/rankings/naver-webtoon
+     */
+    @PostMapping("/naver-webtoon")
+    public ResponseEntity<java.util.Map<String, Object>> crawlNaverWebtoonRanking() {
+        try {
+            rankingCrawlerService.crawlNaverWebtoonRanking();
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "네이버 웹툰 랭킹 크롤링 완료",
+                "status", "success"
+            ));
+        } catch (Exception e) {
+            log.error("네이버 웹툰 랭킹 크롤링 실패", e);
+            return ResponseEntity.internalServerError()
+                    .body(java.util.Map.of(
+                        "message", "크롤링 실패: " + e.getMessage(),
+                        "status", "error"
+                    ));
+        }
+    }
+
+    /**
+     * 네이버 시리즈 랭킹만 크롤링
+     * POST /api/crawler/rankings/naver-series
+     */
+    @PostMapping("/naver-series")
+    public ResponseEntity<java.util.Map<String, Object>> crawlNaverSeriesRanking() {
+        try {
+            rankingCrawlerService.crawlNaverSeriesRanking();
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "네이버 시리즈 랭킹 크롤링 완료",
+                "status", "success"
+            ));
+        } catch (Exception e) {
+            log.error("네이버 시리즈 랭킹 크롤링 실패", e);
+            return ResponseEntity.internalServerError()
+                    .body(java.util.Map.of(
+                        "message", "크롤링 실패: " + e.getMessage(),
+                        "status", "error"
+                    ));
+        }
+    }
+
+    /**
+     * Steam 랭킹만 크롤링
+     * POST /api/crawler/rankings/steam
+     */
+    @PostMapping("/steam")
+    public ResponseEntity<java.util.Map<String, Object>> crawlSteamRanking() {
+        try {
+            rankingCrawlerService.crawlSteamRanking();
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "Steam 랭킹 크롤링 완료",
+                "status", "success"
+            ));
+        } catch (Exception e) {
+            log.error("Steam 랭킹 크롤링 실패", e);
+            return ResponseEntity.internalServerError()
+                    .body(java.util.Map.of(
+                        "message", "크롤링 실패: " + e.getMessage(),
+                        "status", "error"
+                    ));
+        }
+    }
+
+    /**
+     * TMDB 랭킹만 크롤링 (영화 + TV)
+     * POST /api/crawler/rankings/tmdb
+     */
+    @PostMapping("/tmdb")
+    public ResponseEntity<java.util.Map<String, Object>> crawlTmdbRanking() {
+        try {
+            rankingCrawlerService.crawlTmdbRanking();
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "TMDB 랭킹 크롤링 완료",
+                "status", "success"
+            ));
+        } catch (Exception e) {
+            log.error("TMDB 랭킹 크롤링 실패", e);
+            return ResponseEntity.internalServerError()
+                    .body(java.util.Map.of(
+                        "message", "크롤링 실패: " + e.getMessage(),
+                        "status", "error"
+                    ));
+        }
+    }
+}
