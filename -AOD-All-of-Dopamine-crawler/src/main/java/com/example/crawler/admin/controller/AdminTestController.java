@@ -221,7 +221,7 @@ public class AdminTestController {
     public Map<String, Object> queueNaverSeriesPopular(@RequestParam(defaultValue = "5") int maxPages) {
         try {
             String baseUrl = "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all&page=";
-            java.util.List<String> novelIds = naverSeriesSchedulingService.fetchNovelIdsByUrlPublic(baseUrl, maxPages);
+            java.util.List<String> novelIds = naverSeriesSchedulingService.fetchNovelIdsByUrl(baseUrl, maxPages);
 
             int created = 0;
             if (!novelIds.isEmpty()) {
@@ -247,7 +247,7 @@ public class AdminTestController {
     public Map<String, Object> queueNaverSeriesRecent(@RequestParam(defaultValue = "3") int maxPages) {
         try {
             String baseUrl = "https://series.naver.com/novel/recentList.series?page=";
-            java.util.List<String> novelIds = naverSeriesSchedulingService.fetchNovelIdsByUrlPublic(baseUrl, maxPages);
+            java.util.List<String> novelIds = naverSeriesSchedulingService.fetchNovelIdsByUrl(baseUrl, maxPages);
 
             int created = 0;
             if (!novelIds.isEmpty()) {

@@ -80,8 +80,9 @@ public class NaverSeriesSchedulingService {
 
     /**
      * 네이버 시리즈 목록 페이지로부터 소설 ID 목록 가져오기 (Jsoup HTML 파싱)
+     * — 스케줄러와 AdminTestController가 공용으로 사용
      */
-    private List<String> fetchNovelIdsByUrl(String baseUrl, int maxPages) {
+    public List<String> fetchNovelIdsByUrl(String baseUrl, int maxPages) {
         Set<String> novelIds = new LinkedHashSet<>();
 
         for (int page = 1; page <= maxPages; page++) {
@@ -138,13 +139,6 @@ public class NaverSeriesSchedulingService {
         }
 
         return new ArrayList<>(novelIds);
-    }
-
-    /**
-     * Admin Controller용 public 메서드
-     */
-    public List<String> fetchNovelIdsByUrlPublic(String baseUrl, int maxPages) {
-        return fetchNovelIdsByUrl(baseUrl, maxPages);
     }
 }
 
