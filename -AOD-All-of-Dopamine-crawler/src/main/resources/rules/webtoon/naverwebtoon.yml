@@ -9,7 +9,8 @@ mappings:
   releaseDate:  master.releaseDate
   author:       domain.author
   status:       domain.status
-  tags:         domain.genres
+  genres:       domain.genres
+  tags:         domain.genres   # 전환기 호환: 구 payload 키 — 웹툰 재크롤 한 바퀴 후 제거
   weekday:      domain.weekday
   ageRating:    domain.ageRating
   productUrl:   platform.url

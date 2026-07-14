@@ -49,13 +49,22 @@ class RuleFilesTest {
         var d = assembler.assemble(Map.of(
                 "title", "[단행본] 화산귀환 시즌2", "author", "비가",
                 "status", "연재중", "weekday", "mon", "ageRating", "15세이용가",
-                "tags", List.of("무협"), "titleId", "769209"), registry.resolve("WEBTOON", "NaverWebtoon"));
+                "genres", List.of("무협"), "titleId", "769209"), registry.resolve("WEBTOON", "NaverWebtoon"));
         assertEquals("화산귀환", d.content().getMasterTitle());          // 대괄호+시리즈수식어 제거
         WebtoonContent w = (WebtoonContent) d.domainEntity();
         assertEquals("비가", w.getAuthor());
         assertEquals("연재중", w.getStatus());
-        assertEquals(List.of("무협"), w.getGenres());                   // tags → genres
+        assertEquals(List.of("무협"), w.getGenres());
         assertEquals(0, d.platformData().getAttributes().get("like_count")); // default
+    }
+
+    @Test
+    void naverWebtoonLegacyTagsKeyStillMapsToGenres() {
+        // 전환기 호환: genres 개명 이전에 쌓인 raw payload(tags 키)도 장르를 잃지 않아야 함
+        var d = assembler.assemble(Map.of(
+                "title", "참교육", "tags", List.of("액션"), "titleId", "758037"),
+                registry.resolve("WEBTOON", "NaverWebtoon"));
+        assertEquals(List.of("액션"), ((WebtoonContent) d.domainEntity()).getGenres());
     }
 
     @Test

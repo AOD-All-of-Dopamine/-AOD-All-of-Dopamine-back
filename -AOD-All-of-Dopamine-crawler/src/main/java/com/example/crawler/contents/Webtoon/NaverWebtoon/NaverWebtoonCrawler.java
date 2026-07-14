@@ -20,7 +20,7 @@ import java.util.*;
 public class NaverWebtoonCrawler {
 
     private final CollectorService collector;
-    private final WebtoonPageParser pageParser;
+    private final NaverWebtoonSeleniumPageParser pageParser;
     private final MobileListParser mobileListParser;
 
     // URL 상수들
@@ -28,7 +28,7 @@ public class NaverWebtoonCrawler {
     private static final String BASE_FINISH_URL = "https://m.comic.naver.com/webtoon/finish";
     private static final String[] WEEKDAYS = { "mon", "tue", "wed", "thu", "fri", "sat", "sun" };
 
-    public NaverWebtoonCrawler(CollectorService collector, WebtoonPageParser pageParser,
+    public NaverWebtoonCrawler(CollectorService collector, NaverWebtoonSeleniumPageParser pageParser,
             MobileListParser mobileListParser) {
         this.collector = collector;
         this.pageParser = pageParser;
@@ -38,7 +38,7 @@ public class NaverWebtoonCrawler {
     /**
      * PageParser 접근자 (Service 레이어에서 cleanup 위해 필요)
      */
-    public WebtoonPageParser getPageParser() {
+    public NaverWebtoonSeleniumPageParser getPageParser() {
         return pageParser;
     }
 
@@ -93,12 +93,10 @@ public class NaverWebtoonCrawler {
     }
 
     /**
-     * WebDriver 자원 정리 (Selenium 파서인 경우)
+     * WebDriver 자원 정리
      */
     private void cleanupParser() {
-        if (pageParser instanceof NaverWebtoonSeleniumPageParser) {
-            ((NaverWebtoonSeleniumPageParser) pageParser).cleanup();
-        }
+        pageParser.cleanup();
     }
 
     /**
@@ -304,10 +302,8 @@ public class NaverWebtoonCrawler {
         log.debug("URL 변환: {} -> {}", mobileUrl, pcUrl);
 
         try {
-            Document pcDoc = get(pcUrl);
-
-            // PC 페이지에서 추가 정보 파싱하여 기본 DTO에 보완
-            NaverWebtoonDTO enrichedDTO = pageParser.parseWebtoonDetail(pcDoc, pcUrl, basicDTO.getCrawlSource(),
+            // PC 페이지에서 추가 정보 파싱하여 기본 DTO에 보완 (파서가 Selenium으로 직접 접속)
+            NaverWebtoonDTO enrichedDTO = pageParser.parseWebtoonDetail(pcUrl, basicDTO.getCrawlSource(),
                     basicDTO.getWeekday());
 
             if (enrichedDTO != null) {
@@ -338,10 +334,6 @@ public class NaverWebtoonCrawler {
                 .weekday(basicDTO.getWeekday() != null && !basicDTO.getWeekday().isEmpty() 
                         ? basicDTO.getWeekday() : detailedDTO.getWeekday())
                 .status(basicDTO.getStatus() != null ? basicDTO.getStatus() : detailedDTO.getStatus())
-                .likeCount(basicDTO.getLikeCount() != null ? basicDTO.getLikeCount() : detailedDTO.getLikeCount())
-                .serviceType(
-                        basicDTO.getServiceType() != null ? basicDTO.getServiceType() : detailedDTO.getServiceType())
-                .originalPlatform(basicDTO.getOriginalPlatform())
                 .crawlSource(basicDTO.getCrawlSource())
 
                 // PC에서만 수집 가능한 상세 정보
@@ -350,7 +342,7 @@ public class NaverWebtoonCrawler {
                 .synopsis(detailedDTO.getSynopsis())
                 .productUrl(detailedDTO.getProductUrl()) // PC URL 사용
                 .ageRating(detailedDTO.getAgeRating())
-                .tags(detailedDTO.getTags())
+                .genres(detailedDTO.getGenres())
                 .releaseDate(detailedDTO.getReleaseDate()) // 첫 화 연재 날짜 (PC에서만 수집)
                 .build();
     }
@@ -376,13 +368,10 @@ public class NaverWebtoonCrawler {
         payload.put("releaseDate", dto.getReleaseDate() != null ? dto.getReleaseDate().toString() : null);
 
         payload.put("ageRating", nz(dto.getAgeRating()));
-        payload.put("tags", dto.getTags());
+        payload.put("genres", dto.getGenres());
 
         payload.put("likeCount", dto.getLikeCount());
 
-        payload.put("serviceType", nz(dto.getServiceType()));
-
-        payload.put("originalPlatform", nz(dto.getOriginalPlatform()));
         payload.put("crawlSource", nz(dto.getCrawlSource()));
 
         // CollectorService를 통해 raw_items에 저장

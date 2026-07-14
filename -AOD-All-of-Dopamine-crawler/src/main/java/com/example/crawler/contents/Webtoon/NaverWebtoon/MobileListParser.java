@@ -44,11 +44,7 @@ public class MobileListParser {
 
             // 추가 목록 정보 추출
             Long likeCount = parseLikeCount(listItem);
-            List<String> badges = parseBadges(listItem);
             String status = parseStatus(listItem);
-
-            // 뱃지 정보 분석
-            boolean isNew = badges.contains("new");
 
             return NaverWebtoonDTO.builder()
                     .title(cleanText(title))
@@ -59,10 +55,7 @@ public class MobileListParser {
                     .weekday(weekday)
                     .status(translateStatus(status))
                     .likeCount(likeCount)
-                    .originalPlatform("NAVER_WEBTOON")
                     .crawlSource(crawlSource)
-                    // 추가 메타데이터
-                    .serviceType(determineServiceType(badges, isNew))
                     .build();
 
         } catch (Exception e) {
@@ -138,23 +131,6 @@ public class MobileListParser {
         return parseKoreanNumber(countText);
     }
 
-    private List<String> parseBadges(Element listItem) {
-        List<String> badges = new ArrayList<>();
-        Elements badgeElements = listItem.select(NaverWebtoonSelectors.LIST_WEBTOON_BADGES);
-
-        for (Element badge : badgeElements) {
-            String badgeClass = badge.className();
-            // badge 클래스에서 실제 타입 추출 (예: "badge bm" -> "bm")
-            for (String className : badgeClass.split("\\s+")) {
-                if (!"badge".equals(className)) {
-                    badges.add(className);
-                }
-            }
-        }
-
-        return badges;
-    }
-
     private String parseStatus(Element listItem) {
         Element statusElement = listItem.selectFirst(NaverWebtoonSelectors.LIST_WEBTOON_STATUS);
         if (statusElement == null) return null;
@@ -218,12 +194,6 @@ public class MobileListParser {
             case "new": return "신작";
             default: return statusClass;
         }
-    }
-
-    private String determineServiceType(List<String> badges, boolean isNew) {
-        if (isNew) return "신작";
-        if (badges.contains("bm")) return "유료";
-        return "일반";
     }
 
     private String cleanText(String text) {

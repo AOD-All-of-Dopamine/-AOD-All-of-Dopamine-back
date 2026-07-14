@@ -129,11 +129,8 @@ public class NaverWebtoonService {
      */
     private void cleanupSeleniumResources() {
         try {
-            WebtoonPageParser parser = naverWebtoonCrawler.getPageParser();
-            if (parser instanceof NaverWebtoonSeleniumPageParser) {
-                ((NaverWebtoonSeleniumPageParser) parser).cleanup();
-                log.debug("ThreadLocal WebDriver 자원 정리 완료");
-            }
+            naverWebtoonCrawler.getPageParser().cleanup();
+            log.debug("ThreadLocal WebDriver 자원 정리 완료");
         } catch (Exception e) {
             log.warn("ThreadLocal 자원 정리 중 오류 발생: {}", e.getMessage());
         }

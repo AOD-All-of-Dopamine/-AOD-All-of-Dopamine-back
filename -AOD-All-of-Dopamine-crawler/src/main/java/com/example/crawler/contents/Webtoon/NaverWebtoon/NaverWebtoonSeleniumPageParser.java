@@ -4,7 +4,6 @@ package com.example.crawler.contents.Webtoon.NaverWebtoon;
 import com.example.crawler.util.ChromeDriverProvider;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.nodes.Document;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -21,14 +20,13 @@ import java.util.regex.Pattern;
 
 /**
  * 네이버 웹툰 Selenium 기반 페이지 파서
- * - WebtoonPageParser 인터페이스 구현
  * - PC 상세 페이지를 Selenium으로 파싱
  * - React SPA 동적 콘텐츠 완벽 지원
  * - WebDriver 재사용으로 자원 누수 방지
  */
 @Component
 @Slf4j
-public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
+public class NaverWebtoonSeleniumPageParser {
 
     private final ChromeDriverProvider chromeDriverProvider;
     
@@ -43,20 +41,13 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
         this.chromeDriverProvider = chromeDriverProvider;
     }
 
-    @Override
     public String convertToPcUrl(String mobileUrl) {
         if (mobileUrl == null) return null;
         // m.comic.naver.com -> comic.naver.com 변환
         return mobileUrl.replace("m.comic.naver.com", "comic.naver.com");
     }
 
-    @Override
-    public Set<String> extractDetailUrls(Document listDocument) {
-        // MobileListParser가 담당하므로 사실상 사용되지 않음
-        // 인터페이스 호환성을 위해 빈 구현
-        return new LinkedHashSet<>();
-    }
-    
+
     /**
      * 재사용 가능한 WebDriver 획득
      * - ThreadLocal을 사용하여 스레드별 드라이버 관리
@@ -123,10 +114,7 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
         log.info("NaverWebtoonSeleniumPageParser Bean 종료 - ThreadLocal 자원 정리 완료");
     }
 
-    @Override
-    public NaverWebtoonDTO parseWebtoonDetail(Document detailDocument, String detailUrl,
-                                              String crawlSource, String weekday) {
-        // Document 파라미터는 무시하고 detailUrl로 Selenium을 통해 접근
+    public NaverWebtoonDTO parseWebtoonDetail(String detailUrl, String crawlSource, String weekday) {
         WebDriver driver = null;
         
         try {
@@ -180,16 +168,16 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
             // 서비스 정보 파싱
             String ageRating = parseAgeRating(driver);
-            List<String> tags = parseTags(driver);
+            List<String> genres = parseGenres(driver);
 
             // 🎯 핵심: 관심수 파싱 (Selenium으로만 가능)
             Long likeCount = parseLikeCount(driver);
-            
+
             // 🎯 첫 화 연재 날짜 파싱 (이미 정렬된 페이지의 첫 번째 에피소드)
             LocalDate releaseDate = parseReleaseDate(driver);
 
-            log.debug("파싱 완료: {} (관심: {}, 에피소드: {}, 태그: {}, 첫화날짜: {})",
-                    title, likeCount, episodeCount, tags.size(), releaseDate);
+            log.debug("파싱 완료: {} (관심: {}, 에피소드: {}, 장르태그: {}, 첫화날짜: {})",
+                    title, likeCount, episodeCount, genres.size(), releaseDate);
 
             // DTO 빌드
             return NaverWebtoonDTO.builder()
@@ -203,10 +191,9 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
                     .status(status)
                     .episodeCount(episodeCount)
                     .ageRating(ageRating)
-                    .tags(tags)
+                    .genres(genres)
                     .likeCount(likeCount)
                     .releaseDate(releaseDate)
-                    .originalPlatform("NAVER_WEBTOON")
                     .crawlSource(crawlSource)
                     .build();
 
@@ -237,16 +224,10 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
         }
     }
 
-    @Override
     public String extractTitleId(String url) {
         Pattern pattern = Pattern.compile(NaverWebtoonSelectors.TITLE_ID_PATTERN);
         Matcher matcher = pattern.matcher(url);
         return matcher.find() ? matcher.group(1) : null;
-    }
-
-    @Override
-    public String getParserName() {
-        return "NaverWebtoonSeleniumPageParser_v1.0";
     }
 
     // ===== Selenium 기반 개별 파싱 메서드들 =====
@@ -370,48 +351,52 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
 
     private Integer parseEpisodeCount(WebDriver driver) {
         try {
-            // 방법 1: 에피소드 리스트 아이템 개수 세기
+            // 방법 1: 페이지 상단의 "총 N화" 텍스트에서 실제 총 화수 추출
+            // (li 개수는 페이지당 최대 20개라 총 화수가 아님 — 과거 20으로 잘리던 버그의 원인)
+            Integer total = parseTotalEpisodeText(driver);
+            if (total != null && total > 0) {
+                log.debug("에피소드 개수 찾음 (총 N화 텍스트): {}", total);
+                return total;
+            }
+
+            // 방법 2 (fallback): 현재 페이지 리스트 아이템 개수 — 총 화수의 하한값
             List<WebElement> episodeItems = driver.findElements(
-                    By.cssSelector("li[class*='EpisodeList__item']")
+                    By.cssSelector("li[class*='EpisodeList__item'], li[class*='EpisodeListList__item']")
             );
             if (!episodeItems.isEmpty()) {
-                log.debug("에피소드 개수 찾음 (리스트): {}", episodeItems.size());
+                log.debug("에피소드 개수 fallback (페이지 li 개수, 하한값): {}", episodeItems.size());
                 return episodeItems.size();
-            }
-
-            // 방법 2: 다른 패턴들 시도
-            String[] selectors = {
-                    "li[class*='episode']",
-                    "li[class*='Episode']",
-                    "a[href*='no=']"
-            };
-
-            for (String selector : selectors) {
-                List<WebElement> elements = driver.findElements(By.cssSelector(selector));
-                if (!elements.isEmpty()) {
-                    log.debug("에피소드 개수 찾음 ({}): {}", selector, elements.size());
-                    return elements.size();
-                }
-            }
-
-            // 방법 3: JavaScript로 검색
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-            String script = """
-                var episodes = document.querySelectorAll('li[class*="episode"], li[class*="Episode"], a[href*="no="]');
-                return episodes.length;
-                """;
-
-            Object result = js.executeScript(script);
-            if (result instanceof Number && ((Number) result).intValue() > 0) {
-                int count = ((Number) result).intValue();
-                log.debug("에피소드 개수 찾음 (JavaScript): {}", count);
-                return count;
             }
 
         } catch (Exception e) {
             log.warn("에피소드 개수 추출 실패: {}", e.getMessage());
         }
 
+        return null;
+    }
+
+    /**
+     * 페이지에서 "총 256화" 형태의 텍스트를 해시 클래스에 의존하지 않고 탐색.
+     */
+    private Integer parseTotalEpisodeText(WebDriver driver) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            String script = """
+                var els = document.querySelectorAll('div, span, strong, em, h3');
+                for (var i = 0; i < els.length; i++) {
+                    var t = els[i].textContent.trim();
+                    var m = t.match(/^총\\s*([\\d,]+)\\s*화$/);
+                    if (m) return m[1];
+                }
+                return null;
+                """;
+            Object result = js.executeScript(script);
+            if (result instanceof String s) {
+                return Integer.parseInt(s.replace(",", ""));
+            }
+        } catch (Exception e) {
+            log.debug("총 화수 텍스트 탐색 실패: {}", e.getMessage());
+        }
         return null;
     }
 
@@ -434,7 +419,8 @@ public class NaverWebtoonSeleniumPageParser implements WebtoonPageParser {
         return null;
     }
 
-    private List<String> parseTags(WebDriver driver) {
+    /** 페이지 태그 영역(#액션 #사이다 등)을 장르 목록으로 수집 — yml에서 domain.genres로 매핑됨 */
+    private List<String> parseGenres(WebDriver driver) {
         List<String> tags = new ArrayList<>();
 
         try {

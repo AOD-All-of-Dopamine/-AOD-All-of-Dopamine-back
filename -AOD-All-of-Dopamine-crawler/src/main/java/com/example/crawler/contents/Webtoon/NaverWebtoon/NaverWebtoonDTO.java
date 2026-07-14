@@ -4,7 +4,6 @@ package com.example.crawler.contents.Webtoon.NaverWebtoon;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,16 +27,12 @@ public class NaverWebtoonDTO {
 
     // ==== 서비스 정보 ====
     private String ageRating;       // 연령등급 (전체이용가, 15세이용가 등)
-    private List<String> tags;      // 태그 목록 (hashtag 형태)
+    private List<String> genres;    // 장르 목록 (페이지 태그 원천, 타 도메인 payload 키와 통일)
 
     // ==== 인기/평점 정보 ====
-    private Long likeCount;         // 좋아요 수
-
-    // ==== 추가 정보 ====
-    private String serviceType;     // 서비스 타입 (일반, 베스트도전, 도전만화 등)
+    private Long likeCount;         // 관심 수 (페이지의 '관심' 수치 — 좋아요 아님)
 
     // ==== 추가 메타 ====
-    private String originalPlatform; // 원본 플랫폼 (항상 "NAVER_WEBTOON")
     private String crawlSource;     // 크롤링 소스 (weekday_wed, finish 등)
 }
 
