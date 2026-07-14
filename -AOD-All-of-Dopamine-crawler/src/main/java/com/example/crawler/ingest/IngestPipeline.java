@@ -15,7 +15,9 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -164,9 +166,9 @@ public class IngestPipeline {
      * ① Content는 null인 필드만 채움 ② PlatformData는 (platform,psid) 기존 행이 있으면
      *    url/attributes/lastSeenAt 갱신(재수집 반영 — 구 신규경로 upsert의 유용한 절반을 복원한
      *    의도적 결정), 없으면 추가
-     * ③ 도메인 필드는 이번에 바인딩된 프로퍼티를 '덮어쓰기'.
-     * ⚠ ③은 platforms 배열도 교체한다(크로스플랫폼 병합 시 기존 플랫폼 유실) — 기존 시스템과 동일한
-     *   알려진 이슈로, 동작 보존 원칙에 따라 그대로 두고 별도 이슈로 다룬다.
+     * ③ 도메인 필드는 이번에 바인딩된 프로퍼티를 '덮어쓰기'하되, platforms만은
+     *    기존∪신규 합집합으로 병합한다 — 크로스플랫폼 병합에서 먼저 수집된 플랫폼이
+     *    배열에서 유실되던 이슈 수정 (한 작품 = 여러 플랫폼 연관이 정상 상태).
      */
     private void mergeInto(Domain domain, Content existing, DraftAssembler.IngestDraft draft) {
         Content incoming = draft.content();
@@ -196,10 +198,23 @@ public class IngestPipeline {
         catalog.findByContentId(domain, existing.getContentId()).ifPresentOrElse(existingEntity -> {
             BeanWrapper from = PropertyAccessorFactory.forBeanPropertyAccess(draft.domainEntity());
             BeanWrapper to = PropertyAccessorFactory.forBeanPropertyAccess(existingEntity);
-            for (String prop : draft.boundDomainProps())
-                to.setPropertyValue(prop, from.getPropertyValue(prop));
+            for (String prop : draft.boundDomainProps()) {
+                if ("platforms".equals(prop)) {
+                    to.setPropertyValue(prop, unionOfStrings(to.getPropertyValue(prop), from.getPropertyValue(prop)));
+                } else {
+                    to.setPropertyValue(prop, from.getPropertyValue(prop));
+                }
+            }
             catalog.save(domain, existingEntity);
         }, () -> log.warn("도메인 행 없음 — 도메인 필드 병합 스킵 contentId={}", existing.getContentId()));
+    }
+
+    /** 순서 보존 합집합 (기존 먼저, 신규 뒤에 추가) — 병합 시 platforms 전용. */
+    private static List<String> unionOfStrings(Object existing, Object incoming) {
+        LinkedHashSet<String> union = new LinkedHashSet<>();
+        if (existing instanceof List<?> l) for (Object v : l) if (v instanceof String s) union.add(s);
+        if (incoming instanceof List<?> l) for (Object v : l) if (v instanceof String s) union.add(s);
+        return new ArrayList<>(union);
     }
 
     private TransformRun newRun(RawItem raw) {

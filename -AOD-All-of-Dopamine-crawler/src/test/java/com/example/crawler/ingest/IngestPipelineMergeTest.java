@@ -122,10 +122,10 @@ class IngestPipelineMergeTest {
         verify(platformRepo).save(savedPd.capture());
         assertSame(existing, savedPd.getValue().getContent());
 
-        // 도메인 필드: 매핑된 프로퍼티 '덮어쓰기' (기존 동작 보존 — platforms 교체 이슈 포함)
+        // 도메인 필드: 매핑된 프로퍼티 '덮어쓰기', 단 platforms는 기존∪신규 합집합
         verify(webnovelRepo).save(existingNovel);
         assertEquals(List.of("판타지"), existingNovel.getGenres());
-        assertEquals(List.of("KakaoPage"), existingNovel.getPlatforms()); // ⚠ 기존 이슈 그대로 (후속 이슈)
+        assertEquals(List.of("NaverSeries", "KakaoPage"), existingNovel.getPlatforms()); // 크로스플랫폼 유실 방지
 
         ArgumentCaptor<TransformRun> run = ArgumentCaptor.forClass(TransformRun.class);
         verify(runRepo).save(run.capture());
