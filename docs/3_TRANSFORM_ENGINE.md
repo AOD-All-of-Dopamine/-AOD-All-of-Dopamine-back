@@ -50,7 +50,7 @@ flowchart TD
 
 > 목적지 프로퍼티명 오타·엔티티 rename 미반영은 **부팅 실패**로 잡힌다 (RuleRegistry 기동 검증). 죽은 defaults(어떤 매핑도 안 쓰는 기본값)와 생산자 없는 platformsFrom 키도 부팅 실패로 잡힌다.
 > 구 v3의 `domainObjectMappings`/`valueMap`은 폐지 — 목적지가 프로퍼티명 직결이라 2중 매핑이 불필요.
-> 런타임 트레이스는 [8_INGEST_PIPELINE_TRACE.md](8_INGEST_PIPELINE_TRACE.md) 참고(구 엔진 기준 — 갱신 예정).
+> 런타임 트레이스는 [8_INGEST_PIPELINE_TRACE.md](8_INGEST_PIPELINE_TRACE.md), 클래스 관계도는 [6_CLASS_DIAGRAMS.md](6_CLASS_DIAGRAMS.md) §4 참고 (둘 다 typed 파이프라인 기준으로 갱신됨).
 
 > **새 플랫폼 추가 절차**: `rules/<domain>/<platform>.yml` 파일 1개 작성이 전부다. 자바 코드 수정 불필요.
 > 날짜 문자열은 `FlexibleDateParser`가 한국어/ISO/점·슬래시/영어 표기를 모두 처리한다.

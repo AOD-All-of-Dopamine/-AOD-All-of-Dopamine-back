@@ -8,7 +8,7 @@
 1. [3-Tier 영속성 도메인 모델 (shared 엔티티)](#1-3-tier-영속성-도메인-모델-shared-엔티티)
 2. [Shared 모듈 — Spring Data JPA 리포지토리](#2-shared-모듈--spring-data-jpa-리포지토리)
 3. [크롤러 Producer-Consumer 작업큐](#3-크롤러-producer-consumer-작업큐)
-4. [크롤러 변환엔진 + Upsert/Merge 파이프라인](#4-크롤러-변환엔진--upsertmerge-파이프라인)
+4. [크롤러 Ingest 파이프라인 (typed, RuleRegistry v4)](#4-크롤러-ingest-파이프라인-typed-ruleregistry-v4)
 5. [플랫폼별 크롤러 아키텍처 (Fetcher / Processor / Service + Selenium 인프라)](#5-플랫폼별-크롤러-아키텍처-fetcher--processor--service--selenium-인프라)
 6. [API 모듈 (:8080) — Controller → Service → Repository → Entity 계층 + JWT 보안](#6-api-모듈-8080--controller--service--repository--entity-계층--jwt-보안)
 
@@ -489,9 +489,9 @@ classDiagram
 
 ---
 
-## 4. 크롤러 변환엔진 + Upsert/Merge 파이프라인
+## 4. 크롤러 Ingest 파이프라인 (typed, RuleRegistry v4)
 
-스테이징된 RawItem payload를 영속화된 Content+도메인+플랫폼 행으로 바꾸는 ingest 파이프라인을 모델링한다. CollectorService.saveRaw가 payload를 SHA-256 해시해 RawItem으로 dedup 적재하고, `@Scheduled` TransformSchedulingService가 BatchTransformService.processBatch(및 벌크/병렬 BatchTransformServiceOptimized)를 구동한다. 각 행마다 YAML 룰 경로 결정 → RuleLoader로 MappingRule 로드 → TransformEngine.transform으로 Triple(MasterDoc, PlatformDoc, DomainDoc) 생성 → UpsertService.upsert 호출 → TransformRun 감사 행 기록. UpsertService는 ContentUpsertService(Content), DomainCoreUpsertService + 리플렉션 기반 GenericDomainUpserter(도메인 엔티티), ContentMergeService를 오케스트레이션한다. Merge는 같은 author/developer 후보를 찾아 ContentSimilarityService.isSameTitle(정규화 후 정확 일치)로 중복을 병합한다. 데이터 홀더는 MappingRule·NormalizerStep·DomainObjectMapping·TransformEngine 내부 Docs/Triple·TransformRun 엔티티.
+스테이징된 RawItem payload를 영속화된 Content+도메인+플랫폼 행으로 바꾸는 ingest 파이프라인(`crawler/ingest` 패키지)을 모델링한다. 2026-07 typed 재작성(PR #113/#114)으로 구 Map 기반 엔진(BatchTransformService·TransformEngine·UpsertService·ContentUpsertService·DomainCoreUpsertService·GenericDomainUpserter·ContentMergeService·ContentSimilarityService)은 삭제되고 4개 협력자로 대체됐다. CollectorService.saveRaw가 payload를 SHA-256 해시로 dedup 적재(payload 변경 감지 시 processed=false로 재큐잉)하고, `@Scheduled` TransformSchedulingService가 IngestPipeline.processBatch를 0이 될 때까지 반복 호출한다. 파이프라인은 ① SKIP LOCKED claim(잠금과 동시에 processed 마킹 — 독약 아이템 재시도 차단) → ② item별 트랜잭션 격리로 RuleRegistry.resolve → DraftAssembler.assemble(payload+rule → typed IngestDraft) → 중복병합(DomainCatalog 후보 + Values.sameTitle)·재수집 라우팅((platform, psid) identity)·신규 저장 → ③ TransformRun 감사 기록 순으로 돈다. RuleRegistry는 기동 시 `classpath*:rules/**/*.yml` 전체를 스캔·검증(목적지 프로퍼티 실존, 죽은 defaults, normalizer 어휘/타입)하며 실패 시 부팅을 막는다. 컴포넌트는 전부 plain 클래스로, IngestConfig에서만 Spring에 배선된다.
 
 ```mermaid
 classDiagram
@@ -503,133 +503,83 @@ classDiagram
     }
 
     class TransformSchedulingService {
-        -BatchTransformService batchTransformService
+        -IngestPipeline ingestPipeline
         +void transformRawItemsDaily()
         +void transformRawItemsWeekly()
     }
 
-    class BatchTransformService {
+    class IngestPipeline {
         -RawItemRepository rawRepo
         -TransformRunRepository runRepo
-        -RuleLoader ruleLoader
-        -TransformEngine transform
-        -UpsertService upsert
-        +int processBatch(int batchSize)
-        -String rulePath(String domain, String platformName)
-    }
-
-    class BatchTransformServiceOptimized {
-        -RawItemRepository rawRepo
-        -TransformRunRepository runRepo
-        -RuleLoader ruleLoader
-        -TransformEngine transform
-        -UpsertService upsert
-        -EntityManager entityManager
-        -Map~String, MappingRule~ ruleCache
-        +int processBatchOptimized(int batchSize)
-        +int processInParallel(int totalItems, int batchSize, int numWorkers)
-        -MappingRule getCachedRule(String rulePath)
-    }
-
-    class RuleLoader {
-        +MappingRule load(String pathOnClasspath)
-    }
-
-    class MappingRule {
-        +String platformName
-        +String domain
-        +int schemaVersion
-        +Map~String, String~ fieldMappings
-        +List~NormalizerStep~ normalizers
-        +Map~String, DomainObjectMapping~ domainObjectMappings
-    }
-
-    class NormalizerStep {
-        +String type
-        +List~String~ fields
-    }
-
-    class DomainObjectMapping {
-        +String targetField
-        +String type
-    }
-
-    class TransformEngine {
-        +Triple transform(Map~String, Object~ raw, MappingRule rule)
-        +void applyNormalizers(MasterDoc doc, List~NormalizerStep~ steps)
-        +Object deepGet(Object obj, String path)$
-    }
-
-    class MasterDoc {
-        %% HashMap~String, Object~ 상속
-    }
-    class PlatformDoc {
-        +Map~String, Object~ attributes()
-    }
-    class DomainDoc {
-        %% HashMap~String, Object~ 상속
-    }
-    class Triple {
-        <<record>>
-        +MasterDoc master()
-        +PlatformDoc platform()
-        +DomainDoc domain()
-    }
-
-    class UpsertService {
-        -PlatformDataRepository platformRepo
-        -DomainCoreUpsertService domainCoreUpsert
-        -ContentUpsertService contentUpsertService
-        -ContentMergeService contentMergeService
-        +Long upsert(Domain domain, Map~String, Object~ master, Map~String, Object~ platform, Map~String, Object~ domainDoc, String platformSpecificId, String url, MappingRule rule)
-        -PlatformData buildPlatformData(String platformName, String platformSpecificId, String url, Map~String, Object~ attributes)
-        -void savePlatformData(Content content, String platformName, String platformSpecificId, String url, Map~String, Object~ attributes)
-    }
-
-    class ContentUpsertService {
+        -RuleRegistry ruleRegistry
+        -DraftAssembler assembler
+        -DomainCatalog catalog
         -ContentRepository contentRepo
-        +Content buildContent(Domain domain, Map~String, Object~ master)
-        +Content saveContent(Content content)
-        +Content findOrCreateContent(Domain domain, Map~String, Object~ master)
-        -LocalDate parseReleaseDate(Object value)
+        -PlatformDataRepository platformRepo
+        -TransactionTemplate tx
+        +int processBatch(int batchSize)
+        -void processOne(RawItem raw, TransformRun run, Set~Long~ seenContentIds)
+        -void fillPlatformIds(RawItem raw, PlatformData pd)
+        -Content findAndMergeDuplicate(Domain domain, IngestDraft draft)
+        -Content findByPlatformIdentity(Domain domain, IngestDraft draft)
+        -void mergeInto(Domain domain, Content existing, IngestDraft draft)
     }
 
-    class DomainCoreUpsertService {
-        -GenericDomainUpserter genericUpserter
+    class DraftAssembler {
+        -DomainCatalog catalog
+        +IngestDraft assemble(Map~String, Object~ payload, PlatformRule rule)
+        -void bind(BeanWrapper accessor, String property, Object value)
+    }
+
+    class IngestDraft {
+        <<record>>
+        +Content content()
+        +Object domainEntity()
+        +PlatformData platformData()
+        +List~String~ boundDomainProps()
+    }
+
+    class DomainCatalog {
         -MovieContentRepository movieRepo
         -TvContentRepository tvRepo
         -GameContentRepository gameRepo
         -WebtoonContentRepository webtoonRepo
         -WebnovelContentRepository webnovelRepo
-        +Object buildDomainData(Domain domain, Content content, Map~String, Object~ domainDoc, MappingRule rule)
-        +void saveDomainData(Domain domain, Content content, Map~String, Object~ domainDoc, MappingRule rule)
-        -Object findOrCreateDomainEntity(Domain domain, Content content)
+        +Object create(Domain domain, Content content)
+        +Optional~Object~ findByContentId(Domain domain, Long contentId)
+        +List~Content~ duplicateCandidates(Domain domain, Object entity)
+        +void save(Domain domain, Object entity)
     }
 
-    class GenericDomainUpserter {
-        +void upsert(Object domainEntity, Map~String, Object~ domainDoc, Map~String, DomainObjectMapping~ mappings)
-        -Object convertType(Object value, String type)
-        -Integer convertToInteger(Object value)
-        -LocalDate parseDate(Object s)
+    class RuleRegistry {
+        -Map~String, PlatformRule~ byPlatform
+        -Map~String, String~ paths
+        +RuleRegistry(String locationPattern, DomainCatalog catalog)
+        -void validate(String path, PlatformRule rule, DomainCatalog catalog)
+        +PlatformRule resolve(String domain, String platformName)
+        +String pathOf(String platformName)
     }
 
-    class ContentMergeService {
-        -ContentRepository contentRepository
-        -GameContentRepository gameContentRepository
-        -WebtoonContentRepository webtoonContentRepository
-        -WebnovelContentRepository webnovelContentRepository
-        -PlatformDataRepository platformDataRepository
-        -ContentSimilarityService similarityService
-        -GenericDomainUpserter genericUpserter
-        +Content findAndMergeDuplicate(Content newContent, Object domainSpecificData, PlatformData platformData, Map~String, Object~ domainDoc, Map~String, DomainObjectMapping~ domainMappings)
-        +void mergeContent(Content existingContent, Content newContent, Object domainSpecificData, PlatformData newPlatformData, Map~String, Object~ domainDoc, Map~String, DomainObjectMapping~ domainMappings)
-        -List~Content~ findDuplicateCandidates(Content newContent, Object domainSpecificData)
+    class PlatformRule {
+        <<record>>
+        +String platformName()
+        +String domain()
+        +int schemaVersion()
+        +Map~String, String~ mappings()
+        +Map~String, Object~ defaults()
+        +Map normalizers()
+        +List~String~ platformsFrom()
+        +PlatformRule parse(String path, Map~String, Object~ yaml)$
     }
 
-    class ContentSimilarityService {
-        +double calculateSimilarity(String title1, String title2)
-        +boolean isSameTitle(String title1, String title2)
-        -String normalizeTitle(String title)
+    class Values {
+        <<utility>>
+        +Set~String~ NORMALIZERS$
+        +Object deepGet(Object obj, String path)$
+        +String str(Object v)$
+        +Object convert(Object value, Class targetType)$
+        +String normalize(String value, List~String~ steps)$
+        +boolean sameTitle(String a, String b)$
     }
 
     class TransformRun {
@@ -646,64 +596,64 @@ classDiagram
         +Instant finishedAt
     }
 
+    class IngestConfig {
+        <<configuration>>
+        +DomainCatalog domainCatalog(...)
+        +DraftAssembler draftAssembler(DomainCatalog)
+        +RuleRegistry ingestRuleRegistry(DomainCatalog)
+        +IngestPipeline ingestPipeline(...)
+    }
+
     class TransformRunRepository {
         <<interface>>
     }
     class RawItemRepository {
         <<interface>>
+        +List~RawItem~ lockNextBatch(int)
+    }
+    class ContentRepository {
+        <<interface>>
+    }
+    class PlatformDataRepository {
+        <<interface>>
     }
 
-    %% TransformEngine 내부 클래스 소유
-    TransformEngine *-- MasterDoc
-    TransformEngine *-- PlatformDoc
-    TransformEngine *-- DomainDoc
-    TransformEngine *-- Triple
-    Triple o-- MasterDoc
-    Triple o-- PlatformDoc
-    Triple o-- DomainDoc
+    %% 스케줄링 / 적재
+    TransformSchedulingService --> IngestPipeline : processBatch until 0
+    CollectorService ..> RawItemRepository : saveRaw (해시 dedup/갱신)
 
-    %% MappingRule 데이터 홀더 합성
-    MappingRule *-- "0..*" NormalizerStep : normalizers
-    MappingRule *-- "0..*" DomainObjectMapping : domainObjectMappings
+    %% 오케스트레이션
+    IngestPipeline ..> RawItemRepository : lockNextBatch + claim
+    IngestPipeline --> RuleRegistry : resolve / pathOf
+    IngestPipeline --> DraftAssembler : assemble
+    IngestPipeline --> DomainCatalog : duplicateCandidates / findByContentId / save
+    IngestPipeline ..> ContentRepository : save
+    IngestPipeline ..> PlatformDataRepository : findBy(platform, psid) / save
+    IngestPipeline ..> TransformRunRepository : 감사 기록
+    IngestPipeline ..> TransformRun : creates
+    IngestPipeline ..> Values : sameTitle / str / deepGet
+    IngestPipeline ..> IngestDraft : consumes
 
-    %% 스케줄링 / 배치 연결
-    TransformSchedulingService --> BatchTransformService : drives @Scheduled
-    CollectorService ..> RawItemRepository : saveRaw -> RawItem
+    %% 조립
+    DraftAssembler --> DomainCatalog : create(domain, content)
+    DraftAssembler ..> PlatformRule : mappings/defaults/normalizers/platformsFrom
+    DraftAssembler ..> Values : deepGet / convert / normalize
+    DraftAssembler ..> IngestDraft : returns
 
-    BatchTransformService --> RuleLoader
-    BatchTransformService --> TransformEngine
-    BatchTransformService --> UpsertService
-    BatchTransformService --> RawItemRepository : lockNextBatch
-    BatchTransformService ..> TransformRunRepository : writes TransformRun
-    BatchTransformService ..> TransformRun : creates
+    %% 룰 로드 + 기동검증
+    RuleRegistry o-- "1..*" PlatformRule : platformName 인덱스
+    RuleRegistry ..> PlatformRule : parse
+    RuleRegistry ..> DomainCatalog : 검증용 엔티티 생성
+    RuleRegistry ..> Values : NORMALIZERS 어휘
 
-    BatchTransformServiceOptimized --> RuleLoader
-    BatchTransformServiceOptimized --> TransformEngine
-    BatchTransformServiceOptimized --> UpsertService
-    BatchTransformServiceOptimized --> RawItemRepository : lockNextBatch / saveAll
-    BatchTransformServiceOptimized ..> TransformRunRepository : saveAll TransformRun
-    TransformRunRepository ..> TransformRun
-
-    %% 룰 로드 + 변환
-    RuleLoader ..> MappingRule : loadAs YAML
-    TransformEngine ..> MappingRule : reads fieldMappings/normalizers
-    TransformEngine ..> Triple : returns
-
-    %% Upsert 오케스트레이션
-    UpsertService --> ContentUpsertService
-    UpsertService --> DomainCoreUpsertService
-    UpsertService --> ContentMergeService
-    UpsertService ..> MappingRule : passes domainObjectMappings
-
-    DomainCoreUpsertService --> GenericDomainUpserter
-    DomainCoreUpsertService ..> DomainObjectMapping : via rule mappings
-
-    ContentMergeService --> ContentSimilarityService : isSameTitle
-    ContentMergeService --> GenericDomainUpserter : merge domain fields
-    GenericDomainUpserter ..> DomainObjectMapping : reflective set
+    %% 배선 (plain 클래스 → Spring)
+    IngestConfig ..> DomainCatalog : @Bean
+    IngestConfig ..> DraftAssembler : @Bean
+    IngestConfig ..> RuleRegistry : @Bean (기동 게이트)
+    IngestConfig ..> IngestPipeline : @Bean
 ```
 
-> **참고:** 표현상 선택: (1) TransformEngine.MasterDoc/PlatformDoc/DomainDoc은 HashMap~String, Object~을 상속한 정적 내부 클래스, Triple은 내부 record — Mermaid가 중첩을 못 그려 별도 클래스+합성으로 표시. (2) BatchTransformService와 Optimized는 거의 동일하며 Optimized만 ruleCache·EntityManager 벌크 flush/clear·saveAll·processInParallel 추가. (3) 헬퍼(deepGet, asString, firstNonNull, truncate, rulePath)와 Lombok getter/setter 생략. (4) shared 엔티티/리포지토리는 참조만. (5) ContentUpsertService.findOrCreateContent는 현재 경로에서 미사용(buildContent+saveContent 사용)이나 public이라 표기. (6) Merge 후보 탐색은 GAME/WEBTOON/WEBNOVEL만(developer/author), MOVIE/TV는 default no-op.
+> **참고:** 소스 검증됨. (1) IngestDraft는 DraftAssembler 내부 record — Mermaid 중첩 불가로 별도 표기. PlatformRule.normalizers()의 실제 타입은 `Map<String, List<String>>`(Mermaid 중첩 제네릭 제약으로 축약). (2) IngestPipeline·DraftAssembler·DomainCatalog·RuleRegistry는 `@Service`가 아닌 plain 클래스이고 IngestConfig가 유일한 Spring 접점. CollectorService·TransformSchedulingService만 `@Service`. (3) TransformRun.status 어휘 = SUCCESS / SUCCESS_DUPLICATE(같은 배치 내 동일 contentId) / SKIPPED(masterTitle blank) / FAILED(미지 플랫폼·도메인 불일치·예외). item별 TransactionTemplate 격리로 한 건 실패가 배치를 못 죽이고, claim 시점 processed=true 마킹으로 실패 item도 재선택 안 됨(독약 차단). (4) 중복병합 후보는 GAME=developer, WEBTOON/WEBNOVEL=author 기준(MOVIE/TV 미지원 — 구 시스템과 동일), 제목 비교는 Values.sameTitle(정규화 후 정확 일치). 병합 시 Content는 null 필드만 채우고, 도메인 프로퍼티는 boundDomainProps만 덮어씀 — platforms 배열 교체(크로스플랫폼 병합 시 기존 플랫폼 유실 가능)는 알려진 이슈로 별도 관리. (5) 재수집은 (platformName, platformSpecificId) identity로 기존 작품에 병합 라우팅되어 attributes/lastSeenAt/url 갱신 — uk_platform_id 위반 루프 방지. (6) Values는 전부 static 순수 함수(구 deepGet·convertType·ContentSimilarityService 흡수). Lombok getter/setter 생략. 런타임 값 여정은 [8_INGEST_PIPELINE_TRACE.md](8_INGEST_PIPELINE_TRACE.md) 참고.
 
 ---
 
