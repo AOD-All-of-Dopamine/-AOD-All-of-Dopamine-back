@@ -45,7 +45,7 @@ flowchart TD
 | `platformName` / `domain` | RuleRegistry 인덱스 키 (필수) | `NaverSeries` / `WEBNOVEL` |
 | `mappings` | 원본 경로 → 목적지. 접두사가 저장 위치 결정: `master.*`=contents(프로퍼티명), `domain.*`=도메인 엔티티(프로퍼티명), `platform.*`=platform_data(프로퍼티명), `attr.*`=JSONB 키 리터럴 | `author: domain.author` |
 | `defaults` | 원본 누락 시 채울 명시적 기본값 (key=목적지). 선언 없으면 스킵 | `attr.comment_count: 0` |
-| `platformsFrom` | `platforms` 배열에 병합할 attr 키 목록 | `- watch_providers` |
+| `platformsFrom` | `contents.platforms` 배열에 병합할 attr 키 목록 (배열 자체는 엔진이 `[자기 platformName]`으로 항상 주입) | `- watch_providers` |
 | `normalizers` | master 프로퍼티별 정규화 파이프 (`nfkc`, `strip_parentheses`, `strip_brackets`, `collapse_spaces`, `strip_series_qualifiers`, `lowercase`) | `master.masterTitle: [nfkc]` |
 
 > 목적지 프로퍼티명 오타·엔티티 rename 미반영은 **부팅 실패**로 잡힌다 (RuleRegistry 기동 검증). 죽은 defaults(어떤 매핑도 안 쓰는 기본값)와 생산자 없는 platformsFrom 키도 부팅 실패로 잡힌다.

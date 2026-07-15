@@ -204,7 +204,7 @@ class ContentRepository {
   +Page~Content~ findWorks(String, String[], String[], String, Pageable)
 }
 
-%% ===== 도메인별 콘텐츠 리포지토리 (GIN @> 필터) =====
+%% ===== 도메인별 콘텐츠 리포지토리 (genres/platforms 승격 후 얇아짐) =====
 class GameContentRepository {
   <<interface>>
   +List~GameContent~ findByDeveloper(String)
@@ -278,7 +278,7 @@ PlatformDataRepository ..> Domain : filters by
 ExternalRankingRepository ..> Content : JOIN FETCH
 ```
 
-> **참고:** 네이티브 SQL 핵심: genres는 2026-07 contents로 승격 — 장르 필터/집계(`@>`, UNNEST)는 ContentRepository가 담당하고, 도메인 repo에는 platforms 필터(findByPlatformsContainingAll)와 통합 findWorks만 남음. PlatformDataRepository.findContentIdsByWatchProvider*는 JSONB `attributes->'watch_providers'`를 jsonb_array_elements_text로 조회. RawItemRepository.lockNextBatch는 `FOR UPDATE SKIP LOCKED`로 동시 컨슈머 배치 점유. ContentRepository.findByDomainOrderByReleaseDateDesc와 두 findRecentlyReviewed*는 네이티브(reviews 조인), updateRatingInfo는 `@Modifying` JPQL 벌크 업데이트. 가독성 위해 JpaRepository 기본 CRUD와 비-도메인 오버로드는 생략. ⚠️ RawItemRepository.findPendingItemsByPlatform은 `:limit` 파라미터를 선언하지만 JPQL에서 적용하지 않음.
+> **참고:** 네이티브 SQL 핵심: genres·platforms는 2026-07 contents로 승격 — 장르/플랫폼 필터(`@>` GIN)·장르 집계(UNNEST)·통합 findWorks 전부 ContentRepository 담당이고, 도메인 repo는 findByContentIdIn과 author/developer 조회만 남은 얇은 인터페이스. RawItemRepository.lockNextBatch는 `FOR UPDATE SKIP LOCKED`로 동시 컨슈머 배치 점유. ContentRepository.findByDomainOrderByReleaseDateDesc와 두 findRecentlyReviewed*는 네이티브(reviews 조인), updateRatingInfo는 `@Modifying` JPQL 벌크 업데이트. 가독성 위해 JpaRepository 기본 CRUD와 비-도메인 오버로드는 생략. ⚠️ RawItemRepository.findPendingItemsByPlatform은 `:limit` 파라미터를 선언하지만 JPQL에서 적용하지 않음.
 
 ---
 
