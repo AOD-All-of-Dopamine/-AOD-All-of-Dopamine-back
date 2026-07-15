@@ -94,7 +94,7 @@ class IngestPipelineMergeTest {
         existing.setSynopsis(null);                                   // null-fill 대상
         WebnovelContent existingNovel = new WebnovelContent(existing);
         existingNovel.setAuthor("싱숑");
-        existingNovel.setPlatforms(List.of("NaverSeries"));
+        existing.setPlatforms(List.of("NaverSeries"));
 
         when(webnovelRepo.findByAuthor("싱숑")).thenReturn(List.of(existingNovel));
         when(webnovelRepo.findById(100L)).thenReturn(Optional.of(existingNovel));
@@ -125,7 +125,7 @@ class IngestPipelineMergeTest {
         // 도메인 필드: 매핑된 프로퍼티 '덮어쓰기', 단 platforms는 기존∪신규 합집합
         verify(webnovelRepo).save(existingNovel);
         assertEquals(List.of("판타지"), existing.getGenres());          // genres는 마스터로 승격 (덮어쓰기 시맨틱)
-        assertEquals(List.of("NaverSeries", "KakaoPage"), existingNovel.getPlatforms()); // 크로스플랫폼 유실 방지
+        assertEquals(List.of("NaverSeries", "KakaoPage"), existing.getPlatforms()); // 크로스플랫폼 유실 방지 (마스터로 승격)
 
         ArgumentCaptor<TransformRun> run = ArgumentCaptor.forClass(TransformRun.class);
         verify(runRepo).save(run.capture());

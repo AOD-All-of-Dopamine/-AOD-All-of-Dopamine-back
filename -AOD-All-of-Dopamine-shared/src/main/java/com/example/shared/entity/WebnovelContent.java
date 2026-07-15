@@ -40,9 +40,7 @@ public class WebnovelContent implements Persistable<Long> {
 
     // genres는 contents(마스터)로 승격됨 (2026-07) — Content.genres 사용
 
-    // 플랫폼 정보 (데이터 소스: NaverSeries, KakaoPage 등)
-    @Column(name = "platforms", columnDefinition = "text[]")
-    private List<String> platforms = new ArrayList<>();
+    // platforms는 contents(마스터)로 승격됨 (2026-07) — Content.platforms 사용
 
     @Override
     public Long getId() {

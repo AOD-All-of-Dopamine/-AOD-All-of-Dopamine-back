@@ -29,6 +29,7 @@ classDiagram
         +String posterImageUrl
         +String synopsis
         +List~String~ genres
+        +List~String~ platforms
         +Double averageScore
         +Integer reviewCount
         +Instant createdAt
@@ -57,7 +58,6 @@ classDiagram
         -Content content
         -boolean isNew
         +Integer runtime
-        +List~String~ platforms
         +List~String~ directors
         +List~String~ cast
         +Long getId()
@@ -70,7 +70,6 @@ classDiagram
         -boolean isNew
         +Integer seasonCount
         +Integer episodeRuntime
-        +List~String~ platforms
         +List~String~ cast
         +Long getId()
         +boolean isNew()
@@ -83,7 +82,6 @@ classDiagram
         +String developer
         +String publisher
         +Map~String, Object~ osPlatforms
-        +List~String~ platforms
         +Long getId()
         +boolean isNew()
     }
@@ -96,7 +94,6 @@ classDiagram
         +String status
         +String weekday
         +String ageRating
-        +List~String~ platforms
         +Long getId()
         +boolean isNew()
     }
@@ -108,7 +105,6 @@ classDiagram
         +String author
         +String publisher
         +String ageRating
-        +List~String~ platforms
         +Long getId()
         +boolean isNew()
     }
@@ -175,7 +171,7 @@ classDiagram
 
 ## 2. Shared 모듈 — Spring Data JPA 리포지토리
 
-shared 모듈은 9개의 Spring Data JPA 리포지토리 인터페이스를 노출하며 모두 `JpaRepository~Entity, Long~`을 상속한다. ContentRepository는 마스터 카탈로그(검색, 신작/출시예정 윈도우, `@Modifying updateRatingInfo` 벌크 업데이트, reviews 테이블과 조인하는 recently-reviewed 네이티브 쿼리)를 담당한다. 5개 도메인 리포지토리(Game/Movie/Tv/Webtoon/Webnovel)는 동일 계약을 공유한다 — GIN 친화 `@>` 플랫폼 필터(findByPlatformsContainingAll)와 통합 findWorks, findByContentIdIn, 그리고 컬럼이 있는 경우 author/developer 조회. 장르 필터/집계(countByGenre/findDistinctGenres)는 genres가 contents로 승격되면서(2026-07) ContentRepository로 이관됐다. PlatformDataRepository는 JSONB로 OTT watch-provider와 distinct 플랫폼명을, RawItemRepository는 `FOR UPDATE SKIP LOCKED`로 동시 배치 점유를, ExternalRankingRepository는 `LEFT JOIN FETCH`로 Content N+1 회피를 수행한다.
+shared 모듈은 9개의 Spring Data JPA 리포지토리 인터페이스를 노출하며 모두 `JpaRepository~Entity, Long~`을 상속한다. ContentRepository는 마스터 카탈로그(검색, 신작/출시예정 윈도우, `@Modifying updateRatingInfo` 벌크 업데이트, reviews 테이블과 조인하는 recently-reviewed 네이티브 쿼리)를 담당한다. 5개 도메인 리포지토리(Game/Movie/Tv/Webtoon/Webnovel)는 이제 얇다 — findByContentIdIn과 컬럼이 있는 경우 author/developer 조회만 남음. 장르/플랫폼 필터와 통합 findWorks, 장르 집계(countByGenre/findDistinctGenres)는 genres·platforms가 contents로 승격되면서(2026-07) 전부 ContentRepository로 이관됐다. PlatformDataRepository는 JSONB로 OTT watch-provider와 distinct 플랫폼명을, RawItemRepository는 `FOR UPDATE SKIP LOCKED`로 동시 배치 점유를, ExternalRankingRepository는 `LEFT JOIN FETCH`로 Content N+1 회피를 수행한다.
 
 ```mermaid
 classDiagram
@@ -200,19 +196,17 @@ class ContentRepository {
   +Page~Content~ findRecentReleases(Domain, LocalDate, Pageable)
   +Page~Content~ findUpcomingReleases(Domain, LocalDate, LocalDate, Pageable)
   +Page~Content~ findReleasesInDateRange(Domain, LocalDate, LocalDate, Pageable)
-  +Page~Content~ findByDomainAndPlatforms(Domain, List~String~, Pageable)
-  +Page~Content~ findByDomainAndKeywordAndPlatforms(Domain, String, List~String~, Pageable)
   +void updateRatingInfo(Long, Double, Integer)
   +Page~Content~ findRecentlyReviewedContentsNative(Pageable)
   +Page~Content~ findRecentlyReviewedContentsByDomainNative(String, Pageable)
   +List~Object[]~ countByGenre(String)
   +List~String~ findDistinctGenres(String)
+  +Page~Content~ findWorks(String, String[], String[], String, Pageable)
 }
 
 %% ===== 도메인별 콘텐츠 리포지토리 (GIN @> 필터) =====
 class GameContentRepository {
   <<interface>>
-  +Page~GameContent~ findByPlatformsContainingAll(String[], Pageable)
   +List~GameContent~ findByDeveloper(String)
   +List~GameContent~ findByPublisher(String)
   +List~GameContent~ findByContentIdIn(List~Long~)
@@ -220,26 +214,22 @@ class GameContentRepository {
 
 class MovieContentRepository {
   <<interface>>
-  +Page~MovieContent~ findByPlatformsContainingAll(String[], Pageable)
   +List~MovieContent~ findByContentIdIn(List~Long~)
 }
 
 class TvContentRepository {
   <<interface>>
-  +Page~TvContent~ findByPlatformsContainingAll(String[], Pageable)
   +List~TvContent~ findByContentIdIn(List~Long~)
 }
 
 class WebtoonContentRepository {
   <<interface>>
-  +Page~WebtoonContent~ findByPlatformsContainingAll(String[], Pageable)
   +List~WebtoonContent~ findByAuthor(String)
   +List~WebtoonContent~ findByContentIdIn(List~Long~)
 }
 
 class WebnovelContentRepository {
   <<interface>>
-  +Page~WebnovelContent~ findByPlatformsContainingAll(String[], Pageable)
   +List~WebnovelContent~ findByAuthor(String)
   +List~WebnovelContent~ findByContentIdIn(List~Long~)
 }
@@ -251,8 +241,6 @@ class PlatformDataRepository {
   +List~PlatformData~ findByContent(Content)
   +List~String~ findDistinctPlatformNamesByDomain(Domain)
   +List~String~ findDistinctPlatformNames()
-  +List~Long~ findContentIdsByWatchProvider(String)
-  +List~Long~ findContentIdsByDomainAndWatchProvider(String, String)
 }
 
 class RawItemRepository {
@@ -631,7 +619,7 @@ classDiagram
     IngestConfig ..> IngestPipeline : @Bean
 ```
 
-> **참고:** 소스 검증됨. (1) IngestDraft는 DraftAssembler 내부 record — Mermaid 중첩 불가로 별도 표기. PlatformRule.normalizers()의 실제 타입은 `Map<String, List<String>>`(Mermaid 중첩 제네릭 제약으로 축약). (2) IngestPipeline·DraftAssembler·DomainCatalog·RuleRegistry는 `@Service`가 아닌 plain 클래스이고 IngestConfig가 유일한 Spring 접점. CollectorService·TransformSchedulingService만 `@Service`. (3) TransformRun.status 어휘 = SUCCESS / SUCCESS_DUPLICATE(같은 배치 내 동일 contentId) / SKIPPED(masterTitle blank) / FAILED(미지 플랫폼·도메인 불일치·예외). item별 TransactionTemplate 격리로 한 건 실패가 배치를 못 죽이고, claim 시점 processed=true 마킹으로 실패 item도 재선택 안 됨(독약 차단). (4) 중복병합 후보는 GAME=developer, WEBTOON/WEBNOVEL=author 기준(MOVIE/TV 미지원 — 구 시스템과 동일), 제목 비교는 Values.sameTitle(정규화 후 정확 일치). 병합 시 Content는 null 필드만 채우고, 도메인 프로퍼티는 boundDomainProps만 덮어씀 — 단 platforms는 기존∪신규 합집합으로 병합해 크로스플랫폼 유실을 방지 (2026-07 수정). (5) 재수집은 (platformName, platformSpecificId) identity로 기존 작품에 병합 라우팅되어 attributes/lastSeenAt/url 갱신 — uk_platform_id 위반 루프 방지. (6) Values는 전부 static 순수 함수(구 deepGet·convertType·ContentSimilarityService 흡수). Lombok getter/setter 생략. 런타임 값 여정은 [8_INGEST_PIPELINE_TRACE.md](8_INGEST_PIPELINE_TRACE.md) 참고.
+> **참고:** 소스 검증됨. (1) IngestDraft는 DraftAssembler 내부 record — Mermaid 중첩 불가로 별도 표기. PlatformRule.normalizers()의 실제 타입은 `Map<String, List<String>>`(Mermaid 중첩 제네릭 제약으로 축약). (2) IngestPipeline·DraftAssembler·DomainCatalog·RuleRegistry는 `@Service`가 아닌 plain 클래스이고 IngestConfig가 유일한 Spring 접점. CollectorService·TransformSchedulingService만 `@Service`. (3) TransformRun.status 어휘 = SUCCESS / SUCCESS_DUPLICATE(같은 배치 내 동일 contentId) / SKIPPED(masterTitle blank) / FAILED(미지 플랫폼·도메인 불일치·예외). item별 TransactionTemplate 격리로 한 건 실패가 배치를 못 죽이고, claim 시점 processed=true 마킹으로 실패 item도 재선택 안 됨(독약 차단). (4) 중복병합 후보는 GAME=developer, WEBTOON/WEBNOVEL=author 기준(MOVIE/TV 미지원 — 구 시스템과 동일), 제목 비교는 Values.sameTitle(정규화 후 정확 일치). 병합 시 Content는 null 필드만 채우되 genres(덮어쓰기)·platforms(합집합)는 예외이고, 도메인 프로퍼티는 boundDomainProps만 덮어씀 (genres/platforms는 2026-07 마스터로 승격). (5) 재수집은 (platformName, platformSpecificId) identity로 기존 작품에 병합 라우팅되어 attributes/lastSeenAt/url 갱신 — uk_platform_id 위반 루프 방지. (6) Values는 전부 static 순수 함수(구 deepGet·convertType·ContentSimilarityService 흡수). Lombok getter/setter 생략. 런타임 값 여정은 [8_INGEST_PIPELINE_TRACE.md](8_INGEST_PIPELINE_TRACE.md) 참고.
 
 ---
 

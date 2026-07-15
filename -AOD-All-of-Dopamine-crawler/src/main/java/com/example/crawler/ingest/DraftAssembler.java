@@ -71,14 +71,14 @@ public class DraftAssembler {
                 master.setPropertyValue(prop, Values.normalize(s, n.getValue()));
         }
 
-        // domain.platforms 주입: [자기 플랫폼명] + platformsFrom 병합 — yml 매핑과 무관하게 항상 덮어씀 (RF-4)
+        // master.platforms 주입: [자기 플랫폼명] + platformsFrom 병합 — yml 매핑과 무관하게 항상 채움 (RF-4)
+        // (2026-07 contents로 승격 — 병합 시 기존∪신규 합집합은 IngestPipeline.mergeInto 담당)
         List<String> platforms = new ArrayList<>();
         platforms.add(rule.platformName());
         for (String attrKey : rule.platformsFrom())
             if (pd.getAttributes().get(attrKey) instanceof List<?> extra)
                 for (Object v : extra) if (v instanceof String s) platforms.add(s);
-        dom.setPropertyValue("platforms", platforms);
-        if (!boundDomainProps.contains("platforms")) boundDomainProps.add("platforms");
+        content.setPlatforms(platforms);
 
         return new IngestDraft(content, domainEntity, pd, boundDomainProps);
     }

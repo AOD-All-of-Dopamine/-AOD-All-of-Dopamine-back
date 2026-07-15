@@ -71,7 +71,7 @@ class DraftAssemblerTest {
         WebnovelContent w = (WebnovelContent) d.domainEntity();
         assertEquals("싱숑", w.getAuthor());
         assertEquals("전체이용가", w.getAgeRating());
-        assertEquals(List.of("NaverSeries"), w.getPlatforms());        // 엔진 주입 (RF-4)
+        assertEquals(List.of("NaverSeries"), c.getPlatforms());        // 엔진 주입 (RF-4, 마스터로 승격)
 
         PlatformData pd = d.platformData();
         assertEquals("NaverSeries", pd.getPlatformName());
@@ -80,8 +80,8 @@ class DraftAssemblerTest {
         assertEquals(9.9, pd.getAttributes().get("rating"));
         assertEquals(0, pd.getAttributes().get("download_count"));     // default 채움 (RF-3)
 
-        // yml mappings 선언 순서 + platforms 엔진 주입 (정확한 순서 핀) — genres는 마스터로 가서 제외
-        assertEquals(List.of("author", "publisher", "ageRating", "platforms"), d.boundDomainProps());
+        // yml mappings 선언 순서 (정확한 순서 핀) — genres/platforms는 마스터로 가서 제외
+        assertEquals(List.of("author", "publisher", "ageRating"), d.boundDomainProps());
     }
 
     private static final String TMDB_MOVIE_V4 = """
@@ -122,7 +122,7 @@ class DraftAssemblerTest {
         assertEquals(166, m.getRuntime());
         assertEquals(List.of("티모시 샬라메"), m.getCast());
         // platformsFrom: 자기 플랫폼명 + watch_providers 병합, attributes에도 유지 (구 RF-4 골든)
-        assertEquals(List.of("TMDB_MOVIE", "Netflix", "Disney Plus"), m.getPlatforms());
+        assertEquals(List.of("TMDB_MOVIE", "Netflix", "Disney Plus"), d.content().getPlatforms());
         assertEquals(List.of("Netflix", "Disney Plus"), d.platformData().getAttributes().get("watch_providers"));
         assertEquals("693134", d.platformData().getPlatformSpecificId()); // 중첩경로 + String 변환
     }
@@ -150,6 +150,6 @@ class DraftAssemblerTest {
         assertNull(((WebnovelContent) d.domainEntity()).getAuthor());
         assertFalse(d.platformData().getAttributes().containsKey("status"));
         assertEquals(0, d.platformData().getAttributes().get("download_count")); // default만 채워짐
-        assertEquals(List.of("NaverSeries"), ((WebnovelContent) d.domainEntity()).getPlatforms()); // platforms는 항상 주입
+        assertEquals(List.of("NaverSeries"), d.content().getPlatforms()); // platforms는 항상 주입
     }
 }

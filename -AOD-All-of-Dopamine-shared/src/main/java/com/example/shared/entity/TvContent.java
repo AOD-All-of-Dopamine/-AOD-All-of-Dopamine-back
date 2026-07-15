@@ -49,9 +49,7 @@ public class TvContent implements Persistable<Long> {
 
     // genres는 contents(마스터)로 승격됨 (2026-07) — Content.genres 사용
 
-    // 플랫폼 정보 (데이터 소스 + OTT 플랫폼)
-    @Column(name = "platforms", columnDefinition = "text[]")
-    private List<String> platforms = new ArrayList<>();
+    // platforms는 contents(마스터)로 승격됨 (2026-07) — Content.platforms 사용
 
     // 출연진 목록 (PostgreSQL text[] 배열)
     @Column(name = "cast_members", columnDefinition = "text[]")

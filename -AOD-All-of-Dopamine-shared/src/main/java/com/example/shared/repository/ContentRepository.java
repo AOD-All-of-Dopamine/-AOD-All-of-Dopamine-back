@@ -87,14 +87,25 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
                                           @Param("endDate") LocalDate endDate,
                                           Pageable pageable);
     
-    // [✨ 플랫폼 필터링 쿼리 - 메모리 부하 해결]
-    // 도메인 + 플랫폼 필터링
-    @Query("SELECT DISTINCT c FROM Content c " +
-           "JOIN PlatformData pd ON pd.content = c " +
-           "WHERE c.domain = :domain AND LOWER(pd.platformName) IN :platforms")
-    Page<Content> findByDomainAndPlatforms(@Param("domain") Domain domain,
-                                           @Param("platforms") List<String> platforms,
-                                           Pageable pageable);
+    /**
+     * 통합 필터 조회: 장르/플랫폼(contents 배열 @>, AND) + 키워드(ILIKE). 각 파라미터가 null이면 무시.
+     * genres/platforms가 contents로 승격되면서(2026-07) 도메인 repo의 findWorks 5개를 대체한 단일 쿼리.
+     */
+    @Query(value = "SELECT c.* FROM contents c WHERE c.domain = :domain " +
+           "AND (CAST(:genres AS text[]) IS NULL OR c.genres @> CAST(:genres AS text[])) " +
+           "AND (CAST(:platforms AS text[]) IS NULL OR c.platforms @> CAST(:platforms AS text[])) " +
+           "AND (CAST(:keyword AS text) IS NULL OR c.master_title ILIKE ('%' || :keyword || '%') OR c.original_title ILIKE ('%' || :keyword || '%')) " +
+           "ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC",
+           countQuery = "SELECT COUNT(*) FROM contents c WHERE c.domain = :domain " +
+           "AND (CAST(:genres AS text[]) IS NULL OR c.genres @> CAST(:genres AS text[])) " +
+           "AND (CAST(:platforms AS text[]) IS NULL OR c.platforms @> CAST(:platforms AS text[])) " +
+           "AND (CAST(:keyword AS text) IS NULL OR c.master_title ILIKE ('%' || :keyword || '%') OR c.original_title ILIKE ('%' || :keyword || '%'))",
+           nativeQuery = true)
+    Page<Content> findWorks(@Param("domain") String domain,
+                            @Param("genres") String[] genres,
+                            @Param("platforms") String[] platforms,
+                            @Param("keyword") String keyword,
+                            Pageable pageable);
     
     // 플랫폼 필터링만 (도메인 무관)
     @Query("SELECT DISTINCT c FROM Content c " +
@@ -103,28 +114,6 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     Page<Content> findByPlatforms(@Param("platforms") List<String> platforms,
                                   Pageable pageable);
     
-    // 도메인 + 키워드 + 플랫폼 필터링
-    @Query("SELECT DISTINCT c FROM Content c " +
-           "JOIN PlatformData pd ON pd.content = c " +
-           "WHERE c.domain = :domain " +
-           "AND (LOWER(c.masterTitle) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "     LOWER(c.originalTitle) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-           "AND LOWER(pd.platformName) IN :platforms")
-    Page<Content> findByDomainAndKeywordAndPlatforms(@Param("domain") Domain domain,
-                                                     @Param("keyword") String keyword,
-                                                     @Param("platforms") List<String> platforms,
-                                                     Pageable pageable);
-    
-    // 키워드 + 플랫폼 필터링 (도메인 무관)
-    @Query("SELECT DISTINCT c FROM Content c " +
-           "JOIN PlatformData pd ON pd.content = c " +
-           "WHERE (LOWER(c.masterTitle) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "       LOWER(c.originalTitle) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-           "AND LOWER(pd.platformName) IN :platforms")
-    Page<Content> findByKeywordAndPlatforms(@Param("keyword") String keyword,
-                                           @Param("platforms") List<String> platforms,
-                                           Pageable pageable);
-
     // [✨ 최적화: 벌크 업데이트 (Dirty Checking 방지)]
     // 엔티티를 조회(Select)하고 값 변경 후 자동 감지(Dirty Checking)를 쓰면 N+1 쿼리가 또 발생하므로,
     // Native Update 쿼리로 한 방에 별점만 갱신하여 Lock 점유 시간을 최소화합니다.

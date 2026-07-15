@@ -40,6 +40,11 @@ public class Content {
     @Column(name = "genres", columnDefinition = "text[]")
     private List<String> genres = new ArrayList<>();
 
+    // 플랫폼 목록: 수집 플랫폼명 + OTT(platformsFrom 병합) — DraftAssembler가 항상 주입,
+    // 병합 시 기존∪신규 합집합 (2026-07 도메인 테이블에서 승격, GIN 인덱스 대상)
+    @Column(name = "platforms", columnDefinition = "text[]")
+    private List<String> platforms = new ArrayList<>();
+
     private Instant createdAt;
     private Instant updatedAt;
 

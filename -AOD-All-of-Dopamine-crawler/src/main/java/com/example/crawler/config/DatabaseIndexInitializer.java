@@ -33,15 +33,9 @@ public class DatabaseIndexInitializer {
         log.info("Checking and creating GIN indexes for text[] arrays...");
         
         try {
-            // 장르 인덱스 (2026-07 contents로 승격 — 구 도메인 테이블 컬럼/인덱스는 정리 SQL로 DROP 예정)
+            // 장르/플랫폼 인덱스 (2026-07 contents로 승격 — 구 도메인 테이블 컬럼/인덱스는 정리 SQL로 DROP 예정)
             ensureArrayIndexExists("contents", "idx_contents_genres", "genres");
-
-            // 플랫폼 인덱스
-            ensureArrayIndexExists("movie_contents", "idx_movie_platforms", "platforms");
-            ensureArrayIndexExists("tv_contents", "idx_tv_platforms", "platforms");
-            ensureArrayIndexExists("game_contents", "idx_game_platforms", "platforms");
-            ensureArrayIndexExists("webtoon_contents", "idx_webtoon_platforms", "platforms");
-            ensureArrayIndexExists("webnovel_contents", "idx_webnovel_platforms", "platforms");
+            ensureArrayIndexExists("contents", "idx_contents_platforms", "platforms");
             
             log.info("✅ All GIN indexes verified/created successfully");
         } catch (Exception e) {

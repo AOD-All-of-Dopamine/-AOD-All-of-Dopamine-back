@@ -42,7 +42,7 @@ class RuleFilesTest {
         assertEquals(Map.of("windows", true, "mac", false), g.getOsPlatforms());
         assertEquals("70", d.platformData().getPlatformSpecificId());
         assertEquals(12345, d.platformData().getAttributes().get("recommendation_count"));
-        assertEquals(List.of("Steam"), g.getPlatforms());
+        assertEquals(List.of("Steam"), d.content().getPlatforms());   // 2026-07 마스터로 승격
     }
 
     @Test
@@ -90,7 +90,7 @@ class RuleFilesTest {
         TvContent t = (TvContent) d.domainEntity();
         assertEquals(2, t.getSeasonCount());
         assertEquals(54, t.getEpisodeRuntime());                       // 배열 첫 값
-        assertEquals(List.of("TMDB_TV", "Netflix"), t.getPlatforms()); // platformsFrom 병합
+        assertEquals(List.of("TMDB_TV", "Netflix"), d.content().getPlatforms()); // platformsFrom 병합
         assertEquals("93405", d.platformData().getPlatformSpecificId());
     }
 
