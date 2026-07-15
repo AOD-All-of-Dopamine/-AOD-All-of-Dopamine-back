@@ -438,10 +438,14 @@ public class WorkApiService {
         Map<String, Object> info = new HashMap<>();
         Domain domain = content.getDomain();
 
+        // genres는 마스터 공통 속성 (2026-07 도메인 테이블에서 승격)
+        if (content.getGenres() != null && !content.getGenres().isEmpty()) {
+            info.put("genres", content.getGenres());
+        }
+
         switch (domain) {
             case MOVIE:
                 movieContentRepository.findById(content.getContentId()).ifPresent(movie -> {
-                    if (movie.getGenres() != null) info.put("genres", movie.getGenres());
                     info.put("runtime", movie.getRuntime());
                     if (movie.getDirectors() != null) info.put("directors", movie.getDirectors());
                     if (movie.getCast() != null) info.put("cast", movie.getCast());
@@ -452,7 +456,6 @@ public class WorkApiService {
                 break;
             case TV:
                 tvContentRepository.findById(content.getContentId()).ifPresent(tv -> {
-                    if (tv.getGenres() != null) info.put("genres", tv.getGenres());
                     info.put("seasonCount", tv.getSeasonCount());
                     info.put("episodeRuntime", tv.getEpisodeRuntime());
                     if (tv.getCast() != null) info.put("cast", tv.getCast());
@@ -465,7 +468,6 @@ public class WorkApiService {
                 gameContentRepository.findById(content.getContentId()).ifPresent(game -> {
                     info.put("developer", game.getDeveloper());
                     info.put("publisher", game.getPublisher());
-                    if (game.getGenres() != null) info.put("genres", game.getGenres());
                     if (game.getPlatforms() != null) info.put("platforms", game.getPlatforms());
                     if (game.getContent().getReleaseDate() != null) {
                         info.put("releaseDate", game.getContent().getReleaseDate().toString());
@@ -477,9 +479,6 @@ public class WorkApiService {
                     info.put("author", webtoon.getAuthor());
                     info.put("status", webtoon.getStatus());
                     info.put("weekday", webtoon.getWeekday());
-                    if (webtoon.getGenres() != null) {
-                        info.put("genres", webtoon.getGenres());
-                    }
                 });
                 // releaseDate는 Content에서 가져옴
                 if (content.getReleaseDate() != null) {
@@ -491,9 +490,6 @@ public class WorkApiService {
                     info.put("author", novel.getAuthor());
                     info.put("publisher", novel.getPublisher());
                     info.put("ageRating", novel.getAgeRating());
-                    if (novel.getGenres() != null) {
-                        info.put("genres", novel.getGenres());
-                    }
                     if (novel.getContent().getReleaseDate() != null) {
                         info.put("startedAt", novel.getContent().getReleaseDate().toString());
                     }
@@ -736,57 +732,7 @@ public class WorkApiService {
     }
 
     /**
-     * 장르 필터링 헬퍼 메서드 (복수 장르 지원)
-     * @deprecated DB 레벨 필터링 사용 - filterByGenresContainingAll in repositories
-     * 메모리 필터링이 필요한 경우에만 사용
-     */
-    @Deprecated
-    private boolean filterByGenres(Content content, List<String> genres) {
-        if (genres == null || genres.isEmpty()) {
-            return true; // 필터링 없음
-        }
-
-        Domain domain = content.getDomain();
-        List<String> contentGenres = getContentGenres(content, domain);
-        
-        // 선택된 모든 장르가 포함되어야 true (AND 조건)
-        return genres.stream()
-                .allMatch(genre -> contentGenres.stream()
-                        .anyMatch(cg -> cg.equalsIgnoreCase(genre)));
-    }
-    
-    /**
-     * 컨텐츠의 장르 목록 가져오기
-     */
-    private List<String> getContentGenres(Content content, Domain domain) {
-        switch (domain) {
-            case MOVIE:
-                return movieContentRepository.findById(content.getContentId())
-                        .map(movie -> movie.getGenres() != null ? new ArrayList<>(movie.getGenres()) : new ArrayList<String>())
-                        .orElse(new ArrayList<>());
-            case TV:
-                return tvContentRepository.findById(content.getContentId())
-                        .map(tv -> tv.getGenres() != null ? new ArrayList<>(tv.getGenres()) : new ArrayList<String>())
-                        .orElse(new ArrayList<>());
-            case GAME:
-                return gameContentRepository.findById(content.getContentId())
-                        .map(game -> game.getGenres() != null ? new ArrayList<>(game.getGenres()) : new ArrayList<String>())
-                        .orElse(new ArrayList<>());
-            case WEBTOON:
-                return webtoonContentRepository.findById(content.getContentId())
-                        .map(webtoon -> webtoon.getGenres() != null ? new ArrayList<>(webtoon.getGenres()) : new ArrayList<String>())
-                        .orElse(new ArrayList<>());
-            case WEBNOVEL:
-                return webnovelContentRepository.findById(content.getContentId())
-                        .map(novel -> novel.getGenres() != null ? new ArrayList<>(novel.getGenres()) : new ArrayList<String>())
-                        .orElse(new ArrayList<>());
-            default:
-                return new ArrayList<>();
-        }
-    }
-
-    /**
-     * 도메인별 사용 가능한 장르 목록 조회
+     * 도메인별 사용 가능한 장르 목록 조회 (genres는 contents로 승격됨 — 2026-07)
      */
     @Cacheable(value = "availableGenres", key = "#domain != null ? #domain.name() : 'ALL'")
     public List<String> getAvailableGenres(Domain domain) {
@@ -851,29 +797,7 @@ public class WorkApiService {
      * 특정 도메인의 장르별 작품 수 카운트
      */
     private void addGenreCountsForDomain(Map<String, Long> genreCounts, Domain domain) {
-        List<Object[]> rows;
-
-        switch (domain) {
-            case MOVIE:
-                rows = movieContentRepository.countByGenre();
-                break;
-            case TV:
-                rows = tvContentRepository.countByGenre();
-                break;
-            case GAME:
-                rows = gameContentRepository.countByGenre();
-                break;
-            case WEBTOON:
-                rows = webtoonContentRepository.countByGenre();
-                break;
-            case WEBNOVEL:
-                rows = webnovelContentRepository.countByGenre();
-                break;
-            default:
-                return;
-        }
-
-        for (Object[] row : rows) {
+        for (Object[] row : contentRepository.countByGenre(domain.name())) {
             String genre = (String) row[0];
             if (genre == null || genre.isBlank()) continue;
             long count = ((Number) row[1]).longValue();
@@ -885,14 +809,7 @@ public class WorkApiService {
      * 특정 도메인의 장르 목록 수집
      */
     private Set<String> getGenresForDomain(Domain domain) {
-        switch (domain) {
-            case MOVIE:    return new HashSet<>(movieContentRepository.findDistinctGenres());
-            case TV:       return new HashSet<>(tvContentRepository.findDistinctGenres());
-            case GAME:     return new HashSet<>(gameContentRepository.findDistinctGenres());
-            case WEBTOON:  return new HashSet<>(webtoonContentRepository.findDistinctGenres());
-            case WEBNOVEL: return new HashSet<>(webnovelContentRepository.findDistinctGenres());
-            default:       return new HashSet<>();
-        }
+        return new HashSet<>(contentRepository.findDistinctGenres(domain.name()));
     }
 
     /**

@@ -11,7 +11,7 @@ mappings:
   developers[0]:         domain.developer
   publishers[0]:         domain.publisher
   platforms:             domain.osPlatforms
-  genres:                domain.genres
+  genres:                master.genres
   price_overview:        attr.price_overview
   metacritic:            attr.metacritic
   is_free:               attr.is_free

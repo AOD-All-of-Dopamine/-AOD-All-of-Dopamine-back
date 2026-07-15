@@ -9,7 +9,7 @@ mappings:
   overview:           master.synopsis
   first_air_date:     master.releaseDate
   tv_details.id:      platform.platformSpecificId  # 구 BatchTransformService fallback 흡수
-  genres:             domain.genres
+  genres:             master.genres
   number_of_seasons:  domain.seasonCount
   episode_run_time:   domain.episodeRuntime
   cast:               domain.cast

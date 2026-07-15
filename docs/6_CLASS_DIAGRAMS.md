@@ -28,6 +28,7 @@ classDiagram
         +LocalDate releaseDate
         +String posterImageUrl
         +String synopsis
+        +List~String~ genres
         +Double averageScore
         +Integer reviewCount
         +Instant createdAt
@@ -56,7 +57,6 @@ classDiagram
         -Content content
         -boolean isNew
         +Integer runtime
-        +List~String~ genres
         +List~String~ platforms
         +List~String~ directors
         +List~String~ cast
@@ -70,7 +70,6 @@ classDiagram
         -boolean isNew
         +Integer seasonCount
         +Integer episodeRuntime
-        +List~String~ genres
         +List~String~ platforms
         +List~String~ cast
         +Long getId()
@@ -84,7 +83,6 @@ classDiagram
         +String developer
         +String publisher
         +Map~String, Object~ osPlatforms
-        +List~String~ genres
         +List~String~ platforms
         +Long getId()
         +boolean isNew()
@@ -98,7 +96,6 @@ classDiagram
         +String status
         +String weekday
         +String ageRating
-        +List~String~ genres
         +List~String~ platforms
         +Long getId()
         +boolean isNew()
@@ -111,7 +108,6 @@ classDiagram
         +String author
         +String publisher
         +String ageRating
-        +List~String~ genres
         +List~String~ platforms
         +Long getId()
         +boolean isNew()
@@ -179,7 +175,7 @@ classDiagram
 
 ## 2. Shared 모듈 — Spring Data JPA 리포지토리
 
-shared 모듈은 9개의 Spring Data JPA 리포지토리 인터페이스를 노출하며 모두 `JpaRepository~Entity, Long~`을 상속한다. ContentRepository는 마스터 카탈로그(검색, 신작/출시예정 윈도우, `@Modifying updateRatingInfo` 벌크 업데이트, reviews 테이블과 조인하는 recently-reviewed 네이티브 쿼리)를 담당한다. 5개 도메인 리포지토리(Game/Movie/Tv/Webtoon/Webnovel)는 동일 계약을 공유한다 — GIN 친화 `@>` 배열 포함 연산자 필터(findByGenresContainingAll/findByPlatformsContainingAll/findByGenresAndPlatforms), UNNEST 기반 countByGenre/findDistinctGenres 집계, findByContentIdIn, 그리고 컬럼이 있는 경우 author/developer 조회. PlatformDataRepository는 JSONB로 OTT watch-provider와 distinct 플랫폼명을, RawItemRepository는 `FOR UPDATE SKIP LOCKED`로 동시 배치 점유를, ExternalRankingRepository는 `LEFT JOIN FETCH`로 Content N+1 회피를 수행한다.
+shared 모듈은 9개의 Spring Data JPA 리포지토리 인터페이스를 노출하며 모두 `JpaRepository~Entity, Long~`을 상속한다. ContentRepository는 마스터 카탈로그(검색, 신작/출시예정 윈도우, `@Modifying updateRatingInfo` 벌크 업데이트, reviews 테이블과 조인하는 recently-reviewed 네이티브 쿼리)를 담당한다. 5개 도메인 리포지토리(Game/Movie/Tv/Webtoon/Webnovel)는 동일 계약을 공유한다 — GIN 친화 `@>` 플랫폼 필터(findByPlatformsContainingAll)와 통합 findWorks, findByContentIdIn, 그리고 컬럼이 있는 경우 author/developer 조회. 장르 필터/집계(countByGenre/findDistinctGenres)는 genres가 contents로 승격되면서(2026-07) ContentRepository로 이관됐다. PlatformDataRepository는 JSONB로 OTT watch-provider와 distinct 플랫폼명을, RawItemRepository는 `FOR UPDATE SKIP LOCKED`로 동시 배치 점유를, ExternalRankingRepository는 `LEFT JOIN FETCH`로 Content N+1 회피를 수행한다.
 
 ```mermaid
 classDiagram
@@ -209,61 +205,43 @@ class ContentRepository {
   +void updateRatingInfo(Long, Double, Integer)
   +Page~Content~ findRecentlyReviewedContentsNative(Pageable)
   +Page~Content~ findRecentlyReviewedContentsByDomainNative(String, Pageable)
+  +List~Object[]~ countByGenre(String)
+  +List~String~ findDistinctGenres(String)
 }
 
 %% ===== 도메인별 콘텐츠 리포지토리 (GIN @> 필터) =====
 class GameContentRepository {
   <<interface>>
-  +Page~GameContent~ findByGenresContainingAll(String[], Pageable)
   +Page~GameContent~ findByPlatformsContainingAll(String[], Pageable)
-  +Page~GameContent~ findByGenresAndPlatforms(String[], String[], Pageable)
   +List~GameContent~ findByDeveloper(String)
   +List~GameContent~ findByPublisher(String)
   +List~GameContent~ findByContentIdIn(List~Long~)
-  +List~Object[]~ countByGenre()
-  +List~String~ findDistinctGenres()
 }
 
 class MovieContentRepository {
   <<interface>>
-  +Page~MovieContent~ findByGenresContainingAll(String[], Pageable)
   +Page~MovieContent~ findByPlatformsContainingAll(String[], Pageable)
-  +Page~MovieContent~ findByGenresAndPlatforms(String[], String[], Pageable)
   +List~MovieContent~ findByContentIdIn(List~Long~)
-  +List~Object[]~ countByGenre()
-  +List~String~ findDistinctGenres()
 }
 
 class TvContentRepository {
   <<interface>>
-  +Page~TvContent~ findByGenresContainingAll(String[], Pageable)
   +Page~TvContent~ findByPlatformsContainingAll(String[], Pageable)
-  +Page~TvContent~ findByGenresAndPlatforms(String[], String[], Pageable)
   +List~TvContent~ findByContentIdIn(List~Long~)
-  +List~Object[]~ countByGenre()
-  +List~String~ findDistinctGenres()
 }
 
 class WebtoonContentRepository {
   <<interface>>
-  +Page~WebtoonContent~ findByGenresContainingAll(String[], Pageable)
   +Page~WebtoonContent~ findByPlatformsContainingAll(String[], Pageable)
-  +Page~WebtoonContent~ findByGenresAndPlatforms(String[], String[], Pageable)
   +List~WebtoonContent~ findByAuthor(String)
   +List~WebtoonContent~ findByContentIdIn(List~Long~)
-  +List~Object[]~ countByGenre()
-  +List~String~ findDistinctGenres()
 }
 
 class WebnovelContentRepository {
   <<interface>>
-  +Page~WebnovelContent~ findByGenresContainingAll(String[], Pageable)
   +Page~WebnovelContent~ findByPlatformsContainingAll(String[], Pageable)
-  +Page~WebnovelContent~ findByGenresAndPlatforms(String[], String[], Pageable)
   +List~WebnovelContent~ findByAuthor(String)
   +List~WebnovelContent~ findByContentIdIn(List~Long~)
-  +List~Object[]~ countByGenre()
-  +List~String~ findDistinctGenres()
 }
 
 %% ===== 플랫폼 + 스테이징 + 랭킹 리포지토리 =====
@@ -312,7 +290,7 @@ PlatformDataRepository ..> Domain : filters by
 ExternalRankingRepository ..> Content : JOIN FETCH
 ```
 
-> **참고:** 네이티브 SQL 핵심: 5개 도메인 repo는 PostgreSQL 배열 포함 `@>`(GIN 인덱스 친화)로 findByGenres/Platforms*, UNNEST로 countByGenre/findDistinctGenres 수행. PlatformDataRepository.findContentIdsByWatchProvider*는 JSONB `attributes->'watch_providers'`를 jsonb_array_elements_text로 조회. RawItemRepository.lockNextBatch는 `FOR UPDATE SKIP LOCKED`로 동시 컨슈머 배치 점유. ContentRepository.findByDomainOrderByReleaseDateDesc와 두 findRecentlyReviewed*는 네이티브(reviews 조인), updateRatingInfo는 `@Modifying` JPQL 벌크 업데이트. 가독성 위해 JpaRepository 기본 CRUD와 비-도메인 오버로드는 생략. ⚠️ RawItemRepository.findPendingItemsByPlatform은 `:limit` 파라미터를 선언하지만 JPQL에서 적용하지 않음.
+> **참고:** 네이티브 SQL 핵심: genres는 2026-07 contents로 승격 — 장르 필터/집계(`@>`, UNNEST)는 ContentRepository가 담당하고, 도메인 repo에는 platforms 필터(findByPlatformsContainingAll)와 통합 findWorks만 남음. PlatformDataRepository.findContentIdsByWatchProvider*는 JSONB `attributes->'watch_providers'`를 jsonb_array_elements_text로 조회. RawItemRepository.lockNextBatch는 `FOR UPDATE SKIP LOCKED`로 동시 컨슈머 배치 점유. ContentRepository.findByDomainOrderByReleaseDateDesc와 두 findRecentlyReviewed*는 네이티브(reviews 조인), updateRatingInfo는 `@Modifying` JPQL 벌크 업데이트. 가독성 위해 JpaRepository 기본 CRUD와 비-도메인 오버로드는 생략. ⚠️ RawItemRepository.findPendingItemsByPlatform은 `:limit` 파라미터를 선언하지만 JPQL에서 적용하지 않음.
 
 ---
 

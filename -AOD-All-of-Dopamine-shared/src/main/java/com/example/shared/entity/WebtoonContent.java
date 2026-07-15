@@ -40,9 +40,7 @@ public class WebtoonContent implements Persistable<Long> {
     private String weekday;     // 연재 요일 (mon, tue, wed 등), 완결작은 null
     private String ageRating;   // 연령등급 (전체이용가, 15세이용가 등)
 
-    // 장르 목록 (PostgreSQL text[] 배열)
-    @Column(name = "genres", columnDefinition = "text[]")
-    private List<String> genres = new ArrayList<>();
+    // genres는 contents(마스터)로 승격됨 (2026-07) — Content.genres 사용
 
     // 플랫폼 정보 (데이터 소스: NaverWebtoon 등)
     @Column(name = "platforms", columnDefinition = "text[]")

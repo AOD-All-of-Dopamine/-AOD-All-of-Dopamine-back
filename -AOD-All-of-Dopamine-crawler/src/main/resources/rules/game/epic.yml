@@ -11,7 +11,7 @@ mappings:
   data.keyImages[0].url:                   master.posterImageUrl
   data.developer:                          domain.developer
   data.publisher:                          domain.publisher
-  data.categories:                         domain.genres
+  data.categories:                         master.genres
   data.price.totalPrice.originalPrice:     attr.price_original
   data.price.totalPrice.discountPrice:     attr.price_discount
   data.price.totalPrice.currencyCode:      attr.currency

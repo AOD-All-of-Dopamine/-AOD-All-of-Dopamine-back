@@ -46,9 +46,7 @@ public class GameContent implements Persistable<Long> {
     @Column(name = "os_platforms", columnDefinition="jsonb")
     private Map<String,Object> osPlatforms; // {windows:true, mac:false, ...}
 
-    // 장르 목록 (PostgreSQL text[] 배열)
-    @Column(name = "genres", columnDefinition = "text[]")
-    private List<String> genres = new ArrayList<>();
+    // genres는 contents(마스터)로 승격됨 (2026-07) — Content.genres 사용
 
     // 플랫폼 정보 (데이터 소스: Steam 등)
     @Column(name = "platforms", columnDefinition = "text[]")

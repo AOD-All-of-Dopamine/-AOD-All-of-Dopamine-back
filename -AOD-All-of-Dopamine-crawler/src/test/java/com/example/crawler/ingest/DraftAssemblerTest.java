@@ -36,7 +36,7 @@ class DraftAssemblerTest {
               author: domain.author
               publisher: domain.publisher
               ageRating: domain.ageRating
-              genres: domain.genres
+              genres: master.genres
               productUrl: platform.url
               titleId: platform.platformSpecificId
               status: attr.status
@@ -66,11 +66,11 @@ class DraftAssemblerTest {
         assertEquals("전지적 독자 시점", c.getMasterTitle());          // 괄호제거+공백정리 (골든)
         assertEquals(LocalDate.of(2018, 5, 14), c.getReleaseDate());   // 바인딩 시점에 typed 변환
         assertEquals("줄거리", c.getSynopsis());
+        assertEquals(List.of("판타지"), c.getGenres());                // 2026-07 마스터로 승격
 
         WebnovelContent w = (WebnovelContent) d.domainEntity();
         assertEquals("싱숑", w.getAuthor());
         assertEquals("전체이용가", w.getAgeRating());
-        assertEquals(List.of("판타지"), w.getGenres());
         assertEquals(List.of("NaverSeries"), w.getPlatforms());        // 엔진 주입 (RF-4)
 
         PlatformData pd = d.platformData();
@@ -80,8 +80,8 @@ class DraftAssemblerTest {
         assertEquals(9.9, pd.getAttributes().get("rating"));
         assertEquals(0, pd.getAttributes().get("download_count"));     // default 채움 (RF-3)
 
-        // yml mappings 선언 순서 + platforms 엔진 주입 (정확한 순서 핀)
-        assertEquals(List.of("author", "publisher", "ageRating", "genres", "platforms"), d.boundDomainProps());
+        // yml mappings 선언 순서 + platforms 엔진 주입 (정확한 순서 핀) — genres는 마스터로 가서 제외
+        assertEquals(List.of("author", "publisher", "ageRating", "platforms"), d.boundDomainProps());
     }
 
     private static final String TMDB_MOVIE_V4 = """
@@ -93,7 +93,7 @@ class DraftAssemblerTest {
               overview: master.synopsis
               release_date: master.releaseDate
               movie_details.id: platform.platformSpecificId
-              genres: domain.genres
+              genres: master.genres
               runtime: domain.runtime
               directors: domain.directors
               cast: domain.cast
@@ -117,6 +117,7 @@ class DraftAssemblerTest {
         DraftAssembler.IngestDraft d = assembler.assemble(payload, rule(TMDB_MOVIE_V4));
 
         assertEquals("듄: 파트2", d.content().getMasterTitle());
+        assertEquals(List.of("SF"), d.content().getGenres());
         MovieContent m = (MovieContent) d.domainEntity();
         assertEquals(166, m.getRuntime());
         assertEquals(List.of("티모시 샬라메"), m.getCast());

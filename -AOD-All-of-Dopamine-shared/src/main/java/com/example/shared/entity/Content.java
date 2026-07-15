@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Setter
@@ -33,6 +35,10 @@ public class Content {
 
     @Column(columnDefinition = "text")
     private String synopsis;
+
+    // 장르 목록 (전 도메인 공통 속성 — 2026-07 도메인 테이블에서 승격, GIN 인덱스 대상)
+    @Column(name = "genres", columnDefinition = "text[]")
+    private List<String> genres = new ArrayList<>();
 
     private Instant createdAt;
     private Instant updatedAt;

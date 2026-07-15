@@ -36,6 +36,7 @@ class RuleFilesTest {
                 "genres", List.of("FPS"),
                 "recommendations", Map.of("total", 12345)), registry.resolve("GAME", "Steam"));
         assertEquals("Half-Life", d.content().getMasterTitle());
+        assertEquals(List.of("FPS"), d.content().getGenres());
         GameContent g = (GameContent) d.domainEntity();
         assertEquals("Valve", g.getDeveloper());                       // developers[0]
         assertEquals(Map.of("windows", true, "mac", false), g.getOsPlatforms());
@@ -51,10 +52,10 @@ class RuleFilesTest {
                 "status", "연재중", "weekday", "mon", "ageRating", "15세이용가",
                 "genres", List.of("무협"), "titleId", "769209"), registry.resolve("WEBTOON", "NaverWebtoon"));
         assertEquals("화산귀환", d.content().getMasterTitle());          // 대괄호+시리즈수식어 제거
+        assertEquals(List.of("무협"), d.content().getGenres());          // 2026-07 마스터로 승격
         WebtoonContent w = (WebtoonContent) d.domainEntity();
         assertEquals("비가", w.getAuthor());
         assertEquals("연재중", w.getStatus());
-        assertEquals(List.of("무협"), w.getGenres());
         assertEquals(0, d.platformData().getAttributes().get("like_count")); // default
     }
 
@@ -64,7 +65,7 @@ class RuleFilesTest {
         var d = assembler.assemble(Map.of(
                 "title", "참교육", "tags", List.of("액션"), "titleId", "758037"),
                 registry.resolve("WEBTOON", "NaverWebtoon"));
-        assertEquals(List.of("액션"), ((WebtoonContent) d.domainEntity()).getGenres());
+        assertEquals(List.of("액션"), d.content().getGenres());
     }
 
     @Test

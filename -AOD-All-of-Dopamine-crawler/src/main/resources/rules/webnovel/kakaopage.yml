@@ -9,7 +9,7 @@ mappings:
   author:       domain.author
   publisher:    domain.publisher
   ageRating:    domain.ageRating
-  genres:       domain.genres
+  genres:       master.genres
   productUrl:   platform.url
   seriesId:     platform.platformSpecificId
   status:       attr.status

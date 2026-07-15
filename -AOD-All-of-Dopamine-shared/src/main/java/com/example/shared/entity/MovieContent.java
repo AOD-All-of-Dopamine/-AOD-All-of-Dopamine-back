@@ -43,9 +43,7 @@ public class MovieContent implements Persistable<Long> {
     // 상영 시간 (분)
     private Integer runtime;
 
-    // 장르 목록 (PostgreSQL text[] 배열)
-    @Column(name = "genres", columnDefinition = "text[]")
-    private List<String> genres = new ArrayList<>();
+    // genres는 contents(마스터)로 승격됨 (2026-07) — Content.genres 사용
 
     // 플랫폼 정보 (데이터 소스 + OTT 플랫폼)
     @Column(name = "platforms", columnDefinition = "text[]")

@@ -9,7 +9,7 @@ mappings:
   overview:         master.synopsis
   release_date:     master.releaseDate
   movie_details.id: platform.platformSpecificId    # 구 BatchTransformService fallback 흡수
-  genres:           domain.genres
+  genres:           master.genres
   runtime:          domain.runtime
   directors:        domain.directors
   cast:             domain.cast

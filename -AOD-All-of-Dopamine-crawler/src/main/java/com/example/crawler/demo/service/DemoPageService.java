@@ -104,7 +104,7 @@ public class DemoPageService {
                         .map(c -> {
                             Map<String, Object> attrs = new HashMap<>();
                             if (c.getContent().getReleaseDate() != null) attrs.put("releaseDate", c.getContent().getReleaseDate());
-                            if (c.getGenres() != null) attrs.put("genres", c.getGenres());
+                            if (content.getGenres() != null) attrs.put("genres", content.getGenres()); // 2026-07 마스터로 승격
                             if (c.getRuntime() != null) attrs.put("runtime", c.getRuntime());
                             if (c.getDirectors() != null) attrs.put("directors", c.getDirectors());
                             if (c.getCast() != null) attrs.put("cast", c.getCast());
@@ -116,7 +116,7 @@ public class DemoPageService {
                         .map(c -> {
                             Map<String, Object> attrs = new HashMap<>();
                             if (c.getContent().getReleaseDate() != null) attrs.put("firstAirDate", c.getContent().getReleaseDate());
-                            if (c.getGenres() != null) attrs.put("genres", c.getGenres());
+                            if (content.getGenres() != null) attrs.put("genres", content.getGenres()); // 2026-07 마스터로 승격
                             if (c.getSeasonCount() != null) attrs.put("seasonCount", c.getSeasonCount());
                             if (c.getEpisodeRuntime() != null) attrs.put("episodeRuntime", c.getEpisodeRuntime());
                             if (c.getCast() != null) attrs.put("cast", c.getCast());
@@ -130,7 +130,7 @@ public class DemoPageService {
                             if (c.getContent().getReleaseDate() != null) attrs.put("releaseDate", c.getContent().getReleaseDate());
                             if (c.getDeveloper() != null) attrs.put("developer", c.getDeveloper());
                             if (c.getPublisher() != null) attrs.put("publisher", c.getPublisher());
-                            if (c.getGenres() != null) attrs.put("genres", c.getGenres());
+                            if (content.getGenres() != null) attrs.put("genres", content.getGenres()); // 2026-07 마스터로 승격
                             return attrs;
                         })
                         .orElse(Collections.emptyMap());
@@ -140,7 +140,7 @@ public class DemoPageService {
                             Map<String, Object> attrs = new HashMap<>();
                             if (c.getAuthor() != null) attrs.put("author", c.getAuthor());
                             if (c.getStatus() != null) attrs.put("status", c.getStatus());
-                            if (c.getGenres() != null) attrs.put("genres", c.getGenres());
+                            if (content.getGenres() != null) attrs.put("genres", content.getGenres()); // 2026-07 마스터로 승격
                             return attrs;
                         })
                         .orElse(Collections.emptyMap());
@@ -150,7 +150,7 @@ public class DemoPageService {
                             Map<String, Object> attrs = new HashMap<>();
                             if (c.getAuthor() != null) attrs.put("author", c.getAuthor());
                             if (c.getContent().getReleaseDate() != null) attrs.put("startedAt", c.getContent().getReleaseDate());
-                            if (c.getGenres() != null) attrs.put("genres", c.getGenres());
+                            if (content.getGenres() != null) attrs.put("genres", content.getGenres()); // 2026-07 마스터로 승격
                             return attrs;
                         })
                         .orElse(Collections.emptyMap());

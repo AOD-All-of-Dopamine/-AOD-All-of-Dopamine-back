@@ -38,7 +38,7 @@ class IngestPipelineMergeTest {
               title: master.masterTitle
               synopsis: master.synopsis
               author: domain.author
-              genres: domain.genres
+              genres: master.genres
               seriesId: platform.platformSpecificId
             """;
 
@@ -124,13 +124,39 @@ class IngestPipelineMergeTest {
 
         // 도메인 필드: 매핑된 프로퍼티 '덮어쓰기', 단 platforms는 기존∪신규 합집합
         verify(webnovelRepo).save(existingNovel);
-        assertEquals(List.of("판타지"), existingNovel.getGenres());
+        assertEquals(List.of("판타지"), existing.getGenres());          // genres는 마스터로 승격 (덮어쓰기 시맨틱)
         assertEquals(List.of("NaverSeries", "KakaoPage"), existingNovel.getPlatforms()); // 크로스플랫폼 유실 방지
 
         ArgumentCaptor<TransformRun> run = ArgumentCaptor.forClass(TransformRun.class);
         verify(runRepo).save(run.capture());
         assertEquals("SUCCESS", run.getValue().getStatus());
         assertEquals(100L, run.getValue().getProducedContentId());
+    }
+
+    @Test
+    void genresOverwriteOnReingestButEmptyCollectKeepsExisting() {     // genres 승격 후 병합 시맨틱 핀
+        Content existing = new Content();
+        existing.setContentId(100L);
+        existing.setDomain(Domain.WEBNOVEL);
+        existing.setMasterTitle("전지적 독자 시점");
+        existing.setGenres(List.of("무협"));                            // 이전 수집의 장르
+        WebnovelContent existingNovel = new WebnovelContent(existing);
+        existingNovel.setAuthor("싱숑");
+        when(webnovelRepo.findByAuthor("싱숑")).thenReturn(List.of(existingNovel));
+        when(webnovelRepo.findById(100L)).thenReturn(Optional.of(existingNovel));
+        when(platformRepo.findByPlatformNameAndPlatformSpecificId(any(), any()))
+                .thenReturn(Optional.of(new PlatformData()));
+
+        RawItem withGenres = kakaoRaw(20L, Map.of(
+                "title", "전지적 독자 시점", "author", "싱숑", "seriesId", "K-1",
+                "genres", List.of("판타지")));
+        RawItem withoutGenres = kakaoRaw(21L, Map.of(
+                "title", "전지적 독자 시점", "author", "싱숑", "seriesId", "K-2"));
+        when(rawRepo.lockNextBatch(10)).thenReturn(List.of(withGenres, withoutGenres));
+
+        pipeline.processBatch(10);
+
+        assertEquals(List.of("판타지"), existing.getGenres());          // 재수집 = 덮어쓰기, 빈 수집 = 유지
     }
 
     @Test

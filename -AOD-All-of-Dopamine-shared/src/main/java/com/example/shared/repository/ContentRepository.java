@@ -149,4 +149,20 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
            countQuery = "SELECT COUNT(DISTINCT r.content_id) FROM reviews r JOIN contents c ON r.content_id = c.content_id WHERE c.domain = :domain",
            nativeQuery = true)
     Page<Content> findRecentlyReviewedContentsByDomainNative(@Param("domain") String domain, Pageable pageable);
+
+    // ===== 장르 (2026-07 도메인 테이블에서 contents로 승격 — 구 도메인 repo의 countByGenre/findDistinctGenres 대체) =====
+
+    /**
+     * 도메인별 장르 작품 수 집계 (UNNEST + GROUP BY) — 테이블 전체 로드 없이 DB에서 카운트
+     */
+    @Query(value = "SELECT g AS genre, COUNT(*) AS cnt FROM contents, UNNEST(genres) AS g " +
+           "WHERE domain = :domain AND g IS NOT NULL AND g <> '' GROUP BY g ORDER BY cnt DESC", nativeQuery = true)
+    List<Object[]> countByGenre(@Param("domain") String domain);
+
+    /**
+     * 도메인별 사용 중인 장르 목록 (중복 제거)
+     */
+    @Query(value = "SELECT DISTINCT g FROM contents, UNNEST(genres) AS g " +
+           "WHERE domain = :domain AND g IS NOT NULL AND g <> ''", nativeQuery = true)
+    List<String> findDistinctGenres(@Param("domain") String domain);
 }
