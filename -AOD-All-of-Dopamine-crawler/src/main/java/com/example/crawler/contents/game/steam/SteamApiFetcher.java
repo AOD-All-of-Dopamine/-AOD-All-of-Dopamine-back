@@ -29,6 +29,33 @@ public class SteamApiFetcher {
 
     private static final String APP_DETAILS_URL = "https://store.steampowered.com/api/appdetails?appids={appId}&l=korean";
 
+    // 리뷰 집계 요약만 조회 (num_per_page=0 = 본문 없이 query_summary만).
+    // language=all: 집계 수치가 언어 필터에 좌우되므로 품질점수 용도로는 전세계 집계를 쓴다.
+    private static final String REVIEW_SUMMARY_URL =
+            "https://store.steampowered.com/appreviews/{appId}?json=1&language=all&purchase_type=all&num_per_page=0";
+
+    /**
+     * 리뷰 집계 요약(query_summary)을 조회합니다.
+     * 실패해도 게임 수집 자체를 막지 않도록 null을 반환합니다.
+     *
+     * @return {review_score, review_score_desc, total_positive, total_negative, total_reviews} 또는 null
+     */
+    public Map<String, Object> fetchReviewSummary(Long appId) {
+        try {
+            rateLimiter.acquirePermit();
+            String response = restTemplate.getForObject(REVIEW_SUMMARY_URL, String.class, appId);
+            JsonNode summary = objectMapper.readTree(response).path("query_summary");
+            if (summary.isMissingNode()) return null;
+            Map<String, Object> result = objectMapper.convertValue(summary,
+                    new TypeReference<Map<String, Object>>() {});
+            result.remove("num_reviews");   // "이번 페이지 개수" — num_per_page=0이라 항상 0인 노이즈
+            return result;
+        } catch (Exception e) {
+            log.warn("Steam 리뷰 요약 조회 실패 appId={}: {}", appId, e.getMessage());
+            return null;
+        }
+    }
+
     /**
      * Steam에 등록된 *게임* 앱 목록을 페이지네이션으로 안정적으로 가져옵니다. (IStoreService V1 사용)
      * 
