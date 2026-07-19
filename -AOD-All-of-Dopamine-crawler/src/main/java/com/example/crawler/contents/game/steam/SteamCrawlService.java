@@ -92,6 +92,8 @@ public class SteamCrawlService {
 
                 if (gameDetails != null && "game".equals(gameDetails.get("type"))) {
                     Map<String, Object> processedDetails = payloadProcessor.process(gameDetails);
+                    Map<String, Object> reviewSummary = steamApiFetcher.fetchReviewSummary(appId);
+                    if (reviewSummary != null) processedDetails.put("review_summary", reviewSummary);
                     collectorService.saveRaw(
                             "Steam",
                             "GAME",
@@ -136,7 +138,9 @@ public class SteamCrawlService {
             
             String appName = (String) gameDetails.get("name");
             Map<String, Object> processedDetails = payloadProcessor.process(gameDetails);
-            
+            Map<String, Object> reviewSummary = steamApiFetcher.fetchReviewSummary(appId);
+            if (reviewSummary != null) processedDetails.put("review_summary", reviewSummary);
+
             collectorService.saveRaw(
                     "Steam",
                     "GAME",

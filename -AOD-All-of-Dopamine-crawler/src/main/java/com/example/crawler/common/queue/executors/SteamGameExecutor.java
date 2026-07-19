@@ -29,6 +29,6 @@ public class SteamGameExecutor implements JobExecutor {
 
     @Override
     public long getAverageExecutionTime() {
-        return 1000; // API 기반, 평균 1초
+        return 2000; // 게임당 API 2회 호출 (appdetails + appreviews 리뷰 집계) — 평균 2초
     }
 }

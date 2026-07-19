@@ -34,7 +34,8 @@ class RuleFilesTest {
                 "developers", List.of("Valve"), "publishers", List.of("Valve"),
                 "platforms", Map.of("windows", true, "mac", false),
                 "genres", List.of("FPS"),
-                "recommendations", Map.of("total", 12345)), registry.resolve("GAME", "Steam"));
+                "recommendations", Map.of("total", 12345),
+                "review_summary", Map.of("review_score", 9, "total_reviews", 31892)), registry.resolve("GAME", "Steam"));
         assertEquals("Half-Life", d.content().getMasterTitle());
         assertEquals(List.of("FPS"), d.content().getGenres());
         GameContent g = (GameContent) d.domainEntity();
@@ -42,6 +43,8 @@ class RuleFilesTest {
         assertEquals(Map.of("windows", true, "mac", false), g.getOsPlatforms());
         assertEquals("70", d.platformData().getPlatformSpecificId());
         assertEquals(12345, d.platformData().getAttributes().get("recommendation_count"));
+        assertEquals(Map.of("review_score", 9, "total_reviews", 31892),
+                d.platformData().getAttributes().get("review_summary"));   // 리뷰 집계 JSONB 객체
         assertEquals(List.of("Steam"), d.content().getPlatforms());   // 2026-07 마스터로 승격
     }
 
