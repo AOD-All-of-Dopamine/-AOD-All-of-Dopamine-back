@@ -113,7 +113,7 @@ info:
 
 # Sentry (에러 추적)
 sentry:
-  dsn: ${SENTRY_DSN}
+  dsn: ${SENTRY_DSN:}
   environment: ${spring.profiles.active:local}
   traces-sample-rate: 0.1
   logging:
@@ -141,11 +141,11 @@ server:
 # 크롤러 전용 설정
 crawler:
   steam:
-    api-key: ${STEAM_API_KEY}
+    api-key: ${STEAM_API_KEY:}
     rate-limit:
       requests-per-second: 1
   tmdb:
-    api-key: ${TMDB_API_KEY}
+    api-key: ${TMDB_API_KEY:}
     language: ko-KR
   batch:
     size: 50              # 🚀 100 → 50 (EC2 t3.small 최적화)
@@ -160,15 +160,15 @@ crawler:
 # API Keys (환경변수로 주입 필요)
 tmdb:
   api:
-    key: ${TMDB_API_KEY}
+    key: ${TMDB_API_KEY:}
 
 steam:
   api:
-    key: ${STEAM_API_KEY}
+    key: ${STEAM_API_KEY:}
 
 openai:
   api:
-    key: ${OPENAI_API_KEY}
+    key: ${OPENAI_API_KEY:}
     url: https://api.openai.com/v1/chat/completions
 
 # 추천 시스템 설정
