@@ -1,6 +1,6 @@
 package com.example.crawler.scheduler;
 
-import com.example.crawler.contents.tmdb.TmdbSchedulingService;
+import com.example.crawler.contents.tmdb.TmdbJobProducer;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
 import com.example.crawler.contents.novel.naverseries.NaverSeriesSchedulingService;
 import com.example.crawler.contents.game.steam.SteamSchedulingService;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class MasterScheduler {
 
     private final SteamSchedulingService steamSchedulingService;
-    private final TmdbSchedulingService tmdbSchedulingService;
+    private final TmdbJobProducer tmdbJobProducer;
     private final NaverWebtoonSchedulingService naverWebtoonSchedulingService;
     private final NaverSeriesSchedulingService naverSeriesSchedulingService;
     private final TransformSchedulingService transformSchedulingService;
@@ -44,7 +44,7 @@ public class MasterScheduler {
     @Scheduled(cron = "0 0 1 * * *")
     public void scheduleTmdbNewContent() {
         log.info("🚀 [Master] TMDB 신규 콘텐츠 Job Queue 등록 시작");
-        tmdbSchedulingService.collectNewContentDaily();
+        tmdbJobProducer.collectNewContentDaily();
     }
 
     // 네이버 웹툰 - 매일 새벽 2시

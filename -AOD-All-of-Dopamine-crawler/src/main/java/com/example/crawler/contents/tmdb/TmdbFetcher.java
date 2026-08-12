@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class TmdbApiFetcher {
+public class TmdbFetcher {
 
     @Value("${tmdb.api.key}")
     private String apiKey;

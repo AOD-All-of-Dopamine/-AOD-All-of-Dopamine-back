@@ -5,7 +5,7 @@ import com.example.crawler.common.queue.JobType;
 import com.example.crawler.contents.novel.kakaopage.KakaoPageCrawler;
 import com.example.crawler.contents.novel.naverseries.NaverSeriesCrawler;
 import com.example.crawler.contents.novel.naverseries.NaverSeriesSchedulingService;
-import com.example.crawler.contents.tmdb.TmdbSchedulingService;
+import com.example.crawler.contents.tmdb.TmdbJobProducer;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonService;
 import com.example.crawler.contents.game.steam.SteamSchedulingService;
@@ -34,7 +34,7 @@ public class AdminTestController {
 
     // Job Queue Producers
     private final SteamSchedulingService steamSchedulingService;
-    private final TmdbSchedulingService tmdbSchedulingService;
+    private final TmdbJobProducer tmdbJobProducer;
     private final NaverWebtoonSchedulingService webtoonSchedulingService;
     private final NaverSeriesSchedulingService naverSeriesSchedulingService;
     private final CrawlJobProducer crawlJobProducer;
@@ -49,7 +49,7 @@ public class AdminTestController {
             KakaoPageCrawler kakaoPageCrawler,
             NaverWebtoonService naverWebtoonService,
             SteamSchedulingService steamSchedulingService,
-            TmdbSchedulingService tmdbSchedulingService,
+            TmdbJobProducer tmdbJobProducer,
             NaverWebtoonSchedulingService webtoonSchedulingService,
             NaverSeriesSchedulingService naverSeriesSchedulingService,
             CrawlJobProducer crawlJobProducer,
@@ -62,7 +62,7 @@ public class AdminTestController {
         this.kakaoPageCrawler = kakaoPageCrawler;
         this.naverWebtoonService = naverWebtoonService;
         this.steamSchedulingService = steamSchedulingService;
-        this.tmdbSchedulingService = tmdbSchedulingService;
+        this.tmdbJobProducer = tmdbJobProducer;
         this.webtoonSchedulingService = webtoonSchedulingService;
         this.naverSeriesSchedulingService = naverSeriesSchedulingService;
         this.crawlJobProducer = crawlJobProducer;
@@ -296,8 +296,8 @@ public class AdminTestController {
     @PostMapping("/crawl/tmdb/new-content")
     public Map<String, Object> crawlTmdbNewContent() {
         try {
-            // TmdbSchedulingService를 통해 최근 7일간 영화/TV 쇼 ID를 Job Queue에 등록
-            tmdbSchedulingService.collectNewContentDaily();
+            // TmdbJobProducer를 통해 최근 7일간 영화/TV 쇼 ID를 Job Queue에 등록
+            tmdbJobProducer.collectNewContentDaily();
 
             return Map.of(
                     "success", true,
@@ -315,7 +315,7 @@ public class AdminTestController {
     @PostMapping("/crawl/tmdb/all-movies")
     public Map<String, Object> crawlTmdbAllMovies() {
         try {
-            tmdbSchedulingService.collectAllMovies();
+            tmdbJobProducer.collectAllMovies();
             return Map.of(
                     "success", true,
                     "message", "TMDB 전체 영화 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
@@ -330,7 +330,7 @@ public class AdminTestController {
     @PostMapping("/crawl/tmdb/all-tv")
     public Map<String, Object> crawlTmdbAllTvShows() {
         try {
-            tmdbSchedulingService.collectAllTvShows();
+            tmdbJobProducer.collectAllTvShows();
             return Map.of(
                     "success", true,
                     "message", "TMDB 전체 TV 쇼 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
@@ -345,7 +345,7 @@ public class AdminTestController {
     @PostMapping("/crawl/tmdb/all-content")
     public Map<String, Object> crawlTmdbAllContent() {
         try {
-            tmdbSchedulingService.collectAllContent();
+            tmdbJobProducer.collectAllContent();
             return Map.of(
                     "success", true,
                     "message", "TMDB 전체 콘텐츠(영화+TV) 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
@@ -379,7 +379,7 @@ public class AdminTestController {
                         "error", "시작 연도가 종료 연도보다 클 수 없습니다.");
             }
             
-            tmdbSchedulingService.collectMoviesByYearRange(startYear, endYear);
+            tmdbJobProducer.collectMoviesByYearRange(startYear, endYear);
             return Map.of(
                     "success", true,
                     "message", String.format("TMDB %d년~%d년 영화 크롤링 작업이 Job Queue에 등록되었습니다.", startYear, endYear));
@@ -413,7 +413,7 @@ public class AdminTestController {
                         "error", "시작 연도가 종료 연도보다 클 수 없습니다.");
             }
             
-            tmdbSchedulingService.collectTvShowsByYearRange(startYear, endYear);
+            tmdbJobProducer.collectTvShowsByYearRange(startYear, endYear);
             return Map.of(
                     "success", true,
                     "message", String.format("TMDB %d년~%d년 TV 쇼 크롤링 작업이 Job Queue에 등록되었습니다.", startYear, endYear));

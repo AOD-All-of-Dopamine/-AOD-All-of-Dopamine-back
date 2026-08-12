@@ -4,7 +4,7 @@ import com.example.crawler.common.queue.CrawlJobProducer;
 import com.example.crawler.common.queue.JobType;
 import com.example.crawler.contents.tmdb.dto.TmdbDiscoveryResult;
 import com.example.crawler.contents.tmdb.dto.TmdbTvDiscoveryResult;
-import com.example.crawler.contents.tmdb.TmdbApiFetcher;
+import com.example.crawler.contents.tmdb.TmdbFetcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,10 +23,10 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TmdbSchedulingService {
+public class TmdbJobProducer {
 
     private final CrawlJobProducer crawlJobProducer;
-    private final TmdbApiFetcher tmdbApiFetcher;
+    private final TmdbFetcher tmdbFetcher;
 
     private static final int OLDEST_YEAR = 1970; // 전체 크롤링 시 가장 오래된 연도
     private static final int MAX_PAGES = 10; // 최대 페이지 수 (매일 실행)
@@ -82,7 +82,7 @@ public class TmdbSchedulingService {
         
         for (int page = 1; page <= maxPages; page++) {
             try {
-                TmdbDiscoveryResult result = tmdbApiFetcher.discoverMovies(language, page, startDate, endDate);
+                TmdbDiscoveryResult result = tmdbFetcher.discoverMovies(language, page, startDate, endDate);
                 
                 if (result == null || result.getResults() == null || result.getResults().isEmpty()) {
                     log.debug("[TMDB] 영화 페이지 {} 데이터 없음, 종료", page);
@@ -120,7 +120,7 @@ public class TmdbSchedulingService {
         
         for (int page = 1; page <= maxPages; page++) {
             try {
-                TmdbTvDiscoveryResult result = tmdbApiFetcher.discoverTvShows(language, page, startDate, endDate);
+                TmdbTvDiscoveryResult result = tmdbFetcher.discoverTvShows(language, page, startDate, endDate);
                 
                 if (result == null || result.getResults() == null || result.getResults().isEmpty()) {
                     log.debug("[TMDB] TV 페이지 {} 데이터 없음, 종료", page);
