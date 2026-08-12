@@ -19,6 +19,7 @@ mappings:
   detailed_description:  attr.detailed_description
   categories:            attr.categories
   recommendations.total: attr.recommendation_count
+  review_summary:        attr.review_summary    # 리뷰 집계 {review_score, review_score_desc, total_positive, total_negative, total_reviews}
 
 defaults:
   attr.recommendation_count: 0

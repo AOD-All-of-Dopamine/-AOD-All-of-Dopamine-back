@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * Steam 게임 크롤링 Executor
- * 표준형: Fetcher 상세 호출 → PayloadProcessor.process → CollectorService.saveRaw
+ * 표준형: Fetcher 상세 호출 → PayloadProcessor.process → 리뷰 집계 병합(best-effort) → CollectorService.saveRaw
  * (레이트리밋은 SteamFetcher 내부의 SteamRateLimiter가 처리)
  */
 @Slf4j
@@ -59,6 +59,8 @@ public class SteamGameExecutor implements JobExecutor {
 
             String appName = (String) gameDetails.get("name");
             Map<String, Object> processedDetails = payloadProcessor.process(gameDetails);
+            Map<String, Object> reviewSummary = steamFetcher.fetchReviewSummary(appId);
+            if (reviewSummary != null) processedDetails.put("review_summary", reviewSummary);
 
             collectorService.saveRaw(
                     "Steam",
@@ -78,6 +80,6 @@ public class SteamGameExecutor implements JobExecutor {
 
     @Override
     public long getAverageExecutionTime() {
-        return 1000; // API 기반, 평균 1초
+        return 2000; // 게임당 API 2회 호출 (appdetails + appreviews 리뷰 집계) — 평균 2초
     }
 }
