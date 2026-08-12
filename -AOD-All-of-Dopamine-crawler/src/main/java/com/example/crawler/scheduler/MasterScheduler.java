@@ -22,7 +22,7 @@ public class MasterScheduler {
 
     private final SteamJobProducer steamJobProducer;
     private final TmdbJobProducer tmdbJobProducer;
-    private final NaverWebtoonJobProducer naverWebtoonSchedulingService;
+    private final NaverWebtoonJobProducer naverWebtoonJobProducer;
     private final NaverSeriesJobProducer naverSeriesJobProducer;
     private final TransformSchedulingService transformSchedulingService;
 
@@ -30,7 +30,7 @@ public class MasterScheduler {
      * ===== 크롤링 스케줄 (Job Queue 기반) =====
      * 
      * 각 스케줄은 크롤링 대상 목록을 Job Queue에 등록만 합니다.
-     * 실제 크롤링은 Consumer가 5초마다 균등하게 처리합니다.
+     * 실제 크롤링은 Consumer가 주기적으로(fixedDelay 10초) 균등하게 처리합니다.
      */
 
     // Steam 게임 크롤링 - 매주 목요일 새벽 3시
@@ -51,14 +51,14 @@ public class MasterScheduler {
     @Scheduled(cron = "0 0 2 * * *")
     public void scheduleNaverWebtoon() {
         log.info("🚀 [Master] 네이버 웹툰 Job Queue 등록 시작");
-        naverWebtoonSchedulingService.collectAllWeekdaysDaily();
+        naverWebtoonJobProducer.collectAllWeekdaysDaily();
     }
 
     // 네이버 웹툰 완결작 - 매주 일요일 새벽 3시
     @Scheduled(cron = "0 0 3 * * SUN")
     public void scheduleNaverWebtoonFinished() {
         log.info("🚀 [Master] 네이버 웹툰 완결작 Job Queue 등록 시작");
-        naverWebtoonSchedulingService.collectFinishedWebtoonsWeekly();
+        naverWebtoonJobProducer.collectFinishedWebtoonsWeekly();
     }
 
     // 네이버 시리즈 웹소설 신작 - 매일 새벽 1시 30분

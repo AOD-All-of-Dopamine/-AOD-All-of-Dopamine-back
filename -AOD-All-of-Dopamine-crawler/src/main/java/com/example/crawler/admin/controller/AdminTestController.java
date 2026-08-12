@@ -88,7 +88,7 @@ public class AdminTestController {
             steamJobProducer.collectSteamGamesWeekly();
             return Map.of(
                     "success", true,
-                    "message", "Steam 게임 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+                    "message", "Steam 게임 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 주기적으로 처리합니다.");
         } catch (Exception e) {
             return Map.of(
                     "success", false,
@@ -137,7 +137,7 @@ public class AdminTestController {
             webtoonJobProducer.collectAllWeekdaysDaily();
             return Map.of(
                     "success", true,
-                    "message", "네이버 웹툰 전체 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+                    "message", "네이버 웹툰 전체 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 주기적으로 처리합니다.");
         } catch (Exception e) {
             return Map.of(
                     "success", false,
@@ -332,7 +332,7 @@ public class AdminTestController {
 
             return Map.of(
                     "success", true,
-                    "message", "TMDB 신규 콘텐츠 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.",
+                    "message", "TMDB 신규 콘텐츠 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 주기적으로 처리합니다.",
                     "note", "최근 7일간의 영화 및 TV 쇼가 크롤링 대상입니다.");
 
         } catch (Exception e) {
@@ -349,7 +349,7 @@ public class AdminTestController {
             tmdbJobProducer.collectAllMovies();
             return Map.of(
                     "success", true,
-                    "message", "TMDB 전체 영화 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+                    "message", "TMDB 전체 영화 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 주기적으로 처리합니다.");
         } catch (Exception e) {
             return Map.of(
                     "success", false,
@@ -364,7 +364,7 @@ public class AdminTestController {
             tmdbJobProducer.collectAllTvShows();
             return Map.of(
                     "success", true,
-                    "message", "TMDB 전체 TV 쇼 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+                    "message", "TMDB 전체 TV 쇼 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 주기적으로 처리합니다.");
         } catch (Exception e) {
             return Map.of(
                     "success", false,
@@ -379,7 +379,7 @@ public class AdminTestController {
             tmdbJobProducer.collectAllContent();
             return Map.of(
                     "success", true,
-                    "message", "TMDB 전체 콘텐츠(영화+TV) 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+                    "message", "TMDB 전체 콘텐츠(영화+TV) 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 주기적으로 처리합니다.");
         } catch (Exception e) {
             return Map.of(
                     "success", false,
@@ -674,25 +674,4 @@ public class AdminTestController {
                 "successCount", processed);
     }
 
-    /**
-     * 배치 처리 API - Admin UI에서 호출
-     */
-    @PostMapping("/batch/process")
-    public Map<String, Object> processBatch(@RequestParam(defaultValue = "100") int batchSize) {
-        try {
-            long pendingCount = rawRepo.countByProcessedFalse();
-            int processed = ingestPipeline.processBatch(batchSize);
-
-            return Map.of(
-                    "success", true,
-                    "message", "배치 처리 완료",
-                    "pendingBefore", pendingCount,
-                    "processedCount", processed,
-                    "pendingAfter", rawRepo.countByProcessedFalse());
-        } catch (Exception e) {
-            return Map.of(
-                    "success", false,
-                    "error", e.getMessage());
-        }
-    }
 }
