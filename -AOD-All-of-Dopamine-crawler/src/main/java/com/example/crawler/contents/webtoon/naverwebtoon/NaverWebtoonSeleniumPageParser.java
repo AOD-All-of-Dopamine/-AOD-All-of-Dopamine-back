@@ -1,6 +1,7 @@
 package com.example.crawler.contents.webtoon.naverwebtoon;
 
 
+import com.example.crawler.util.HtmlParseUtils;
 import com.example.crawler.util.ChromeDriverProvider;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -130,7 +131,7 @@ public class NaverWebtoonSeleniumPageParser {
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
                 // 제목 요소가 나타날 때까지 대기 (React 렌더링 완료 확인)
                 wait.until(ExpectedConditions.presenceOfElementLocated(
-                    By.cssSelector("h2[class*='EpisodeListInfo'][class*='title']")
+                    By.cssSelector(NaverWebtoonSelectors.DETAIL_TITLE_ROBUST)
                 ));
                 log.debug("React 렌더링 완료 확인");
             } catch (TimeoutException e) {
@@ -146,7 +147,7 @@ public class NaverWebtoonSeleniumPageParser {
             }
 
             // titleId 추출
-            String titleId = extractTitleId(detailUrl);
+            String titleId = HtmlParseUtils.extractQueryParam(detailUrl, "titleId");
 
             // 기본 정보 파싱
             String title = parseTitle(driver);
@@ -224,21 +225,15 @@ public class NaverWebtoonSeleniumPageParser {
         }
     }
 
-    public String extractTitleId(String url) {
-        Pattern pattern = Pattern.compile(NaverWebtoonSelectors.TITLE_ID_PATTERN);
-        Matcher matcher = pattern.matcher(url);
-        return matcher.find() ? matcher.group(1) : null;
-    }
-
     // ===== Selenium 기반 개별 파싱 메서드들 =====
 
     private String parseTitle(WebDriver driver) {
         try {
             // 여러 셀렉터 시도
             String[] selectors = {
-                    "h2.EpisodeListInfo__title--mYLjC",
-                    "h2[class*='EpisodeListInfo'][class*='title']",
-                    "h2[class*='title']"
+                    NaverWebtoonSelectors.DETAIL_TITLE,
+                    NaverWebtoonSelectors.DETAIL_TITLE_ROBUST,
+                    NaverWebtoonSelectors.DETAIL_TITLE_FALLBACK
             };
 
             for (String selector : selectors) {
@@ -262,7 +257,7 @@ public class NaverWebtoonSeleniumPageParser {
     private String parseAuthor(WebDriver driver) {
         try {
             List<WebElement> authorElements = driver.findElements(
-                    By.cssSelector("div.ContentMetaInfo__meta_info--GbTg4 a.ContentMetaInfo__link--xTtO6")
+                    By.cssSelector(NaverWebtoonSelectors.DETAIL_AUTHORS)
             );
 
             List<String> authors = new ArrayList<>();
@@ -283,7 +278,7 @@ public class NaverWebtoonSeleniumPageParser {
 
     private String parseSynopsis(WebDriver driver) {
         try {
-            WebElement element = driver.findElement(By.cssSelector("p.EpisodeListInfo__summary--Jd1WG"));
+            WebElement element = driver.findElement(By.cssSelector(NaverWebtoonSelectors.DETAIL_SYNOPSIS));
             return element.getText().trim();
         } catch (NoSuchElementException e) {
             log.debug("시놉시스를 찾을 수 없음");
@@ -293,7 +288,7 @@ public class NaverWebtoonSeleniumPageParser {
 
     private String parseImageUrl(WebDriver driver) {
         try {
-            WebElement element = driver.findElement(By.cssSelector("img.Poster__image--d9XTI"));
+            WebElement element = driver.findElement(By.cssSelector(NaverWebtoonSelectors.DETAIL_THUMBNAIL));
             return element.getAttribute("src");
         } catch (NoSuchElementException e) {
             log.debug("썸네일 이미지를 찾을 수 없음");
@@ -308,7 +303,7 @@ public class NaverWebtoonSeleniumPageParser {
     private String parseStatus(WebDriver driver) {
         try {
             List<WebElement> metaElements = driver.findElements(
-                    By.cssSelector("em.ContentMetaInfo__info_item--utGrf")
+                    By.cssSelector(NaverWebtoonSelectors.DETAIL_META_INFO)
             );
 
             for (WebElement meta : metaElements) {
@@ -330,7 +325,7 @@ public class NaverWebtoonSeleniumPageParser {
     private String parseWeekday(WebDriver driver, String fallbackWeekday) {
         try {
             List<WebElement> metaElements = driver.findElements(
-                    By.cssSelector("em.ContentMetaInfo__info_item--utGrf")
+                    By.cssSelector(NaverWebtoonSelectors.DETAIL_META_INFO)
             );
 
             for (WebElement meta : metaElements) {
@@ -361,7 +356,7 @@ public class NaverWebtoonSeleniumPageParser {
 
             // 방법 2 (fallback): 현재 페이지 리스트 아이템 개수 — 총 화수의 하한값
             List<WebElement> episodeItems = driver.findElements(
-                    By.cssSelector("li[class*='EpisodeList__item'], li[class*='EpisodeListList__item']")
+                    By.cssSelector(NaverWebtoonSelectors.EPISODE_ITEMS_ANY)
             );
             if (!episodeItems.isEmpty()) {
                 log.debug("에피소드 개수 fallback (페이지 li 개수, 하한값): {}", episodeItems.size());
@@ -403,7 +398,7 @@ public class NaverWebtoonSeleniumPageParser {
     private String parseAgeRating(WebDriver driver) {
         try {
             List<WebElement> metaElements = driver.findElements(
-                    By.cssSelector("em.ContentMetaInfo__info_item--utGrf")
+                    By.cssSelector(NaverWebtoonSelectors.DETAIL_META_INFO)
             );
 
             for (WebElement meta : metaElements) {
@@ -426,7 +421,7 @@ public class NaverWebtoonSeleniumPageParser {
         try {
             // 방법 1: 직접 셀렉터
             List<WebElement> tagElements = driver.findElements(
-                    By.cssSelector("div.TagGroup__tag_group--uUJza a.TagGroup__tag--xu0OH")
+                    By.cssSelector(NaverWebtoonSelectors.DETAIL_TAGS)
             );
 
             if (tagElements.isEmpty()) {
@@ -514,7 +509,7 @@ public class NaverWebtoonSeleniumPageParser {
             // 방법 3: 클래스 패턴 매칭
             try {
                 List<WebElement> countElements = driver.findElements(
-                        By.cssSelector("span[class*='EpisodeListUser'][class*='count']")
+                        By.cssSelector(NaverWebtoonSelectors.DETAIL_LIKE_COUNT_ROBUST)
                 );
                 for (WebElement element : countElements) {
                     String text = element.getText().trim();
@@ -548,12 +543,12 @@ public class NaverWebtoonSeleniumPageParser {
             // "EpisodeListList__item"이 포함된 li 태그를 찾습니다.
             log.debug("에피소드 리스트 로딩 대기 중...");
             wait.until(ExpectedConditions.presenceOfElementLocated(
-                    By.cssSelector("li[class*='EpisodeListList__item']")
+                    By.cssSelector(NaverWebtoonSelectors.EPISODE_ITEMS)
             ));
             log.debug("에피소드 리스트 로딩 완료");
 
             List<WebElement> episodeItems = driver.findElements(
-                    By.cssSelector("li[class*='EpisodeListList__item']")
+                    By.cssSelector(NaverWebtoonSelectors.EPISODE_ITEMS)
             );
 
             log.debug("발견된 에피소드 수: {}", episodeItems.size());
@@ -568,7 +563,7 @@ public class NaverWebtoonSeleniumPageParser {
             log.debug("첫 번째 에피소드 요소 획득");
 
             // 날짜 요소도 범용 셀렉터 사용 (span 중 class에 date가 포함된 것)
-            WebElement dateElement = firstEpisode.findElement(By.cssSelector("span[class*='date']"));
+            WebElement dateElement = firstEpisode.findElement(By.cssSelector(NaverWebtoonSelectors.EPISODE_DATE));
             String dateText = dateElement.getText().trim();
 
             log.debug("첫 화 날짜 텍스트 추출 성공: {}", dateText);
@@ -602,7 +597,7 @@ public class NaverWebtoonSeleniumPageParser {
      * https://comic.naver.com/webtoon/list?titleId=758037&page=1&sort=ASC&tab=mon
      */
     private String buildSortedUrl(String detailUrl, String weekday) {
-        String titleId = extractTitleId(detailUrl);
+        String titleId = HtmlParseUtils.extractQueryParam(detailUrl, "titleId");
         if (titleId == null) {
             return detailUrl; // titleId를 찾을 수 없으면 원래 URL 반환
         }

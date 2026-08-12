@@ -2,7 +2,7 @@ package com.example.crawler.common.queue.executors;
 
 import com.example.crawler.common.queue.JobExecutor;
 import com.example.crawler.common.queue.JobType;
-import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonService;
+import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonFetcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class NaverWebtoonExecutor implements JobExecutor {
 
-    private final NaverWebtoonService naverWebtoonService;
+    private final NaverWebtoonFetcher naverWebtoonFetcher;
 
     @Override
     public JobType getJobType() {
@@ -26,7 +26,7 @@ public class NaverWebtoonExecutor implements JobExecutor {
 
     @Override
     public boolean execute(String targetId) {
-        return naverWebtoonService.collectWebtoonById(targetId);
+        return naverWebtoonFetcher.crawlWebtoonByTitleId(targetId);
     }
 
     @Override

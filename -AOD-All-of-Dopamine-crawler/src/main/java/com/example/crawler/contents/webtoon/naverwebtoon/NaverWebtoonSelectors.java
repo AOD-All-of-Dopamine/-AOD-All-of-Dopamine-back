@@ -88,5 +88,22 @@ public class NaverWebtoonSelectors {
     // URL 변환 관련
     public static final String MOBILE_DOMAIN = "m.comic.naver.com";
     public static final String PC_DOMAIN = "comic.naver.com";
+
+    // ===== 인라인 셀렉터 편입 (2026-08 crawler 표준화: 셀렉터 단일 출처) =====
+
+    // 모바일 목록
+    public static final String LIST_ITEMS = "ul.list_toon li.item";
+    public static final String LIST_ITEM_LINK = "a.link[href*='titleId=']";
+    public static final String MOBILE_TITLE_ID_LINK = "a[href*=titleId]";
+
+    // PC 상세 — 클래스 해시 변경에 강한 로버스트 셀렉터 (해시 기반 상수의 폴백)
+    public static final String DETAIL_TITLE_ROBUST = "h2[class*='EpisodeListInfo'][class*='title']";
+    public static final String DETAIL_TITLE_FALLBACK = "h2[class*='title']";
+    public static final String DETAIL_LIKE_COUNT_ROBUST = "span[class*='EpisodeListUser'][class*='count']";
+
+    // PC 회차 목록
+    public static final String EPISODE_ITEMS_ANY = "li[class*='EpisodeList__item'], li[class*='EpisodeListList__item']";
+    public static final String EPISODE_ITEMS = "li[class*='EpisodeListList__item']";
+    public static final String EPISODE_DATE = "span[class*='date']";
 }
 

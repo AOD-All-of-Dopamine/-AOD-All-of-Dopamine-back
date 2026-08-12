@@ -6,8 +6,8 @@ import com.example.crawler.contents.novel.kakaopage.KakaoPageCrawler;
 import com.example.crawler.contents.novel.naverseries.NaverSeriesFetcher;
 import com.example.crawler.contents.novel.naverseries.NaverSeriesJobProducer;
 import com.example.crawler.contents.tmdb.TmdbJobProducer;
-import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
-import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonService;
+import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonJobProducer;
+import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonFetcher;
 import com.example.crawler.contents.game.steam.SteamJobProducer;
 import com.example.crawler.ingest.DraftAssembler;
 import com.example.crawler.ingest.IngestPipeline;
@@ -30,12 +30,12 @@ public class AdminTestController {
 
     private final NaverSeriesFetcher naverSeriesFetcher;
     private final KakaoPageCrawler kakaoPageCrawler;
-    private final NaverWebtoonService naverWebtoonService;
+    private final NaverWebtoonFetcher naverWebtoonFetcher;
 
     // Job Queue Producers
     private final SteamJobProducer steamJobProducer;
     private final TmdbJobProducer tmdbJobProducer;
-    private final NaverWebtoonSchedulingService webtoonSchedulingService;
+    private final NaverWebtoonJobProducer webtoonJobProducer;
     private final NaverSeriesJobProducer naverSeriesJobProducer;
     private final CrawlJobProducer crawlJobProducer;
 
@@ -47,10 +47,10 @@ public class AdminTestController {
 
     public AdminTestController(NaverSeriesFetcher naverSeriesFetcher,
             KakaoPageCrawler kakaoPageCrawler,
-            NaverWebtoonService naverWebtoonService,
+            NaverWebtoonFetcher naverWebtoonFetcher,
             SteamJobProducer steamJobProducer,
             TmdbJobProducer tmdbJobProducer,
-            NaverWebtoonSchedulingService webtoonSchedulingService,
+            NaverWebtoonJobProducer webtoonJobProducer,
             NaverSeriesJobProducer naverSeriesJobProducer,
             CrawlJobProducer crawlJobProducer,
             IngestPipeline ingestPipeline,
@@ -60,10 +60,10 @@ public class AdminTestController {
             DraftAssembler draftAssembler) {
         this.naverSeriesFetcher = naverSeriesFetcher;
         this.kakaoPageCrawler = kakaoPageCrawler;
-        this.naverWebtoonService = naverWebtoonService;
+        this.naverWebtoonFetcher = naverWebtoonFetcher;
         this.steamJobProducer = steamJobProducer;
         this.tmdbJobProducer = tmdbJobProducer;
-        this.webtoonSchedulingService = webtoonSchedulingService;
+        this.webtoonJobProducer = webtoonJobProducer;
         this.naverSeriesJobProducer = naverSeriesJobProducer;
         this.crawlJobProducer = crawlJobProducer;
         this.ingestPipeline = ingestPipeline;
@@ -134,7 +134,7 @@ public class AdminTestController {
     @PostMapping("/crawl/naver-webtoon/all-weekdays")
     public Map<String, Object> crawlNaverWebtoonAllWeekdays() {
         try {
-            webtoonSchedulingService.collectAllWeekdaysDaily();
+            webtoonJobProducer.collectAllWeekdaysDaily();
             return Map.of(
                     "success", true,
                     "message", "네이버 웹툰 전체 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
@@ -156,7 +156,7 @@ public class AdminTestController {
                         "error", "weekday 파라미터가 필요합니다. (mon, tue, wed, thu, fri, sat, sun)");
             }
 
-            webtoonSchedulingService.collectAllWeekdaysDaily(); // 전체 수집
+            webtoonJobProducer.collectAllWeekdaysDaily(); // 전체 수집
             return Map.of(
                     "success", true,
                     "message", weekday + " 요일 포함 전체 웹툰 크롤링 작업이 Job Queue에 등록되었습니다.",
@@ -172,7 +172,7 @@ public class AdminTestController {
     @PostMapping("/crawl/naver-webtoon/finished")
     public Map<String, Object> crawlNaverWebtoonFinished(@RequestBody Map<String, Object> request) {
         try {
-            webtoonSchedulingService.collectFinishedWebtoonsWeekly();
+            webtoonJobProducer.collectFinishedWebtoonsWeekly();
             return Map.of(
                     "success", true,
                     "message", "완결 웹툰 크롤링 작업이 Job Queue에 등록되었습니다.");
@@ -194,7 +194,7 @@ public class AdminTestController {
                         "error", "weekday 파라미터가 필요합니다. (mon, tue, wed, thu, fri, sat, sun)");
             }
 
-            int saved = naverWebtoonService.crawlWeekdaySync(weekday); // 동기 실행
+            int saved = naverWebtoonFetcher.crawlWeekday(weekday); // 동기 실행
             return Map.of(
                     "success", true,
                     "message", weekday + " 요일 웹툰 크롤링이 완료되었습니다.",
@@ -211,7 +211,7 @@ public class AdminTestController {
     @PostMapping("/crawl/naver-webtoon/all-weekdays/sync")
     public Map<String, Object> crawlNaverWebtoonAllWeekdaysSync() {
         try {
-            int totalSaved = naverWebtoonService.crawlAllWeekdaysSync(); // 동기 실행
+            int totalSaved = naverWebtoonFetcher.crawlAllWeekdays(); // 동기 실행
             return Map.of(
                     "success", true,
                     "message", "네이버 웹툰 전체 크롤링이 완료되었습니다.",
@@ -231,7 +231,7 @@ public class AdminTestController {
                     ? (Integer) request.get("maxPages")
                     : 10; // 기본값 10페이지
 
-            int saved = naverWebtoonService.crawlFinishedWebtoonsSync(maxPages); // 동기 실행
+            int saved = naverWebtoonFetcher.crawlFinishedWebtoons(maxPages); // 동기 실행
             return Map.of(
                     "success", true,
                     "message", "완결 웹툰 크롤링이 완료되었습니다.",

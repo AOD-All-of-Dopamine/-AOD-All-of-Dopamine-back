@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 네이버 웹툰 랭킹 컨트롤러 (리팩토링됨)
- * - 기존 NaverWebtoonCrawler 재사용으로 중복 제거
+ * - 기존 NaverWebtoonFetcher 재사용으로 중복 제거
  */
 @Slf4j
 @RestController
@@ -24,7 +24,7 @@ public class NaverWebtoonRankingController {
      * 오늘 요일의 네이버 웹툰 랭킹 업데이트
      * POST /api/rankings/naver/webtoon/today/update
      * 
-     * 주의: 기존 NaverWebtoonCrawler의 공통 메서드를 재사용
+     * 주의: 기존 NaverWebtoonFetcher의 공통 메서드를 재사용
      */
     @PostMapping("/today/update")
     public ResponseEntity<String> updateTodayRanking() {

@@ -1,7 +1,7 @@
 package com.example.crawler.scheduler;
 
 import com.example.crawler.contents.tmdb.TmdbJobProducer;
-import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
+import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonJobProducer;
 import com.example.crawler.contents.novel.naverseries.NaverSeriesJobProducer;
 import com.example.crawler.contents.game.steam.SteamJobProducer;
 import com.example.crawler.ingest.TransformSchedulingService;
@@ -22,7 +22,7 @@ public class MasterScheduler {
 
     private final SteamJobProducer steamJobProducer;
     private final TmdbJobProducer tmdbJobProducer;
-    private final NaverWebtoonSchedulingService naverWebtoonSchedulingService;
+    private final NaverWebtoonJobProducer naverWebtoonSchedulingService;
     private final NaverSeriesJobProducer naverSeriesJobProducer;
     private final TransformSchedulingService transformSchedulingService;
 

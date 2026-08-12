@@ -1,10 +1,12 @@
 package com.example.crawler.contents.webtoon.naverwebtoon;
 
 import com.example.crawler.ingest.CollectorService;
+import com.example.crawler.util.HtmlParseUtils;
 import com.example.crawler.util.InterruptibleSleep;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -17,7 +19,7 @@ import java.util.*;
  */
 @Component
 @Slf4j
-public class NaverWebtoonCrawler {
+public class NaverWebtoonFetcher {
 
     private final CollectorService collector;
     private final NaverWebtoonSeleniumPageParser pageParser;
@@ -28,7 +30,7 @@ public class NaverWebtoonCrawler {
     private static final String BASE_FINISH_URL = "https://m.comic.naver.com/webtoon/finish";
     private static final String[] WEEKDAYS = { "mon", "tue", "wed", "thu", "fri", "sat", "sun" };
 
-    public NaverWebtoonCrawler(CollectorService collector, NaverWebtoonSeleniumPageParser pageParser,
+    public NaverWebtoonFetcher(CollectorService collector, NaverWebtoonSeleniumPageParser pageParser,
             MobileListParser mobileListParser) {
         this.collector = collector;
         this.pageParser = pageParser;
@@ -36,10 +38,79 @@ public class NaverWebtoonCrawler {
     }
 
     /**
-     * PageParser 접근자 (Service 레이어에서 cleanup 위해 필요)
+     * PageParser 접근자 (cleanup 위해 필요)
      */
     public NaverWebtoonSeleniumPageParser getPageParser() {
         return pageParser;
+    }
+
+    /**
+     * 모든 요일 연재중 웹툰의 titleId 목록을 수집합니다.
+     * (JobProducer가 큐 등록에 사용 — 구 SchedulingService.fetchWebtoonIdsByWeekday)
+     */
+    public List<String> discoverAllWeekdays() {
+        List<String> webtoonIds = new ArrayList<>();
+        for (String weekday : WEEKDAYS) {
+            List<String> dailyIds = discoverWeekday(weekday);
+            webtoonIds.addAll(dailyIds);
+            log.debug("[Webtoon] {} 요일: {} 개 발견", weekday, dailyIds.size());
+        }
+        return webtoonIds;
+    }
+
+    /**
+     * 특정 요일의 웹툰 titleId 목록을 수집합니다.
+     */
+    public List<String> discoverWeekday(String weekday) {
+        List<String> webtoonIds = new ArrayList<>();
+        try {
+            Document doc = get(BASE_WEEKDAY_URL + weekday);
+            for (Element link : doc.select(NaverWebtoonSelectors.MOBILE_TITLE_ID_LINK)) {
+                String titleId = HtmlParseUtils.extractQueryParam(link.attr("href"), "titleId");
+                if (titleId != null && !webtoonIds.contains(titleId)) {
+                    webtoonIds.add(titleId);
+                }
+            }
+        } catch (Exception e) {
+            log.error("[Webtoon] {} 요일 목록 가져오기 실패", weekday, e);
+        }
+        return webtoonIds;
+    }
+
+    /**
+     * 완결 웹툰 titleId 목록을 수집합니다 (페이지네이션).
+     * (구 SchedulingService.fetchFinishedWebtoonIds)
+     */
+    public List<String> discoverFinished(int maxPages) {
+        List<String> webtoonIds = new ArrayList<>();
+        for (int page = 1; page <= maxPages; page++) {
+            try {
+                Document doc = get(BASE_FINISH_URL + "?page=" + page);
+                var webtoonLinks = doc.select(NaverWebtoonSelectors.MOBILE_TITLE_ID_LINK);
+
+                if (webtoonLinks.isEmpty()) {
+                    log.debug("[Webtoon] 완결작 페이지 {} 데이터 없음, 종료", page);
+                    break;
+                }
+
+                for (Element link : webtoonLinks) {
+                    String titleId = HtmlParseUtils.extractQueryParam(link.attr("href"), "titleId");
+                    if (titleId != null && !webtoonIds.contains(titleId)) {
+                        webtoonIds.add(titleId);
+                    }
+                }
+
+                log.debug("[Webtoon] 완결작 페이지 {}: {} 개 발견", page, webtoonLinks.size());
+
+                // 요청 제한 방지
+                Thread.sleep(500);
+
+            } catch (Exception e) {
+                log.error("[Webtoon] 완결작 페이지 {} 가져오기 실패", page, e);
+                break;
+            }
+        }
+        return webtoonIds;
     }
 
     /**

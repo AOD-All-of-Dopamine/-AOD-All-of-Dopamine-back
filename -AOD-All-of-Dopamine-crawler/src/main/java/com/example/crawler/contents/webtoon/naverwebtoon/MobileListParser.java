@@ -76,7 +76,7 @@ public class MobileListParser {
         Map<String, NaverWebtoonDTO> webtoonMap = new LinkedHashMap<>();
 
         // 웹툰 아이템들 선택
-        Elements items = listDocument.select("ul.list_toon li.item");
+        Elements items = listDocument.select(NaverWebtoonSelectors.LIST_ITEMS);
 
         for (Element item : items) {
             // 배너나 광고 아이템 제외
@@ -85,7 +85,7 @@ public class MobileListParser {
             }
 
             // 링크 추출
-            Element linkElement = item.selectFirst("a.link[href*='titleId=']");
+            Element linkElement = item.selectFirst(NaverWebtoonSelectors.LIST_ITEM_LINK);
             if (linkElement == null) {
                 continue;
             }
