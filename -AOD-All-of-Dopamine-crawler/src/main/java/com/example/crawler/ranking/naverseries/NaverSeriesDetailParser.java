@@ -1,6 +1,6 @@
 package com.example.crawler.ranking.naverseries;
 
-import com.example.crawler.contents.novel.naverseries.NaverSeriesCrawler;
+import com.example.crawler.contents.novel.naverseries.NaverSeriesFetcher;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 /**
  * 네이버 시리즈 랭킹용 상세 페이지 파서
  * - 랭킹 수집 시 제목만 추출하기 위한 전용 파서
- * - NaverSeriesCrawler의 유틸리티 메서드 재사용
+ * - NaverSeriesFetcher의 유틸리티 메서드 재사용
  */
 @Component
 @Slf4j
@@ -40,8 +40,8 @@ public class NaverSeriesDetailParser {
                 rawTitle = h2 != null ? h2.text() : null;
             }
 
-            // NaverSeriesCrawler의 cleanTitle 유틸 재사용
-            return NaverSeriesCrawler.cleanTitle(rawTitle);
+            // NaverSeriesFetcher의 cleanTitle 유틸 재사용
+            return NaverSeriesFetcher.cleanTitle(rawTitle);
 
         } catch (Exception e) {
             log.warn("제목 추출 중 오류 발생: {}", e.getMessage());

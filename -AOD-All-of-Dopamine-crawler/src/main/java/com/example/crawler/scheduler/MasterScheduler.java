@@ -2,7 +2,7 @@ package com.example.crawler.scheduler;
 
 import com.example.crawler.contents.tmdb.TmdbJobProducer;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
-import com.example.crawler.contents.novel.naverseries.NaverSeriesSchedulingService;
+import com.example.crawler.contents.novel.naverseries.NaverSeriesJobProducer;
 import com.example.crawler.contents.game.steam.SteamJobProducer;
 import com.example.crawler.ingest.TransformSchedulingService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class MasterScheduler {
     private final SteamJobProducer steamJobProducer;
     private final TmdbJobProducer tmdbJobProducer;
     private final NaverWebtoonSchedulingService naverWebtoonSchedulingService;
-    private final NaverSeriesSchedulingService naverSeriesSchedulingService;
+    private final NaverSeriesJobProducer naverSeriesJobProducer;
     private final TransformSchedulingService transformSchedulingService;
 
     /**
@@ -65,14 +65,14 @@ public class MasterScheduler {
     @Scheduled(cron = "0 30 1 * * *")
     public void scheduleNaverSeriesNovel() {
         log.info("🚀 [Master] 네이버 시리즈 웹소설 신작 Job Queue 등록 시작");
-        naverSeriesSchedulingService.collectRecentNovelsDaily();
+        naverSeriesJobProducer.collectRecentNovelsDaily();
     }
 
     // 네이버 시리즈 웹소설 완결작 - 매주 토요일 새벽 3시 30분
     @Scheduled(cron = "0 30 3 * * SAT")
     public void scheduleNaverSeriesNovelCompleted() {
         log.info("🚀 [Master] 네이버 시리즈 웹소설 완결작 Job Queue 등록 시작");
-        naverSeriesSchedulingService.collectCompletedNovelsWeekly();
+        naverSeriesJobProducer.collectCompletedNovelsWeekly();
     }
 
     /**

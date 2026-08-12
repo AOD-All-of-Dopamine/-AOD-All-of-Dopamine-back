@@ -1,6 +1,6 @@
 package com.example.crawler.ranking.naverseries;
 
-import com.example.crawler.contents.novel.naverseries.NaverSeriesCrawler;
+import com.example.crawler.util.HtmlParseUtils;
 import com.example.crawler.ranking.naverseries.NaverSeriesDetailParser;
 import com.example.crawler.ranking.RankingUpsertHelper;
 import com.example.shared.entity.ExternalRanking;
@@ -19,7 +19,7 @@ import java.util.Set;
  * 네이버 시리즈(웹소설) 랭킹 서비스 (리팩토링됨)
  * - Fetcher: 랭킹 페이지 및 상세 페이지 가져오기
  * - NaverSeriesDetailParser: 랭킹용 제목 추출 파서 (ranking 전용)
- * - NaverSeriesCrawler: 유틸리티 메서드 재사용 (productNo, 제목 정리)
+ * - NaverSeriesFetcher: 유틸리티 메서드 재사용 (productNo, 제목 정리)
  * - 일간 TOP 100 페이지에서 상위 20개만 저장
  */
 @Slf4j
@@ -102,8 +102,8 @@ public class NaverSeriesRankingService {
                 if (rank > MAX_RANKING_SIZE) break; // Top 20만
 
                 try {
-                    // productNo 추출 (NaverSeriesCrawler 유틸 재사용)
-                    String productNo = NaverSeriesCrawler.extractQueryParam(detailUrl, "productNo");
+                    // productNo 추출 (HtmlParseUtils 유틸 재사용)
+                    String productNo = HtmlParseUtils.extractQueryParam(detailUrl, "productNo");
                     if (productNo == null || productNo.isEmpty()) {
                         log.debug("productNo를 추출할 수 없는 URL 건너뜀: {}", detailUrl);
                         continue;

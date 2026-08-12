@@ -3,8 +3,8 @@ package com.example.crawler.admin.controller;
 import com.example.crawler.common.queue.CrawlJobProducer;
 import com.example.crawler.common.queue.JobType;
 import com.example.crawler.contents.novel.kakaopage.KakaoPageCrawler;
-import com.example.crawler.contents.novel.naverseries.NaverSeriesCrawler;
-import com.example.crawler.contents.novel.naverseries.NaverSeriesSchedulingService;
+import com.example.crawler.contents.novel.naverseries.NaverSeriesFetcher;
+import com.example.crawler.contents.novel.naverseries.NaverSeriesJobProducer;
 import com.example.crawler.contents.tmdb.TmdbJobProducer;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonService;
@@ -28,7 +28,7 @@ import java.util.Map;
 @RequestMapping("/api")
 public class AdminTestController {
 
-    private final NaverSeriesCrawler naverSeriesCrawler;
+    private final NaverSeriesFetcher naverSeriesFetcher;
     private final KakaoPageCrawler kakaoPageCrawler;
     private final NaverWebtoonService naverWebtoonService;
 
@@ -36,7 +36,7 @@ public class AdminTestController {
     private final SteamJobProducer steamJobProducer;
     private final TmdbJobProducer tmdbJobProducer;
     private final NaverWebtoonSchedulingService webtoonSchedulingService;
-    private final NaverSeriesSchedulingService naverSeriesSchedulingService;
+    private final NaverSeriesJobProducer naverSeriesJobProducer;
     private final CrawlJobProducer crawlJobProducer;
 
     private final IngestPipeline ingestPipeline;
@@ -45,26 +45,26 @@ public class AdminTestController {
     private final RuleRegistry ingestRuleRegistry;
     private final DraftAssembler draftAssembler;
 
-    public AdminTestController(NaverSeriesCrawler naverSeriesCrawler,
+    public AdminTestController(NaverSeriesFetcher naverSeriesFetcher,
             KakaoPageCrawler kakaoPageCrawler,
             NaverWebtoonService naverWebtoonService,
             SteamJobProducer steamJobProducer,
             TmdbJobProducer tmdbJobProducer,
             NaverWebtoonSchedulingService webtoonSchedulingService,
-            NaverSeriesSchedulingService naverSeriesSchedulingService,
+            NaverSeriesJobProducer naverSeriesJobProducer,
             CrawlJobProducer crawlJobProducer,
             IngestPipeline ingestPipeline,
             TransformSchedulingService transformSchedulingService,
             RawItemRepository rawRepo,
             RuleRegistry ingestRuleRegistry,
             DraftAssembler draftAssembler) {
-        this.naverSeriesCrawler = naverSeriesCrawler;
+        this.naverSeriesFetcher = naverSeriesFetcher;
         this.kakaoPageCrawler = kakaoPageCrawler;
         this.naverWebtoonService = naverWebtoonService;
         this.steamJobProducer = steamJobProducer;
         this.tmdbJobProducer = tmdbJobProducer;
         this.webtoonSchedulingService = webtoonSchedulingService;
-        this.naverSeriesSchedulingService = naverSeriesSchedulingService;
+        this.naverSeriesJobProducer = naverSeriesJobProducer;
         this.crawlJobProducer = crawlJobProducer;
         this.ingestPipeline = ingestPipeline;
         this.transformSchedulingService = transformSchedulingService;
@@ -252,7 +252,7 @@ public class AdminTestController {
     public Map<String, Object> queueNaverSeriesPopular(@RequestParam(defaultValue = "5") int maxPages) {
         try {
             String baseUrl = "https://series.naver.com/novel/categoryProductList.series?categoryTypeCode=all&page=";
-            java.util.List<String> novelIds = naverSeriesSchedulingService.fetchNovelIdsByUrl(baseUrl, maxPages);
+            java.util.List<String> novelIds = naverSeriesFetcher.discoverTargets(baseUrl, maxPages);
 
             int created = 0;
             if (!novelIds.isEmpty()) {
@@ -278,7 +278,7 @@ public class AdminTestController {
     public Map<String, Object> queueNaverSeriesRecent(@RequestParam(defaultValue = "3") int maxPages) {
         try {
             String baseUrl = "https://series.naver.com/novel/recentList.series?page=";
-            java.util.List<String> novelIds = naverSeriesSchedulingService.fetchNovelIdsByUrl(baseUrl, maxPages);
+            java.util.List<String> novelIds = naverSeriesFetcher.discoverTargets(baseUrl, maxPages);
 
             int created = 0;
             if (!novelIds.isEmpty()) {
@@ -310,7 +310,7 @@ public class AdminTestController {
                 : req.baseListUrl();
         int pages = req.pages() != null ? req.pages() : 1;
 
-        int saved = naverSeriesCrawler.crawlToRaw(base, req.cookie(), pages);
+        int saved = naverSeriesFetcher.crawlToRaw(base, req.cookie(), pages);
         long pending = rawRepo.countByProcessedFalse();
 
         Map<String, Object> res = new HashMap<>();

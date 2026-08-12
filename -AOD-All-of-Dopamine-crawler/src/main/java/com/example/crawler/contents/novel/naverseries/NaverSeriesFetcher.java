@@ -9,11 +9,15 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.example.crawler.util.HtmlParseUtils.absolutize;
+import static com.example.crawler.util.HtmlParseUtils.attr;
+import static com.example.crawler.util.HtmlParseUtils.extractQueryParam;
+import static com.example.crawler.util.HtmlParseUtils.parseKoreanCount;
+import static com.example.crawler.util.HtmlParseUtils.text;
 
 /**
  * Naver Series(웹소설) 크롤러
@@ -23,12 +27,70 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Component
-public class NaverSeriesCrawler {
+public class NaverSeriesFetcher {
+
+    private static final String BASE_URL = "https://series.naver.com";
+    private static final Pattern PRODUCT_NO_PATTERN = Pattern.compile("productNo=(\\d+)");
 
     private final CollectorService collector;
 
-    public NaverSeriesCrawler(CollectorService collector) {
+    public NaverSeriesFetcher(CollectorService collector) {
         this.collector = collector;
+    }
+
+    /**
+     * 목록 페이지네이션을 따라가며 소설 ID(productNo) 목록을 수집합니다.
+     * (JobProducer와 admin 수동 트리거가 공용으로 사용 — 구 SchedulingService.fetchNovelIdsByUrl)
+     */
+    public List<String> discoverTargets(String baseUrl, int maxPages) {
+        Set<String> novelIds = new LinkedHashSet<>();
+
+        for (int page = 1; page <= maxPages; page++) {
+            try {
+                String pageUrl = baseUrl + page;
+                log.debug("[Novel] 목록 페이지 {} 크롤링 중: {}", page, pageUrl);
+
+                Document doc = Jsoup.connect(pageUrl)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                        .timeout(10000)
+                        .get();
+
+                // productNo 파라미터가 있는 링크에서 ID 추출
+                int foundOnPage = 0;
+                for (Element a : doc.select(NaverSeriesSelectors.LIST_DETAIL_LINK_STRICT)) {
+                    Matcher matcher = PRODUCT_NO_PATTERN.matcher(a.attr("href"));
+                    if (matcher.find() && novelIds.add(matcher.group(1))) {
+                        foundOnPage++;
+                    }
+                }
+
+                // productNo가 없는 경우 전체 detail 링크에서도 시도
+                if (foundOnPage == 0) {
+                    for (Element a : doc.select(NaverSeriesSelectors.LIST_DETAIL_LINK_FALLBACK)) {
+                        Matcher matcher = PRODUCT_NO_PATTERN.matcher(a.attr("href"));
+                        if (matcher.find() && novelIds.add(matcher.group(1))) {
+                            foundOnPage++;
+                        }
+                    }
+                }
+
+                log.debug("[Novel] 페이지 {}: {} 개 발견 (총 {}개)", page, foundOnPage, novelIds.size());
+
+                if (foundOnPage == 0) {
+                    log.debug("[Novel] 페이지 {} 소설 없음, 종료", page);
+                    break;
+                }
+
+                // 요청 제한 방지
+                Thread.sleep(500);
+
+            } catch (Exception e) {
+                log.error("[Novel] 목록 페이지 {} 가져오기 실패", page, e);
+                break;
+            }
+        }
+
+        return new ArrayList<>(novelIds);
     }
 
     /**
@@ -142,7 +204,7 @@ public class NaverSeriesCrawler {
         List<String> genres = extractGenres(infoUl);
 
         String synopsis = "";
-        Elements synopsisElements = doc.select("div.end_dsc ._synopsis");
+        Elements synopsisElements = doc.select(NaverSeriesSelectors.DETAIL_SYNOPSIS);
         if (!synopsisElements.isEmpty()) {
             synopsis = text(synopsisElements.last()).replaceAll("\\s*접기$", "").trim();
         }
@@ -185,19 +247,15 @@ public class NaverSeriesCrawler {
     /** 목록 페이지에서 상세 링크 수집 (productNo 링크 우선, 없으면 전체 detail 링크 폴백) */
     private static Set<String> extractDetailUrls(Document listDoc) {
         Set<String> detailUrls = new LinkedHashSet<>();
-        for (Element a : listDoc.select("a[href*='/novel/detail.series'][href*='productNo=']")) {
-            detailUrls.add(absolutize(a.attr("href")));
+        for (Element a : listDoc.select(NaverSeriesSelectors.LIST_DETAIL_LINK_STRICT)) {
+            detailUrls.add(absolutize(a.attr("href"), BASE_URL));
         }
         if (detailUrls.isEmpty()) {
-            for (Element a : listDoc.select("a[href*='/novel/detail.series']")) {
-                detailUrls.add(absolutize(a.attr("href")));
+            for (Element a : listDoc.select(NaverSeriesSelectors.LIST_DETAIL_LINK_FALLBACK)) {
+                detailUrls.add(absolutize(a.attr("href"), BASE_URL));
             }
         }
         return detailUrls;
-    }
-
-    private static String absolutize(String href) {
-        return href.startsWith("http") ? href : "https://series.naver.com" + href;
     }
 
     /** 작품정보란 첫 항목이 연재중/완결일 때만 상태로 인정 */
@@ -216,7 +274,7 @@ public class NaverSeriesCrawler {
         List<String> genres = new ArrayList<>();
         if (infoUl == null)
             return genres;
-        for (Element li : infoUl.select("> li")) {
+        for (Element li : infoUl.select(NaverSeriesSelectors.DETAIL_INFO_ITEMS)) {
             String label = text(li.selectFirst("> span"));
             if ("연재중".equals(li.text()) || "완결".equals(li.text()) ||
                     "글".equals(label) || "출판사".equals(label) || "이용가".equals(label)) {
@@ -292,18 +350,10 @@ public class NaverSeriesCrawler {
         return conn.get();
     }
 
-    private static String text(Element e) {
-        return e == null ? "" : e.text().replace(' ', ' ').trim();
-    }
-
-    private static String attr(Element e, String name) {
-        return e == null ? null : e.attr(name);
-    }
-
     private static String findInfoValue(Element infoUl, String label) {
         if (infoUl == null)
             return null;
-        for (Element li : infoUl.select("> li")) {
+        for (Element li : infoUl.select(NaverSeriesSelectors.DETAIL_INFO_ITEMS)) {
             Element span = li.selectFirst("> span");
             if (span != null && label.equals(span.text().trim())) {
                 Element a = li.selectFirst("a");
@@ -316,7 +366,7 @@ public class NaverSeriesCrawler {
     private static String findAge(Element infoUl) {
         if (infoUl == null)
             return null;
-        for (Element li : infoUl.select("> li")) {
+        for (Element li : infoUl.select(NaverSeriesSelectors.DETAIL_INFO_ITEMS)) {
             String t = text(li);
             if (t.contains("이용가"))
                 return t;
@@ -374,64 +424,6 @@ public class NaverSeriesCrawler {
                     return Long.parseLong(strong.text().trim().replace(",", ""));
                 } catch (NumberFormatException ignored) {
                 }
-            }
-        }
-        return null;
-    }
-
-    /** "2억 5,006만", "139.3만", "2.5천", "1,393,475" 등 지원 */
-    private static Long parseKoreanCount(String s) {
-        if (s == null)
-            return null;
-        s = s.trim().replace(",", "");
-
-        if (s.contains("억")) {
-            String[] parts = s.split("억");
-            long total = 0;
-            try {
-                total += Math.round(Double.parseDouble(parts[0].trim()) * 100_000_000);
-                if (parts.length > 1 && !parts[1].isBlank()) {
-                    String manPart = parts[1].replace("만", "").trim();
-                    if (!manPart.isEmpty()) {
-                        total += Math.round(Double.parseDouble(manPart) * 10_000);
-                    }
-                }
-                return total;
-            } catch (NumberFormatException e) {
-                /* 파싱 실패 시 다음 규칙으로 넘어감 */ }
-        }
-
-        Matcher m = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*만").matcher(s);
-        if (m.find()) {
-            return Math.round(Double.parseDouble(m.group(1)) * 10_000);
-        }
-
-        m = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*천").matcher(s);
-        if (m.find()) {
-            return Math.round(Double.parseDouble(m.group(1)) * 1_000);
-        }
-
-        try {
-            return Long.parseLong(s);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    /**
-     * URL에서 쿼리 파라미터 추출 (공개 유틸리티 메서드)
-     */
-    public static String extractQueryParam(String url, String key) {
-        if (url == null)
-            return null;
-        int idx = url.indexOf('?');
-        if (idx < 0)
-            return null;
-        String qs = url.substring(idx + 1);
-        for (String p : qs.split("&")) {
-            String[] kv = p.split("=", 2);
-            if (kv.length == 2 && kv[0].equals(key)) {
-                return URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
             }
         }
         return null;

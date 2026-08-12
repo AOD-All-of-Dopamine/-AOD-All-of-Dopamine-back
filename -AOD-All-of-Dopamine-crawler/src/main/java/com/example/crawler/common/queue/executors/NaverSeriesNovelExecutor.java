@@ -2,7 +2,7 @@ package com.example.crawler.common.queue.executors;
 
 import com.example.crawler.common.queue.JobExecutor;
 import com.example.crawler.common.queue.JobType;
-import com.example.crawler.contents.novel.naverseries.NaverSeriesCrawler;
+import com.example.crawler.contents.novel.naverseries.NaverSeriesFetcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class NaverSeriesNovelExecutor implements JobExecutor {
 
-    private final NaverSeriesCrawler naverSeriesCrawler;
+    private final NaverSeriesFetcher naverSeriesFetcher;
 
     @Override
     public JobType getJobType() {
@@ -26,7 +26,7 @@ public class NaverSeriesNovelExecutor implements JobExecutor {
 
     @Override
     public boolean execute(String targetId) {
-        return naverSeriesCrawler.collectNovelById(targetId);
+        return naverSeriesFetcher.collectNovelById(targetId);
     }
 
     @Override
