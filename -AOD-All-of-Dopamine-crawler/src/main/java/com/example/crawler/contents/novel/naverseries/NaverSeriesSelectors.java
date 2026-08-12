@@ -11,11 +11,8 @@ public final class NaverSeriesSelectors {
 
     // ===== 목록 페이지 =====
 
-    /** 상세 링크 (productNo 파라미터 포함 — 우선) */
-    public static final String LIST_DETAIL_LINK_STRICT = "a[href*='/novel/detail.series'][href*='productNo=']";
-
-    /** 상세 링크 (productNo 없는 경우 폴백) */
-    public static final String LIST_DETAIL_LINK_FALLBACK = "a[href*='/novel/detail.series']";
+    /** 상세 링크 (productNo 파라미터 포함) */
+    public static final String LIST_DETAIL_LINK = "a[href*='/novel/detail.series'][href*='productNo=']";
 
     // ===== 상세 페이지 =====
 

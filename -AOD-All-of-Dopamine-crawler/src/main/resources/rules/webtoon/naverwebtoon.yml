@@ -15,12 +15,6 @@ mappings:
   ageRating:    domain.ageRating
   productUrl:   platform.url
   titleId:      platform.platformSpecificId
-  likeCount:    attr.like_count
-  episodeCount: attr.episode_count
-
-defaults:
-  attr.like_count: 0
-  attr.episode_count: 0
 
 normalizers:
   master.masterTitle: [nfkc, strip_brackets, strip_series_qualifiers, collapse_spaces]

@@ -14,15 +14,6 @@ mappings:
   productUrl:    platform.url
   titleId:       platform.platformSpecificId
   status:        attr.status
-  rating:        attr.rating
-  downloadCount: attr.download_count
-  commentCount:  attr.comment_count
-  episodeCount:  attr.episode_count
-
-defaults:
-  attr.download_count: 0
-  attr.comment_count: 0
-  attr.episode_count: 0
 
 normalizers:
   master.masterTitle: [strip_parentheses, collapse_spaces, nfkc]

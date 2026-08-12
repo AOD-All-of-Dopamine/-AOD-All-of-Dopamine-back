@@ -59,7 +59,6 @@ class RuleFilesTest {
         WebtoonContent w = (WebtoonContent) d.domainEntity();
         assertEquals("비가", w.getAuthor());
         assertEquals("연재중", w.getStatus());
-        assertEquals(0, d.platformData().getAttributes().get("like_count")); // default
     }
 
     @Test

@@ -8,7 +8,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,7 +15,6 @@ import java.util.regex.Pattern;
 import static com.example.crawler.util.HtmlParseUtils.absolutize;
 import static com.example.crawler.util.HtmlParseUtils.attr;
 import static com.example.crawler.util.HtmlParseUtils.extractQueryParam;
-import static com.example.crawler.util.HtmlParseUtils.parseKoreanCount;
 import static com.example.crawler.util.HtmlParseUtils.text;
 
 /**
@@ -57,20 +55,10 @@ public class NaverSeriesFetcher {
 
                 // productNo 파라미터가 있는 링크에서 ID 추출
                 int foundOnPage = 0;
-                for (Element a : doc.select(NaverSeriesSelectors.LIST_DETAIL_LINK_STRICT)) {
+                for (Element a : doc.select(NaverSeriesSelectors.LIST_DETAIL_LINK)) {
                     Matcher matcher = PRODUCT_NO_PATTERN.matcher(a.attr("href"));
                     if (matcher.find() && novelIds.add(matcher.group(1))) {
                         foundOnPage++;
-                    }
-                }
-
-                // productNo가 없는 경우 전체 detail 링크에서도 시도
-                if (foundOnPage == 0) {
-                    for (Element a : doc.select(NaverSeriesSelectors.LIST_DETAIL_LINK_FALLBACK)) {
-                        Matcher matcher = PRODUCT_NO_PATTERN.matcher(a.attr("href"));
-                        if (matcher.find() && novelIds.add(matcher.group(1))) {
-                            foundOnPage++;
-                        }
                     }
                 }
 
@@ -170,31 +158,13 @@ public class NaverSeriesFetcher {
             productUrl = detailUrl;
 
         String rawTitle = attr(doc.selectFirst("meta[property=og:title]"), "content");
-        String title = cleanTitle(rawTitle != null ? rawTitle : text(doc.selectFirst("h2")));
+        String title = cleanTitle(rawTitle);
         if (title == null || title.isBlank()) {
             log.warn("제목을 찾을 수 없는 작품 스킵: {}", detailUrl);
             return false;
         }
 
         String imageUrl = attr(doc.selectFirst("meta[property=og:image]"), "content");
-        Element head = doc.selectFirst("div.end_head");
-        BigDecimal rating = extractRating(doc);
-
-        // 관심 수 (다운로드 버튼 수치 → end_head "관심 N" 텍스트 폴백)
-        Long downloadCount = null;
-        Element downloadBtnSpan = doc.selectFirst("a.btn_download > span");
-        if (downloadBtnSpan != null) {
-            downloadCount = parseKoreanCount(downloadBtnSpan.text());
-        }
-        if (downloadCount == null && head != null) {
-            Matcher m = Pattern.compile("관심\\s*([\\d.,]+\\s*(?:억|만|천)|[\\d,]+)").matcher(head.text());
-            if (m.find()) {
-                downloadCount = parseKoreanCount(m.group(1));
-            }
-        }
-
-        Long commentCount = extractCommentCount(doc, head);
-        Long episodeCount = extractEpisodeCount(doc);
 
         Element infoUl = doc.selectFirst("ul.end_info li.info_lst > ul");
         String status = extractStatus(infoUl);
@@ -232,10 +202,6 @@ public class NaverSeriesFetcher {
         payload.put("productUrl", nz(productUrl));
         payload.put("titleId", nz(titleId));
         payload.put("genres", genres);
-        payload.put("rating", rating);
-        payload.put("downloadCount", downloadCount);
-        payload.put("commentCount", commentCount);
-        payload.put("episodeCount", episodeCount);
         payload.put("firstDate", firstDate);
 
         collector.saveRaw("NaverSeries", "WEBNOVEL", payload, titleId, productUrl);
@@ -244,16 +210,11 @@ public class NaverSeriesFetcher {
 
     /* ================= helpers ================ */
 
-    /** 목록 페이지에서 상세 링크 수집 (productNo 링크 우선, 없으면 전체 detail 링크 폴백) */
+    /** 목록 페이지에서 상세 링크 수집 */
     private static Set<String> extractDetailUrls(Document listDoc) {
         Set<String> detailUrls = new LinkedHashSet<>();
-        for (Element a : listDoc.select(NaverSeriesSelectors.LIST_DETAIL_LINK_STRICT)) {
+        for (Element a : listDoc.select(NaverSeriesSelectors.LIST_DETAIL_LINK)) {
             detailUrls.add(absolutize(a.attr("href"), BASE_URL));
-        }
-        if (detailUrls.isEmpty()) {
-            for (Element a : listDoc.select(NaverSeriesSelectors.LIST_DETAIL_LINK_FALLBACK)) {
-                detailUrls.add(absolutize(a.attr("href"), BASE_URL));
-            }
         }
         return detailUrls;
     }
@@ -370,61 +331,6 @@ public class NaverSeriesFetcher {
             String t = text(li);
             if (t.contains("이용가"))
                 return t;
-        }
-        return null;
-    }
-
-    private static BigDecimal extractRating(Document doc) {
-        Element score = doc.selectFirst("div.score_area");
-        if (score == null)
-            return null;
-        Matcher m = Pattern.compile("(\\d+(?:\\.\\d+)?)").matcher(score.text());
-        return m.find() ? new BigDecimal(m.group(1)) : null;
-    }
-
-    private static Long extractCommentCount(Document doc, Element head) {
-        // 시도 1: 새로운 구조 <span id="commentCount">
-        Element commentSpan = doc.selectFirst("span#commentCount");
-        if (commentSpan != null) {
-            Long n = parseKoreanCount(commentSpan.text());
-            if (n != null)
-                return n;
-        }
-
-        // 시도 2 (폴백): 기존 구조 h3:matchesOwn(댓글)
-        Element h3 = doc.selectFirst("h3:matchesOwn(댓글)");
-        if (h3 != null) {
-            Element span = h3.selectFirst("span");
-            if (span != null) {
-                Long n = parseKoreanCount(span.text());
-                if (n != null)
-                    return n;
-            }
-        }
-
-        // 시도 3 (폴백): 헤더 텍스트
-        if (head != null) {
-            String t = head.text();
-            Matcher m = Pattern.compile("관심\\s*(?:\\S+)\\s*(\\d+(?:\\.\\d+)?\\s*(?:만|천)|[\\d,]+)\\s*공유").matcher(t);
-            if (m.find())
-                return parseKoreanCount(m.group(1));
-        }
-        return null;
-    }
-
-    /**
-     * 총 회차 수 추출: "총 <strong>193</strong>화" 형식에서 숫자 추출
-     */
-    private static Long extractEpisodeCount(Document doc) {
-        Element episodeH5 = doc.selectFirst("h5.end_total_episode");
-        if (episodeH5 != null) {
-            Element strong = episodeH5.selectFirst("strong");
-            if (strong != null) {
-                try {
-                    return Long.parseLong(strong.text().trim().replace(",", ""));
-                } catch (NumberFormatException ignored) {
-                }
-            }
         }
         return null;
     }

@@ -16,8 +16,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 네이버 웹툰 Selenium 기반 페이지 파서
@@ -131,7 +129,7 @@ public class NaverWebtoonSeleniumPageParser {
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
                 // 제목 요소가 나타날 때까지 대기 (React 렌더링 완료 확인)
                 wait.until(ExpectedConditions.presenceOfElementLocated(
-                    By.cssSelector(NaverWebtoonSelectors.DETAIL_TITLE_ROBUST)
+                    By.cssSelector(NaverWebtoonSelectors.DETAIL_TITLE)
                 ));
                 log.debug("React 렌더링 완료 확인");
             } catch (TimeoutException e) {
@@ -165,20 +163,15 @@ public class NaverWebtoonSeleniumPageParser {
             // 웹툰 메타 정보 파싱
             String status = parseStatus(driver);
             String detailWeekday = parseWeekday(driver, weekday);
-            Integer episodeCount = parseEpisodeCount(driver);
 
             // 서비스 정보 파싱
             String ageRating = parseAgeRating(driver);
             List<String> genres = parseGenres(driver);
 
-            // 🎯 핵심: 관심수 파싱 (Selenium으로만 가능)
-            Long likeCount = parseLikeCount(driver);
-
             // 🎯 첫 화 연재 날짜 파싱 (이미 정렬된 페이지의 첫 번째 에피소드)
             LocalDate releaseDate = parseReleaseDate(driver);
 
-            log.debug("파싱 완료: {} (관심: {}, 에피소드: {}, 장르태그: {}, 첫화날짜: {})",
-                    title, likeCount, episodeCount, genres.size(), releaseDate);
+            log.debug("파싱 완료: {} (장르태그: {}, 첫화날짜: {})", title, genres.size(), releaseDate);
 
             // DTO 빌드
             return NaverWebtoonDTO.builder()
@@ -190,10 +183,8 @@ public class NaverWebtoonSeleniumPageParser {
                     .titleId(titleId)
                     .weekday(detailWeekday)
                     .status(status)
-                    .episodeCount(episodeCount)
                     .ageRating(ageRating)
                     .genres(genres)
-                    .likeCount(likeCount)
                     .releaseDate(releaseDate)
                     .crawlSource(crawlSource)
                     .build();
@@ -229,29 +220,13 @@ public class NaverWebtoonSeleniumPageParser {
 
     private String parseTitle(WebDriver driver) {
         try {
-            // 여러 셀렉터 시도
-            String[] selectors = {
-                    NaverWebtoonSelectors.DETAIL_TITLE,
-                    NaverWebtoonSelectors.DETAIL_TITLE_ROBUST,
-                    NaverWebtoonSelectors.DETAIL_TITLE_FALLBACK
-            };
-
-            for (String selector : selectors) {
-                try {
-                    WebElement element = driver.findElement(By.cssSelector(selector));
-                    String title = element.getText().trim();
-                    if (!title.isEmpty()) {
-                        return title;
-                    }
-                } catch (NoSuchElementException ignored) {}
-            }
-
+            WebElement element = driver.findElement(By.cssSelector(NaverWebtoonSelectors.DETAIL_TITLE));
+            String title = element.getText().trim();
+            return title.isEmpty() ? null : title;
+        } catch (NoSuchElementException e) {
             log.warn("제목을 찾을 수 없음");
-
-        } catch (Exception e) {
-            log.warn("제목 추출 실패: {}", e.getMessage());
+            return null;
         }
-        return null;
     }
 
     private String parseAuthor(WebDriver driver) {
@@ -344,57 +319,6 @@ public class NaverWebtoonSeleniumPageParser {
         return fallbackWeekday;
     }
 
-    private Integer parseEpisodeCount(WebDriver driver) {
-        try {
-            // 방법 1: 페이지 상단의 "총 N화" 텍스트에서 실제 총 화수 추출
-            // (li 개수는 페이지당 최대 20개라 총 화수가 아님 — 과거 20으로 잘리던 버그의 원인)
-            Integer total = parseTotalEpisodeText(driver);
-            if (total != null && total > 0) {
-                log.debug("에피소드 개수 찾음 (총 N화 텍스트): {}", total);
-                return total;
-            }
-
-            // 방법 2 (fallback): 현재 페이지 리스트 아이템 개수 — 총 화수의 하한값
-            List<WebElement> episodeItems = driver.findElements(
-                    By.cssSelector(NaverWebtoonSelectors.EPISODE_ITEMS_ANY)
-            );
-            if (!episodeItems.isEmpty()) {
-                log.debug("에피소드 개수 fallback (페이지 li 개수, 하한값): {}", episodeItems.size());
-                return episodeItems.size();
-            }
-
-        } catch (Exception e) {
-            log.warn("에피소드 개수 추출 실패: {}", e.getMessage());
-        }
-
-        return null;
-    }
-
-    /**
-     * 페이지에서 "총 256화" 형태의 텍스트를 해시 클래스에 의존하지 않고 탐색.
-     */
-    private Integer parseTotalEpisodeText(WebDriver driver) {
-        try {
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-            String script = """
-                var els = document.querySelectorAll('div, span, strong, em, h3');
-                for (var i = 0; i < els.length; i++) {
-                    var t = els[i].textContent.trim();
-                    var m = t.match(/^총\\s*([\\d,]+)\\s*화$/);
-                    if (m) return m[1];
-                }
-                return null;
-                """;
-            Object result = js.executeScript(script);
-            if (result instanceof String s) {
-                return Integer.parseInt(s.replace(",", ""));
-            }
-        } catch (Exception e) {
-            log.debug("총 화수 텍스트 탐색 실패: {}", e.getMessage());
-        }
-        return null;
-    }
-
     private String parseAgeRating(WebDriver driver) {
         try {
             List<WebElement> metaElements = driver.findElements(
@@ -414,46 +338,22 @@ public class NaverWebtoonSeleniumPageParser {
         return null;
     }
 
-    /** 페이지 태그 영역(#액션 #사이다 등)을 장르 목록으로 수집 — yml에서 domain.genres로 매핑됨 */
+    /** 페이지 태그 영역(#액션 #사이다 등)을 장르 목록으로 수집 — yml에서 master.genres로 매핑됨 */
     private List<String> parseGenres(WebDriver driver) {
         List<String> tags = new ArrayList<>();
 
         try {
-            // 방법 1: 직접 셀렉터
             List<WebElement> tagElements = driver.findElements(
                     By.cssSelector(NaverWebtoonSelectors.DETAIL_TAGS)
             );
 
-            if (tagElements.isEmpty()) {
-                // 방법 2: JavaScript로 # 포함 링크들 찾기
-                JavascriptExecutor js = (JavascriptExecutor) driver;
-                String script = """
-                    var tags = [];
-                    var links = document.querySelectorAll('a');
-                    for (var i = 0; i < links.length; i++) {
-                        var text = links[i].textContent.trim();
-                        if (text.startsWith('#') && text.length > 1) {
-                            tags.push(text.substring(1));
-                        }
-                    }
-                    return tags;
-                    """;
-
-                @SuppressWarnings("unchecked")
-                List<String> jsResult = (List<String>) js.executeScript(script);
-                if (jsResult != null) {
-                    tags.addAll(jsResult);
+            for (WebElement tag : tagElements) {
+                String tagText = tag.getText().trim();
+                if (tagText.startsWith("#")) {
+                    tagText = tagText.substring(1);
                 }
-            } else {
-                // 일반적인 방법으로 태그 추출
-                for (WebElement tag : tagElements) {
-                    String tagText = tag.getText().trim();
-                    if (tagText.startsWith("#")) {
-                        tagText = tagText.substring(1);
-                    }
-                    if (!tagText.isEmpty()) {
-                        tags.add(tagText);
-                    }
+                if (!tagText.isEmpty()) {
+                    tags.add(tagText);
                 }
             }
 
@@ -464,67 +364,6 @@ public class NaverWebtoonSeleniumPageParser {
         }
 
         return tags;
-    }
-
-    // 🎯 핵심 메서드: 관심수 추출 (Selenium으로만 가능)
-    private Long parseLikeCount(WebDriver driver) {
-        try {
-            // 방법 1: 직접 셀렉터 사용
-            WebElement likeElement = driver.findElement(By.className("EpisodeListUser__count--fNEWK"));
-            String likeText = likeElement.getText().trim();
-            log.debug("관심수 찾음 (직접): {}", likeText);
-            return parseKoreanNumber(likeText);
-
-        } catch (NoSuchElementException e) {
-            log.debug("직접 셀렉터로 관심수 못 찾음, 대안 방법 시도");
-
-            // 방법 2: "관심" 텍스트 기반 검색
-            try {
-                JavascriptExecutor js = (JavascriptExecutor) driver;
-                String script = """
-                    var result = null;
-                    var spans = document.querySelectorAll('span');
-                    for (var i = 0; i < spans.length; i++) {
-                        if (spans[i].textContent.trim() === '관심') {
-                            var next = spans[i].nextElementSibling;
-                            if (next && /\\d/.test(next.textContent)) {
-                                result = next.textContent.trim();
-                                break;
-                            }
-                        }
-                    }
-                    return result;
-                    """;
-
-                String result = (String) js.executeScript(script);
-                if (result != null) {
-                    log.debug("관심수 찾음 (JavaScript): {}", result);
-                    return parseKoreanNumber(result);
-                }
-
-            } catch (Exception jsException) {
-                log.debug("JavaScript 방법도 실패: {}", jsException.getMessage());
-            }
-
-            // 방법 3: 클래스 패턴 매칭
-            try {
-                List<WebElement> countElements = driver.findElements(
-                        By.cssSelector(NaverWebtoonSelectors.DETAIL_LIKE_COUNT_ROBUST)
-                );
-                for (WebElement element : countElements) {
-                    String text = element.getText().trim();
-                    if (text.matches(".*\\d.*")) {
-                        log.debug("관심수 찾음 (패턴 매칭): {}", text);
-                        return parseKoreanNumber(text);
-                    }
-                }
-            } catch (Exception patternException) {
-                log.debug("패턴 매칭도 실패: {}", patternException.getMessage());
-            }
-        }
-
-        log.warn("관심수를 찾을 수 없음");
-        return null;
     }
 
     /**
@@ -644,43 +483,6 @@ public class NaverWebtoonSeleniumPageParser {
     }
 
     // ===== 유틸리티 메서드들 =====
-
-    private Long parseKoreanNumber(String numberText) {
-        if (numberText == null || numberText.trim().isEmpty()) {
-            return null;
-        }
-
-        try {
-            String text = numberText.trim();
-
-            // "1,584"와 같은 콤마가 포함된 숫자 처리
-            if (text.matches("^[0-9,]+$")) {
-                return Long.parseLong(text.replaceAll(",", ""));
-            }
-
-            // "1.2만", "3.5억" 등 한글 단위 처리
-            if (text.contains("만")) {
-                String num = text.replace("만", "").replaceAll("[^0-9.]", "");
-                return Math.round(Double.parseDouble(num) * 10000);
-            }
-
-            if (text.contains("억")) {
-                String num = text.replace("억", "").replaceAll("[^0-9.]", "");
-                return Math.round(Double.parseDouble(num) * 100000000);
-            }
-
-            // 일반 숫자 (콤마 제거)
-            String cleanNumber = text.replaceAll("[^0-9]", "");
-            if (!cleanNumber.isEmpty()) {
-                return Long.parseLong(cleanNumber);
-            }
-
-        } catch (NumberFormatException e) {
-            log.warn("숫자 파싱 실패: {}", numberText);
-        }
-
-        return null;
-    }
 
     private String cleanText(String text) {
         return text != null ? text.trim() : null;

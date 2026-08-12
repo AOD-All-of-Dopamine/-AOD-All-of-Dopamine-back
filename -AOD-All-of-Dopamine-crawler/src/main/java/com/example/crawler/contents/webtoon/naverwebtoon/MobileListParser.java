@@ -43,7 +43,6 @@ public class MobileListParser {
             }
 
             // 추가 목록 정보 추출
-            Long likeCount = parseLikeCount(listItem);
             String status = parseStatus(listItem);
 
             return NaverWebtoonDTO.builder()
@@ -54,7 +53,6 @@ public class MobileListParser {
                     .titleId(titleId)
                     .weekday(weekday)
                     .status(translateStatus(status))
-                    .likeCount(likeCount)
                     .crawlSource(crawlSource)
                     .build();
 
@@ -123,14 +121,6 @@ public class MobileListParser {
         return imgElement != null ? imgElement.attr("src") : null;
     }
 
-    private Long parseLikeCount(Element listItem) {
-        Element countElement = listItem.selectFirst(NaverWebtoonSelectors.LIST_WEBTOON_LIKE_COUNT);
-        if (countElement == null) return null;
-
-        String countText = countElement.text();
-        return parseKoreanNumber(countText);
-    }
-
     private String parseStatus(Element listItem) {
         Element statusElement = listItem.selectFirst(NaverWebtoonSelectors.LIST_WEBTOON_STATUS);
         if (statusElement == null) return null;
@@ -157,32 +147,6 @@ public class MobileListParser {
         if (end == -1) end = url.length();
 
         return url.substring(start, end);
-    }
-
-    private Long parseKoreanNumber(String text) {
-        if (isBlank(text)) return null;
-
-        try {
-            // 숫자 추출
-            String numberPart = text.replaceAll("[^0-9.]", "");
-            if (numberPart.isEmpty()) return null;
-
-            double value = Double.parseDouble(numberPart);
-
-            // 단위 처리
-            if (text.contains("만")) {
-                value *= 10000;
-            } else if (text.contains("억")) {
-                value *= 100000000;
-            } else if (text.contains("천")) {
-                value *= 1000;
-            }
-
-            return (long) value;
-        } catch (NumberFormatException e) {
-            log.debug("숫자 파싱 실패: {}", text);
-            return null;
-        }
     }
 
     private String translateStatus(String statusClass) {
