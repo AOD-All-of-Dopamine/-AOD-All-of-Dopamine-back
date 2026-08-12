@@ -2,7 +2,7 @@ package com.example.crawler.contents.game.steam;
 
 import com.example.crawler.common.queue.CrawlJobProducer;
 import com.example.crawler.common.queue.JobType;
-import com.example.crawler.contents.game.steam.SteamApiFetcher;
+import com.example.crawler.contents.game.steam.SteamFetcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SteamSchedulingService {
+public class SteamJobProducer {
 
-    private final SteamApiFetcher steamApiFetcher;
+    private final SteamFetcher steamFetcher;
     private final CrawlJobProducer crawlJobProducer;
 
     /**
@@ -35,7 +35,7 @@ public class SteamSchedulingService {
         
         try {
             // 1. Steam API에서 전체 게임 목록 가져오기 (15만개)
-            List<Map<String, Object>> gameApps = steamApiFetcher.fetchGameApps();
+            List<Map<String, Object>> gameApps = steamFetcher.fetchGameApps();
             
             if (gameApps.isEmpty()) {
                 log.warn("⚠️ [Steam Producer] 게임 목록이 비어있습니다.");
@@ -55,6 +55,32 @@ public class SteamSchedulingService {
         } catch (Exception e) {
             log.error("❌ [Steam Producer] Steam 게임 목록 수집 중 오류 발생", e);
         }
+    }
+
+    /**
+     * fetchGameApps() 결과의 [start, end) 슬라이스를 큐에 등록합니다.
+     * (admin 수동 트리거용 — 구 SteamCrawlService.collectAllGamesInRange의 큐 방식 대체)
+     *
+     * @return 등록된 작업 수
+     */
+    public int enqueueRange(int start, int end) {
+        List<Map<String, Object>> gameApps = steamFetcher.fetchGameApps();
+
+        if (gameApps.isEmpty()) {
+            log.warn("⚠️ [Steam Producer] 게임 목록이 비어있어 범위 등록을 중단합니다.");
+            return 0;
+        }
+
+        int effectiveStart = Math.max(0, start);
+        int effectiveEnd = Math.min(end, gameApps.size());
+
+        List<String> appIds = gameApps.subList(effectiveStart, effectiveEnd).stream()
+                .map(app -> String.valueOf(((Number) app.get("appid")).longValue()))
+                .collect(Collectors.toList());
+
+        int created = crawlJobProducer.createJobs(JobType.STEAM_GAME, appIds, 5);
+        log.info("✅ [Steam Producer] 범위 [{}, {}) → {} 개 작업 생성", effectiveStart, effectiveEnd, created);
+        return created;
     }
 }
 

@@ -259,13 +259,13 @@
                 return;
             }
             const body = { appId: parseInt(appId) };
-            callApi('/api/steam/collect/by-appid', 'POST', body, `Steam 게임 AppID ${appId} 수집`);
+            callApi('/api/crawl/steam/by-appid', 'POST', body, `Steam 게임 AppID ${appId} 수집`);
         }
 
         function callSteamApi() {
             const start = document.getElementById('steam-start-index').value;
             const end = document.getElementById('steam-end-index').value;
-            const endpoint = `/api/test/steam/collect-games-by-range?start=${start}&end=${end}`;
+            const endpoint = `/api/crawl/steam/by-range?start=${start}&end=${end}`;
             callApi(endpoint, 'POST', null, 'Steam 범위 지정 수집');
         }
 

@@ -8,7 +8,7 @@ import com.example.crawler.contents.novel.naverseries.NaverSeriesSchedulingServi
 import com.example.crawler.contents.tmdb.TmdbJobProducer;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonService;
-import com.example.crawler.contents.game.steam.SteamSchedulingService;
+import com.example.crawler.contents.game.steam.SteamJobProducer;
 import com.example.crawler.ingest.DraftAssembler;
 import com.example.crawler.ingest.IngestPipeline;
 import com.example.crawler.ingest.TransformSchedulingService;
@@ -33,7 +33,7 @@ public class AdminTestController {
     private final NaverWebtoonService naverWebtoonService;
 
     // Job Queue Producers
-    private final SteamSchedulingService steamSchedulingService;
+    private final SteamJobProducer steamJobProducer;
     private final TmdbJobProducer tmdbJobProducer;
     private final NaverWebtoonSchedulingService webtoonSchedulingService;
     private final NaverSeriesSchedulingService naverSeriesSchedulingService;
@@ -48,7 +48,7 @@ public class AdminTestController {
     public AdminTestController(NaverSeriesCrawler naverSeriesCrawler,
             KakaoPageCrawler kakaoPageCrawler,
             NaverWebtoonService naverWebtoonService,
-            SteamSchedulingService steamSchedulingService,
+            SteamJobProducer steamJobProducer,
             TmdbJobProducer tmdbJobProducer,
             NaverWebtoonSchedulingService webtoonSchedulingService,
             NaverSeriesSchedulingService naverSeriesSchedulingService,
@@ -61,7 +61,7 @@ public class AdminTestController {
         this.naverSeriesCrawler = naverSeriesCrawler;
         this.kakaoPageCrawler = kakaoPageCrawler;
         this.naverWebtoonService = naverWebtoonService;
-        this.steamSchedulingService = steamSchedulingService;
+        this.steamJobProducer = steamJobProducer;
         this.tmdbJobProducer = tmdbJobProducer;
         this.webtoonSchedulingService = webtoonSchedulingService;
         this.naverSeriesSchedulingService = naverSeriesSchedulingService;
@@ -85,10 +85,41 @@ public class AdminTestController {
     @PostMapping("/crawl/steam/all-games")
     public Map<String, Object> crawlSteamAllGames() {
         try {
-            steamSchedulingService.collectSteamGamesWeekly();
+            steamJobProducer.collectSteamGamesWeekly();
             return Map.of(
                     "success", true,
                     "message", "Steam 게임 크롤링 작업이 Job Queue에 등록되었습니다. Consumer가 5초마다 처리합니다.");
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage());
+        }
+    }
+
+    // 단건 수집: 큐 등록 (구 /api/steam/collect/by-appid 직접 크롤 대체, admin.html JSON body 계약 유지)
+    @PostMapping("/crawl/steam/by-appid")
+    public Map<String, Object> enqueueSteamGame(@RequestBody Map<String, Object> body) {
+        try {
+            Long appId = ((Number) body.get("appId")).longValue();
+            crawlJobProducer.createJob(JobType.STEAM_GAME, String.valueOf(appId), 1, null);
+            return Map.of(
+                    "success", true,
+                    "message", "AppID " + appId + " 큐 등록 완료. Consumer가 수 초 내 처리합니다.");
+        } catch (Exception e) {
+            return Map.of(
+                    "success", false,
+                    "error", e.getMessage());
+        }
+    }
+
+    // 범위 수집: 앱 목록 슬라이스 → 큐 등록 (구 /api/test/steam/collect-games-by-range 직접 크롤 대체)
+    @PostMapping("/crawl/steam/by-range")
+    public Map<String, Object> enqueueSteamRange(@RequestParam int start, @RequestParam int end) {
+        try {
+            int created = steamJobProducer.enqueueRange(start, end);
+            return Map.of(
+                    "success", true,
+                    "message", "범위 [" + start + ", " + end + ") 큐 등록 완료: " + created + "개");
         } catch (Exception e) {
             return Map.of(
                     "success", false,

@@ -3,7 +3,7 @@ package com.example.crawler.scheduler;
 import com.example.crawler.contents.tmdb.TmdbJobProducer;
 import com.example.crawler.contents.webtoon.naverwebtoon.NaverWebtoonSchedulingService;
 import com.example.crawler.contents.novel.naverseries.NaverSeriesSchedulingService;
-import com.example.crawler.contents.game.steam.SteamSchedulingService;
+import com.example.crawler.contents.game.steam.SteamJobProducer;
 import com.example.crawler.ingest.TransformSchedulingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MasterScheduler {
 
-    private final SteamSchedulingService steamSchedulingService;
+    private final SteamJobProducer steamJobProducer;
     private final TmdbJobProducer tmdbJobProducer;
     private final NaverWebtoonSchedulingService naverWebtoonSchedulingService;
     private final NaverSeriesSchedulingService naverSeriesSchedulingService;
@@ -37,7 +37,7 @@ public class MasterScheduler {
     @Scheduled(cron = "0 0 3 * * THU")
     public void scheduleSteamCrawling() {
         log.info("🚀 [Master] Steam 게임 목록 Job Queue 등록 시작");
-        steamSchedulingService.collectSteamGamesWeekly();
+        steamJobProducer.collectSteamGamesWeekly();
     }
 
     // TMDB 신규 콘텐츠 - 매일 새벽 1시

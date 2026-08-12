@@ -18,7 +18,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SteamApiFetcher {
+public class SteamFetcher {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
