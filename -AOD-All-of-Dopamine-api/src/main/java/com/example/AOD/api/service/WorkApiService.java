@@ -1,6 +1,7 @@
 package com.example.AOD.api.service;
 
 import com.example.AOD.api.dto.PageResponse;
+import com.example.AOD.api.dto.WorkFilters;
 import com.example.AOD.api.dto.WorkResponseDTO;
 import com.example.AOD.api.dto.WorkSummaryDTO;
 import com.example.shared.entity.Content;
@@ -40,45 +41,46 @@ public class WorkApiService {
     
     /**
      * 작품 목록 조회 (필터링, 페이징)
-     * - 장르 필터링은 DB 레벨에서 처리 (성능 최적화)
-     * - 플랫폼 필터링은 메모리에서 처리 (platform_data 조인 필요)
+     * 필터 축(WorkFilters — 장르/플랫폼/출시 시기/웹툰 상태·요일·연령)이 하나라도 있으면
+     * findWorks 단일 쿼리(DB 레벨)로, 없으면 무필터 기본 조회로.
      */
-    public PageResponse<WorkSummaryDTO> getWorks(Domain domain, String keyword, List<String> platforms, List<String> genres, Pageable pageable) {
-        log.debug("getWorks - domain: {}, keyword: {}, platforms: {}, genres: {}, page: {}", 
-                  domain, keyword, platforms, genres, pageable.getPageNumber());
-        
-        // 장르 필터링이 있는 경우 - DB 레벨에서 처리
-        if (genres != null && !genres.isEmpty()) {
-            return getWorksByGenresWithDbFiltering(domain, keyword, platforms, genres, pageable);
+    public PageResponse<WorkSummaryDTO> getWorks(Domain domain, String keyword, WorkFilters filters, Pageable pageable) {
+        log.debug("getWorks - domain: {}, keyword: {}, filters: {}, page: {}",
+                  domain, keyword, filters, pageable.getPageNumber());
+
+        if (filters != null && filters.hasAny()) {
+            return getWorksWithDbFiltering(domain, keyword, filters, pageable);
         }
-        
-        // 플랫폼만 있는 경우도 동일 통합 경로(findWorks 단일 쿼리)로 처리
-        if (platforms != null && !platforms.isEmpty()) {
-            return getWorksByGenresWithDbFiltering(domain, keyword, platforms, genres, pageable);
-        }
-        
+
         // 필터링 없는 기본 조회
         return getWorksWithoutFiltering(domain, keyword, pageable);
     }
-    
+
     /**
-     * 장르 필터링 - DB 레벨에서 처리 (PostgreSQL JSONB 쿼리 사용)
+     * 통합 필터 조회 — findWorks 단일 쿼리 (contents 마스터 + 웹툰 도메인 컬럼 EXISTS)
      */
-    private PageResponse<WorkSummaryDTO> getWorksByGenresWithDbFiltering(
-            Domain domain, String keyword, List<String> platforms, List<String> genres, Pageable pageable) {
+    private PageResponse<WorkSummaryDTO> getWorksWithDbFiltering(
+            Domain domain, String keyword, WorkFilters filters, Pageable pageable) {
         if (domain == null) {
-            log.warn("Genre/platform filtering requires domain to be specified");
+            log.warn("Filtering requires domain to be specified - falling back to unfiltered");
             return getWorksWithoutFiltering(null, keyword, pageable);
         }
 
-        String[] genreArr = (genres == null || genres.isEmpty()) ? null : genres.toArray(new String[0]);
-        String[] platformArr = (platforms == null || platforms.isEmpty()) ? null : platforms.toArray(new String[0]);
         String kw = (keyword == null || keyword.isBlank()) ? null : keyword;
         // ORDER BY가 쿼리에 고정되어 있으므로 Sort 제거
         Pageable pageReq = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
-        // genres/platforms가 contents로 승격(2026-07)되어 도메인별 분기 없이 단일 쿼리
-        Page<Content> page = contentRepository.findWorks(domain.name(), genreArr, platformArr, kw, pageReq);
+        Page<Content> page = contentRepository.findWorks(
+                domain.name(),
+                toArr(filters.genres()),
+                toArr(filters.platforms()),
+                kw,
+                blankToNull(filters.releaseFrom()),
+                blankToNull(filters.releaseTo()),
+                blankToNull(filters.status()),
+                toArr(filters.weekdays()),
+                toArr(filters.ageRatings()),
+                pageReq);
 
         List<WorkSummaryDTO> dtos = page.getContent().stream()
                 .map(this::toWorkSummary)
@@ -93,6 +95,14 @@ public class WorkApiService {
                 .first(page.isFirst())
                 .last(page.isLast())
                 .build();
+    }
+
+    private static String[] toArr(List<String> list) {
+        return (list == null || list.isEmpty()) ? null : list.toArray(new String[0]);
+    }
+
+    private static String blankToNull(String s) {
+        return (s == null || s.isBlank()) ? null : s;
     }
 
     
@@ -469,12 +479,12 @@ public class WorkApiService {
     }
 
     /**
-     * 장르 캐시 주기적 무효화 — 크롤러가 새 콘텐츠를 추가하면 장르 분포가 바뀌므로 30분마다 갱신
+     * 장르·플랫폼 캐시 주기적 무효화 — 크롤러가 새 콘텐츠를 추가하면 분포가 바뀌므로 30분마다 갱신
      */
     @Scheduled(fixedRate = 1_800_000L)
-    @CacheEvict(value = {"genresWithCount", "availableGenres"}, allEntries = true)
+    @CacheEvict(value = {"genresWithCount", "availableGenres", "availablePlatforms"}, allEntries = true)
     public void evictGenreCaches() {
-        log.debug("Evicted genre caches (scheduled refresh)");
+        log.debug("Evicted genre/platform caches (scheduled refresh)");
     }
 
     /**
@@ -497,17 +507,24 @@ public class WorkApiService {
     }
 
     /**
-     * 도메인별 사용 가능한 플랫폼 목록 조회
-     * - DB 조회 없이 설정 파일에서 바로 반환 (성능 최적화)
-     * - 플랫폼은 고정값이므로 application.properties에 정의
+     * 도메인별 사용 가능한 플랫폼 목록 조회.
+     * 2026-08: 하드코딩(수집 소스만) → contents.platforms 실데이터(DISTINCT UNNEST)로 전환 —
+     * TMDB watch provider(넷플릭스 등 OTT)가 platforms 배열에 승격 저장되므로
+     * "볼 수 있는 곳" 필터 옵션까지 이 API 하나로 제공된다.
+     * DB가 비어 있으면(신규 환경) 수집 소스 하드코딩으로 폴백.
      */
+    @Cacheable(value = "availablePlatforms", key = "#domain != null ? #domain.name() : 'ALL'")
     public List<String> getAvailablePlatforms(Domain domain) {
         if (domain == null) {
-            // 전체 플랫폼 반환
             return List.of("TMDB_MOVIE", "TMDB_TV", "Steam", "NaverWebtoon", "NaverSeries", "KakaoPage");
         }
-        
-        // 도메인별 플랫폼 반환
+
+        List<String> fromDb = contentRepository.findDistinctPlatforms(domain.name());
+        if (!fromDb.isEmpty()) {
+            return fromDb.stream().sorted().collect(Collectors.toList());
+        }
+
+        // 폴백: 수집 소스 (백필 전이거나 콘텐츠가 아직 없는 도메인)
         return switch (domain) {
             case MOVIE -> List.of("TMDB_MOVIE");
             case TV -> List.of("TMDB_TV");

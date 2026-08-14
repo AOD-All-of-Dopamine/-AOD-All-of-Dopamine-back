@@ -1,6 +1,7 @@
 package com.example.AOD.api.controller;
 
 import com.example.AOD.api.dto.PageResponse;
+import com.example.AOD.api.dto.WorkFilters;
 import com.example.AOD.api.dto.WorkResponseDTO;
 import com.example.AOD.api.dto.WorkSummaryDTO;
 import com.example.AOD.api.service.WorkApiService;
@@ -31,6 +32,11 @@ public class WorkController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) java.util.List<String> platforms,
             @RequestParam(required = false) java.util.List<String> genres,
+            @RequestParam(required = false) String releaseFrom,
+            @RequestParam(required = false) String releaseTo,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) java.util.List<String> weekdays,
+            @RequestParam(required = false) java.util.List<String> ageRatings,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "masterTitle") String sortBy,
@@ -45,12 +51,28 @@ public class WorkController {
             }
         }
 
+        // 날짜 파라미터는 yyyy-MM-dd만 허용 (native 쿼리 CAST 오류 방지)
+        if (isInvalidDate(releaseFrom) || isInvalidDate(releaseTo)) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy)
                         .and(Sort.by(Sort.Direction.ASC, "contentId"));
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PageResponse<WorkSummaryDTO> response = workApiService.getWorks(domainEnum, keyword, platforms, genres, pageable);
+        WorkFilters filters = new WorkFilters(genres, platforms, releaseFrom, releaseTo, status, weekdays, ageRatings);
+        PageResponse<WorkSummaryDTO> response = workApiService.getWorks(domainEnum, keyword, filters, pageable);
         return ResponseEntity.ok(response);
+    }
+
+    private static boolean isInvalidDate(String value) {
+        if (value == null || value.isBlank()) return false;
+        try {
+            java.time.LocalDate.parse(value);
+            return false;
+        } catch (java.time.format.DateTimeParseException e) {
+            return true;
+        }
     }
 
     /**

@@ -88,23 +88,47 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
                                           Pageable pageable);
     
     /**
-     * 통합 필터 조회: 장르/플랫폼(contents 배열 @>, AND) + 키워드(ILIKE). 각 파라미터가 null이면 무시.
-     * genres/platforms가 contents로 승격되면서(2026-07) 도메인 repo의 findWorks 5개를 대체한 단일 쿼리.
+     * findWorks 공통 WHERE 조각 (main/count 쿼리 중복 방지용 상수).
+     *
+     * 필터 출처 규율: contents 마스터 컬럼 + 도메인 엔티티 컬럼만 필터 축으로 쓴다.
+     * platform_data.attributes(JSONB)는 필터 금지 (표시 전용).
+     *
+     * - genres: @> 포함(AND) — "무협이면서 회귀"
+     * - platforms: && 겹침(OR) — "넷플릭스나 왓챠 중 하나라도" (2026-08 @>에서 전환, GIN 인덱스 동일 사용)
+     * - releaseFrom/To: 출시 시기 범위 (yyyy-MM-dd 문자열, null이면 무시)
+     * - status/weekdays/ageRatings: 웹툰 도메인 컬럼 — EXISTS 서브쿼리 (타 도메인에선 null로 무시)
      */
-    @Query(value = "SELECT c.* FROM contents c WHERE c.domain = :domain " +
+    String WORKS_FILTER =
+           "c.domain = :domain " +
            "AND (CAST(:genres AS text[]) IS NULL OR c.genres @> CAST(:genres AS text[])) " +
-           "AND (CAST(:platforms AS text[]) IS NULL OR c.platforms @> CAST(:platforms AS text[])) " +
+           "AND (CAST(:platforms AS text[]) IS NULL OR c.platforms && CAST(:platforms AS text[])) " +
            "AND (CAST(:keyword AS text) IS NULL OR c.master_title ILIKE ('%' || :keyword || '%') OR c.original_title ILIKE ('%' || :keyword || '%')) " +
+           "AND (CAST(:releaseFrom AS date) IS NULL OR c.release_date >= CAST(:releaseFrom AS date)) " +
+           "AND (CAST(:releaseTo AS date) IS NULL OR c.release_date <= CAST(:releaseTo AS date)) " +
+           "AND ((CAST(:status AS text) IS NULL AND CAST(:weekdays AS text[]) IS NULL AND CAST(:ageRatings AS text[]) IS NULL) " +
+           "     OR EXISTS (SELECT 1 FROM webtoon_contents w WHERE w.content_id = c.content_id " +
+           "         AND (CAST(:status AS text) IS NULL OR w.status = :status) " +
+           "         AND (CAST(:weekdays AS text[]) IS NULL OR w.weekday = ANY(CAST(:weekdays AS text[]))) " +
+           "         AND (CAST(:ageRatings AS text[]) IS NULL OR w.age_rating = ANY(CAST(:ageRatings AS text[]))))) ";
+
+    /**
+     * 통합 필터 조회 — 각 파라미터가 null이면 해당 축 무시.
+     * genres/platforms가 contents로 승격되면서(2026-07) 도메인 repo의 findWorks 5개를 대체한 단일 쿼리.
+     * 2026-08: 출시 시기·웹툰 도메인 컬럼(상태/요일/연령) 축 추가, platforms를 OR 매칭으로 전환.
+     */
+    @Query(value = "SELECT c.* FROM contents c WHERE " + WORKS_FILTER +
            "ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC",
-           countQuery = "SELECT COUNT(*) FROM contents c WHERE c.domain = :domain " +
-           "AND (CAST(:genres AS text[]) IS NULL OR c.genres @> CAST(:genres AS text[])) " +
-           "AND (CAST(:platforms AS text[]) IS NULL OR c.platforms @> CAST(:platforms AS text[])) " +
-           "AND (CAST(:keyword AS text) IS NULL OR c.master_title ILIKE ('%' || :keyword || '%') OR c.original_title ILIKE ('%' || :keyword || '%'))",
+           countQuery = "SELECT COUNT(*) FROM contents c WHERE " + WORKS_FILTER,
            nativeQuery = true)
     Page<Content> findWorks(@Param("domain") String domain,
                             @Param("genres") String[] genres,
                             @Param("platforms") String[] platforms,
                             @Param("keyword") String keyword,
+                            @Param("releaseFrom") String releaseFrom,
+                            @Param("releaseTo") String releaseTo,
+                            @Param("status") String status,
+                            @Param("weekdays") String[] weekdays,
+                            @Param("ageRatings") String[] ageRatings,
                             Pageable pageable);
     
     // 플랫폼 필터링만 (도메인 무관)
@@ -154,4 +178,12 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     @Query(value = "SELECT DISTINCT g FROM contents, UNNEST(genres) AS g " +
            "WHERE domain = :domain AND g IS NOT NULL AND g <> ''", nativeQuery = true)
     List<String> findDistinctGenres(@Param("domain") String domain);
+
+    /**
+     * 도메인별 사용 중인 플랫폼 목록 (contents.platforms 실데이터 — 수집 소스 + OTT 등,
+     * "볼 수 있는 곳" 필터 옵션의 원천)
+     */
+    @Query(value = "SELECT DISTINCT p FROM contents, UNNEST(platforms) AS p " +
+           "WHERE domain = :domain AND p IS NOT NULL AND p <> ''", nativeQuery = true)
+    List<String> findDistinctPlatforms(@Param("domain") String domain);
 }

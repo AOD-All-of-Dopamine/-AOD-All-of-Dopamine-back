@@ -47,7 +47,8 @@ public class GenreFilteringPerformanceController {
         
         // 1. DB 레벨 필터링 (현재 최적화된 방식)
         long dbStartTime = System.nanoTime();
-        PageResponse<WorkSummaryDTO> dbResult = workApiService.getWorks(domain, null, null, genres, pageable);
+        PageResponse<WorkSummaryDTO> dbResult = workApiService.getWorks(domain, null,
+                new com.example.AOD.api.dto.WorkFilters(genres, null, null, null, null, null, null), pageable);
         long dbEndTime = System.nanoTime();
         long dbDuration = (dbEndTime - dbStartTime) / 1_000_000; // ms로 변환
         

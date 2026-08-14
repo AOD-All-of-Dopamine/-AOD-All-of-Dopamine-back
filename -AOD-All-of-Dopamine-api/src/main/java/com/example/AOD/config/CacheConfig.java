@@ -26,6 +26,7 @@ public class CacheConfig {
                 "traditional-recommendations",
                 "llm-recommendations",
                 "availableGenres",
-                "genresWithCount");
+                "genresWithCount",
+                "availablePlatforms");
     }
 }
