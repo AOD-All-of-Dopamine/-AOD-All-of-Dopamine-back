@@ -82,19 +82,7 @@ public class WorkApiService {
                 toArr(filters.ageRatings()),
                 pageReq);
 
-        List<WorkSummaryDTO> dtos = page.getContent().stream()
-                .map(this::toWorkSummary)
-                .collect(Collectors.toList());
-
-        return PageResponse.<WorkSummaryDTO>builder()
-                .content(dtos)
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .first(page.isFirst())
-                .last(page.isLast())
-                .build();
+        return buildSummaryPage(page);
     }
 
     private static String[] toArr(List<String> list) {
@@ -136,17 +124,7 @@ public class WorkApiService {
             contentPage = contentRepository.findAll(pageable);
         }
         
-        return PageResponse.<WorkSummaryDTO>builder()
-                .content(contentPage.getContent().stream()
-                        .map(this::toWorkSummary)
-                        .collect(Collectors.toList()))
-                .page(contentPage.getNumber())
-                .size(contentPage.getSize())
-                .totalElements(contentPage.getTotalElements())
-                .totalPages(contentPage.getTotalPages())
-                .first(contentPage.isFirst())
-                .last(contentPage.isLast())
-                .build();
+        return buildSummaryPage(contentPage);
     }
     
     
@@ -179,7 +157,7 @@ public class WorkApiService {
     }
 
     /**
-     * WorkSummaryDTO 변환
+     * WorkSummaryDTO 변환 (Content 단독으로 채울 수 있는 필드까지)
      */
     private WorkSummaryDTO toWorkSummary(Content content) {
         return WorkSummaryDTO.builder()
@@ -189,7 +167,136 @@ public class WorkApiService {
                 .thumbnail(content.getPosterImageUrl())
                 .score(content.getAverageScore())
                 .releaseDate(content.getReleaseDate() != null ? content.getReleaseDate().toString() : null)
+                .genres(content.getGenres())
+                .platforms(content.getPlatforms())
                 .build();
+    }
+
+    /**
+     * Page&lt;Content&gt; → 카드 보강까지 끝난 목록 응답 (모든 목록 경로 공용).
+     * 보강은 페이지 단위 배치 조회(도메인 테이블 + platform_data 각 1쿼리)로 N+1을 막는다.
+     */
+    private PageResponse<WorkSummaryDTO> buildSummaryPage(Page<Content> page) {
+        List<WorkSummaryDTO> dtos = enrichAndMap(page.getContent());
+        return PageResponse.<WorkSummaryDTO>builder()
+                .content(dtos)
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .build();
+    }
+
+    /** 변환 + 보강 (List 경로 공용) */
+    private List<WorkSummaryDTO> enrichAndMap(List<Content> contents) {
+        List<WorkSummaryDTO> dtos = contents.stream()
+                .map(this::toWorkSummary)
+                .collect(Collectors.toList());
+        enrichSummaries(contents, dtos);
+        return dtos;
+    }
+
+    /**
+     * 카드 표시용 보강 — 도메인 컬럼(작가/개발사/요일 등)과 platform_data 표시 정보
+     * (Steam 리뷰 요약, TMDB 평점·감독). 필터 축이 아니라 표시 전용이므로 attr 사용 허용.
+     */
+    private void enrichSummaries(List<Content> contents, List<WorkSummaryDTO> dtos) {
+        if (contents.isEmpty()) return;
+
+        Map<Domain, List<Long>> idsByDomain = new HashMap<>();
+        for (Content c : contents) {
+            idsByDomain.computeIfAbsent(c.getDomain(), d -> new ArrayList<>()).add(c.getContentId());
+        }
+
+        Map<Long, WebtoonContent> webtoons = fetchById(idsByDomain.get(Domain.WEBTOON),
+                ids -> webtoonContentRepository.findAllById(ids), WebtoonContent::getContentId);
+        Map<Long, GameContent> games = fetchById(idsByDomain.get(Domain.GAME),
+                ids -> gameContentRepository.findAllById(ids), GameContent::getContentId);
+        Map<Long, WebnovelContent> novels = fetchById(idsByDomain.get(Domain.WEBNOVEL),
+                ids -> webnovelContentRepository.findAllById(ids), WebnovelContent::getContentId);
+        Map<Long, MovieContent> movies = fetchById(idsByDomain.get(Domain.MOVIE),
+                ids -> movieContentRepository.findAllById(ids), MovieContent::getContentId);
+
+        // platform_data 배치 (게임 리뷰 요약, TMDB 평점·감독)
+        Map<Long, List<PlatformData>> platformDataById = platformDataRepository
+                .findByContentContentIdIn(contents.stream().map(Content::getContentId).collect(Collectors.toList()))
+                .stream()
+                .collect(Collectors.groupingBy(pd -> pd.getContent().getContentId()));
+
+        for (WorkSummaryDTO dto : dtos) {
+            Long id = dto.getId();
+            switch (Domain.valueOf(dto.getDomain())) {
+                case WEBTOON -> {
+                    WebtoonContent w = webtoons.get(id);
+                    if (w != null) {
+                        dto.setCreator(w.getAuthor());
+                        dto.setWeekday(w.getWeekday());
+                        dto.setStatus(w.getStatus());
+                        dto.setAgeRating(w.getAgeRating());
+                    }
+                }
+                case GAME -> {
+                    GameContent g = games.get(id);
+                    if (g != null) dto.setCreator(g.getDeveloper());
+                    applySteamReview(dto, platformDataById.get(id));
+                }
+                case WEBNOVEL -> {
+                    WebnovelContent n = novels.get(id);
+                    if (n != null) {
+                        dto.setCreator(n.getAuthor());
+                        dto.setAgeRating(n.getAgeRating());
+                    }
+                }
+                case MOVIE -> {
+                    MovieContent m = movies.get(id);
+                    if (m != null && m.getDirectors() != null && !m.getDirectors().isEmpty()) {
+                        dto.setCreator(m.getDirectors().get(0));
+                    }
+                    applyTmdbRating(dto, platformDataById.get(id));
+                }
+                case TV -> applyTmdbRating(dto, platformDataById.get(id));
+            }
+        }
+    }
+
+    private static <T> Map<Long, T> fetchById(List<Long> ids,
+            java.util.function.Function<List<Long>, List<T>> fetcher,
+            java.util.function.Function<T, Long> idOf) {
+        if (ids == null || ids.isEmpty()) return Collections.emptyMap();
+        return fetcher.apply(ids).stream().collect(Collectors.toMap(idOf, t -> t));
+    }
+
+    /** Steam attributes.review_summary → desc + 긍정 % (없으면 미설정) */
+    private static void applySteamReview(WorkSummaryDTO dto, List<PlatformData> pds) {
+        Map<String, Object> attrs = firstAttributes(pds, "Steam");
+        if (attrs == null || !(attrs.get("review_summary") instanceof Map<?, ?> summary)) return;
+        Object desc = summary.get("review_score_desc");
+        if (desc instanceof String s && !s.isBlank()) dto.setSteamReviewDesc(s);
+        if (summary.get("total_positive") instanceof Number pos
+                && summary.get("total_reviews") instanceof Number total
+                && total.longValue() > 0) {
+            dto.setSteamPositivePct((int) Math.round(pos.doubleValue() * 100.0 / total.doubleValue()));
+        }
+    }
+
+    /** TMDB attributes.rating → 평점 (yml 매핑 추가 후 수집분부터 채워짐; 감독은 도메인 테이블에서) */
+    private static void applyTmdbRating(WorkSummaryDTO dto, List<PlatformData> pds) {
+        Map<String, Object> attrs = firstAttributes(pds, "TMDB");
+        if (attrs != null && attrs.get("rating") instanceof Number rating) {
+            dto.setExternalRating(rating.doubleValue());
+        }
+    }
+
+    private static Map<String, Object> firstAttributes(List<PlatformData> pds, String platformPrefix) {
+        if (pds == null) return null;
+        return pds.stream()
+                .filter(pd -> pd.getPlatformName() != null && pd.getPlatformName().startsWith(platformPrefix))
+                .map(PlatformData::getAttributes)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -308,13 +415,11 @@ public class WorkApiService {
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filteredContent.size());
         
-        List<WorkSummaryDTO> pagedContent = filteredContent.subList(
+        List<WorkSummaryDTO> pagedContent = enrichAndMap(filteredContent.subList(
                 Math.min(start, filteredContent.size()),
                 end
-        ).stream()
-                .map(this::toWorkSummary)
-                .collect(Collectors.toList());
-        
+        ));
+
         int totalElements = filteredContent.size();
         int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
 
@@ -345,9 +450,7 @@ public class WorkApiService {
         // 플랫폼 필터링 (contents.platforms 배열 — OTT 포함)
         List<Content> filteredContent = filterContentByPlatforms(allContent, platforms);
 
-        List<WorkSummaryDTO> pagedContent = filteredContent.stream()
-                .map(this::toWorkSummary)
-                .collect(Collectors.toList());
+        List<WorkSummaryDTO> pagedContent = enrichAndMap(filteredContent);
 
         return PageResponse.<WorkSummaryDTO>builder()
                 .content(pagedContent)
@@ -381,12 +484,10 @@ public class WorkApiService {
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filteredContent.size());
         
-        List<WorkSummaryDTO> pagedContent = filteredContent.subList(
+        List<WorkSummaryDTO> pagedContent = enrichAndMap(filteredContent.subList(
                 Math.min(start, filteredContent.size()),
                 end
-        ).stream()
-                .map(this::toWorkSummary)
-                .collect(Collectors.toList());
+        ));
         
         int totalElements = filteredContent.size();
         int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());

@@ -51,7 +51,8 @@ public class TmdbPayloadProcessor {
         String[] fieldsToCopy = {
                 "id", "overview", "release_date", "first_air_date",
                 "name", "title", "original_name", "original_title",
-                "runtime", "episode_run_time", "number_of_seasons"
+                "runtime", "episode_run_time", "number_of_seasons",
+                "vote_average", "vote_count"   // TMDB 평점 (2026-08 카드 표시용 — 화이트리스트 누락으로 미수집이던 필드)
         };
         for (String field : fieldsToCopy) {
             if (source.containsKey(field) && source.get(field) != null) {

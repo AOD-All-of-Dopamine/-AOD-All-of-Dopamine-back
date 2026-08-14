@@ -13,6 +13,9 @@ import java.util.Optional;
 public interface PlatformDataRepository extends JpaRepository<PlatformData, Long> {
     Optional<PlatformData> findByPlatformNameAndPlatformSpecificId(String platformName, String platformSpecificId);
     List<PlatformData> findByContent(Content content);
+
+    /** 목록 카드 보강용 배치 조회 (페이지당 1쿼리 — N+1 방지) */
+    List<PlatformData> findByContentContentIdIn(java.util.Collection<Long> contentIds);
     
     /**
      * 도메인별 고유 플랫폼 이름 조회 (N+1 쿼리 방지)

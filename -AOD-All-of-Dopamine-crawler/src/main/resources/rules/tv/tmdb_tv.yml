@@ -14,6 +14,8 @@ mappings:
   episode_run_time:   domain.episodeRuntime
   cast:               domain.cast
   watch_providers:    attr.watch_providers
+  vote_average:       attr.rating        # TMDB 평점 — 카드 표시용 (수집분부터 채워짐)
+  vote_count:         attr.vote_count
 
 normalizers:
   master.masterTitle:   [collapse_spaces, nfkc]
