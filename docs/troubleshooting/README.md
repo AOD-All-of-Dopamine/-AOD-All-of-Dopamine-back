@@ -13,6 +13,7 @@ AOD 백엔드에서 발생한 문제와 그 진단·수정 과정을 기록한�
 | 03 | [웹소설 장르 안 뜸 (스케줄 누락)](03_webnovel-genres-empty.md) | NaverSeries 콘텐츠 크롤이 스케줄에 없어 데이터 stale | ✅ 커밋됨 (`1ae0084`) |
 | 04 | [모니터링 스택 재구축](04_monitoring-rebuild.md) | 유령 메트릭·분기된 두 트리·미배포 → 실제 메트릭 기반 재구축 | 🟡 코드 적용 (미배포) |
 | 05 | [플랫폼+장르 필터 N+1](05_filter-platform-genre.md) | 복합 필터 시 콘텐츠당 platform_data 조회(N+1) → 단일 쿼리 통합 | 🟡 코드 적용 (미배포) |
+| 06 | [탐색 필터 전멸 (승격 잔재 2건)](06_explore-filter-broken-after-promotion.md) | 백필 SQL 미실행(0건) + gitignore된 cache-names에 @Cacheable 미등록(500) | ✅ 커밋됨 (`3d280ac`) + 배포 DB 백필 필요 |
 
 ## 공통 교훈
 
