@@ -62,7 +62,7 @@ public class CollectionController {
      */
     @GetMapping("/mine")
     public ResponseEntity<?> getMyCollections(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
@@ -85,7 +85,7 @@ public class CollectionController {
      */
     @GetMapping("/mine/summary")
     public ResponseEntity<?> getMyCollectionSummaries(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestParam Long contentId
     ) {
         try {
@@ -128,7 +128,7 @@ public class CollectionController {
      */
     @PostMapping
     public ResponseEntity<?> createCollection(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestBody CollectionCreateRequest request
     ) {
         try {
@@ -150,7 +150,7 @@ public class CollectionController {
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateCollection(
             @PathVariable Long id,
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestBody CollectionUpdateRequest request
     ) {
         try {
@@ -172,7 +172,7 @@ public class CollectionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCollection(
             @PathVariable Long id,
-            @RequestHeader("Authorization") String authHeader
+            @RequestHeader(value = "Authorization", required = false) String authHeader
     ) {
         try {
             String username = extractUsernameRequired(authHeader);
@@ -193,7 +193,7 @@ public class CollectionController {
     @PostMapping("/{id}/items")
     public ResponseEntity<?> addItem(
             @PathVariable Long id,
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestBody CollectionItemAddRequest request
     ) {
         try {
@@ -216,7 +216,7 @@ public class CollectionController {
     public ResponseEntity<?> updateItem(
             @PathVariable Long id,
             @PathVariable Long itemId,
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestBody CollectionItemUpdateRequest request
     ) {
         try {
@@ -239,7 +239,7 @@ public class CollectionController {
     public ResponseEntity<?> deleteItem(
             @PathVariable Long id,
             @PathVariable Long itemId,
-            @RequestHeader("Authorization") String authHeader
+            @RequestHeader(value = "Authorization", required = false) String authHeader
     ) {
         try {
             String username = extractUsernameRequired(authHeader);
@@ -260,7 +260,7 @@ public class CollectionController {
     @PutMapping("/{id}/items/order")
     public ResponseEntity<?> reorderItems(
             @PathVariable Long id,
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestBody CollectionOrderRequest request
     ) {
         try {
@@ -282,7 +282,7 @@ public class CollectionController {
     @PostMapping("/{id}/like")
     public ResponseEntity<?> like(
             @PathVariable Long id,
-            @RequestHeader("Authorization") String authHeader
+            @RequestHeader(value = "Authorization", required = false) String authHeader
     ) {
         try {
             String username = extractUsernameRequired(authHeader);
@@ -303,7 +303,7 @@ public class CollectionController {
     @DeleteMapping("/{id}/like")
     public ResponseEntity<?> unlike(
             @PathVariable Long id,
-            @RequestHeader("Authorization") String authHeader
+            @RequestHeader(value = "Authorization", required = false) String authHeader
     ) {
         try {
             String username = extractUsernameRequired(authHeader);

@@ -15,6 +15,7 @@ import com.example.shared.entity.Domain;
 import com.example.shared.repository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,9 +53,7 @@ public class CollectionService {
     /** 발견 페이지 — 공개 컬렉션 목록 (sort: popular=like_count desc / latest=created_at desc) */
     public PageResponse<CollectionSummaryDTO> getPublicCollections(String sort, Domain domain,
                                                                    String username, int page, int size) {
-        Sort sortSpec = "latest".equalsIgnoreCase(sort)
-                ? Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"))
-                : Sort.by(Sort.Order.desc("likeCount"), Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
+        Sort sortSpec = parseSort(sort);
         Pageable pageable = PageRequest.of(page, size, sortSpec);
 
         Page<Collection> collectionPage = (domain != null)
@@ -243,7 +242,14 @@ public class CollectionService {
         item.setComment(comment == null || comment.isBlank() ? null : comment);
         item.setPosition(maxPosition == null ? 0 : maxPosition + 1);
 
-        CollectionItem saved = collectionItemRepository.save(item);
+        CollectionItem saved;
+        try {
+            // exists 검사 후 save 사이의 동시 요청 경합은 유니크 제약이 막는다 —
+            // flush를 강제해 제약 위반을 여기서 잡아 409로 변환 (raw SQL 메시지 노출 방지)
+            saved = collectionItemRepository.saveAndFlush(item);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 컬렉션에 담긴 작품입니다.");
+        }
         WorkSummaryDTO enriched = workApiService.toEnrichedSummaries(List.of(content)).get(0);
         return CollectionItemDTO.of(saved.getId(), saved.getComment(), saved.getPosition(), enriched);
     }
@@ -466,6 +472,18 @@ public class CollectionService {
     }
 
     // ========== 검증 ==========
+
+    /** 정렬 화이트리스트 — popular(기본)/latest 외 값은 400 (domain 파라미터와 일관) */
+    private static Sort parseSort(String sort) {
+        if (sort == null || sort.isBlank() || "popular".equalsIgnoreCase(sort)) {
+            return Sort.by(Sort.Order.desc("likeCount"), Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
+        }
+        if ("latest".equalsIgnoreCase(sort)) {
+            return Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "지원하지 않는 정렬입니다: " + sort + " (popular | latest)");
+    }
 
     private static String validateTitle(String title) {
         if (title == null || title.isBlank()) {

@@ -22,6 +22,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -103,7 +104,7 @@ class CollectionServiceTest {
                 collectionService.addItem(10L, "curator", new CollectionItemAddRequest(100L, null)));
 
         assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        verify(collectionItemRepository, never()).save(any());
+        verify(collectionItemRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -120,7 +121,26 @@ class CollectionServiceTest {
                 collectionService.addItem(10L, "curator", new CollectionItemAddRequest(100L, null)));
 
         assertThat(e.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        verify(collectionItemRepository, never()).save(any());
+        verify(collectionItemRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    @DisplayName("아이템 추가 - exists 검사 이후 경합으로 유니크 제약 위반 시에도 409")
+    void addItem_raceOnUniqueConstraint_returns409() {
+        User owner = user(1L, "curator");
+        Collection collection = collection(10L, owner, Domain.GAME, Collection.Visibility.PUBLIC);
+        given(collectionRepository.findById(10L)).willReturn(Optional.of(collection));
+        given(userRepository.findByUsername("curator")).willReturn(Optional.of(owner));
+        given(contentRepository.findById(100L)).willReturn(Optional.of(content(100L, Domain.GAME)));
+        given(collectionItemRepository.existsByCollectionIdAndContentContentId(10L, 100L)).willReturn(false);
+        given(collectionItemRepository.findMaxPosition(10L)).willReturn(null);
+        given(collectionItemRepository.saveAndFlush(any(CollectionItem.class)))
+                .willThrow(new DataIntegrityViolationException("duplicate key value violates unique constraint"));
+
+        ResponseStatusException e = statusOf(() ->
+                collectionService.addItem(10L, "curator", new CollectionItemAddRequest(100L, null)));
+
+        assertThat(e.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
@@ -134,7 +154,7 @@ class CollectionServiceTest {
         given(contentRepository.findById(100L)).willReturn(Optional.of(content));
         given(collectionItemRepository.existsByCollectionIdAndContentContentId(10L, 100L)).willReturn(false);
         given(collectionItemRepository.findMaxPosition(10L)).willReturn(4);
-        given(collectionItemRepository.save(any(CollectionItem.class))).willAnswer(inv -> {
+        given(collectionItemRepository.saveAndFlush(any(CollectionItem.class))).willAnswer(inv -> {
             CollectionItem item = inv.getArgument(0);
             item.setId(77L);
             return item;
@@ -146,7 +166,7 @@ class CollectionServiceTest {
                 new CollectionItemAddRequest(100L, "말미 코멘트"));
 
         ArgumentCaptor<CollectionItem> captor = ArgumentCaptor.forClass(CollectionItem.class);
-        verify(collectionItemRepository).save(captor.capture());
+        verify(collectionItemRepository).saveAndFlush(captor.capture());
         assertThat(captor.getValue().getPosition()).isEqualTo(5); // 말미 = max(4) + 1
         assertThat(dto.getItemId()).isEqualTo(77L);
         assertThat(dto.getContentId()).isEqualTo(100L);
@@ -331,6 +351,17 @@ class CollectionServiceTest {
 
         assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         verify(collectionRepository, never()).save(any());
+    }
+
+    // ===== 목록 정렬 =====
+
+    @Test
+    @DisplayName("공개 목록 - popular/latest 외 정렬 값은 400")
+    void publicList_invalidSort_returns400() {
+        ResponseStatusException e = statusOf(() ->
+                collectionService.getPublicCollections("hot", null, null, 0, 20));
+
+        assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     // ===== 재정렬 =====
