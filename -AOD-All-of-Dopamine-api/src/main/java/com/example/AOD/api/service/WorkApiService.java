@@ -189,6 +189,15 @@ public class WorkApiService {
                 .build();
     }
 
+    /**
+     * Content 목록 → 카드 보강까지 끝난 WorkSummaryDTO 목록 (입력 순서 유지).
+     * 컬렉션 상세 등 다른 서비스가 도메인별 표시 필드 보강을 재사용하는 공개 진입점 —
+     * 내부 목록 경로들과 동일한 enrichAndMap을 태운다 (보강 로직 중복 구현 금지).
+     */
+    public List<WorkSummaryDTO> toEnrichedSummaries(List<Content> contents) {
+        return enrichAndMap(contents);
+    }
+
     /** 변환 + 보강 (List 경로 공용) */
     private List<WorkSummaryDTO> enrichAndMap(List<Content> contents) {
         List<WorkSummaryDTO> dtos = contents.stream()
