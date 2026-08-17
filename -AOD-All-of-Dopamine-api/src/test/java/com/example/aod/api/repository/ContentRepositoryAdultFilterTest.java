@@ -65,6 +65,22 @@ class ContentRepositoryAdultFilterTest {
     }
 
     @Test
+    void rankingMappedContentQueriesExcludeAdult() throws NoSuchMethodException {
+        // 랭킹 매핑 조회 2종 — 매핑된 콘텐츠가 성인이면 행 제외, 미매핑(c IS NULL) 행은 유지
+        // (미매핑 행의 크롤 시점 title/썸네일 노출은 판별 불가로 허용 — 플랜 편차 기록)
+        Class<?> repo = com.example.shared.repository.ExternalRankingRepository.class;
+        for (Method m : new Method[]{
+                repo.getMethod("findByPlatformWithContent", String.class),
+                repo.getMethod("findAllWithContent")}) {
+            Query q = m.getAnnotation(Query.class);
+            assertTrue(q != null && hasAdultFilter(q.value()),
+                    m.getName() + ": 매핑 콘텐츠 성인 제외가 없음");
+            assertTrue(q.value().contains("c IS NULL OR"),
+                    m.getName() + ": 미매핑 행 유지(c IS NULL OR ...) 조건이 없음");
+        }
+    }
+
+    @Test
     void detailPathIsNotFiltered() {
         // 상세 접근 허용 계약: findById는 JpaRepository 상속 그대로 — 성인 필터가 덧씌워지지 않았어야 함
         boolean overridden = java.util.Arrays.stream(ContentRepository.class.getDeclaredMethods())

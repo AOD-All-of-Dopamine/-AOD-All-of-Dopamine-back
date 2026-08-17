@@ -182,24 +182,25 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     // ===== 장르 (2026-07 도메인 테이블에서 contents로 승격 — 구 도메인 repo의 countByGenre/findDistinctGenres 대체) =====
 
     /**
-     * 도메인별 장르 작품 수 집계 (UNNEST + GROUP BY) — 테이블 전체 로드 없이 DB에서 카운트
+     * 도메인별 장르 작품 수 집계 (UNNEST + GROUP BY) — 테이블 전체 로드 없이 DB에서 카운트.
+     * is_adult=false: 목록에 안 보이는 성인 콘텐츠가 집계·필터 옵션에 새지 않게 (정합)
      */
     @Query(value = "SELECT g AS genre, COUNT(*) AS cnt FROM contents, UNNEST(genres) AS g " +
-           "WHERE domain = :domain AND g IS NOT NULL AND g <> '' GROUP BY g ORDER BY cnt DESC", nativeQuery = true)
+           "WHERE domain = :domain AND is_adult = false AND g IS NOT NULL AND g <> '' GROUP BY g ORDER BY cnt DESC", nativeQuery = true)
     List<Object[]> countByGenre(@Param("domain") String domain);
 
     /**
-     * 도메인별 사용 중인 장르 목록 (중복 제거)
+     * 도메인별 사용 중인 장르 목록 (중복 제거, 성인 제외 — 필터 옵션 정합)
      */
     @Query(value = "SELECT DISTINCT g FROM contents, UNNEST(genres) AS g " +
-           "WHERE domain = :domain AND g IS NOT NULL AND g <> ''", nativeQuery = true)
+           "WHERE domain = :domain AND is_adult = false AND g IS NOT NULL AND g <> ''", nativeQuery = true)
     List<String> findDistinctGenres(@Param("domain") String domain);
 
     /**
      * 도메인별 사용 중인 플랫폼 목록 (contents.platforms 실데이터 — 수집 소스 + OTT 등,
-     * "볼 수 있는 곳" 필터 옵션의 원천)
+     * "볼 수 있는 곳" 필터 옵션의 원천, 성인 제외 — 필터 옵션 정합)
      */
     @Query(value = "SELECT DISTINCT p FROM contents, UNNEST(platforms) AS p " +
-           "WHERE domain = :domain AND p IS NOT NULL AND p <> ''", nativeQuery = true)
+           "WHERE domain = :domain AND is_adult = false AND p IS NOT NULL AND p <> ''", nativeQuery = true)
     List<String> findDistinctPlatforms(@Param("domain") String domain);
 }

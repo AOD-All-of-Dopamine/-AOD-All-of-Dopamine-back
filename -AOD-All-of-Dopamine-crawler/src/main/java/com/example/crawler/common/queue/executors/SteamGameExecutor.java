@@ -9,12 +9,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Steam 게임 크롤링 Executor
- * 표준형: Fetcher 상세 호출 → 성인 게임 스킵 → PayloadProcessor.process
+ * 표준형: Fetcher 상세 호출 → 성적 콘텐츠 스킵 → PayloadProcessor.process
  *        → 리뷰 집계 병합(best-effort) → CollectorService.saveRaw
  * (레이트리밋은 SteamFetcher 내부의 SteamRateLimiter가 처리)
  */
@@ -23,8 +25,13 @@ import java.util.concurrent.atomic.AtomicLong;
 @RequiredArgsConstructor
 public class SteamGameExecutor implements JobExecutor {
 
-    /** 성인 판정 기준: appdetails required_age >= 18 (2026-08 Steam 정제 ① — 수집 단계 차단) */
-    private static final int ADULT_REQUIRED_AGE = 18;
+    /**
+     * 성인 판정 기준 (2026-08 Steam 정제 ① — 수집 단계 차단):
+     * appdetails content_descriptors.ids에 3(Adult Only Sexual Content) 또는
+     * 4(Frequent Nudity or Sexual Content) = 성적 콘텐츠만 제외.
+     * required_age 기준은 기각 — 실측 상 폭력성 18금(GTA류)만 걸러 정반대로 작동했다.
+     */
+    static final Set<Integer> SEXUAL_CONTENT_DESCRIPTOR_IDS = Set.of(3, 4);
 
     private final SteamFetcher steamFetcher;
     private final SteamPayloadProcessor payloadProcessor;
@@ -65,12 +72,13 @@ public class SteamGameExecutor implements JobExecutor {
                 return false;
             }
 
-            // 성인 게임은 saveRaw 전에 스킵 — DB에 아예 담지 않는다 (기존분 차단은 contents.is_adult가 담당)
-            int requiredAge = parseRequiredAge(gameDetails.get("required_age"));
-            if (requiredAge >= ADULT_REQUIRED_AGE) {
-                log.info("성인 게임 수집 스킵: {} (AppID: {}, required_age: {}) — 누적 {}건",
-                        gameDetails.get("name"), appId, requiredAge, adultSkipCount.incrementAndGet());
-                return true; // 의도된 스킵 = 작업 성공 (false면 실패로 재시도됨)
+            // 성적 콘텐츠 게임은 saveRaw 전에 스킵 — DB에 아예 담지 않는다
+            // (기존분 차단은 contents.is_adult + 부팅 reconcile이 담당)
+            if (hasSexualContentDescriptor(gameDetails.get("content_descriptors"))) {
+                log.info("성적 콘텐츠 게임 수집 스킵: {} (AppID: {}) — 누적 {}건",
+                        gameDetails.get("name"), appId, adultSkipCount.incrementAndGet());
+                // 의도된 스킵 = 작업 성공 — false면 markAsFailed로 maxRetries까지 재클레임 후 영구 FAILED
+                return true;
             }
 
             String appName = (String) gameDetails.get("name");
@@ -95,22 +103,26 @@ public class SteamGameExecutor implements JobExecutor {
     }
 
     /**
-     * appdetails의 required_age 파싱 — 숫자(0)·문자열("18", "18+") 혼재 응답을 흡수.
-     * 파싱 불가·부재는 0(전체이용가) 취급.
+     * appdetails content_descriptors({ids:[...], notes:...})에 성적 콘텐츠 디스크립터(3/4)가 있는지.
+     * ids 원소는 숫자·문자열 혼재 가능성을 흡수. 구조가 다르거나 부재면 false(비성인 취급).
      */
-    static int parseRequiredAge(Object value) {
-        if (value instanceof Number n) return n.intValue();
-        if (value instanceof String s) {
-            String digits = s.replaceAll("\\D", "");
-            if (!digits.isEmpty()) {
+    static boolean hasSexualContentDescriptor(Object contentDescriptors) {
+        if (!(contentDescriptors instanceof Map<?, ?> m)) return false;
+        if (!(m.get("ids") instanceof List<?> ids)) return false;
+        for (Object v : ids) {
+            Integer id = null;
+            if (v instanceof Number n) {
+                id = n.intValue();
+            } else if (v != null) {
                 try {
-                    return Integer.parseInt(digits);
+                    id = Integer.parseInt(v.toString().trim());
                 } catch (NumberFormatException ignored) {
-                    // 자릿수 초과 등 — 0 취급
+                    // 알 수 없는 토큰 — 무시
                 }
             }
+            if (id != null && SEXUAL_CONTENT_DESCRIPTOR_IDS.contains(id)) return true;
         }
-        return 0;
+        return false;
     }
 
     /** 성인 스킵 누적 건수 (테스트·운영 확인용) */

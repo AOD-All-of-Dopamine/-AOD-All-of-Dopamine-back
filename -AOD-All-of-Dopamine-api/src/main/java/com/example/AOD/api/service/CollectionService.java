@@ -229,6 +229,11 @@ public class CollectionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "컬렉션 도메인(" + collection.getDomain() + ")과 작품 도메인(" + content.getDomain() + ")이 일치하지 않습니다.");
         }
+        // 성인 콘텐츠는 목록 비노출이지만 상세 직접 URL로 접근 가능 — 담기까지 허용하면
+        // 공개 컬렉션을 통해 재노출되므로 능동 우회를 봉쇄 (기존 담긴 아이템은 잔존 허용 — 백로그)
+        if (Boolean.TRUE.equals(content.getIsAdult())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "담을 수 없는 작품입니다.");
+        }
         if (collectionItemRepository.existsByCollectionIdAndContentContentId(collectionId, content.getContentId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 컬렉션에 담긴 작품입니다.");
         }

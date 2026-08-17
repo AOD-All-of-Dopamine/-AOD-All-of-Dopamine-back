@@ -16,6 +16,7 @@ mappings:
   metacritic:            attr.metacritic
   is_free:               attr.is_free
   required_age:          attr.required_age
+  content_descriptors.ids: attr.content_descriptor_ids    # 성인 판정 원천 — 3/4=성적 콘텐츠 (reconcile이 is_adult 플래그)
   detailed_description:  attr.detailed_description
   categories:            attr.categories
   recommendations.total: attr.recommendation_count

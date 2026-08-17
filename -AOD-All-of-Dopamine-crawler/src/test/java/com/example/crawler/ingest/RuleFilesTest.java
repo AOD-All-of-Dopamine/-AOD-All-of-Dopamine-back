@@ -35,6 +35,7 @@ class RuleFilesTest {
                 "platforms", Map.of("windows", true, "mac", false),
                 "genres", List.of("FPS"),
                 "recommendations", Map.of("total", 12345),
+                "content_descriptors", Map.of("ids", List.of(1, 5), "notes", "폭력 묘사"),
                 "review_summary", Map.of("review_score", 9, "total_reviews", 31892)), registry.resolve("GAME", "Steam"));
         assertEquals("Half-Life", d.content().getMasterTitle());
         assertEquals(List.of("FPS"), d.content().getGenres());
@@ -44,6 +45,8 @@ class RuleFilesTest {
         assertEquals(31892, g.getReviewCount());                       // review_summary.total_reviews 승격 (2026-08)
         assertEquals("70", d.platformData().getPlatformSpecificId());
         assertEquals(12345, d.platformData().getAttributes().get("recommendation_count"));
+        assertEquals(List.of(1, 5),
+                d.platformData().getAttributes().get("content_descriptor_ids")); // 성인 판정 원천 (2026-08)
         assertEquals(Map.of("review_score", 9, "total_reviews", 31892),
                 d.platformData().getAttributes().get("review_summary"));   // 리뷰 집계 JSONB 객체
         assertEquals(List.of("Steam"), d.content().getPlatforms());   // 2026-07 마스터로 승격

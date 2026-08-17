@@ -108,6 +108,25 @@ class CollectionServiceTest {
     }
 
     @Test
+    @DisplayName("아이템 추가 - 성인 콘텐츠면 400 (상세 직접 접근으로 담아 공개 컬렉션 재노출하는 우회 봉쇄)")
+    void addItem_adultContent_returns400() {
+        User owner = user(1L, "curator");
+        Collection collection = collection(10L, owner, Domain.GAME, Collection.Visibility.PUBLIC);
+        Content adult = content(100L, Domain.GAME);
+        adult.setIsAdult(true);
+        given(collectionRepository.findById(10L)).willReturn(Optional.of(collection));
+        given(userRepository.findByUsername("curator")).willReturn(Optional.of(owner));
+        given(contentRepository.findById(100L)).willReturn(Optional.of(adult));
+
+        ResponseStatusException e = statusOf(() ->
+                collectionService.addItem(10L, "curator", new CollectionItemAddRequest(100L, null)));
+
+        assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(e.getReason()).isEqualTo("담을 수 없는 작품입니다.");
+        verify(collectionItemRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
     @DisplayName("아이템 추가 - 이미 담긴 작품이면 409")
     void addItem_duplicate_returns409() {
         User owner = user(1L, "curator");

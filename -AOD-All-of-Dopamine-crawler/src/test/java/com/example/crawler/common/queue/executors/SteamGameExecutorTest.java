@@ -63,13 +63,13 @@ class SteamGameExecutorTest {
     }
 
     @Test
-    void skipsAdultGameBeforeSaveAndCounts() {
-        // required_age "18"(문자열) — appdetails는 숫자·문자열 혼재 응답
+    void skipsSexualContentGameBeforeSaveAndCounts() {
+        // content_descriptors.ids에 3(Adult Only Sexual Content) — saveRaw 전 스킵
         Map<String, Object> details = gameDetails();
-        details.put("required_age", "18");
+        details.put("content_descriptors", Map.of("ids", java.util.List.of(1, 3), "notes", "성인 전용"));
         when(fetcher.fetchGameDetails(70L)).thenReturn(details);
 
-        assertTrue(executor.execute("70"), "의도된 스킵은 작업 성공 (false면 재시도됨)");
+        assertTrue(executor.execute("70"), "의도된 스킵은 작업 성공 (false면 FAILED 경로)");
 
         verify(collectorService, never()).saveRaw(anyString(), anyString(), any(), anyString(), anyString());
         verify(fetcher, never()).fetchReviewSummary(anyLong()); // 스킵이면 리뷰 API 호출도 아낀다
@@ -77,9 +77,10 @@ class SteamGameExecutorTest {
     }
 
     @Test
-    void skipsAdultGameWithNumericRequiredAge() {
+    void skipsFrequentNudityGameWithStringIds() {
+        // 4(Frequent Nudity or Sexual Content), 문자열 원소 혼재 응답도 흡수
         Map<String, Object> details = gameDetails();
-        details.put("required_age", 19); // 국내 심의 등 18 초과값도 성인
+        details.put("content_descriptors", Map.of("ids", java.util.List.of("4")));
         when(fetcher.fetchGameDetails(70L)).thenReturn(details);
 
         assertTrue(executor.execute("70"));
@@ -87,9 +88,11 @@ class SteamGameExecutorTest {
     }
 
     @Test
-    void underageRequiredAgeStillSaved() {
+    void violentAdultGameStillSaved() {
+        // 폭력계 디스크립터(1,2,5)만 = GTA류 폭력성 18금 — 노출 유지가 정책, 저장되어야 함
         Map<String, Object> details = gameDetails();
-        details.put("required_age", "17"); // 18 미만 경계값 — 저장되어야 함
+        details.put("content_descriptors", Map.of("ids", java.util.List.of(1, 2, 5)));
+        details.put("required_age", "18"); // required_age는 판정에 사용하지 않음
         when(fetcher.fetchGameDetails(70L)).thenReturn(details);
         when(fetcher.fetchReviewSummary(70L)).thenReturn(null);
 
@@ -99,13 +102,14 @@ class SteamGameExecutorTest {
     }
 
     @Test
-    void parseRequiredAgeAbsorbsMixedFormats() {
-        assertEquals(18, SteamGameExecutor.parseRequiredAge("18"));
-        assertEquals(18, SteamGameExecutor.parseRequiredAge("18+"));
-        assertEquals(18, SteamGameExecutor.parseRequiredAge(18));
-        assertEquals(0, SteamGameExecutor.parseRequiredAge(0));
-        assertEquals(0, SteamGameExecutor.parseRequiredAge(null));   // 부재 = 전체이용가 취급
-        assertEquals(0, SteamGameExecutor.parseRequiredAge("abc")); // 파싱 불가 = 전체이용가 취급
+    void hasSexualContentDescriptorAbsorbsShapes() {
+        assertTrue(SteamGameExecutor.hasSexualContentDescriptor(Map.of("ids", java.util.List.of(3))));
+        assertTrue(SteamGameExecutor.hasSexualContentDescriptor(Map.of("ids", java.util.List.of("4"))));
+        assertFalse(SteamGameExecutor.hasSexualContentDescriptor(Map.of("ids", java.util.List.of(1, 2, 5))));
+        assertFalse(SteamGameExecutor.hasSexualContentDescriptor(Map.of("ids", java.util.List.of())));
+        assertFalse(SteamGameExecutor.hasSexualContentDescriptor(Map.of("notes", "설명만")));
+        assertFalse(SteamGameExecutor.hasSexualContentDescriptor(null));      // 부재 = 비성인 취급
+        assertFalse(SteamGameExecutor.hasSexualContentDescriptor("깨진 구조")); // 구조 불일치 = 비성인 취급
     }
 
     @Test
