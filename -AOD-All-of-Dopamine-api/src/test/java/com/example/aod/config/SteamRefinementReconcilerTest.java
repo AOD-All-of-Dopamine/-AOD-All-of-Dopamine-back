@@ -24,14 +24,34 @@ class SteamRefinementReconcilerTest {
     @InjectMocks private SteamRefinementReconciler reconciler;
 
     @Test
-    void reconcileRunsBothIdempotentUpdates() {
+    void reconcileRunsAllIdempotentUpdates() {
         given(jdbcTemplate.update(SteamRefinementReconciler.ADULT_FLAG_SQL)).willReturn(2);
+        given(jdbcTemplate.update(SteamRefinementReconciler.RAW_ADULT_FLAG_SQL)).willReturn(1);
         given(jdbcTemplate.update(SteamRefinementReconciler.REVIEW_COUNT_BACKFILL_SQL)).willReturn(5);
 
         reconciler.reconcile();
 
         verify(jdbcTemplate).update(SteamRefinementReconciler.ADULT_FLAG_SQL);
+        verify(jdbcTemplate).update(SteamRefinementReconciler.RAW_ADULT_FLAG_SQL);
         verify(jdbcTemplate).update(SteamRefinementReconciler.REVIEW_COUNT_BACKFILL_SQL);
+    }
+
+    @Test
+    void rawAdultFlagSqlReachesLegacyRowsViaRawItems() {
+        // 기존 수집분 커버: attr엔 descriptor가 영원히 안 채워지므로(프로듀서 dedup +
+        // 스킵이 saveRaw 전) raw_items.source_payload 원형에서 직접 판정해야 한다
+        String sql = SteamRefinementReconciler.RAW_ADULT_FLAG_SQL;
+        assertTrue(sql.contains("raw_items"), "raw_items 조인이어야 함");
+        assertTrue(sql.contains("r.platform_name = pd.platform_name")
+                        && sql.contains("r.platform_specific_id = pd.platform_specific_id"),
+                "raw → platform_data는 (platform_name, platform_specific_id) 조인이어야 함");
+        assertTrue(sql.contains("source_payload -> 'content_descriptors' -> 'ids'"),
+                "raw 원형의 content_descriptors.ids를 봐야 함 (attr 키가 아님)");
+        assertTrue(sql.contains("@> '3'::jsonb") && sql.contains("@> '4'::jsonb"),
+                "성적 디스크립터 3/4 둘 다 검사해야 함");
+        assertFalse(sql.contains("required_age"), "required_age 기준은 기각됨");
+        assertTrue(sql.contains("c.is_adult = false"), "멱등 가드(is_adult=false) 누락");
+        assertTrue(sql.contains("pd.platform_name = 'Steam'"), "Steam 한정이어야 함");
     }
 
     @Test
