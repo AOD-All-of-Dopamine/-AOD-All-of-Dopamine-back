@@ -1,6 +1,8 @@
 package com.example.crawler.admin.controller;
 
 import com.example.crawler.common.queue.CrawlJobProducer;
+import com.example.crawler.common.queue.CrawlJobRepository;
+import com.example.crawler.common.queue.JobStatus;
 import com.example.crawler.common.queue.JobType;
 import com.example.crawler.contents.novel.kakaopage.KakaoPageCrawler;
 import com.example.crawler.contents.novel.naverseries.NaverSeriesFetcher;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Year;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +41,7 @@ public class AdminTestController {
     private final NaverWebtoonJobProducer webtoonJobProducer;
     private final NaverSeriesJobProducer naverSeriesJobProducer;
     private final CrawlJobProducer crawlJobProducer;
+    private final CrawlJobRepository crawlJobRepository;
 
     private final IngestPipeline ingestPipeline;
     private final TransformSchedulingService transformSchedulingService;
@@ -53,6 +57,7 @@ public class AdminTestController {
             NaverWebtoonJobProducer webtoonJobProducer,
             NaverSeriesJobProducer naverSeriesJobProducer,
             CrawlJobProducer crawlJobProducer,
+            CrawlJobRepository crawlJobRepository,
             IngestPipeline ingestPipeline,
             TransformSchedulingService transformSchedulingService,
             RawItemRepository rawRepo,
@@ -66,6 +71,7 @@ public class AdminTestController {
         this.webtoonJobProducer = webtoonJobProducer;
         this.naverSeriesJobProducer = naverSeriesJobProducer;
         this.crawlJobProducer = crawlJobProducer;
+        this.crawlJobRepository = crawlJobRepository;
         this.ingestPipeline = ingestPipeline;
         this.transformSchedulingService = transformSchedulingService;
         this.rawRepo = rawRepo;
@@ -77,6 +83,23 @@ public class AdminTestController {
     @GetMapping("/health")
     public Map<String, Object> health() {
         return Map.of("ok", true);
+    }
+
+    /**
+     * 어드민 페이지 상태 패널용: crawl_job_queue 상태별 카운트 + 미변환 raw_items 수
+     */
+    @GetMapping("/status/summary")
+    public Map<String, Object> statusSummary() {
+        Map<String, Long> jobCounts = new LinkedHashMap<>();
+        for (JobStatus status : JobStatus.values()) {
+            jobCounts.put(status.name(), 0L);
+        }
+        for (Object[] row : crawlJobRepository.getStatusStatistics()) {
+            jobCounts.put(((JobStatus) row[0]).name(), ((Number) row[1]).longValue());
+        }
+        return Map.of(
+                "jobCounts", jobCounts,
+                "pendingRaw", rawRepo.countByProcessedFalse());
     }
 
     /* ===================== STEAM ===================== */
