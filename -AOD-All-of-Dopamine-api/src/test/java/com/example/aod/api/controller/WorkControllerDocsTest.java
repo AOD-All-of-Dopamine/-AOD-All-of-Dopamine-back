@@ -36,6 +36,7 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
         // when & then
         mockMvc.perform(get("/api/works")
                         .param("domain", "GAME")
+                        .param("reviewCountMin", "100")
                         .param("page", "0")
                         .param("size", "20")
                         .accept(MediaType.APPLICATION_JSON))
@@ -46,6 +47,7 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
                                 parameterWithName("keyword").description("검색어").optional(),
                                 parameterWithName("platforms").description("플랫폼 필터 (콤마로 구분)").optional(),
                                 parameterWithName("genres").description("장르 필터 (콤마로 구분)").optional(),
+                                parameterWithName("reviewCountMin").description("게임 전용: Steam 리뷰 총수 하한 (게임 외 도메인과 함께 보내면 0건)").optional(),
                                 parameterWithName("page").description("조회할 페이지 번호 (0부터 시작)").optional(),
                                 parameterWithName("size").description("페이지당 노출 건 수").optional(),
                                 parameterWithName("sortBy").description("정렬 기준 필드 (기본: masterTitle)").optional(),

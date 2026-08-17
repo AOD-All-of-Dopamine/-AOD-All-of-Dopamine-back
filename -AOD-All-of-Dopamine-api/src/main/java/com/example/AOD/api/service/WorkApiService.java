@@ -41,8 +41,9 @@ public class WorkApiService {
     
     /**
      * 작품 목록 조회 (필터링, 페이징)
-     * 필터 축(WorkFilters — 장르/플랫폼/출시 시기/웹툰 상태·요일·연령)이 하나라도 있으면
+     * 필터 축(WorkFilters — 장르/플랫폼/출시 시기/웹툰 상태·요일·연령/게임 리뷰 수)이 하나라도 있으면
      * findWorks 단일 쿼리(DB 레벨)로, 없으면 무필터 기본 조회로.
+     * 성인 제외(is_adult=false)는 필터 유무와 무관하게 모든 목록 경로 쿼리에 고정.
      */
     public PageResponse<WorkSummaryDTO> getWorks(Domain domain, String keyword, WorkFilters filters, Pageable pageable) {
         log.debug("getWorks - domain: {}, keyword: {}, filters: {}, page: {}",
@@ -80,6 +81,7 @@ public class WorkApiService {
                 blankToNull(filters.status()),
                 toArr(filters.weekdays()),
                 toArr(filters.ageRatings()),
+                filters.reviewCountMin(),
                 pageReq);
 
         return buildSummaryPage(page);
@@ -121,9 +123,10 @@ public class WorkApiService {
             LocalDate maxDate = LocalDate.now().plusYears(1);
             contentPage = contentRepository.findByDomainOrderByReleaseDateDesc(domain.name(), maxDate, pageableWithoutSort);
         } else {
-            contentPage = contentRepository.findAll(pageable);
+            // findAll이 아닌 findAllVisible — 전체 탭 기본 목록도 성인 제외 (2026-08 Steam 정제)
+            contentPage = contentRepository.findAllVisible(pageable);
         }
-        
+
         return buildSummaryPage(contentPage);
     }
     

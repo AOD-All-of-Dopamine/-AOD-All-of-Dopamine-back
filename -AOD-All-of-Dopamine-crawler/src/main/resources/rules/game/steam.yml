@@ -20,6 +20,7 @@ mappings:
   categories:            attr.categories
   recommendations.total: attr.recommendation_count
   review_summary:        attr.review_summary    # 리뷰 집계 {review_score, review_score_desc, total_positive, total_negative, total_reviews}
+  review_summary.total_reviews: domain.reviewCount    # 리뷰 총수 필터 축 승격 (2026-08, V6 백필과 짝)
 
 defaults:
   attr.recommendation_count: 0

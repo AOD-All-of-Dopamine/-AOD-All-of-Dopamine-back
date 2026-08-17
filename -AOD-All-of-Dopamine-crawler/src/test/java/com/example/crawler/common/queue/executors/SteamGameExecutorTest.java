@@ -63,6 +63,52 @@ class SteamGameExecutorTest {
     }
 
     @Test
+    void skipsAdultGameBeforeSaveAndCounts() {
+        // required_age "18"(문자열) — appdetails는 숫자·문자열 혼재 응답
+        Map<String, Object> details = gameDetails();
+        details.put("required_age", "18");
+        when(fetcher.fetchGameDetails(70L)).thenReturn(details);
+
+        assertTrue(executor.execute("70"), "의도된 스킵은 작업 성공 (false면 재시도됨)");
+
+        verify(collectorService, never()).saveRaw(anyString(), anyString(), any(), anyString(), anyString());
+        verify(fetcher, never()).fetchReviewSummary(anyLong()); // 스킵이면 리뷰 API 호출도 아낀다
+        assertEquals(1, executor.getAdultSkipCount());
+    }
+
+    @Test
+    void skipsAdultGameWithNumericRequiredAge() {
+        Map<String, Object> details = gameDetails();
+        details.put("required_age", 19); // 국내 심의 등 18 초과값도 성인
+        when(fetcher.fetchGameDetails(70L)).thenReturn(details);
+
+        assertTrue(executor.execute("70"));
+        verify(collectorService, never()).saveRaw(anyString(), anyString(), any(), anyString(), anyString());
+    }
+
+    @Test
+    void underageRequiredAgeStillSaved() {
+        Map<String, Object> details = gameDetails();
+        details.put("required_age", "17"); // 18 미만 경계값 — 저장되어야 함
+        when(fetcher.fetchGameDetails(70L)).thenReturn(details);
+        when(fetcher.fetchReviewSummary(70L)).thenReturn(null);
+
+        assertTrue(executor.execute("70"));
+        verify(collectorService).saveRaw(eq("Steam"), eq("GAME"), any(), eq("70"), anyString());
+        assertEquals(0, executor.getAdultSkipCount());
+    }
+
+    @Test
+    void parseRequiredAgeAbsorbsMixedFormats() {
+        assertEquals(18, SteamGameExecutor.parseRequiredAge("18"));
+        assertEquals(18, SteamGameExecutor.parseRequiredAge("18+"));
+        assertEquals(18, SteamGameExecutor.parseRequiredAge(18));
+        assertEquals(0, SteamGameExecutor.parseRequiredAge(0));
+        assertEquals(0, SteamGameExecutor.parseRequiredAge(null));   // 부재 = 전체이용가 취급
+        assertEquals(0, SteamGameExecutor.parseRequiredAge("abc")); // 파싱 불가 = 전체이용가 취급
+    }
+
+    @Test
     void averageTimeReflectsTwoApiCallsPerGame() {
         // 게임당 appdetails + appreviews(리뷰 집계) 2회 호출 → 평균 처리시간 2배
         assertEquals(2000, executor.getAverageExecutionTime());

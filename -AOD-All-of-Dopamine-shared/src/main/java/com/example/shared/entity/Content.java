@@ -45,6 +45,11 @@ public class Content {
     @Column(name = "platforms", columnDefinition = "text[]")
     private List<String> platforms = new ArrayList<>();
 
+    // 성인 콘텐츠 플래그 (2026-08 마스터 승격 — Steam required_age>=18 백필, V6).
+    // 목록·검색·신작·발견 쿼리에서 is_adult=false로 제외 — 상세 직접 접근(findById)은 허용.
+    @Column(name = "is_adult", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isAdult = false;
+
     private Instant createdAt;
     private Instant updatedAt;
 

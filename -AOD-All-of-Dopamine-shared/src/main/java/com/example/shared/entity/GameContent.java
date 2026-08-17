@@ -41,6 +41,11 @@ public class GameContent implements Persistable<Long> {
     @Column(length = 200)
     private String publisher;
 
+    // Steam 리뷰 총수 (2026-08 필터 축 승격, V6 — 원천: attributes.review_summary.total_reviews).
+    // null = 미수집 (재크롤 시 steam.yml 매핑으로 채워짐) — reviewCountMin 필터에서 자연 제외.
+    @Column(name = "review_count")
+    private Integer reviewCount;
+
     // OS 플랫폼 정보 (Windows, Mac 등) - JSONB 유지
     @Type(JsonType.class)
     @Column(name = "os_platforms", columnDefinition="jsonb")

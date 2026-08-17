@@ -41,6 +41,7 @@ class RuleFilesTest {
         GameContent g = (GameContent) d.domainEntity();
         assertEquals("Valve", g.getDeveloper());                       // developers[0]
         assertEquals(Map.of("windows", true, "mac", false), g.getOsPlatforms());
+        assertEquals(31892, g.getReviewCount());                       // review_summary.total_reviews 승격 (2026-08)
         assertEquals("70", d.platformData().getPlatformSpecificId());
         assertEquals(12345, d.platformData().getAttributes().get("recommendation_count"));
         assertEquals(Map.of("review_score", 9, "total_reviews", 31892),

@@ -37,6 +37,8 @@ public class WorkController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) java.util.List<String> weekdays,
             @RequestParam(required = false) java.util.List<String> ageRatings,
+            // 게임 도메인 축(리뷰 총수 하한) — 게임 외 도메인과 함께 보내면 0건 (게임 탭 한정 전송 계약)
+            @RequestParam(required = false) Integer reviewCountMin,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "masterTitle") String sortBy,
@@ -60,7 +62,7 @@ public class WorkController {
                         .and(Sort.by(Sort.Direction.ASC, "contentId"));
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        WorkFilters filters = new WorkFilters(genres, platforms, releaseFrom, releaseTo, status, weekdays, ageRatings);
+        WorkFilters filters = new WorkFilters(genres, platforms, releaseFrom, releaseTo, status, weekdays, ageRatings, reviewCountMin);
         PageResponse<WorkSummaryDTO> response = workApiService.getWorks(domainEnum, keyword, filters, pageable);
         return ResponseEntity.ok(response);
     }
