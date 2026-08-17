@@ -53,15 +53,25 @@ UPDATE contents c SET platforms = d.platforms
 
 -- §2-c. 보정: platform_data가 진실 — 배열에 없는 platform_name을 합쳐 넣는다
 --        (과거 platforms 배열 교체 버그로 유실된 플랫폼 복구)
+-- 주의: 행별 상관 서브쿼리(구 docs/sql 버전)는 prod 볼륨에서 콘텐츠×platform_data
+--       전수 스캔이 되어 Flyway가 부팅을 수 분 이상 블로킹했다(2026-08-17 배포 실패).
+--       인덱스 선생성 + 집합 기반(1스캔 + 해시 조인)으로 재작성.
+CREATE INDEX IF NOT EXISTS idx_platform_data_content ON platform_data (content_id);
+
+WITH pd_agg AS (
+    SELECT content_id, array_agg(DISTINCT platform_name)::text[] AS names
+      FROM platform_data
+     WHERE platform_name IS NOT NULL
+     GROUP BY content_id
+)
 UPDATE contents c
    SET platforms = (
-       SELECT ARRAY(SELECT DISTINCT p FROM UNNEST(COALESCE(c.platforms, '{}') ||
-              ARRAY(SELECT pd.platform_name FROM platform_data pd
-                     WHERE pd.content_id = c.content_id)) AS p)
+       SELECT ARRAY(SELECT DISTINCT p
+                      FROM UNNEST(COALESCE(c.platforms, '{}') || a.names) AS p)
    )
- WHERE EXISTS (SELECT 1 FROM platform_data pd
-                WHERE pd.content_id = c.content_id
-                  AND NOT (pd.platform_name = ANY(COALESCE(c.platforms, '{}'))));
+  FROM pd_agg a
+ WHERE a.content_id = c.content_id
+   AND NOT (a.names <@ COALESCE(c.platforms, '{}'));
 
 -- §3. GIN 인덱스
 CREATE INDEX IF NOT EXISTS idx_contents_genres    ON contents USING GIN (genres);
