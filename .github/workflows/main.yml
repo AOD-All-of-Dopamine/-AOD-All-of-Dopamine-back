@@ -210,15 +210,24 @@ jobs:
           docker pull \${APP_IMAGE_URI}
           docker compose up -d --remove-orphans
           
-          echo "Waiting 40 seconds for API to start..."
-          sleep 40
-          
-          if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+          # t3.small에서 부팅이 40초를 넘는 경우가 있어(Flyway 마이그레이션 포함) 재시도 루프로 대기
+          echo "Waiting for API to become healthy (up to 3 minutes)..."
+          healthy=false
+          for i in \$(seq 1 18); do
+            if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+              healthy=true
+              break
+            fi
+            echo "  attempt \$i/18 - not ready yet, retrying in 10s"
+            sleep 10
+          done
+
+          if [ "\$healthy" = "true" ]; then
             echo "✅ API health check successful!"
           else
-            echo "❌ API health check failed!"
+            echo "❌ API health check failed after 3 minutes!"
             docker compose ps
-            docker compose logs --tail 100
+            docker compose logs --tail 150
             exit 1
           fi
           
@@ -360,10 +369,19 @@ jobs:
           docker pull \${CRAWLER_IMAGE_URI}
           docker compose up -d --remove-orphans
           
-          echo "Waiting 60 seconds for Crawler to initialize..."
-          sleep 60
-          
-          if curl -f http://localhost:8081/actuator/health > /dev/null 2>&1; then
+          # 부팅 대기 재시도 루프 (Selenium 초기화 포함, 최대 4분)
+          echo "Waiting for Crawler to become healthy (up to 4 minutes)..."
+          healthy=false
+          for i in \$(seq 1 24); do
+            if curl -f http://localhost:8081/actuator/health > /dev/null 2>&1; then
+              healthy=true
+              break
+            fi
+            echo "  attempt \$i/24 - not ready yet, retrying in 10s"
+            sleep 10
+          done
+
+          if [ "\$healthy" = "true" ]; then
             echo "✅ Crawler health check successful!"
           else
             echo "⚠️ Crawler starting... (may take longer for first sync)"
