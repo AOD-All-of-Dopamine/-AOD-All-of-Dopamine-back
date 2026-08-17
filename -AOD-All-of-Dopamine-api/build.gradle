@@ -42,6 +42,10 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'   // BOM으로 버전 관리 (중복/명시 버전 제거)
 	runtimeOnly 'com.h2database:h2'
 
+	// Flyway — 스키마·데이터 마이그레이션 (prod는 ddl-auto가 없으므로 이게 유일한 스키마 경로)
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+
 	// JSONB 매핑 (Hibernate Types)
 	implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
 
@@ -106,10 +110,13 @@ tasks.named('test') {
 }
 
 tasks.named('asciidoctor') {
-	inputs.dir snippetsDir
+	inputs.dir(snippetsDir).optional()
 	configurations 'asciidoctorExt'
 	dependsOn test
 	attributes 'snippets': snippetsDir
+	// CI가 `build -x test`로 돌면 스니펫이 없다 — 그 경우 문서 생성을 건너뛴다
+	// (스니펫 없이 실행하면 include 실패, 입력 검증 에러로 빌드가 깨짐)
+	onlyIf { snippetsDir.exists() }
 }
 
 bootJar {
@@ -122,7 +129,8 @@ bootJar {
 // ===== Sentry 설정 (소스 컨텍스트 업로드) =====
 sentry {
 	// 소스 코드를 Sentry에 업로드하여 스택 트레이스에서 코드 확인 가능
-	includeSourceContext = true
+	// 토큰이 있을 때만(=CI) — 없으면 sentryBundleSourcesJava가 sentry-cli 인증 에러로 로컬 풀빌드를 깨뜨림
+	includeSourceContext = System.getenv("SENTRY_AUTH_TOKEN") != null && System.getenv("SENTRY_AUTH_TOKEN") != ""
 	
 	org = "aod-hd"
 	projectName = "java-spring-boot"
