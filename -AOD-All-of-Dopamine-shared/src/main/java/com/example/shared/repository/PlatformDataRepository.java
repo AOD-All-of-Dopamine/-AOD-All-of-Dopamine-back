@@ -16,6 +16,11 @@ public interface PlatformDataRepository extends JpaRepository<PlatformData, Long
 
     /** 목록 카드 보강용 배치 조회 (페이지당 1쿼리 — N+1 방지) */
     List<PlatformData> findByContentContentIdIn(java.util.Collection<Long> contentIds);
+
+    /** 라이브러리 재크롤용: 플랫폼의 수집 대상 ID 전체 (null 제외) */
+    @Query("SELECT pd.platformSpecificId FROM PlatformData pd " +
+           "WHERE pd.platformName = :platformName AND pd.platformSpecificId IS NOT NULL")
+    List<String> findSpecificIdsByPlatformName(@Param("platformName") String platformName);
     
     /**
      * 도메인별 고유 플랫폼 이름 조회 (N+1 쿼리 방지)

@@ -57,6 +57,15 @@ public interface CrawlJobRepository extends JpaRepository<CrawlJob, Long> {
     boolean existsByJobTypeAndTargetId(JobType jobType, String targetId);
 
     /**
+     * 라이브러리 재크롤용: 지정 대상들의 잡 이력을 지워 dedup을 해제한다.
+     * (dedup이 상태 무관 이력 기준이라, 기수집 작품 재크롤은 이 삭제가 선행돼야 함)
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("delete from CrawlJob j where j.jobType = :jobType and j.targetId in :targetIds")
+    int deleteByJobTypeAndTargetIdIn(@Param("jobType") JobType jobType,
+                                     @Param("targetIds") List<String> targetIds);
+
+    /**
      * 상태별 작업 수 통계
      */
     @Query("SELECT j.status, COUNT(j) FROM CrawlJob j GROUP BY j.status")

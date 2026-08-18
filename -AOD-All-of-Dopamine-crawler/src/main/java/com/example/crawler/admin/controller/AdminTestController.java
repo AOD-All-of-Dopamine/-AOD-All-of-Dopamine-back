@@ -62,7 +62,8 @@ public class AdminTestController {
             TransformSchedulingService transformSchedulingService,
             RawItemRepository rawRepo,
             RuleRegistry ingestRuleRegistry,
-            DraftAssembler draftAssembler) {
+            DraftAssembler draftAssembler,
+            com.example.shared.repository.PlatformDataRepository platformDataRepository) {
         this.naverSeriesFetcher = naverSeriesFetcher;
         this.kakaoPageCrawler = kakaoPageCrawler;
         this.naverWebtoonFetcher = naverWebtoonFetcher;
@@ -77,6 +78,49 @@ public class AdminTestController {
         this.rawRepo = rawRepo;
         this.ingestRuleRegistry = ingestRuleRegistry;
         this.draftAssembler = draftAssembler;
+        this.platformDataRepository = platformDataRepository;
+    }
+
+    private final com.example.shared.repository.PlatformDataRepository platformDataRepository;
+
+    /** refresh-library가 지원하는 플랫폼 → JobType (targetId = platform_specific_id 전제) */
+    private static final Map<String, JobType> REFRESHABLE_PLATFORMS = Map.of(
+            "Steam", JobType.STEAM_GAME,
+            "TMDB_MOVIE", JobType.TMDB_MOVIE,
+            "TMDB_TV", JobType.TMDB_TV);
+
+    /**
+     * 라이브러리 재크롤: 이미 수집된 작품들을 다시 크롤 대상으로 등록한다.
+     * dedup이 잡 "이력" 기준이라 기수집 작품은 재크롤이 불가능했음 — 대상 작품의
+     * 잡 이력만 지운 뒤 재큐잉한다 (전체 카탈로그 스윕과 무관, DB 보유분 한정).
+     * 용도: 리뷰 집계·평점·성인 디스크립터 등 신규 수집 필드를 기존 작품에 채울 때.
+     */
+    @PostMapping("/crawl/refresh-library")
+    @org.springframework.transaction.annotation.Transactional
+    public Map<String, Object> refreshLibrary(@RequestParam String platform) {
+        JobType jobType = REFRESHABLE_PLATFORMS.get(platform);
+        if (jobType == null) {
+            return Map.of("success", false,
+                    "error", "지원 플랫폼: " + REFRESHABLE_PLATFORMS.keySet());
+        }
+        List<String> targetIds = platformDataRepository.findSpecificIdsByPlatformName(platform);
+        if (targetIds.isEmpty()) {
+            return Map.of("success", true, "message", "재크롤 대상이 없습니다.", "targets", 0);
+        }
+        int deleted = 0;
+        int enqueued = 0;
+        // IN 절 과대 방지 청크 (프로듀서의 존재 검사도 청크 단위로 수행됨)
+        for (int i = 0; i < targetIds.size(); i += 500) {
+            List<String> chunk = targetIds.subList(i, Math.min(i + 500, targetIds.size()));
+            deleted += crawlJobRepository.deleteByJobTypeAndTargetIdIn(jobType, chunk);
+            enqueued += crawlJobProducer.createJobs(jobType, chunk, 3);
+        }
+        return Map.of("success", true,
+                "platform", platform,
+                "targets", targetIds.size(),
+                "deletedHistory", deleted,
+                "enqueued", enqueued,
+                "message", "Consumer가 주기적으로 처리합니다. /api/status/summary로 진행 확인.");
     }
 
     // 헬스체크
