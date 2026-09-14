@@ -96,6 +96,45 @@ public interface ContentRepository extends JpaRepository<Content, Long>, Content
     // 구 WORKS_FILTER의 `(:p IS NULL OR …)` 스위치가 바인딩 파라미터 상황에서 GAME 전수 스캔을 강제했다
     // — 켜진 축만 SQL에 넣는 WorksQueryBuilder 동적 조립으로 교체. 상세: docs/troubleshooting/07.
 
+    /**
+     * ⚠ A/B 측정용 임시 복원 (troubleshooting/07 §8-1) — 측정 완료 후 제거한다.
+     * 구 findWorks의 WORKS_FILTER 원문 그대로. `(:p IS NULL OR …)` 스위치 8개 = 바인딩 파라미터 상황에서
+     * 세미조인 변환 봉인 + 추정 붕괴로 GAME 전수 스캔을 강제하던 그 쿼리. 신규 코드에서 절대 호출하지 말 것.
+     */
+    String WORKS_FILTER_LEGACY =
+           "c.domain = :domain " +
+           "AND c.is_adult = false " +
+           "AND (CAST(:genres AS text[]) IS NULL OR c.genres @> CAST(:genres AS text[])) " +
+           "AND (CAST(:platforms AS text[]) IS NULL OR c.platforms && CAST(:platforms AS text[])) " +
+           "AND (CAST(:keyword AS text) IS NULL OR c.master_title ILIKE ('%' || :keyword || '%') OR c.original_title ILIKE ('%' || :keyword || '%')) " +
+           "AND (CAST(:releaseFrom AS date) IS NULL OR c.release_date >= CAST(:releaseFrom AS date)) " +
+           "AND (CAST(:releaseTo AS date) IS NULL OR c.release_date <= CAST(:releaseTo AS date)) " +
+           "AND ((CAST(:status AS text) IS NULL AND CAST(:weekdays AS text[]) IS NULL AND CAST(:ageRatings AS text[]) IS NULL) " +
+           "     OR EXISTS (SELECT 1 FROM webtoon_contents w WHERE w.content_id = c.content_id " +
+           "         AND (CAST(:status AS text) IS NULL OR w.status = :status) " +
+           "         AND (CAST(:weekdays AS text[]) IS NULL OR w.weekday = ANY(CAST(:weekdays AS text[]))) " +
+           "         AND (CAST(:ageRatings AS text[]) IS NULL OR w.age_rating = ANY(CAST(:ageRatings AS text[]))))) " +
+           "AND (CAST(:reviewCountMin AS integer) IS NULL " +
+           "     OR EXISTS (SELECT 1 FROM game_contents g WHERE g.content_id = c.content_id " +
+           "         AND g.review_count >= CAST(:reviewCountMin AS integer))) ";
+
+    /** ⚠ A/B 측정용 임시 — /api/works?impl=legacy 에서만 호출. 측정 완료 후 제거. */
+    @Query(value = "SELECT c.* FROM contents c WHERE " + WORKS_FILTER_LEGACY +
+           "ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC",
+           countQuery = "SELECT COUNT(*) FROM contents c WHERE " + WORKS_FILTER_LEGACY,
+           nativeQuery = true)
+    Page<Content> findWorksLegacy(@Param("domain") String domain,
+                                  @Param("genres") String[] genres,
+                                  @Param("platforms") String[] platforms,
+                                  @Param("keyword") String keyword,
+                                  @Param("releaseFrom") String releaseFrom,
+                                  @Param("releaseTo") String releaseTo,
+                                  @Param("status") String status,
+                                  @Param("weekdays") String[] weekdays,
+                                  @Param("ageRatings") String[] ageRatings,
+                                  @Param("reviewCountMin") Integer reviewCountMin,
+                                  Pageable pageable);
+
     // 플랫폼 필터링만 (도메인 무관, 목록 경로 — 성인 제외)
     @Query("SELECT DISTINCT c FROM Content c " +
            "JOIN PlatformData pd ON pd.content = c " +

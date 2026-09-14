@@ -32,7 +32,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -98,6 +101,22 @@ class WorkApiServiceTest {
         assertEquals(LocalDate.of(2025, 12, 31), c.releaseTo());
         assertNull(c.keyword(), "공백 키워드는 축 꺼짐(null)으로 정규화");
         assertNull(c.reviewCountMin());
+    }
+
+    @Test
+    void legacyPathUsesLegacyQueryWithSameAxesAndSkipsDynamicPath() {
+        // A/B 측정용 임시 경로 (troubleshooting/07 §8-1): 구 WORKS_FILTER 쿼리로 가고, 동적 경로는 호출하지 않는다
+        WorkFilters filters = new WorkFilters(null, null, null, null, null, null, null, 100);
+        Page<Content> empty = new PageImpl<>(List.of());
+        given(contentRepository.findWorksLegacy(eq("GAME"), isNull(), isNull(), isNull(), isNull(),
+                isNull(), isNull(), isNull(), isNull(), eq(100), any(Pageable.class)))
+                .willReturn(empty);
+
+        workApiService.getWorksLegacy(Domain.GAME, null, filters, PageRequest.of(0, 20));
+
+        verify(contentRepository).findWorksLegacy(eq("GAME"), isNull(), isNull(), isNull(), isNull(),
+                isNull(), isNull(), isNull(), isNull(), eq(100), any(Pageable.class));
+        verify(contentRepository, never()).findWorks(any(WorksFilterCriteria.class), any(Pageable.class));
     }
 
     @Test

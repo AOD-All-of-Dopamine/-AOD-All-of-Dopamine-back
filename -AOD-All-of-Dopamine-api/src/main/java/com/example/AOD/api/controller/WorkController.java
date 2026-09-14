@@ -39,6 +39,8 @@ public class WorkController {
             @RequestParam(required = false) java.util.List<String> ageRatings,
             // 게임 도메인 축(리뷰 총수 하한) — 게임 외 도메인과 함께 보내면 0건 (게임 탭 한정 전송 계약)
             @RequestParam(required = false) Integer reviewCountMin,
+            // ⚠ A/B 측정용 임시 (troubleshooting/07 §8-1): impl=legacy → 구 WORKS_FILTER 쿼리 경로. 측정 후 제거
+            @RequestParam(required = false) String impl,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "masterTitle") String sortBy,
@@ -63,7 +65,9 @@ public class WorkController {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         WorkFilters filters = new WorkFilters(genres, platforms, releaseFrom, releaseTo, status, weekdays, ageRatings, reviewCountMin);
-        PageResponse<WorkSummaryDTO> response = workApiService.getWorks(domainEnum, keyword, filters, pageable);
+        PageResponse<WorkSummaryDTO> response = "legacy".equalsIgnoreCase(impl)
+                ? workApiService.getWorksLegacy(domainEnum, keyword, filters, pageable)
+                : workApiService.getWorks(domainEnum, keyword, filters, pageable);
         return ResponseEntity.ok(response);
     }
 
