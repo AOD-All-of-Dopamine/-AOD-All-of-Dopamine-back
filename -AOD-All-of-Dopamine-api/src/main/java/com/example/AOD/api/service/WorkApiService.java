@@ -89,6 +89,41 @@ public class WorkApiService {
         return buildSummaryPage(page);
     }
 
+    /**
+     * ⚠ A/B 측정용 임시 경로 (troubleshooting/07 §8-1) — /api/works?impl=legacy 에서만 호출.
+     * 구 WORKS_FILTER(`IS NULL OR` 스위치) 쿼리를 그대로 태워 같은 배포·같은 DB에서 동적 조립 경로와 E2E 비교한다.
+     * 필터 없음/도메인 없음 폴백은 getWorks와 동일. 측정 완료 후 findWorksLegacy와 함께 제거.
+     */
+    public PageResponse<WorkSummaryDTO> getWorksLegacy(Domain domain, String keyword, WorkFilters filters, Pageable pageable) {
+        if (filters == null || !filters.hasAny()) {
+            return getWorksWithoutFiltering(domain, keyword, pageable);
+        }
+        if (domain == null) {
+            log.warn("[legacy] Filtering requires domain to be specified - falling back to unfiltered");
+            return getWorksWithoutFiltering(null, keyword, pageable);
+        }
+        String kw = (keyword == null || keyword.isBlank()) ? null : keyword;
+        Pageable pageReq = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<Content> page = contentRepository.findWorksLegacy(
+                domain.name(),
+                toArr(filters.genres()),
+                toArr(filters.platforms()),
+                kw,
+                blankToNull(filters.releaseFrom()),
+                blankToNull(filters.releaseTo()),
+                blankToNull(filters.status()),
+                toArr(filters.weekdays()),
+                toArr(filters.ageRatings()),
+                filters.reviewCountMin(),
+                pageReq);
+        return buildSummaryPage(page);
+    }
+
+    private static String[] toArr(List<String> list) {
+        return (list == null || list.isEmpty()) ? null : list.toArray(new String[0]);
+    }
+
     private static String blankToNull(String s) {
         return (s == null || s.isBlank()) ? null : s;
     }

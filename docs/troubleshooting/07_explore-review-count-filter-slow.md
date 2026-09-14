@@ -290,6 +290,24 @@ sql.append(" ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC");
 - 실제 앱은 처음 5회를 실제 값으로 계획(custom plan)하고, 이 generic 형태(예상 비용 37,562)가 custom(22,959)보다 비싸므로 custom을 유지할 가능성이 높다 → **1.7s는 보수적 상한**, 실제로는 §4-2 형태(콜드 1.2s / 웜 0.1s)에 가까울 것.
 - count 직후에도 contents는 `read 26,221`(캐시 잔존 실패), game_contents는 `hit 4,874 / read 0`(잔존) — §4-6의 캐시 비대칭 그대로.
 
+**E2E A/B 측정 경로 (임시)** — 같은 배포·같은 DB에서 구/신 쿼리를 나란히 재려고 구 쿼리를 `ContentRepository.findWorksLegacy`(`WORKS_FILTER_LEGACY`)로 복원하고 `GET /api/works?impl=legacy` 파라미터로만 라우팅한다(`WorkApiService.getWorksLegacy`). 신규 코드에서 호출 금지, **E2E 수치 기록 후 3곳(리포지토리·서비스·컨트롤러 파라미터) 모두 제거.**
+
+```powershell
+$base = "https://<API_HOST>/api/works?domain=GAME&reviewCountMin=1000&page=0&size=20"
+foreach ($impl in @("legacy", "dynamic")) {
+  $u = if ($impl -eq "legacy") { "$base&impl=legacy" } else { $base }
+  1..3 | ForEach-Object {
+    $t = Measure-Command { Invoke-WebRequest -Uri $u -UseBasicParsing | Out-Null }
+    "{0} {1}회: {2:N0} ms" -f $impl, $_, $t.TotalMilliseconds
+  }
+}
+```
+
+| E2E (3회: 1회차 콜드) | 1회 | 2회 | 3회 |
+|---|---|---|---|
+| legacy (`impl=legacy`) | | | |
+| dynamic (기본) | | | |
+
 **남은 비용 → 다음 단계 대응**
 
 | 구간 | 비용 | 단계 |

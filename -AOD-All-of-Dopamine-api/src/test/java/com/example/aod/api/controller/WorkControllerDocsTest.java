@@ -13,6 +13,8 @@ import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -148,5 +150,22 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("[]").description("사용 가능한 플랫폼 이름 목록 (문자열 배열)")
                         )
                 ));
+    }
+
+    @Test
+    void implLegacyRoutesToLegacyServicePath() throws Exception {
+        // A/B 측정용 임시 파라미터 (troubleshooting/07 §8-1): impl=legacy → 구 쿼리 경로, 동적 경로는 호출되지 않는다
+        PageResponse mockResponse = new PageResponse(Collections.emptyList(), 0, 20, 0, 0, true, true);
+        given(workApiService.getWorksLegacy(any(), any(), any(), any())).willReturn(mockResponse);
+
+        mockMvc.perform(get("/api/works")
+                        .param("domain", "GAME")
+                        .param("reviewCountMin", "100")
+                        .param("impl", "legacy")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(workApiService).getWorksLegacy(any(), any(), any(), any());
+        verify(workApiService, never()).getWorks(any(), any(), any(), any());
     }
 }
