@@ -2,6 +2,8 @@ package com.example.AOD.api.repository;
 
 import com.example.shared.entity.Content;
 import com.example.shared.repository.ContentRepository;
+import com.example.shared.repository.WorksFilterCriteria;
+import com.example.shared.repository.WorksQueryBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 성인 제외는 DB 쿼리 레벨에서 걸리므로 Mockito 단위 테스트로는 검증 불가 —
  * 대신 ContentRepository의 모든 Page 반환(=목록 경로) 쿼리가 is_adult 필터를
  * 선언했는지를 어노테이션 리플렉션으로 지킨다. 새 목록 쿼리를 필터 없이 추가하면 여기서 깨진다.
+ *
+ * 동적 조립 경로(findWorks → ContentRepositoryCustom/WorksQueryBuilder, 2026-09)는 @Query가 아니므로
+ * 리플렉션 대상 밖 — 조립 결과 문자열로 별도 검증한다 (findWorksDynamicQueryKeepsAdultExclusionAndGameAxis).
  *
  * 상세 경로(findById)와 추천용 findByContentIdIn은 목록이 아니므로 대상 밖 (상세 접근 허용이 요구 범위).
  */
@@ -54,14 +59,17 @@ class ContentRepositoryAdultFilterTest {
     }
 
     @Test
-    void findWorksHasGameReviewCountAxis() {
-        // 게임 축(reviewCountMin) — 웹툰 3축과 같은 EXISTS 패턴으로 WORKS_FILTER에 존재해야 함
-        assertTrue(ContentRepository.WORKS_FILTER.contains(":reviewCountMin"),
-                "WORKS_FILTER에 reviewCountMin 파라미터가 없음");
-        assertTrue(ContentRepository.WORKS_FILTER.contains("EXISTS (SELECT 1 FROM game_contents"),
-                "WORKS_FILTER에 game_contents EXISTS 서브쿼리가 없음");
-        assertTrue(ContentRepository.WORKS_FILTER.contains("is_adult = false"),
-                "WORKS_FILTER에 성인 제외가 없음");
+    void findWorksDynamicQueryKeepsAdultExclusionAndGameAxis() {
+        // 동적 조립 경로: 성인 제외는 본/count 양쪽에 항상, 게임 축은 최상위 AND EXISTS로, IS NULL 스위치는 없어야 함
+        WorksQueryBuilder.Built b = WorksQueryBuilder.build(
+                new WorksFilterCriteria("GAME", null, null, null, null, null, null, null, null, 100));
+
+        assertTrue(hasAdultFilter(b.sql()), "동적 본 쿼리에 성인 제외가 없음");
+        assertTrue(hasAdultFilter(b.countSql()), "동적 count 쿼리에 성인 제외가 없음 — 페이지 수가 어긋난다");
+        assertTrue(b.sql().contains("EXISTS (SELECT 1 FROM game_contents"),
+                "game_contents EXISTS 서브쿼리가 없음");
+        assertFalse(b.sql().contains("IS NULL"),
+                "IS NULL OR 스위치가 다시 들어오면 troubleshooting/07 회귀");
     }
 
     @Test
