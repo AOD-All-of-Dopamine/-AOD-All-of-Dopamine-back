@@ -14,7 +14,7 @@ AOD 백엔드에서 발생한 문제와 그 진단·수정 과정을 기록한�
 | 04 | [모니터링 스택 재구축](04_monitoring-rebuild.md) | 유령 메트릭·분기된 두 트리·미배포 → 실제 메트릭 기반 재구축 | 🟡 코드 적용 (미배포) |
 | 05 | [플랫폼+장르 필터 N+1](05_filter-platform-genre.md) | 복합 필터 시 콘텐츠당 platform_data 조회(N+1) → 단일 쿼리 통합 | 🟡 코드 적용 (미배포) |
 | 06 | [탐색 필터 전멸 (승격 잔재 2건)](06_explore-filter-broken-after-promotion.md) | 백필 SQL 미실행(0건) + gitignore된 cache-names에 @Cacheable 미등록(500) | ✅ 커밋됨 (`3d280ac`) + 배포 DB 백필 필요 |
-| 07 | [스팀 리뷰 개수 필터 ≈17초](07_explore-review-count-filter-slow.md) | `IS NULL OR` 스위치 쿼리가 GAME 18.8만 행 전수 스캔을 강제 → 캐시 초과 → 디스크 I/O 95% (EXPLAIN 실측) | 🟡 ① 동적 조립 적용 (PR #116, 미배포) · ②③④ 후속 |
+| 07 | [스팀 리뷰 개수 필터 ≈17초](07_explore-review-count-filter-slow.md) | `IS NULL OR` 스위치 쿼리가 GAME 18.8만 행 전수 스캔을 강제 → 캐시 초과 → 디스크 I/O 95% (EXPLAIN 실측) | 🟡 ① 동적 조립 적용 (PR #116, 미배포) — 재현 실측 요청당 19.8s → 2.6s · ②③④ 후속 |
 
 ## 공통 교훈
 
