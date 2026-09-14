@@ -272,6 +272,32 @@ sql.append(" ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC");
 
 진행 순서 제안: ② 마이그레이션(컬럼 추가·백필·인덱스) → ① 리포지토리 개편 → ④ Slice → §4-4 방식으로 **EXPLAIN 재측정해 효과를 숫자로 확인**.
 
+### 8-1. ① 적용 후 재측정 (2026-09-14, 동적 조립이 생성하는 SQL을 §4-4 방식으로 재현)
+
+`WHERE c.domain = (SELECT 'GAME'::text) AND c.is_adult = false AND EXISTS (… g.review_count >= (SELECT 1000))` — 켜진 축만 있는 새 SQL. 바인딩 상황 재현을 위해 값은 여전히 `(SELECT …)`.
+
+| | Before (전체 쿼리, §4-6) | **After ①** | 개선 |
+|---|---|---|---|
+| 본 쿼리 | 9,872ms | **1,709ms** | 5.8× |
+| count | 9,962ms | **908ms** | 11× |
+| **요청 1회 합계** | **≈19.8s** | **≈2.6s** | **7.6×** |
+| 조인 방식 | 행별 OR 필터 + SubPlan 프로브 176,292회 | `Parallel Hash Join` (EXISTS → 조인 변환) | 구조 원인 ①② 소멸 |
+| Buffers (본) | hit 718,629 / read 18,035 | hit 393 / read 33,346 (완전 콜드) | |
+
+**플랜 해석**
+- `IS NULL`·SubPlan이 사라지고 `Hash Cond: (c.content_id = g.content_id)`로 조인됨. contents에서 버려지는 행은 GAME이 아닌 행(19,309×3)뿐.
+- 다만 §4-2의 Nested Loop(game_contents 8,759건 → contents PK 역조회)가 아니라 **contents 전체 Seq Scan(28,458페이지) + Hash Join**이 선택됐다. 원인은 추정치: `review_count >= (InitPlan)` 값을 모르니 기본 통과율로 `rows=25,244`(실제 2,920, 8.6배 과대) → "7.5만 건이면 PK 프로브보다 전체 스캔+해시가 싸다"는 판단. **바인딩 파라미터의 세 번째(가장 온화한) 영향 = 추정 흐려짐 → 차선의 조인 전략.**
+- 실제 앱은 처음 5회를 실제 값으로 계획(custom plan)하고, 이 generic 형태(예상 비용 37,562)가 custom(22,959)보다 비싸므로 custom을 유지할 가능성이 높다 → **1.7s는 보수적 상한**, 실제로는 §4-2 형태(콜드 1.2s / 웜 0.1s)에 가까울 것.
+- count 직후에도 contents는 `read 26,221`(캐시 잔존 실패), game_contents는 `hit 4,874 / read 0`(잔존) — §4-6의 캐시 비대칭 그대로.
+
+**남은 비용 → 다음 단계 대응**
+
+| 구간 | 비용 | 단계 |
+|---|---|---|
+| contents Seq Scan 28,458페이지 (본 쿼리의 80%) | I/O ≈1.3s | 추정 개선으로 Nested Loop 유도(②의 부수 효과) 또는 ④ 승격 |
+| game_contents Seq Scan 4,872페이지 | ≈0.3s | ② `game_contents(review_count)` 인덱스 |
+| count 쿼리 | ≈0.9s | ③ Page → Slice |
+
 ## 9. 재사용 진단 체크리스트
 
 1. 파라미터 이름으로 grep → 컨트롤러부터 리포지토리까지 **실행되는 쿼리 특정**
