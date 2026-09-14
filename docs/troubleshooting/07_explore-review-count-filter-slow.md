@@ -3,7 +3,7 @@
 - **날짜**: 2026-09-02
 - **영향**: 탐색 페이지 게임 탭에서 `reviewCountMin`(스팀 리뷰 개수 하한) 필터를 걸면 응답이 수십 초. 페이지를 넘길 때마다 반복
 - **대상**: `-AOD-All-of-Dopamine-shared/.../repository/ContentRepository.java`(`findWorks`, `WORKS_FILTER`), `-AOD-All-of-Dopamine-api/.../service/WorkApiService.java`(`getWorksWithDbFiltering`), 운영 RDS(PostgreSQL)
-- **상태**: 🟡 **진단 완료 · 원인 확정 · ① 동적 조립 코드 적용 (PR, 미배포) — 배포 후 재측정 예정**
+- **상태**: 🟡 **진단 완료 · 원인 확정 · ① 동적 조립 코드 적용 (PR #116, 미배포) — 배포 후 재측정 예정**
 
 > 이 문서는 "쿼리가 왜 느린지"를 **실측(EXPLAIN ANALYZE)으로 확정**하기까지의 전 과정과, 그 과정에서 배운 진단 방법을 함께 기록한다. 같은 방식으로 다른 느린 쿼리도 진단할 수 있도록 절차를 재사용 가능한 형태로 남긴다.
 
