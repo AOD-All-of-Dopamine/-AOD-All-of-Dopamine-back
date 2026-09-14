@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface ContentRepository extends JpaRepository<Content, Long> {
+public interface ContentRepository extends JpaRepository<Content, Long>, ContentRepositoryCustom {
     Optional<Content> findFirstByDomainAndMasterTitleAndReleaseDate(Domain domain, String masterTitle, LocalDate releaseDate);
 
     // 도메인별 페이징 조회 (목록 경로 — 성인 제외)
@@ -91,60 +91,10 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     Page<Content> findReleasesInDateRange(@Param("startDate") LocalDate startDate,
                                           @Param("endDate") LocalDate endDate,
                                           Pageable pageable);
-    
-    /**
-     * findWorks 공통 WHERE 조각 (main/count 쿼리 중복 방지용 상수).
-     *
-     * 필터 출처 규율: contents 마스터 컬럼 + 도메인 엔티티 컬럼만 필터 축으로 쓴다.
-     * platform_data.attributes(JSONB)는 필터 금지 (표시 전용).
-     *
-     * - genres: @> 포함(AND) — "무협이면서 회귀"
-     * - platforms: && 겹침(OR) — "넷플릭스나 왓챠 중 하나라도" (2026-08 @>에서 전환, GIN 인덱스 동일 사용)
-     * - releaseFrom/To: 출시 시기 범위 (yyyy-MM-dd 문자열, null이면 무시)
-     * - status/weekdays/ageRatings: 웹툰 도메인 컬럼 — EXISTS 서브쿼리 (타 도메인에선 null로 무시)
-     * - is_adult=false 고정: 성인 콘텐츠는 목록에 노출하지 않는다 (2026-08 Steam 정제)
-     * - reviewCountMin: 게임 도메인 컬럼(game_contents.review_count) — EXISTS 서브쿼리.
-     *   게임 외 도메인에 보내면 EXISTS 불성립으로 0건 — 프론트가 게임 탭 한정으로 전송하는 계약.
-     *   review_count IS NULL(미수집)인 게임도 제외된다.
-     */
-    String WORKS_FILTER =
-           "c.domain = :domain " +
-           "AND c.is_adult = false " +
-           "AND (CAST(:genres AS text[]) IS NULL OR c.genres @> CAST(:genres AS text[])) " +
-           "AND (CAST(:platforms AS text[]) IS NULL OR c.platforms && CAST(:platforms AS text[])) " +
-           "AND (CAST(:keyword AS text) IS NULL OR c.master_title ILIKE ('%' || :keyword || '%') OR c.original_title ILIKE ('%' || :keyword || '%')) " +
-           "AND (CAST(:releaseFrom AS date) IS NULL OR c.release_date >= CAST(:releaseFrom AS date)) " +
-           "AND (CAST(:releaseTo AS date) IS NULL OR c.release_date <= CAST(:releaseTo AS date)) " +
-           "AND ((CAST(:status AS text) IS NULL AND CAST(:weekdays AS text[]) IS NULL AND CAST(:ageRatings AS text[]) IS NULL) " +
-           "     OR EXISTS (SELECT 1 FROM webtoon_contents w WHERE w.content_id = c.content_id " +
-           "         AND (CAST(:status AS text) IS NULL OR w.status = :status) " +
-           "         AND (CAST(:weekdays AS text[]) IS NULL OR w.weekday = ANY(CAST(:weekdays AS text[]))) " +
-           "         AND (CAST(:ageRatings AS text[]) IS NULL OR w.age_rating = ANY(CAST(:ageRatings AS text[]))))) " +
-           "AND (CAST(:reviewCountMin AS integer) IS NULL " +
-           "     OR EXISTS (SELECT 1 FROM game_contents g WHERE g.content_id = c.content_id " +
-           "         AND g.review_count >= CAST(:reviewCountMin AS integer))) ";
 
-    /**
-     * 통합 필터 조회 — 각 파라미터가 null이면 해당 축 무시.
-     * genres/platforms가 contents로 승격되면서(2026-07) 도메인 repo의 findWorks 5개를 대체한 단일 쿼리.
-     * 2026-08: 출시 시기·웹툰 도메인 컬럼(상태/요일/연령) 축 추가, platforms를 OR 매칭으로 전환.
-     * 2026-08 Steam 정제: is_adult 제외 고정 + 게임 축 reviewCountMin(웹툰 3축과 같은 EXISTS 패턴).
-     */
-    @Query(value = "SELECT c.* FROM contents c WHERE " + WORKS_FILTER +
-           "ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC",
-           countQuery = "SELECT COUNT(*) FROM contents c WHERE " + WORKS_FILTER,
-           nativeQuery = true)
-    Page<Content> findWorks(@Param("domain") String domain,
-                            @Param("genres") String[] genres,
-                            @Param("platforms") String[] platforms,
-                            @Param("keyword") String keyword,
-                            @Param("releaseFrom") String releaseFrom,
-                            @Param("releaseTo") String releaseTo,
-                            @Param("status") String status,
-                            @Param("weekdays") String[] weekdays,
-                            @Param("ageRatings") String[] ageRatings,
-                            @Param("reviewCountMin") Integer reviewCountMin,
-                            Pageable pageable);
+    // findWorks(통합 필터 목록 조회)는 ContentRepositoryCustom / ContentRepositoryImpl 로 이동 (2026-09).
+    // 구 WORKS_FILTER의 `(:p IS NULL OR …)` 스위치가 바인딩 파라미터 상황에서 GAME 전수 스캔을 강제했다
+    // — 켜진 축만 SQL에 넣는 WorksQueryBuilder 동적 조립으로 교체. 상세: docs/troubleshooting/07.
 
     // 플랫폼 필터링만 (도메인 무관, 목록 경로 — 성인 제외)
     @Query("SELECT DISTINCT c FROM Content c " +

@@ -58,7 +58,7 @@ public class WorkApiService {
     }
 
     /**
-     * 통합 필터 조회 — findWorks 단일 쿼리 (contents 마스터 + 웹툰 도메인 컬럼 EXISTS)
+     * 통합 필터 조회 — findWorks 동적 조립 쿼리 (켜진 필터 축만 SQL에 포함, troubleshooting/07)
      */
     private PageResponse<WorkSummaryDTO> getWorksWithDbFiltering(
             Domain domain, String keyword, WorkFilters filters, Pageable pageable) {
@@ -71,28 +71,31 @@ public class WorkApiService {
         // ORDER BY가 쿼리에 고정되어 있으므로 Sort 제거
         Pageable pageReq = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<Content> page = contentRepository.findWorks(
+        // 켜진 축만 SQL에 들어간다 (WorksQueryBuilder). 날짜는 컨트롤러가 yyyy-MM-dd 검증을 끝낸 값.
+        WorksFilterCriteria criteria = new WorksFilterCriteria(
                 domain.name(),
-                toArr(filters.genres()),
-                toArr(filters.platforms()),
+                filters.genres(),
+                filters.platforms(),
                 kw,
-                blankToNull(filters.releaseFrom()),
-                blankToNull(filters.releaseTo()),
+                toDate(filters.releaseFrom()),
+                toDate(filters.releaseTo()),
                 blankToNull(filters.status()),
-                toArr(filters.weekdays()),
-                toArr(filters.ageRatings()),
-                filters.reviewCountMin(),
-                pageReq);
+                filters.weekdays(),
+                filters.ageRatings(),
+                filters.reviewCountMin());
+
+        Page<Content> page = contentRepository.findWorks(criteria, pageReq);
 
         return buildSummaryPage(page);
     }
 
-    private static String[] toArr(List<String> list) {
-        return (list == null || list.isEmpty()) ? null : list.toArray(new String[0]);
-    }
-
     private static String blankToNull(String s) {
         return (s == null || s.isBlank()) ? null : s;
+    }
+
+    private static LocalDate toDate(String yyyyMmDd) {
+        String v = blankToNull(yyyyMmDd);
+        return v == null ? null : LocalDate.parse(v);
     }
 
     
