@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 로그 적재 스레드 (REC_TAB_DESIGN §5-8).
- * - 1초 또는 200건마다 JDBC 배치 INSERT, 전용 풀(recLogJdbcTemplate) 사용
+ * - 1초 또는 200건마다 JDBC 배치 INSERT, 전용 풀(RecLogJdbc) 사용
  * - DedupedLogRecord 는 event_seen 을 먼저 통과시켜 새 것만 본 테이블에 넣는다
  * - 쓰기 실패는 배치를 버리고 센다. 추천·반응 응답에 영향을 주지 않는다
  * - 종료 시 최대 10초 동안 큐를 비운다
