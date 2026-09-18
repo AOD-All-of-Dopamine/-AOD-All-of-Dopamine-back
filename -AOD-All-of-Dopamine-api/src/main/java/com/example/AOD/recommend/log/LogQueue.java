@@ -1,6 +1,7 @@
 package com.example.AOD.recommend.log;
 
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,9 @@ public class LogQueue {
         this.queue = new LinkedBlockingQueue<>(capacity);
         this.dropped = Counter.builder("rec.log.dropped")
                 .description("큐가 가득 차 버린 추천 로그 행 수")
+                .register(registry);
+        Gauge.builder("rec.log.queue.size", queue, BlockingQueue::size)
+                .description("적재를 기다리는 추천 로그 행 수")
                 .register(registry);
     }
 
