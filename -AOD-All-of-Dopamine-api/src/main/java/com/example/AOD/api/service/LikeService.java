@@ -4,6 +4,9 @@ import com.example.AOD.api.dto.PageResponse;
 import com.example.AOD.api.dto.WorkSummaryDTO;
 import com.example.AOD.domain.ContentLike;
 import com.example.shared.entity.Content;
+import com.example.AOD.recommend.reaction.ReactionResult;
+import com.example.AOD.recommend.reaction.ReactionService;
+import com.example.AOD.recommend.reaction.ReactionState;
 import com.example.AOD.repo.ContentLikeRepository;
 import com.example.shared.repository.ContentRepository;
 import com.example.AOD.user.model.User;
@@ -28,13 +31,14 @@ public class LikeService {
     private final ContentLikeRepository contentLikeRepository;
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
+    private final ReactionService reactionService;
 
     /**
-     * 좋아요 토글
+     * 좋아요 토글 — 쓰기는 ReactionService 가 한다 (reaction_changed 로그가 남는다).
      */
     @Transactional
     public Map<String, Object> toggleLike(Long contentId, String username) {
-        return toggleLikeType(contentId, username, ContentLike.LikeType.LIKE);
+        return legacyResponse(contentId, reactionService.toggle(contentId, username, ReactionState.LIKE));
     }
 
     /**
@@ -42,39 +46,20 @@ public class LikeService {
      */
     @Transactional
     public Map<String, Object> toggleDislike(Long contentId, String username) {
-        return toggleLikeType(contentId, username, ContentLike.LikeType.DISLIKE);
+        return legacyResponse(contentId, reactionService.toggle(contentId, username, ReactionState.DISLIKE));
     }
 
-    private Map<String, Object> toggleLikeType(Long contentId, String username, ContentLike.LikeType targetType) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new RuntimeException("Content not found: " + contentId));
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
-
-        Optional<ContentLike> existing = contentLikeRepository.findByContentAndUser(content, user);
-
-        if (existing.isPresent()) {
-            ContentLike contentLike = existing.get();
-            if (contentLike.getLikeType() == targetType) {
-                // 같은 타입이면 삭제 (토글 off)
-                contentLikeRepository.delete(contentLike);
-                return buildResponse(contentId, null);
-            } else {
-                // 다른 타입이면 변경 (좋아요 <-> 싫어요)
-                contentLike.setLikeType(targetType);
-                contentLikeRepository.save(contentLike);
-                return buildResponse(contentId, targetType);
-            }
-        } else {
-            // 새로 생성
-            ContentLike contentLike = new ContentLike();
-            contentLike.setContent(content);
-            contentLike.setUser(user);
-            contentLike.setLikeType(targetType);
-            contentLikeRepository.save(contentLike);
-            return buildResponse(contentId, targetType);
-        }
+    /** 기존 프론트가 쓰는 응답 형태 — 키와 메시지를 바꾸지 않는다. */
+    private Map<String, Object> legacyResponse(Long contentId, ReactionResult result) {
+        ReactionState state = result.state();
+        return Map.of(
+                "contentId", contentId,
+                "likeCount", result.likeCount(),
+                "dislikeCount", result.dislikeCount(),
+                "userLikeType", state.name(),
+                "message", state == ReactionState.NONE ? "취소되었습니다."
+                        : (state == ReactionState.LIKE ? "좋아요!" : "싫어요")
+        );
     }
 
     /**
@@ -99,20 +84,6 @@ public class LikeService {
                 "likeCount", likeCount,
                 "dislikeCount", dislikeCount,
                 "userLikeType", userLikeType != null ? userLikeType.name() : "NONE"
-        );
-    }
-
-    private Map<String, Object> buildResponse(Long contentId, ContentLike.LikeType currentType) {
-        long likeCount = contentLikeRepository.countLikesByContentId(contentId);
-        long dislikeCount = contentLikeRepository.countDislikesByContentId(contentId);
-
-        return Map.of(
-                "contentId", contentId,
-                "likeCount", likeCount,
-                "dislikeCount", dislikeCount,
-                "userLikeType", currentType != null ? currentType.name() : "NONE",
-                "message", currentType == null ? "취소되었습니다." : 
-                           (currentType == ContentLike.LikeType.LIKE ? "좋아요!" : "싫어요")
         );
     }
 
