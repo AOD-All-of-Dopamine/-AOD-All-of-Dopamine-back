@@ -244,9 +244,9 @@ count 쿼리(같은 방식): **8215.5ms**, `read=13104` — 본 쿼리 **직후*
 | 축 | 조치 | 효과 | 의존 |
 |---|---|---|---|
 | ① 쿼리 구조 ✅ 적용 | `IS NULL OR` 제거. `WorksQueryBuilder`(순수 조립기, 단위 테스트 9건) + `ContentRepositoryCustom/Impl`(EntityManager 실행). 켜진 축만 조건부 append + 바인딩. 구 `WORKS_FILTER`/`@Query findWorks` 삭제 | 나쁜 플랜 원천 차단 (8.5s → 웜 0.1s급). 8개 축 전부 혜택 | 없음 (본체) |
-| ② 데이터 모델 | `review_count`를 `contents`로 승격 + `(domain, review_count)` btree. 2026-07 genres/platforms 승격과 동일 플레이북. Ingest YAML `master.*` 한 줄 | EXISTS 소멸, 콜드에서도 후보 즉시 선별 | ① 이후 |
-| ③ 정렬 인덱스 | `CREATE INDEX … ON contents (domain, release_date DESC NULLS LAST, content_id) WHERE is_adult = false` | 무필터/약필터 경로까지 "20건 차면 중단" 가능 | 독립 |
-| ④ 페이징 | `Page` → `Slice` (21건 요청, 다음 페이지 유무만) | 요청당 쿼리 ×2 → ×1. CLAUDE.md "대용량 조회는 Slice" 규칙과 일치 | 프론트가 전체 건수를 쓰는지 확인 |
+| ② 인덱스 (V7) | E2E 실측 후 재설계: (a) `contents (domain, release_date DESC NULLS LAST, content_id) WHERE is_adult=false` — 모든 최신순 목록 경로의 정렬 제거 + 필터 목록의 "20건 차면 중단" 플랜 허용 (b) `game_contents (review_count) INCLUDE (content_id) WHERE review_count IS NOT NULL` — 리뷰 축 index-only | 느슨한 필터의 본 쿼리 (전 도메인 Seq Scan + Hash Join) 해소, 무필터 탭까지 개선. count는 그대로 | ① 이후 |
+| ③ count 제거 | `Page` → `Slice` 는 **보류**: 탐색 페이지가 번호 페이지네이션(`totalPages`, `page > totalPages` 리다이렉트)을 써서 count 없이는 UI가 깨진다. 대안: (a) 프론트를 "다음 페이지"/무한 스크롤로 전환 후 Slice (b) count를 별도 엔드포인트 + 짧은 캐시로 분리 (c) `reltuples` 기반 근사 count | 요청당 쿼리 ×2 → ×1 (E2E dynamic 1.45s의 절반 가까이) | 프론트 결정 필요 |
+| ④ 데이터 모델 | `review_count`를 `contents`로 승격 + `(domain, review_count) INCLUDE (release_date, content_id)` — 2026-07 genres/platforms 승격과 동일 플레이북. Ingest YAML `master.*` 한 줄 | EXISTS·조인 자체가 소멸, 콜드에서도 인덱스만으로 후보 선별 | ②로 부족할 때 |
 
 ①의 코드 형태:
 
@@ -270,7 +270,7 @@ sql.append(" ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC");
 
 원칙: "**DB에는 실제로 켜진 조건만 보낸다.**" 웹툰 3축은 행 수가 작아 EXISTS로 두어도 된다(아픈 축만 승격).
 
-진행 순서 제안: ② 마이그레이션(컬럼 추가·백필·인덱스) → ① 리포지토리 개편 → ④ Slice → §4-4 방식으로 **EXPLAIN 재측정해 효과를 숫자로 확인**.
+진행 순서(실측 기반 갱신): ① 동적 조립 ✅ → ② 인덱스 V7 → E2E/EXPLAIN 재측정 → ③ count 분리(프론트 협의) → (필요 시) ④ 승격. 각 단계 후 §8-1 A/B 경로(`impl=legacy`)로 같은 조건 비교.
 
 ### 8-1. ① 적용 후 재측정 (2026-09-14, 동적 조립이 생성하는 SQL을 §4-4 방식으로 재현)
 
@@ -303,10 +303,46 @@ foreach ($impl in @("legacy", "dynamic")) {
 }
 ```
 
-| E2E (3회: 1회차 콜드) | 1회 | 2회 | 3회 |
+**E2E 실측 (2026-09-14 21:05 KST, `https://api.allofdophamin.com` 직접 호출, `size=20`)**
+
+> 프론트 도메인 `allofdophamin.com/api/*`는 운영에서 서버리스 프록시를 타지 않고 SPA `index.html`(468B)을 돌려준다 — 프론트는 `VITE_API_BASE_URL`로 백엔드 원본을 직접 호출하는 것으로 보임. E2E는 원본(nginx → Spring)으로 측정.
+
+| `reviewCountMin=100` | 1회 (콜드) | 2회 | 3회 | 순서 뒤집어 재측정 |
+|---|---|---|---|---|
+| legacy (`impl=legacy`) | **21.06s** | 1.13s | 0.46s | 7.38s → 0.49s |
+| dynamic (기본) | 1.48s | 1.49s | 1.42s | 1.42s → 1.46s |
+
+| `reviewCountMin=1000` (웜) | dynamic | legacy |
+|---|---|---|
+| | **0.40s** | **8.59s** |
+
+| 값 스윕 (각 1회, dynamic → legacy 순) | dynamic | legacy | 응답 bytes (동일 = 결과 동일) |
 |---|---|---|---|
-| legacy (`impl=legacy`) | | | |
-| dynamic (기본) | | | |
+| `reviewCountMin=500` | 0.63s | 6.79s | 10,294 |
+| `reviewCountMin=5000` | 0.32s | 6.86s | 10,144 |
+| `reviewCountMin=50000` | 0.26s | 6.09s | 9,960 |
+
+| legacy 반복성 검증 (`reviewCountMin=1000`) | 결과 |
+|---|---|
+| 연속 5회 | 5.25s → 1.44s → 0.36s → 0.38s → 0.36s (캐시가 데워지면 0.36s) |
+| 75초 아무것도 안 하고 대기 후 1회 | 0.41s (시간만으론 안 식음) |
+| **legacy 0.35s → dynamic(100) 1.55s → legacy** | **5.51s** — dynamic(100)의 전수 스캔 플랜이 legacy가 의존하는 contents 페이지를 캐시에서 밀어냄 |
+
+| 콜드/웜 매트릭스 (콜드 = 직전에 dynamic(100)으로 캐시 축출) | dynamic 콜드 | dynamic 웜 ×2 | legacy 콜드 | legacy 웜1 | legacy 웜2 |
+|---|---|---|---|---|---|
+| `reviewCountMin=500` | 0.81s | 0.31 / 0.32s | **10.75s** | 3.28s | 0.37s |
+| `reviewCountMin=5000` | 0.43s | 0.30 / 0.27s | **7.94s** | 6.42s | 0.35s |
+| `reviewCountMin=50000` | 0.32s | 0.20 / 0.16s | **5.55s** | 0.32s | 0.34s |
+
+- dynamic의 콜드 페널티는 ≤0.5s (발자국 = 매칭 게임 + PK 프로브뿐). legacy의 콜드 페널티는 15~30배이고, 웜에 도달하려면 전수 스캔을 2~3회 반복해야 한다(웜1이 3.3s/6.4s인 이유 — 본+count 두 패스로도 캐시가 다 안 참).
+- 웜끼리 비교해도 빡센 필터에서는 dynamic(0.16~0.32s) ≤ legacy(0.35s). legacy가 웜에서 앞서는 건 느슨한 100 조건뿐(0.46 vs 1.45) — V7의 대상.
+
+읽는 법:
+- **legacy는 쌍봉(bimodal)이다.** contents 페이지가 캐시에 있을 때만 0.36~0.46s, 아니면 5~21s. 캐시는 시간이 아니라 **다른 대량 스캔이 밀어낸다** — 통제 실험에서 dynamic(100)의 contents 전수 스캔 1회가 legacy를 0.35s에서 5.5s로 되돌렸다. 운영에서는 느슨한 필터 요청·크롤러 배치·다른 목록 쿼리가 수시로 이 역할을 하므로 "웜 legacy"는 실사용자가 거의 만나지 못하는 상태다 (§4-6의 캐시 비대칭과 일치). 같은 이유로 dynamic(100)의 전수 스캔 플랜도 캐시에 적대적 — V7 최신순 인덱스로 발자국을 줄이면 양쪽 모두에 이롭다.
+- **dynamic은 캐시 상태와 무관하게 평평하고, 필터가 빡셀수록 빨라진다.** 100 조건 1.4~1.5s → 500: 0.63s → 1000: 0.40s → 5000: 0.32s → 50000: 0.26s. "조건 맞는 게임에서 출발"하는 플랜이라 매칭이 적을수록 프로브가 줄어드는 정직한 곡선. 느슨한 조건(100)만 조인 규모가 커져 1.4s대 — 이 구간이 ② 인덱스·④ 승격의 대상.
+- **legacy는 값과 무관하게 6~7s(부분 웜)~21s(콜드)로 평평하다.** 값이 무엇이든 GAME 전수 스캔을 하는 구조라 선택도가 시간에 반영되지 않는다 — §5-1의 "플래너가 적게 읽는 작전을 고를 수 없다"의 E2E 증거.
+- 웜 상태 한정으로는 legacy(0.46s) < dynamic(1.45s, 100 조건)이다. dynamic의 1.45s는 I/O가 아니라 고정 크기 CPU 작업(전 도메인 Seq Scan + Hash Join ×2)으로 보이며, 이 수치는 §8-1 "남은 비용"의 contents Seq Scan 항목 그대로다. 실사용 조건(콜드 지배)에서의 판정은 **legacy 7~21s vs dynamic 1.4s**.
+- 요청당 E2E에는 보강 쿼리 2개 + nginx + 서울 리전 왕복(≈50ms)이 포함된다.
 
 **남은 비용 → 다음 단계 대응**
 
