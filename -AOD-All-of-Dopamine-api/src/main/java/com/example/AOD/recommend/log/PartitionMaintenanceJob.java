@@ -60,6 +60,7 @@ public class PartitionMaintenanceJob {
     }
 
     // 파티션 생성은 부모 테이블에 잠깐 ACCESS EXCLUSIVE 잠금을 건다 → 한국 새벽에 돈다. 월 계산 자체는 UTC(clock) 기준.
+    // 04:15 KST 는 UTC 로 전날 19:15 다. 매월 1일 실행분은 UTC 기준 "지난달"로 계산하지만, 2개월 앞까지 만들므로 빈틈이 없다.
     @Scheduled(cron = "0 15 4 * * *", zone = "Asia/Seoul")
     public void daily() {
         runSafely();
@@ -111,6 +112,7 @@ public class PartitionMaintenanceJob {
         YearMonth now = YearMonth.now(clock);
         List<String> dropped = new ArrayList<>();
         for (PartitionedTable t : TABLES) {
+            // isBefore 라서 기준월 자체는 남는다 — 실제 보관은 "보관 개월 + 진행 중인 달".
             YearMonth cutoff = now.minusMonths(t.retentionMonths());
             List<String> children = jdbc.queryForList(CHILDREN_SQL, String.class, t.name());
             for (String child : children) {

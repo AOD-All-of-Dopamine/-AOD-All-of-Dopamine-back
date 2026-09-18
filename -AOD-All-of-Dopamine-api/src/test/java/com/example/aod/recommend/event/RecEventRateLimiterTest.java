@@ -36,4 +36,17 @@ class RecEventRateLimiterTest {
         clock.plusSeconds(60);
         assertTrue(limiter.allow("anon-a"), "다음 분에는 다시 허용");
     }
+
+    @Test
+    void refusesNewKeysWhenMapIsSaturatedWithCurrentMinuteKeys() {
+        MutableClock clock = new MutableClock(Instant.parse("2026-09-18T00:00:00Z"));
+        RecEventRateLimiter limiter = new RecEventRateLimiter(3, clock);
+        for (int i = 0; i <= RecEventRateLimiter.CLEANUP_THRESHOLD; i++) limiter.allow("k" + i);
+
+        assertFalse(limiter.allow("brand-new-key"), "맵이 가득 차면 새 키는 거절한다");
+        assertTrue(limiter.allow("k1"), "이미 있는 키는 한도 안에서 계속 허용한다");
+
+        clock.plusSeconds(60);
+        assertTrue(limiter.allow("brand-new-key"), "다음 분에는 지난 창이 비워져 다시 받는다");
+    }
 }

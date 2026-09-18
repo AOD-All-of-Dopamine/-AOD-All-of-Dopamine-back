@@ -33,6 +33,8 @@ public class RecEventRateLimiter {
         long minute = clock.instant().getEpochSecond() / 60;
         if (windows.size() > CLEANUP_THRESHOLD) {
             windows.values().removeIf(w -> w.minute() < minute);
+            // anonId 는 공격자가 고를 수 있다 — 매 요청 새 키를 쓰면 맵이 끝없이 자란다. 비워도 넘치면 새 키는 거절한다.
+            if (windows.size() > CLEANUP_THRESHOLD && !windows.containsKey(key)) return false;
         }
         Window w = windows.compute(key, (k, old) ->
                 old == null || old.minute() != minute ? new Window(minute, new AtomicInteger()) : old);

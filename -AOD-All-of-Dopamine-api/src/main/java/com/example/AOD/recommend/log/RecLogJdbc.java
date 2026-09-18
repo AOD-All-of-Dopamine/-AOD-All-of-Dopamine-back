@@ -52,6 +52,9 @@ public class RecLogJdbc implements DisposableBean {
         ds.setMinimumIdle(0);
         ds.setIdleTimeout(60_000);
         ds.setConnectionTimeout(3_000);        // 로그 풀은 빨리 포기한다 — 종료 flush 예산(10초)을 지키기 위해서도
+        // 파티션 생성은 부모 테이블에 ACCESS EXCLUSIVE 잠금을 건다. 로그 풀의 어떤 문장도 잠금을 5초 넘게 기다리지 않게 한다
+        // (기다리다 실패한 배치는 버려진다 — 로그는 유실을 허용한다. 끝없이 멈추는 것보다 낫다).
+        ds.setConnectionInitSql("SET lock_timeout = '5s'");
         ds.setMetricRegistry(meterRegistry);   // hikaricp_* 지표에 pool="rec-log" 로 잡힌다 (빈이 아니라 Boot 가 대신 묶어주지 않는다)
         this.pool = ds;
         this.jdbc = new JdbcTemplate(ds);

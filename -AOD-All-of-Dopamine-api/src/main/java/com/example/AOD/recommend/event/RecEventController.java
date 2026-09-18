@@ -22,6 +22,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 클라이언트 이벤트 묶음 수신 (REC_TAB_DESIGN §4-1).
@@ -34,6 +35,7 @@ import java.util.UUID;
 public class RecEventController {
 
     private static final int BODY_SAMPLE_CHARS = 500;
+    private static final int USER_ID_CACHE_MAX = 10_000;
 
     private final ObjectMapper objectMapper;
     private final RecEventValidator validator;
@@ -42,6 +44,8 @@ public class RecEventController {
     private final RecEventRecorder recorder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    /** username → user id. id 는 바뀌지 않으므로 만료가 필요 없다. 넘치면 통째로 비운다. */
+    private final ConcurrentHashMap<String, Long> userIdCache = new ConcurrentHashMap<>();
 
     @PostMapping(value = "/rec-events", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> ingest(
@@ -98,7 +102,15 @@ public class RecEventController {
         String token = authHeader.substring(7);
         try {
             if (!jwtTokenProvider.validateToken(token)) return null;
-            return userRepository.findByUsername(jwtTokenProvider.getUsername(token)).map(User::getId).orElse(null);
+            String username = jwtTokenProvider.getUsername(token);
+            Long cached = userIdCache.get(username);
+            if (cached != null) return cached;
+            Long id = userRepository.findByUsername(username).map(User::getId).orElse(null);
+            if (id != null) {
+                if (userIdCache.size() >= USER_ID_CACHE_MAX) userIdCache.clear();
+                userIdCache.put(username, id);
+            }
+            return id;
         } catch (Exception e) {
             return null;
         }

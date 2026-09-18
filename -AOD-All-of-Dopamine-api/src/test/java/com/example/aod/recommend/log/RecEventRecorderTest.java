@@ -70,6 +70,13 @@ class RecEventRecorderTest {
     }
 
     @Test
+    void reviewSavedAcceptsNullRating() {
+        recorder.reviewSaved(7L, 42L, null, true, RecContext.EMPTY);
+        EventLogRecord e = (EventLogRecord) drain().get(0);
+        assertTrue(e.payloadJson().contains("\"rating\":null"));
+    }
+
+    @Test
     void clientAgentIsRecordedOncePerSession() {
         UUID session = UUID.randomUUID();
         recorder.clientAgentOnce(session, "Mozilla/5.0");

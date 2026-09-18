@@ -19,6 +19,7 @@ import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -52,14 +53,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 빈 DB 에서는 Flyway V1 이 실패하므로(기존 문제) Flyway 자동 실행을 끄고, Hibernate 가 public 스키마를 만든 뒤
  * baseline 7 로 V8 만 돌린다 — 운영과 같은 상황(기존 스키마 + V8).
  * @Transactional 을 붙이지 않는다: 서버 이벤트는 커밋 뒤에 큐에 들어간다.
+ * 둘 다 없으면 테스트는 건너뛴다(@EnabledIf).
  */
 @SpringBootTest
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@EnabledIf("databaseAvailable")
 class RecLogIntegrationTest {
 
     private static final String EXTERNAL_URL = System.getenv("REC_IT_JDBC_URL");
     private static PostgreSQLContainer<?> postgres;
+
+    /** 외부 DB 환경변수도 없고 Docker 도 없으면 건너뛴다 (전체 테스트 실행을 깨뜨리지 않는다). */
+    static boolean databaseAvailable() {
+        if (EXTERNAL_URL != null && !EXTERNAL_URL.isBlank()) return true;
+        try {
+            return org.testcontainers.DockerClientFactory.instance().isDockerAvailable();
+        } catch (Throwable t) {
+            return false;
+        }
+    }
 
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry r) {

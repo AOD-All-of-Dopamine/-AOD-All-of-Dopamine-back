@@ -44,6 +44,7 @@ public class RejectedEventSampler {
         } catch (JsonProcessingException e) {
             json = "{}";
         }
+        if (json.contains("\\u0000")) json = "{\"note\":\"raw omitted: contains NUL\"}";   // jsonb 는 NUL 을 거부한다
         queue.offer(new RejectedEventLogRecord(json, reason, OffsetDateTime.now(clock)));
         return true;
     }

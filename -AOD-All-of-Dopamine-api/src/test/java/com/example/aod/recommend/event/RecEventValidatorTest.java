@@ -59,6 +59,24 @@ class RecEventValidatorTest {
         assertEquals("null_event", reason(validator.validate(null, header)));
     }
 
+    @Test
+    void rejectsValuesPostgresWouldRefuse() {
+        String id = UUID.randomUUID().toString();
+        assertEquals("bad_payload", reason(validator.validate(
+                item("card_clicked", id, "2026-09-18T00:00:01Z", Map.of("k", "a\0b")), header)));
+        assertEquals("client_ts_out_of_range", reason(validator.validate(
+                item("card_clicked", id, "+999999999-01-01T00:00:00Z", null), header)));
+        assertEquals("client_ts_out_of_range", reason(validator.validate(
+                item("card_clicked", id, "2026-09-01T00:00:00Z", null), header)));   // 17일 전
+    }
+
+    @Test
+    void cleansNulAndOverlongFreeText() {
+        assertEquals("ab", RecEventValidator.clean("a\0b", 64));
+        assertEquals("abc", RecEventValidator.clean("abcdef", 3));
+        assertEquals(null, RecEventValidator.clean(null, 3));
+    }
+
     private static String reason(RecEventValidator.Outcome out) {
         return assertInstanceOf(RecEventValidator.Rejected.class, out).reason();
     }

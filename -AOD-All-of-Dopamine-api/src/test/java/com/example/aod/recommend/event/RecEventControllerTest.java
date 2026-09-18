@@ -15,6 +15,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,7 +57,7 @@ class RecEventControllerTest {
 
     private String event(String type) {
         return "{\"eventId\":\"" + UUID.randomUUID() + "\",\"type\":\"" + type + "\","
-                + "\"clientTs\":\"2026-09-18T00:00:01Z\",\"contentId\":123,\"payload\":{\"visible_ms\":1200}}";
+                + "\"clientTs\":\"" + OffsetDateTime.now(ZoneOffset.UTC) + "\",\"contentId\":123,\"payload\":{\"visible_ms\":1200}}";
     }
 
     @Test
