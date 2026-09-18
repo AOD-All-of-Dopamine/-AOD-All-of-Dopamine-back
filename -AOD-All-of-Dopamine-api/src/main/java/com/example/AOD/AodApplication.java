@@ -2,16 +2,15 @@ package com.example.AOD;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+// @EntityScan · @EnableJpaRepositories 는 com.example.AOD.config.JpaRepositoriesConfig 로 옮겼다
+// (@WebMvcTest 슬라이스가 이 클래스에 직접 붙은 애너테이션은 걸러내지 못해 레포지토리를 즉시 초기화하려던
+// 문제 — 상세 사유는 JpaRepositoriesConfig 주석 참고). 스캔 패키지·런타임 동작은 그대로다.
 @SpringBootApplication
 @EnableScheduling // 스케줄링 기능 활성화
 @EnableCaching // 캐시 기능 활성화 (장르 집계 등 무거운 조회 캐싱)
-@EntityScan(basePackages = {"com.example.AOD", "com.example.shared.entity"})
-@EnableJpaRepositories(basePackages = {"com.example.AOD", "com.example.shared.repository"})
 public class AodApplication {
 
 	public static void main(String[] args) {
