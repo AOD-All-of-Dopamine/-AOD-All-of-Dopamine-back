@@ -12,8 +12,9 @@ services:
       - "${APP_PORT:-8080}:8080"
     environment:
       TZ: Asia/Seoul
-      # JVM 메모리 설정 (t3.small 최적화: Heap 최대 512MB)
-      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul -Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      # JVM 메모리 설정 — 힙은 여기 한 곳에서만 정한다 (Dockerfile ENTRYPOINT 에 힙 옵션을 두지 않는다).
+      # 컨테이너 한도 1.5G = 힙 1024M + 메타스페이스·스레드·GC 등 비힙 약 0.3~0.4G.
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul -Xms256m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-prod}
 
       # ✨ [핵심 수정] 외부 DB 및 Selenium을 참조하도록 환경 변수 사용
