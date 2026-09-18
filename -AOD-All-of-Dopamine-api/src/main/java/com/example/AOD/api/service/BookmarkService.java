@@ -4,6 +4,8 @@ import com.example.AOD.api.dto.PageResponse;
 import com.example.AOD.api.dto.WorkSummaryDTO;
 import com.example.AOD.domain.Bookmark;
 import com.example.shared.entity.Content;
+import com.example.AOD.recommend.context.RecContextHolder;
+import com.example.AOD.recommend.log.RecEventRecorder;
 import com.example.AOD.repo.BookmarkRepository;
 import com.example.shared.repository.ContentRepository;
 // import com.example.AOD.recommendation.repository.ContentRatingRepository;
@@ -30,6 +32,7 @@ public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
+    private final RecEventRecorder recorder;
     // private final ContentRatingRepository contentRatingRepository;
 
     /**
@@ -48,6 +51,7 @@ public class BookmarkService {
         if (existing.isPresent()) {
             // 이미 북마크 되어있으면 삭제
             bookmarkRepository.delete(existing.get());
+            recorder.bookmarkChanged(user.getId(), contentId, false, RecContextHolder.current());
             return Map.of(
                     "contentId", contentId,
                     "bookmarked", false,
@@ -59,6 +63,7 @@ public class BookmarkService {
             bookmark.setContent(content);
             bookmark.setUser(user);
             bookmarkRepository.save(bookmark);
+            recorder.bookmarkChanged(user.getId(), contentId, true, RecContextHolder.current());
             return Map.of(
                     "contentId", contentId,
                     "bookmarked", true,
