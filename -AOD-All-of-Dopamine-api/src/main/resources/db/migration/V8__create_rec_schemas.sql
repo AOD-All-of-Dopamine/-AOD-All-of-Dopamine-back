@@ -3,7 +3,11 @@
 -- 근거: AI 레포 recommendation/REC_TAB_DESIGN.md §5-3.
 -- 서빙 상태는 추천 정확성에 필요해 동기로 쓰고(파티션 없음), 로그는 유실돼도 추천이
 -- 틀리지 않는 경로라 비동기·월 파티션이다. 두 스키마를 섞지 않는다.
--- 전부 IF NOT EXISTS 로 멱등. 로그 테이블에는 FK 를 걸지 않는다(탈퇴·삭제와 독립).
+-- 전부 IF NOT EXISTS 로 멱등. 두 스키마 모두 FK 를 걸지 않는다:
+--   aod_log 는 탈퇴·삭제와 독립된 기록이고, aod_rec 는 수명이 짧아 작업이 지운다
+--   (rec_chain 24시간 · not_interested 90일 · corpus_map 은 코퍼스 버전 단위로 교체).
+-- 조회 주의: impression_id·request_id·session_id 로 찾을 때는 server_ts/served_at 범위를 함께 줘야
+--   파티션이 걸러진다. 시간 조건이 없으면 보관 중인 모든 월 파티션을 훑는다.
 -- 이후 달의 파티션은 PartitionMaintenanceJob 이 만든다.
 -- ============================================================================
 
@@ -106,7 +110,8 @@ CREATE TABLE IF NOT EXISTS aod_log.event (
     PRIMARY KEY (event_id, server_ts)
 ) PARTITION BY RANGE (server_ts);
 
--- user_agent 는 봇 판별용으로 90일만 둔다 → 세션 단위 별도 테이블 + 파티션 DROP
+-- user_agent 는 봇 판별용으로 90일만 둔다 → 세션 단위 별도 테이블 + 파티션 DROP.
+-- PK 가 (session_id, first_seen) 이라 "세션당 1행"은 DB 가 보장하지 못한다 — 적재 쪽에서 최선으로 거른다.
 CREATE TABLE IF NOT EXISTS aod_log.client_agent (
     session_id uuid        NOT NULL,
     first_seen timestamptz NOT NULL,
@@ -131,6 +136,9 @@ CREATE TABLE IF NOT EXISTS aod_log.rejected_event (
 CREATE INDEX IF NOT EXISTS idx_rejected_event_ts ON aod_log.rejected_event (server_ts);
 
 -- DEFAULT 파티션은 파티션 테이블 전부에. 하나라도 빠지면 월 파티션이 밀린 순간 그 테이블만 INSERT 가 실패한다.
+-- DEFAULT 는 쓰기 가용성을 위한 그물이지 정상 경로가 아니다: DEFAULT 에 어떤 달의 행이 들어가 있으면
+-- PostgreSQL 이 그 달의 파티션 생성을 거부한다("updated partition constraint for default partition would be violated").
+-- 그래서 DEFAULT 행 수 > 0 은 경보 대상이고, 행을 옮긴 뒤에야 그 달 파티션을 만들 수 있다.
 CREATE TABLE IF NOT EXISTS aod_log.rec_request_default     PARTITION OF aod_log.rec_request     DEFAULT;
 CREATE TABLE IF NOT EXISTS aod_log.rec_item_served_default PARTITION OF aod_log.rec_item_served DEFAULT;
 CREATE TABLE IF NOT EXISTS aod_log.event_default           PARTITION OF aod_log.event           DEFAULT;

@@ -43,4 +43,13 @@ class V8MigrationContractTest {
     void partitionBoundsArePinnedToUtc() throws Exception {
         assertTrue(sql().contains("T00:00:00Z"), "월 경계는 UTC 리터럴이어야 한다");
     }
+
+    @Test
+    void monthPartitionNamingMatchesJavaJobConvention() throws Exception {
+        String sql = sql();
+        // {table}_yYYYYmMM — PartitionMaintenanceJob(PartitionNames)이 같은 규칙으로 이후 달을 만든다
+        assertTrue(sql.contains("'_y' || to_char(m, 'YYYY') || 'm' || to_char(m, 'MM')"),
+                "월 파티션 이름 규칙이 바뀌면 자바 작업과 어긋난다");
+        assertTrue(sql.contains("AT TIME ZONE 'UTC'"), "이번 달 계산은 UTC 기준이어야 한다");
+    }
 }
