@@ -17,6 +17,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * 이 애너테이션들을 평범한 {@code @Configuration} 빈으로 옮기면(패키지는 그대로 스캔되므로 런타임 동작은
  * 동일) {@code @WebMvcTest} 의 기본 필터가 이 빈을 제외해준다 — {@link com.example.AOD.security.SecurityConfig}
  * 를 슬라이스에 넣으려면 {@code @Import} 로 명시해야 하는 것과 같은 이유(반대 방향)다.
+ * {@code @WebMvcTest} 슬라이스에서 빠지는 것과 같은 이유로 {@code @DataJpaTest} 에서도 빠진다 — 그런 테스트를
+ * 만들면 {@code @Import(JpaRepositoriesConfig.class)} 가 필요하다.
  */
 @Configuration
 @EntityScan(basePackages = {"com.example.AOD", "com.example.shared.entity"})

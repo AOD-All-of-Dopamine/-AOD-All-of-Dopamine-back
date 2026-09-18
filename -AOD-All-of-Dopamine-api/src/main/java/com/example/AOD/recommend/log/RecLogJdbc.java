@@ -3,7 +3,10 @@ package com.example.AOD.recommend.log;
 import com.zaxxer.hikari.HikariDataSource;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Component;
@@ -31,8 +34,19 @@ public class RecLogJdbc implements DisposableBean {
     private final JdbcTemplate jdbc;
     private final TransactionOperations tx;
 
-    public RecLogJdbc(DataSourceProperties properties, MeterRegistry meterRegistry) {
-        HikariDataSource ds = properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+    public RecLogJdbc(DataSourceProperties properties,
+                      ObjectProvider<JdbcConnectionDetails> connectionDetails,
+                      MeterRegistry meterRegistry) {
+        // 주 DataSource 와 같은 접속 정보를 쓴다. Boot 3.1+ 의 JdbcConnectionDetails(@ServiceConnection 등)가 있으면 그쪽이 우선이다.
+        JdbcConnectionDetails details = connectionDetails.getIfAvailable();
+        DataSourceBuilder<?> builder = details != null
+                ? DataSourceBuilder.create()
+                        .url(details.getJdbcUrl())
+                        .username(details.getUsername())
+                        .password(details.getPassword())
+                        .driverClassName(details.getDriverClassName())
+                : properties.initializeDataSourceBuilder();
+        HikariDataSource ds = builder.type(HikariDataSource.class).build();
         ds.setPoolName(POOL_NAME);
         ds.setMaximumPoolSize(MAX_POOL_SIZE);
         ds.setMinimumIdle(0);

@@ -33,6 +33,7 @@ public class LogWriter implements SmartLifecycle {
     static final int BATCH_MAX = 200;
     static final long POLL_MS = 1_000;
     static final long SHUTDOWN_DRAIN_MS = 10_000;
+    static final long FAILURE_LOG_INTERVAL_MS = 60_000;
     static final String EVENT_SEEN_SQL =
             "INSERT INTO aod_log.event_seen (event_id, server_ts) VALUES (?, ?) ON CONFLICT (event_id) DO NOTHING";
 
@@ -47,6 +48,7 @@ public class LogWriter implements SmartLifecycle {
 
     private volatile boolean running;
     private volatile Thread thread;
+    private volatile long lastFailureLogAt;
 
     @Autowired
     public LogWriter(LogQueue queue, RecLogJdbc recLogJdbc, MeterRegistry registry,
@@ -128,7 +130,12 @@ public class LogWriter implements SmartLifecycle {
             write(batch);
         } catch (Exception e) {
             failed.increment(batch.size());
-            log.error("추천 로그 배치 쓰기 실패 — {}행 버림", batch.size(), e);
+            // 장애가 이어지면 배치마다(1~3초) 스택 트레이스가 쌓인다 → 1분에 한 번만 남기고, 누적은 rec.log.failed 로 본다
+            long now = System.currentTimeMillis();
+            if (now - lastFailureLogAt >= FAILURE_LOG_INTERVAL_MS) {
+                lastFailureLogAt = now;
+                log.error("추천 로그 배치 쓰기 실패 — {}행 버림 (같은 오류는 1분에 한 번만 기록)", batch.size(), e);
+            }
         }
     }
 

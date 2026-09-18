@@ -84,7 +84,9 @@ public class RecEventRecorder {
         if (sessionId == null || userAgent == null || userAgent.isBlank()) return;
         if (!knownSessions.add(sessionId)) return;
         String ua = userAgent.length() > 512 ? userAgent.substring(0, 512) : userAgent;
-        queue.offer(new ClientAgentLogRecord(sessionId, OffsetDateTime.now(clock), ua));
+        if (!queue.offer(new ClientAgentLogRecord(sessionId, OffsetDateTime.now(clock), ua))) {
+            knownSessions.remove(sessionId);   // 큐가 가득 차 버려졌다 — 다음 묶음에서 다시 시도하게 한다
+        }
     }
 
     private void serverEvent(String type, Long userId, Long contentId, Map<String, Object> payload, RecContext ctx) {

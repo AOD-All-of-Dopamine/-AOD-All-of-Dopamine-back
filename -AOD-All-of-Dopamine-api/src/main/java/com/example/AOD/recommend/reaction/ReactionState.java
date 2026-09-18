@@ -7,6 +7,7 @@ public enum ReactionState {
     LIKE, DISLIKE, NONE;
 
     public static ReactionState fromLikeType(ContentLike.LikeType type) {
+        if (type == null) throw new IllegalArgumentException("LikeType 이 null — content_likes.like_type 은 NOT NULL 이어야 한다");
         return type == ContentLike.LikeType.LIKE ? LIKE : DISLIKE;
     }
 
