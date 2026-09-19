@@ -1,10 +1,8 @@
 package com.example.AOD.recommend.event;
 
+import com.example.AOD.recommend.auth.RecAuth;
 import com.example.AOD.recommend.context.RecContext;
 import com.example.AOD.recommend.log.RecEventRecorder;
-import com.example.AOD.security.JwtTokenProvider;
-import com.example.AOD.user.model.User;
-import com.example.AOD.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 클라이언트 이벤트 묶음 수신 (REC_TAB_DESIGN §4-1).
@@ -35,17 +32,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RecEventController {
 
     private static final int BODY_SAMPLE_CHARS = 500;
-    private static final int USER_ID_CACHE_MAX = 10_000;
 
     private final ObjectMapper objectMapper;
     private final RecEventValidator validator;
     private final RecEventRateLimiter rateLimiter;
     private final RejectedEventSampler sampler;
     private final RecEventRecorder recorder;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository;
-    /** username → user id. id 는 바뀌지 않으므로 만료가 필요 없다. 넘치면 통째로 비운다. */
-    private final ConcurrentHashMap<String, Long> userIdCache = new ConcurrentHashMap<>();
+    private final RecAuth recAuth;
 
     @PostMapping(value = "/rec-events", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> ingest(
@@ -76,7 +69,7 @@ public class RecEventController {
         }
 
         RecEventValidator.BatchHeader header = new RecEventValidator.BatchHeader(
-                anonId, sessionId, resolveUserId(authHeader), batch.appVersion(), batch.device(),
+                anonId, sessionId, recAuth.userIdOrNull(authHeader), batch.appVersion(), batch.device(),
                 OffsetDateTime.now(ZoneOffset.UTC));
 
         int accepted = 0;
@@ -94,25 +87,5 @@ public class RecEventController {
         recorder.clientAgentOnce(sessionId, userAgent);
 
         return ResponseEntity.accepted().body(Map.of("accepted", accepted, "rejected", rejected));
-    }
-
-    /** 토큰이 유효하면 user_id, 아니면 null (비콘은 헤더를 못 싣는다 — 분석에서 session_id 로 잇는다). */
-    private Long resolveUserId(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
-        String token = authHeader.substring(7);
-        try {
-            if (!jwtTokenProvider.validateToken(token)) return null;
-            String username = jwtTokenProvider.getUsername(token);
-            Long cached = userIdCache.get(username);
-            if (cached != null) return cached;
-            Long id = userRepository.findByUsername(username).map(User::getId).orElse(null);
-            if (id != null) {
-                if (userIdCache.size() >= USER_ID_CACHE_MAX) userIdCache.clear();
-                userIdCache.put(username, id);
-            }
-            return id;
-        } catch (Exception e) {
-            return null;
-        }
     }
 }

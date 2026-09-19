@@ -1,10 +1,13 @@
 package com.example.AOD.recommend.log;
 
+import com.example.AOD.recommend.chain.ChainService;
+import com.example.AOD.recommend.notinterested.NotInterestedService;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -60,5 +63,23 @@ class PartitionMaintenanceJobTest {
         verify(jdbc).execute("DROP TABLE IF EXISTS aod_log.event_y2025m08");
         verify(jdbc).execute("DROP TABLE IF EXISTS aod_log.client_agent_y2026m05");
         verify(jdbc, never()).execute("DROP TABLE IF EXISTS aod_log.event_default");
+    }
+
+    @Test
+    void retentionComesFromTheServicesThatOwnTheTables() {
+        // 보관 기간이 두 군데에 적히면 한쪽만 바뀐다 — 정리 작업은 주인의 상수를 그대로 쓴다.
+        assertEquals(ChainService.TTL, PartitionMaintenanceJob.REC_CHAIN_TTL);
+        assertEquals(NotInterestedService.TTL, PartitionMaintenanceJob.NOT_INTERESTED_TTL);
+    }
+
+    @Test
+    void purgesExpiredChainsAndOldNotInterestedRows() {
+        job.purgeRecTables();
+
+        // 고정 시계 2026-09-18T03:15:00Z 기준: 체인 24시간 · 관심 없음 90일
+        verify(jdbc).update("DELETE FROM aod_rec.rec_chain WHERE updated_at < ?",
+                OffsetDateTime.parse("2026-09-17T03:15:00Z"));
+        verify(jdbc).update("DELETE FROM aod_rec.not_interested WHERE created_at < ?",
+                OffsetDateTime.parse("2026-06-20T03:15:00Z"));
     }
 }

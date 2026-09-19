@@ -1,5 +1,6 @@
 package com.example.AOD.recommend.event;
 
+import com.example.AOD.recommend.auth.RecAuth;
 import com.example.AOD.recommend.log.EventLogRecord;
 import com.example.AOD.recommend.log.RecEventRecorder;
 import com.example.AOD.security.JwtTokenProvider;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = RecEventController.class)
-@Import({SecurityConfig.class, RecEventValidator.class})
+@Import({SecurityConfig.class, RecEventValidator.class, RecAuth.class})
 class RecEventControllerTest {
 
     @Autowired MockMvc mvc;
