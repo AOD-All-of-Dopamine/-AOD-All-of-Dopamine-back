@@ -80,14 +80,12 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Run application with increased heap size
-# -Xms: 초기 힙 크기 (512MB)
-# -Xmx: 최대 힙 크기 (2GB)
+# 힙 크기는 여기서 정하지 않는다 — docker-compose.yml 의 JAVA_TOOL_OPTIONS 한 곳에서만 정한다.
+# (명령줄 힙 옵션은 JAVA_TOOL_OPTIONS 를 덮어쓴다. 예전에는 여기의 2GB 설정이 compose 값을 무력화해
+#  컨테이너 메모리 한도 1.5G 를 넘을 수 있었다.)
 # -XX:+HeapDumpOnOutOfMemoryError: OOM 발생 시 힙 덤프 생성
 # -XX:HeapDumpPath: 힙 덤프 저장 경로
 ENTRYPOINT ["java", \
-    "-Xms512m", \
-    "-Xmx2048m", \
     "-XX:+HeapDumpOnOutOfMemoryError", \
     "-XX:HeapDumpPath=/app/heapdump.hprof", \
     "-jar", "app.jar"]

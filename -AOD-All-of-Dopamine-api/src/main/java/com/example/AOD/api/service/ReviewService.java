@@ -6,6 +6,8 @@ import com.example.AOD.api.dto.review.ReviewResponseDTO;
 import com.example.shared.entity.Content;
 import com.example.AOD.domain.Review;
 import com.example.shared.repository.ContentRepository;
+import com.example.AOD.recommend.context.RecContextHolder;
+import com.example.AOD.recommend.log.RecEventRecorder;
 import com.example.AOD.repo.ReviewRepository;
 import com.example.AOD.user.model.User;
 import com.example.AOD.user.repository.UserRepository;
@@ -28,6 +30,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
+    private final RecEventRecorder recorder;
 
     /**
      * 특정 작품의 리뷰 목록 조회
@@ -79,7 +82,8 @@ public class ReviewService {
         
         // 동기화 로직 호출
         syncContentRating(contentId);
-        
+        recorder.reviewSaved(user.getId(), contentId, saved.getRating(), true, RecContextHolder.current());
+
         return ReviewResponseDTO.from(saved, username);
     }
 
@@ -101,6 +105,8 @@ public class ReviewService {
 
         // 동기화 로직 호출
         syncContentRating(updated.getContent().getContentId());
+        recorder.reviewSaved(updated.getUser().getId(), updated.getContent().getContentId(),
+                updated.getRating(), false, RecContextHolder.current());
 
         return ReviewResponseDTO.from(updated, username);
     }
