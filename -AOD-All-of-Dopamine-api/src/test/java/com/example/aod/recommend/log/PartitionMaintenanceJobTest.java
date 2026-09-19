@@ -1,5 +1,7 @@
 package com.example.AOD.recommend.log;
 
+import com.example.AOD.recommend.chain.ChainService;
+import com.example.AOD.recommend.notinterested.NotInterestedService;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -61,6 +63,13 @@ class PartitionMaintenanceJobTest {
         verify(jdbc).execute("DROP TABLE IF EXISTS aod_log.event_y2025m08");
         verify(jdbc).execute("DROP TABLE IF EXISTS aod_log.client_agent_y2026m05");
         verify(jdbc, never()).execute("DROP TABLE IF EXISTS aod_log.event_default");
+    }
+
+    @Test
+    void retentionComesFromTheServicesThatOwnTheTables() {
+        // 보관 기간이 두 군데에 적히면 한쪽만 바뀐다 — 정리 작업은 주인의 상수를 그대로 쓴다.
+        assertEquals(ChainService.TTL, PartitionMaintenanceJob.REC_CHAIN_TTL);
+        assertEquals(NotInterestedService.TTL, PartitionMaintenanceJob.NOT_INTERESTED_TTL);
     }
 
     @Test

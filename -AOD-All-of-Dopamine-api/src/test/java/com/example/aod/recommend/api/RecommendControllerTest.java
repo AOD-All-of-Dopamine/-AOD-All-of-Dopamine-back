@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -126,6 +127,27 @@ class RecommendControllerTest {
                 .andExpect(jsonPath("$.fallbackReason").value("anonymous"))
                 .andExpect(jsonPath("$.hasMore").value(false))
                 .andExpect(jsonPath("$.items[0].reason").doesNotExist());
+
+        verify(recommendService, never()).recommend(anyString(), any(), anyInt(), anyLong(), anyString(), any());
+    }
+
+    @Test
+    void userLookupFailureGivesTheFallbackNotFourOhOneOrFiveHundred() throws Exception {
+        // RecAuth 의 username→id 캐시는 테스트 컨텍스트를 함께 쓰므로 이 테스트만의 사용자를 쓴다.
+        given(jwtTokenProvider.validateToken("dbdown")).willReturn(true);
+        given(jwtTokenProvider.getUsername("dbdown")).willReturn("db-user");
+        given(userRepository.findByUsername("db-user"))
+                .willThrow(new DataAccessResourceFailureException("db down"));
+        WorkSummaryDTO work = WorkSummaryDTO.builder().id(500L).domain("GAME").title("대체작").build();
+        given(recommendService.unavailableFallback(eq("all"), eq(20), any(RecContext.class)))
+                .willReturn(new RecommendResponse("77777777-7777-7777-7777-777777777777",
+                        "88888888-8888-8888-8888-888888888888", 0, true, "service_error",
+                        List.of(new RecommendItem("99999999-9999-9999-9999-999999999999", 0, work, null)), false));
+
+        mvc.perform(get("/api/recommendations").header("Authorization", "Bearer dbdown"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fallback").value(true))
+                .andExpect(jsonPath("$.fallbackReason").value("service_error"));
 
         verify(recommendService, never()).recommend(anyString(), any(), anyInt(), anyLong(), anyString(), any());
     }

@@ -2,6 +2,7 @@ package com.example.AOD.recommend.card;
 
 import com.example.AOD.recommend.key.CorpusKey;
 import com.example.AOD.recommend.key.CorpusKeyService;
+import com.example.AOD.recommend.router.RouterText;
 import com.example.AOD.recommend.router.dto.RouterItem;
 import com.example.AOD.recommend.router.dto.RouterScore;
 import com.example.shared.entity.Content;
@@ -97,6 +98,26 @@ class CardAssemblerTest {
         assertTrue(assembly.cards().isEmpty());
         assertTrue(assembly.dropped().isEmpty());
         verify(corpusKeyService, never()).contentsByKey(anyCollection());
+    }
+
+    @Test
+    void candidatesWithUnusableKeysAreThrownAwayEntirely() {
+        String withNul = "bad\0key";
+        String tooLong = "x".repeat(RouterText.MAX_LENGTH + 1);
+        given(corpusKeyService.contentsByKey(anyCollection()))
+                .willReturn(Map.of(new CorpusKey("steam", "1"), content(11L, false)));
+
+        Assembly assembly = assembler.assemble(List.of(
+                item("steam", "1", 0),
+                item("steam", withNul, 1),
+                item("steam", tooLong, 2),
+                item("steam\tx", "2", 3),
+                item("steam", "", 4),
+                item(null, null, 5)), 20, Set.of());
+
+        assertEquals(List.of(11L), assembly.cards().stream().map(c -> c.content().getContentId()).toList());
+        // 버린 후보로도 남기지 않는다 — 남기면 그 키가 로그(jsonb·text[])와 체인 배열로 그대로 흘러간다.
+        assertTrue(assembly.dropped().isEmpty(), "쓸 수 없는 키는 파이프라인에 들이지 않는다");
     }
 
     @Test

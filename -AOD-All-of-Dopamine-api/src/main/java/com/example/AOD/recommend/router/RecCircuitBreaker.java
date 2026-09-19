@@ -47,6 +47,18 @@ public class RecCircuitBreaker {
         probeInFlight = false;
     }
 
+    /**
+     * 라우터가 답은 했지만 건강 여부를 알 수 없는 경우 — 4xx(우리 요청 모양이 틀렸다).
+     * 성공도 실패도 아니라서 연속 실패 수를 건드리지 않고, 반열림 시험권만 돌려준다.
+     * 시험 중이었다면 창을 다시 연다 — 시험은 끝났으니 다음 시험은 30초 뒤여야 한다.
+     */
+    public synchronized void recordIndeterminate() {
+        if (probeInFlight) {
+            probeInFlight = false;
+            openedAtMs = clock.millis();
+        }
+    }
+
     public synchronized void recordFailure() {
         if (probeInFlight) {                 // 반열림 시험 실패 → 다시 30초 연다
             probeInFlight = false;

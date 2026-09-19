@@ -229,10 +229,8 @@ class RecommendServiceTest {
     void buildsCardsReasonsChainAndLogs() {
         RouterItem first = item("steam", "k11", 0, "k1");
         RouterItem second = item("steam", "k12", 1, null);
-        // 첫 호출이 재호출 예산을 넘겼다 — 이 테스트는 조립·이유·체인·로그만 본다(재호출은 아래 전용 테스트에서).
         given(routerClient.recommend(any())).willReturn(
-                RouterResult.ok(routerResponse(List.of(first, second), Map.of("steam", false)),
-                        RecommendService.REFILL_DEADLINE_MS));
+                RouterResult.ok(routerResponse(List.of(first, second), Map.of("steam", false)), 300));
         given(cardAssembler.assemble(anyList(), anyInt(), any())).willReturn(new Assembly(
                 List.of(new AssembledCard(first, content(11L, "작품11", false)),
                         new AssembledCard(second, content(12L, "작품12", false))),
@@ -241,7 +239,8 @@ class RecommendServiceTest {
                 new Chain(invocation.getArgument(0), 7L, "all", invocation.getArgument(3),
                         invocation.getArgument(4), 0, java.time.OffsetDateTime.now()));
 
-        RecommendResponse response = service.recommend("all", null, 20, 7L, "tester", CTX);
+        // size 를 카드 수에 맞춰 둔다 — 정원이 차면 커버리지 재호출이 없다(재호출은 아래 전용 테스트에서).
+        RecommendResponse response = service.recommend("all", null, 2, 7L, "tester", CTX);
 
         assertFalse(response.fallback());
         assertNull(response.fallbackReason());
@@ -260,8 +259,8 @@ class RecommendServiceTest {
         ArgumentCaptor<RouterRequest> request = ArgumentCaptor.forClass(RouterRequest.class);
         verify(routerClient).recommend(request.capture());
         assertEquals("all", request.getValue().tab());
-        assertEquals(20, request.getValue().k());
-        assertEquals(30, request.getValue().buffer());
+        assertEquals(2, request.getValue().k());
+        assertEquals(48, request.getValue().buffer(), "buffer = 50 - size");
         assertEquals(List.of("k1"), request.getValue().seeds().get("steam"));
         assertEquals(List.of("k90"), request.getValue().disliked().get("steam"));
         assertEquals(List.of("k80"), request.getValue().excluded().get("steam"));
@@ -362,11 +361,13 @@ class RecommendServiceTest {
     }
 
     @Test
-    void doesNotRefillWhenFirstCallWasSlow() {
+    void doesNotRefillWhenTheRequestBudgetIsAlreadySpent() {
         RouterItem got = item("steam", "k11", 0, null);
-        given(routerClient.recommend(any())).willReturn(
-                RouterResult.ok(routerResponse(List.of(got), Map.of("steam", false)),
-                        RecommendService.REFILL_DEADLINE_MS));
+        // 재호출 판단 기준은 "요청이 시작된 뒤 흐른 시간"이다 — 첫 호출이 예산을 다 쓰면 두 번째를 부르지 않는다.
+        given(routerClient.recommend(any())).willAnswer(invocation -> {
+            Thread.sleep(RecommendService.REFILL_DEADLINE_MS + 150);
+            return RouterResult.ok(routerResponse(List.of(got), Map.of("steam", false)), 300);
+        });
         given(cardAssembler.assemble(anyList(), anyInt(), any())).willReturn(
                 new Assembly(List.of(new AssembledCard(got, content(11L, "작품11", false))),
                         List.of(new DroppedCandidate(item("steam", "k99", 1, null), null, DroppedCandidate.NOT_IN_DB))));
@@ -478,6 +479,212 @@ class RecommendServiceTest {
 
         assertEquals(1, service.recommend("all", null, 20, 7L, "tester", CTX).items().size());
         assertEquals(1, service.anonymousFallback("all", 20, CTX).items().size());
+    }
+
+    // ---------- 최종 리뷰 반영 ----------
+
+    @Test
+    void seedsBeyondThePlatformCapGoToExcludedSoTheyDoNotComeBackAsCards() {
+        List<Seed> many = new ArrayList<>();
+        for (int i = 1; i <= 60; i++) {
+            many.add(new Seed((long) i, Seed.LIKE, LocalDateTime.of(2026, 9, 18, 0, 0).minusHours(i)));
+        }
+        given(seedResolver.resolve(eq(7L), anyCollection())).willReturn(many);
+        given(seedResolver.disliked(7L)).willReturn(List.of());
+        given(notInterestedService.activeContentIds(7L)).willReturn(List.of());
+        given(routerClient.recommend(any())).willReturn(RouterResult.failed(RouterResult.TIMEOUT, 2000));
+
+        service.recommend("all", null, 20, 7L, "tester", CTX);
+
+        ArgumentCaptor<RouterRequest> request = ArgumentCaptor.forClass(RouterRequest.class);
+        verify(routerClient).recommend(request.capture());
+        List<String> sent = request.getValue().seeds().get("steam");
+        List<String> excluded = request.getValue().excluded().get("steam");
+        assertEquals(RecommendService.MAX_SEEDS_PER_PLATFORM, sent.size());
+        assertEquals(10, excluded.size(), "정원을 넘친 시드는 제외로 보낸다 — 엔진은 받은 시드만 제외한다");
+        assertTrue(excluded.contains("k51"));
+        assertFalse(sent.contains("k51"));
+
+        // 로그의 seed_ids 는 "실제로 보낸" 시드다
+        RecRequestLogRecord requestLog = (RecRequestLogRecord) offeredLogs().get(0);
+        assertEquals(RecommendService.MAX_SEEDS_PER_PLATFORM, requestLog.seedIds().size());
+        assertEquals(1L, requestLog.seedIds().get(0));
+    }
+
+    @Test
+    void fallbackAfterARouterFailureKeepsTheStateWeAlreadyRead() {
+        given(routerClient.recommend(any())).willReturn(RouterResult.failed(RouterResult.TIMEOUT, 2000));
+
+        service.recommend("all", null, 20, 7L, "tester", CTX);
+
+        RecRequestLogRecord requestLog = (RecRequestLogRecord) offeredLogs().get(0);
+        assertEquals(List.of(1L), requestLog.seedIds(), "대체라고 빈 행을 남기면 원인 분석이 안 된다");
+        assertEquals(List.of("like"), requestLog.seedSources());
+        assertEquals(List.of(90L), requestLog.dislikedIds());
+        assertEquals(List.of(80L), requestLog.excludedIds());
+        assertEquals("timeout", requestLog.fallbackReason());
+    }
+
+    @Test
+    void anyRepositoryFailureBecomesAFallbackNotAFiveHundred() {
+        RouterItem got = item("steam", "k11", 0, null);
+        given(routerClient.recommend(any())).willReturn(
+                RouterResult.ok(routerResponse(List.of(got), Map.of("steam", true)), 300));
+        given(cardAssembler.assemble(anyList(), anyInt(), any())).willReturn(
+                new Assembly(List.of(new AssembledCard(got, content(11L, "작품11", false))), List.of()));
+        given(workApiService.toEnrichedSummaries(anyList()))
+                .willThrow(new DataAccessResourceFailureException("카드 보강 실패"));
+
+        RecommendResponse response = service.recommend("all", null, 20, 7L, "tester", CTX);
+
+        assertTrue(response.fallback());
+        assertEquals("service_error", response.fallbackReason());
+        assertEquals(1, response.items().size(), "대체 목록이라도 준다");
+    }
+
+    @Test
+    void chainNotFoundStillPropagatesThroughTheSafetyNet() {
+        UUID chainId = UUID.randomUUID();
+        given(chainService.find(chainId, 7L, "all")).willReturn(Optional.empty());
+
+        assertThrows(ChainNotFoundException.class,
+                () -> service.recommend("all", chainId, 20, 7L, "tester", CTX),
+                "404 는 대체로 삼키면 안 된다 — 프론트가 chainId 를 버려야 한다");
+    }
+
+    @Test
+    void reasonTitleLookupFailureOnlyCostsTheReasonText() {
+        RouterItem got = item("steam", "k11", 0, "k1");
+        given(routerClient.recommend(any())).willReturn(
+                RouterResult.ok(routerResponse(List.of(got), Map.of("steam", true)), 300));
+        given(cardAssembler.assemble(anyList(), anyInt(), any())).willReturn(
+                new Assembly(List.of(new AssembledCard(got, content(11L, "작품11", false))), List.of()));
+        given(contentRepository.findByContentIdIn(anyList()))
+                .willThrow(new DataAccessResourceFailureException("제목 조회 실패"));
+        given(chainService.create(any(), eq(7L), eq("all"), anyList(), anyList())).willAnswer(invocation ->
+                new Chain(invocation.getArgument(0), 7L, "all", invocation.getArgument(3),
+                        invocation.getArgument(4), 0, java.time.OffsetDateTime.now()));
+
+        RecommendResponse response = service.recommend("all", null, 20, 7L, "tester", CTX);
+
+        assertFalse(response.fallback(), "이유 문구 하나 때문에 카드를 버리지 않는다");
+        assertEquals(1, response.items().size());
+        assertNull(response.items().get(0).reason());
+    }
+
+    @Test
+    void emptyFallbackStillLogsWhatWasDroppedAndRemembersItInTheChain() {
+        UUID chainId = UUID.randomUUID();
+        Chain existing = new Chain(chainId, 7L, "all", List.of(5L), List.of(), 1, java.time.OffsetDateTime.now());
+        given(chainService.find(chainId, 7L, "all")).willReturn(Optional.of(existing));
+        RouterItem missing = item("steam", "k97", 0, null);
+        RouterItem adult = item("steam", "k98", 1, null);
+        given(routerClient.recommend(any())).willReturn(
+                RouterResult.ok(routerResponse(List.of(missing, adult), Map.of("steam", false)), 300));
+        given(cardAssembler.assemble(anyList(), anyInt(), any()))
+                .willReturn(new Assembly(List.of(),
+                        List.of(new DroppedCandidate(missing, null, DroppedCandidate.NOT_IN_DB),
+                                new DroppedCandidate(adult, 98L, DroppedCandidate.ADULT))))
+                .willReturn(new Assembly(List.of(), List.of()));   // 커버리지 재호출도 빈손
+
+        RecommendResponse response = service.recommend("all", chainId, 20, 7L, "tester", CTX);
+
+        assertEquals("empty", response.fallbackReason());
+
+        List<LogRecord> logs = offeredLogs();
+        RecRequestLogRecord requestLog = (RecRequestLogRecord) logs.get(0);
+        assertEquals(1, logs.stream().filter(r -> r instanceof RecRequestLogRecord).count(),
+                "한 요청에 rec_request 행은 하나다");
+        List<RecItemServedLogRecord> itemLogs = logs.stream()
+                .filter(r -> r instanceof RecItemServedLogRecord)
+                .map(r -> (RecItemServedLogRecord) r).toList();
+        assertTrue(itemLogs.stream().allMatch(r -> r.requestId().equals(requestLog.requestId())),
+                "버린 후보도 같은 request_id 밑에 남는다");
+        assertEquals(List.of("not_in_db", "adult"),
+                itemLogs.stream().filter(r -> !r.isServed()).map(RecItemServedLogRecord::droppedReason).toList(),
+                "카드가 0장인 이유를 남겨야 커버리지를 쫓을 수 있다");
+
+        verify(chainService).append(existing, List.of(), List.of("steam:k97", "steam:k98"));
+        verify(chainService, never()).create(any(), anyLong(), anyString(), anyList(), anyList());
+    }
+
+    @Test
+    void emptyFallbackWithoutAChainNeverCreatesOne() {
+        RouterItem missing = item("steam", "k97", 0, null);
+        given(routerClient.recommend(any())).willReturn(
+                RouterResult.ok(routerResponse(List.of(missing), Map.of("steam", false)), 300));
+        given(cardAssembler.assemble(anyList(), anyInt(), any())).willReturn(new Assembly(List.of(),
+                List.of(new DroppedCandidate(missing, null, DroppedCandidate.NOT_IN_DB))));
+
+        assertEquals("empty", service.recommend("all", null, 20, 7L, "tester", CTX).fallbackReason());
+
+        verify(chainService, never()).create(any(), anyLong(), anyString(), anyList(), anyList());
+        verify(chainService, never()).append(any(), anyList(), anyList());
+    }
+
+    @Test
+    void chainSaveFailureOnAnExistingChainKeepsThatChainId() {
+        UUID chainId = UUID.randomUUID();
+        Chain existing = new Chain(chainId, 7L, "all", List.of(5L), List.of(), 2, java.time.OffsetDateTime.now());
+        given(chainService.find(chainId, 7L, "all")).willReturn(Optional.of(existing));
+        RouterItem got = item("steam", "k11", 0, null);
+        given(routerClient.recommend(any())).willReturn(
+                RouterResult.ok(routerResponse(List.of(got), Map.of("steam", false)), 300));
+        given(cardAssembler.assemble(anyList(), anyInt(), any())).willReturn(
+                new Assembly(List.of(new AssembledCard(got, content(11L, "작품11", false))), List.of()));
+        given(chainService.append(eq(existing), anyList(), anyList()))
+                .willThrow(new DataAccessResourceFailureException("db down"));
+
+        RecommendResponse response = service.recommend("all", chainId, 20, 7L, "tester", CTX);
+
+        assertEquals(chainId.toString(), response.chainId(), "쓰던 체인의 id 를 엉뚱한 UUID 로 바꾸지 않는다");
+        assertFalse(response.hasMore());
+        assertEquals(1, response.items().size());
+    }
+
+    @Test
+    void routerStringsThatCannotGoIntoSqlAreNotLogged() {
+        RouterItem got = new RouterItem("steam", "k11", 0, null, "content\0sim", false, 1.0, null,
+                "x".repeat(300));
+        given(routerClient.recommend(any())).willReturn(
+                RouterResult.ok(routerResponse(List.of(got), Map.of("steam", true)), 300));
+        given(cardAssembler.assemble(anyList(), anyInt(), any())).willReturn(
+                new Assembly(List.of(new AssembledCard(got, content(11L, "작품11", false))), List.of()));
+        given(chainService.create(any(), eq(7L), eq("all"), anyList(), anyList())).willAnswer(invocation ->
+                new Chain(invocation.getArgument(0), 7L, "all", invocation.getArgument(3),
+                        invocation.getArgument(4), 0, java.time.OffsetDateTime.now()));
+
+        service.recommend("all", null, 20, 7L, "tester", CTX);
+
+        RecItemServedLogRecord itemLog = (RecItemServedLogRecord) offeredLogs().stream()
+                .filter(r -> r instanceof RecItemServedLogRecord).findFirst().orElseThrow();
+        assertEquals(RecommendService.DEFAULT_CANDIDATE_SOURCE, itemLog.candidateSource(),
+                "NUL 문자 하나가 200행 로그 배치를 통째로 깨뜨린다");
+        assertNull(itemLog.factorSchema(), "200자를 넘는 값도 버린다");
+    }
+
+    @Test
+    void refillMergesPartialFromBothCalls() {
+        RouterItem got = item("steam", "k11", 0, null);
+        RouterItem more = item("steam", "k12", 0, null);
+        given(routerClient.recommend(any()))
+                .willReturn(RouterResult.ok(new RouterResponse(List.of(got), Map.of("steam", false), Map.of(),
+                        List.of("tmdb"), new RouterVersions("c8ec317", Map.of())), 100))
+                .willReturn(RouterResult.ok(new RouterResponse(List.of(more), Map.of("steam", false), Map.of(),
+                        List.of("webnovel"), new RouterVersions("c8ec317", Map.of())), 100));
+        given(cardAssembler.assemble(anyList(), anyInt(), any()))
+                .willReturn(new Assembly(List.of(new AssembledCard(got, content(11L, "작품11", false))),
+                        List.of(new DroppedCandidate(item("steam", "k99", 1, null), null, DroppedCandidate.NOT_IN_DB))))
+                .willReturn(new Assembly(List.of(new AssembledCard(more, content(12L, "작품12", false))), List.of()));
+        given(chainService.create(any(), eq(7L), eq("all"), anyList(), anyList())).willAnswer(invocation ->
+                new Chain(invocation.getArgument(0), 7L, "all", invocation.getArgument(3),
+                        invocation.getArgument(4), 0, java.time.OffsetDateTime.now()));
+
+        service.recommend("all", null, 3, 7L, "tester", CTX);
+
+        RecRequestLogRecord requestLog = (RecRequestLogRecord) offeredLogs().get(0);
+        assertEquals(List.of("tmdb", "webnovel"), requestLog.partial(),
+                "두 호출 중 어느 쪽에서든 못 부른 플랫폼은 전부 남긴다");
     }
 
     @Test

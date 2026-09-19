@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -63,18 +64,38 @@ public class RecRouterClient {
                 }
                 breaker.recordSuccess();
                 return RouterResult.ok(body, latencyMs);
+            } catch (HttpClientErrorException e) {
+                // 4xx = 우리가 보낸 요청 모양이 틀렸다(422: 시드·제외 한도 초과 등). 라우터는 멀쩡하다 —
+                // 서킷에 실패로 세면 우리 버그가 라우터 장애로 둔갑한다. 대신 시험권은 반드시 돌려준다.
+                breaker.recordIndeterminate();
+                log.warn("추천 라우터가 요청을 거절했다(우리 요청 문제) — status={} body={}",
+                        e.getStatusCode(), abbreviate(e.getResponseBodyAsString()));
+                return RouterResult.failed(RouterResult.SERVICE_ERROR, elapsedMs(startedAt));
             } catch (ResourceAccessException e) {
                 breaker.recordFailure();
                 boolean timedOut = hasCause(e, SocketTimeoutException.class);
                 return RouterResult.failed(timedOut ? RouterResult.TIMEOUT : RouterResult.SERVICE_ERROR,
                         elapsedMs(startedAt));
-            } catch (RestClientException e) {          // 4xx·5xx(503 engines_unavailable 포함) · 본문 형식 오류
+            } catch (RestClientException e) {          // 5xx(503 engines_unavailable 포함) · 본문 형식 오류
                 breaker.recordFailure();
+                return RouterResult.failed(RouterResult.SERVICE_ERROR, elapsedMs(startedAt));
+            } catch (RuntimeException e) {
+                // 직렬화 실패·URI 조립 실패처럼 RestClientException 이 아닌 것들. 여기서 안 잡으면
+                // 반열림 시험권이 걸린 채로 예외가 빠져나가 서킷이 영원히 열린 상태로 남는다.
+                breaker.recordFailure();
+                log.warn("추천 라우터 호출이 예상 밖 예외로 끝났다 — 대체 목록으로 간다", e);
                 return RouterResult.failed(RouterResult.SERVICE_ERROR, elapsedMs(startedAt));
             }
         } finally {
             permits.release();
         }
+    }
+
+    /** 4xx 본문은 진단에 쓰지만 통째로 남기지는 않는다. */
+    private static String abbreviate(String body) {
+        if (body == null) return "";
+        String oneLine = body.replaceAll("\\s+", " ").trim();
+        return oneLine.length() <= 300 ? oneLine : oneLine.substring(0, 300) + "…";
     }
 
     private static boolean hasCause(Throwable throwable, Class<? extends Throwable> type) {

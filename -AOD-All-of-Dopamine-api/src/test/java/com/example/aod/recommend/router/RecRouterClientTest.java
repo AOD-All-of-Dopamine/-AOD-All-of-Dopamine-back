@@ -12,6 +12,10 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.SocketTimeoutException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +31,17 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class RecRouterClientTest {
+
+    /** 반열림 시험(30초 대기)을 기다리지 않고 돌리려고 시계를 손으로 민다. */
+    private static final class MutableClock extends Clock {
+        private Instant now = Instant.parse("2026-09-19T12:00:00Z");
+
+        void advanceMillis(long millis) { now = now.plusMillis(millis); }
+
+        @Override public ZoneId getZone() { return ZoneOffset.UTC; }
+        @Override public Clock withZone(ZoneId zone) { return this; }
+        @Override public Instant instant() { return now; }
+    }
 
     private static final String URL = "http://router.test:18080/v1/recommend";
     private static final String OK_BODY = """
@@ -142,6 +157,64 @@ class RecRouterClientTest {
 
         assertEquals(RouterResult.CIRCUIT_OPEN, result.failure());
         server.verify();   // 아무 요청도 기대하지 않았고, 아무것도 가지 않았다
+    }
+
+    @Test
+    void clientErrorIsServiceErrorButNeverTripsTheCircuit() {
+        for (int i = 0; i < RecCircuitBreaker.FAILURE_THRESHOLD; i++) {
+            server.expect(requestTo(URL)).andRespond(withStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"detail\":\"seeds: too many keys\"}"));
+        }
+
+        for (int i = 0; i < RecCircuitBreaker.FAILURE_THRESHOLD; i++) {
+            assertEquals(RouterResult.SERVICE_ERROR, client.recommend(request()).failure());
+        }
+
+        assertFalse(breaker.isOpen(), "4xx 는 우리 요청 모양이 틀린 것 — 라우터를 죽었다고 보면 안 된다");
+        server.verify();
+    }
+
+    @Test
+    void unexpectedRuntimeExceptionIsServiceErrorAndReleasesTheHalfOpenProbe() {
+        MutableClock clock = new MutableClock();
+        RecCircuitBreaker clocked = new RecCircuitBreaker(clock);
+        RecRouterClient probing = new RecRouterClient(restTemplate, clocked, "http://router.test:18080", 20);
+        for (int i = 0; i < RecCircuitBreaker.FAILURE_THRESHOLD; i++) clocked.recordFailure();
+        assertTrue(clocked.isOpen());
+
+        // MockRestServiceServer 는 첫 요청 뒤에 기대를 더 걸 수 없어 두 건을 먼저 선언한다(순서대로 소비된다).
+        server.expect(requestTo(URL)).andRespond(request -> {
+            throw new IllegalStateException("요청 직렬화 폭발");
+        });
+        server.expect(requestTo(URL)).andRespond(withSuccess(OK_BODY, MediaType.APPLICATION_JSON));
+
+        // 반열림 시험 1건이 RestClientException 이 아닌 예외로 죽는다
+        clock.advanceMillis(RecCircuitBreaker.OPEN_MS);
+        assertEquals(RouterResult.SERVICE_ERROR, probing.recommend(request()).failure());
+
+        // 시험권이 새면 여기서부터 영원히 CIRCUIT_OPEN 이 된다
+        clock.advanceMillis(RecCircuitBreaker.OPEN_MS);
+        assertTrue(probing.recommend(request()).ok(), "30초 뒤에는 다시 시험할 수 있어야 한다");
+        server.verify();
+    }
+
+    @Test
+    void clientErrorDuringTheProbeGivesTheTestTicketBack() {
+        MutableClock clock = new MutableClock();
+        RecCircuitBreaker clocked = new RecCircuitBreaker(clock);
+        RecRouterClient probing = new RecRouterClient(restTemplate, clocked, "http://router.test:18080", 20);
+        for (int i = 0; i < RecCircuitBreaker.FAILURE_THRESHOLD; i++) clocked.recordFailure();
+
+        server.expect(requestTo(URL)).andRespond(withStatus(HttpStatus.UNPROCESSABLE_ENTITY).body("{}"));
+        server.expect(requestTo(URL)).andRespond(withSuccess(OK_BODY, MediaType.APPLICATION_JSON));
+
+        clock.advanceMillis(RecCircuitBreaker.OPEN_MS);
+        assertEquals(RouterResult.SERVICE_ERROR, probing.recommend(request()).failure());
+
+        clock.advanceMillis(RecCircuitBreaker.OPEN_MS);
+        assertTrue(probing.recommend(request()).ok(), "판정 없이 끝난 시험도 시험권을 돌려준다");
+        server.verify();
     }
 
     @Test

@@ -20,20 +20,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * Steam 0.51% · 웹소설 0.21% · 웹툰 2.7%) 후보 50개를 받아도 카드가 0~1장이다. 엔진이 후보를
  * 이 목록으로 좁히면 버퍼가 낭비되지 않는다.
  *
- * 엔진 컨테이너 4개가 10분마다 받아 가므로 호출당 쿼리 하나로 끝내고 60초만 캐시한다.
+ * 엔진 컨테이너 4개가 10분마다 받아 가므로 호출당 쿼리 하나로 끝내고 캐시한다.
  * CacheConfig 의 ConcurrentMapCacheManager 는 만료가 없어 여기에 쓸 수 없고,
  * 만료 캐시를 위해 새 의존성(Caffeine 등)을 들이지 않는다 — 항목이 4개뿐이라 맵 하나면 충분하다.
  */
 @Service
 public class CatalogKeyService {
 
-    static final Duration TTL = Duration.ofSeconds(60);
+    /**
+     * 폴링 간격(10분)보다 짧으면서도 의미 있게 긴 값.
+     * 60초로 두면 엔진 4개가 10분마다 올 때 캐시가 한 번도 맞지 않아 매번 전수 스캔이 된다.
+     */
+    static final Duration TTL = Duration.ofMinutes(5);
 
     private record Cached(String body, long expiresAtMs) { }
 
     private final PlatformDataRepository platformDataRepository;
     private final Clock clock;
     private final ConcurrentHashMap<String, Cached> cache = new ConcurrentHashMap<>();
+    /** 플랫폼별 잠금 — 만료 직후 엔진 4개가 동시에 들어와도 전수 스캔은 한 번만 돈다. 항목은 최대 4개. */
+    private final ConcurrentHashMap<String, Object> buildLocks = new ConcurrentHashMap<>();
 
     @Autowired
     public CatalogKeyService(PlatformDataRepository platformDataRepository) {
@@ -53,13 +59,19 @@ public class CatalogKeyService {
         List<String> platformNames = CorpusKeyMapper.platformNamesOf(routerPlatform);
         if (platformNames.isEmpty()) throw new IllegalArgumentException("unknown platform: " + routerPlatform);
 
-        long now = clock.millis();
         Cached cached = cache.get(routerPlatform);
-        if (cached != null && cached.expiresAtMs() > now) return cached.body();
+        if (cached != null && cached.expiresAtMs() > clock.millis()) return cached.body();
 
-        String body = build(routerPlatform, platformNames);
-        cache.put(routerPlatform, new Cached(body, now + TTL.toMillis()));
-        return body;
+        Object lock = buildLocks.computeIfAbsent(routerPlatform, platform -> new Object());
+        synchronized (lock) {
+            // 잠금을 기다리는 동안 다른 스레드가 채웠으면 그것을 쓴다.
+            Cached filled = cache.get(routerPlatform);
+            if (filled != null && filled.expiresAtMs() > clock.millis()) return filled.body();
+
+            String body = build(routerPlatform, platformNames);
+            cache.put(routerPlatform, new Cached(body, clock.millis() + TTL.toMillis()));
+            return body;
+        }
     }
 
     private String build(String routerPlatform, List<String> platformNames) {

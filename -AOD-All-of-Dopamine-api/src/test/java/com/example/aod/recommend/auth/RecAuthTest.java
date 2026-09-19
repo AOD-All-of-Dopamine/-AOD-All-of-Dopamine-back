@@ -4,11 +4,13 @@ import com.example.AOD.security.JwtTokenProvider;
 import com.example.AOD.user.model.User;
 import com.example.AOD.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataAccessResourceFailureException;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -75,5 +77,16 @@ class RecAuthTest {
     void userIdOrNullKeepsBeaconBehaviour() {
         givenValidToken();
         assertEquals(7L, recAuth.userIdOrNull("Bearer good"));
+    }
+
+    @Test
+    void databaseFailurePropagatesInsteadOfLookingLikeABadToken() {
+        given(jwt.validateToken("good")).willReturn(true);
+        given(jwt.getUsername("good")).willReturn("tester");
+        given(users.findByUsername("tester")).willThrow(new DataAccessResourceFailureException("db down"));
+
+        // 401 은 "다시 로그인하라"는 뜻이다 — DB 가 잠깐 죽은 것을 그렇게 말하면 안 된다.
+        assertThrows(DataAccessResourceFailureException.class, () -> recAuth.authenticate("Bearer good"));
+        assertNull(recAuth.userIdOrNull("Bearer good"), "비콘은 사용자 미상으로라도 받는다");
     }
 }

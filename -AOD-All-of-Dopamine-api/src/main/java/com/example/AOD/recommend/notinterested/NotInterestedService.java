@@ -26,14 +26,21 @@ import java.util.List;
 public class NotInterestedService {
 
     public static final Duration TTL = Duration.ofDays(90);
+    /** 라우터에 보낼 제외 목록의 현실적 상한. 이보다 많이 눌렀으면 최근 것부터 쓴다. */
+    public static final int MAX_ACTIVE = 3_000;
 
     static final String UPSERT_SQL =
             "INSERT INTO aod_rec.not_interested (user_id, content_id, created_at) VALUES (?, ?, ?) "
           + "ON CONFLICT (user_id, content_id) DO NOTHING";
     static final String DELETE_SQL =
             "DELETE FROM aod_rec.not_interested WHERE user_id = ? AND content_id = ?";
+    /**
+     * 최신순 + 상한. 라우터는 플랫폼별 제외 개수에 상한이 있어 넘치면 잘라야 하는데,
+     * 순서가 없으면 무엇을 버릴지 정할 수 없고 요청마다 목록이 달라진다.
+     */
     static final String ACTIVE_SQL =
-            "SELECT content_id FROM aod_rec.not_interested WHERE user_id = ? AND created_at >= ?";
+            "SELECT content_id FROM aod_rec.not_interested WHERE user_id = ? AND created_at >= ? "
+          + "ORDER BY created_at DESC LIMIT " + MAX_ACTIVE;
 
     private final JdbcTemplate jdbc;
     private final ContentRepository contentRepository;

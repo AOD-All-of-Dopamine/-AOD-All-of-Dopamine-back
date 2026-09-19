@@ -282,6 +282,48 @@ class RecommendIntegrationTest {
         assertEquals(advanced.pageDepth(), reread.pageDepth());
     }
 
+    /**
+     * "더 보기"를 연타하면 두 요청이 **같은 스냅숏**을 읽고 각자 갱신한다.
+     * 자바에서 합쳐 통째로 덮어쓰면 나중 것이 이긴 seen 20개가 사라지고 page_depth 도 같은 값에 머문다.
+     */
+    @Test
+    void concurrentAppendsFromTheSameSnapshotDoNotLoseAnything() {
+        Long userId = newUserId();
+        UUID chainId = UUID.randomUUID();
+        chainService.create(chainId, userId, "all", List.of(1L), List.of("steam:a"));
+        Chain stale = chainService.find(chainId, userId, "all").orElseThrow();
+
+        Chain first = chainService.append(stale, List.of(2L, 3L), List.of("steam:b"));
+        Chain second = chainService.append(stale, List.of(4L, 5L), List.of("steam:c"));   // 같은 낡은 스냅숏
+
+        assertEquals(1, first.pageDepth());
+        assertEquals(2, second.pageDepth(), "page_depth 는 DB 안에서 올라간다");
+        assertEquals(List.of(1L, 2L, 3L, 4L, 5L), second.seenIds(), "RETURNING 이 합쳐진 실제 상태를 준다");
+
+        Chain reread = chainService.find(chainId, userId, "all").orElseThrow();
+        assertEquals(List.of(1L, 2L, 3L, 4L, 5L), reread.seenIds(), "낡은 스냅숏이 앞 요청분을 지우지 않는다");
+        assertEquals(List.of("steam:a", "steam:b", "steam:c"), reread.skippedKeys());
+    }
+
+    @Test
+    void appendKeepsOnlyTheNewestSeenIdsInsidePostgres() {
+        Long userId = newUserId();
+        UUID chainId = UUID.randomUUID();
+        List<Long> full = new java.util.ArrayList<>();
+        for (int i = 0; i < ChainService.SEEN_MAX; i++) full.add((long) i);
+        chainService.create(chainId, userId, "all", full, List.of());
+
+        Chain appended = chainService.append(reloadChain(chainId, userId), List.of(9001L, 9002L), List.of());
+
+        assertEquals(ChainService.SEEN_MAX, appended.seenIds().size(), "정원은 SQL 이 지킨다");
+        assertEquals(2L, appended.seenIds().get(0), "가장 오래된 것부터 버린다");
+        assertTrue(appended.seenIds().containsAll(List.of(9001L, 9002L)));
+    }
+
+    private Chain reloadChain(UUID chainId, Long userId) {
+        return chainService.find(chainId, userId, "all").orElseThrow();
+    }
+
     @Test
     void chainIsInvisibleToOtherOwnersOtherTabsAndAfterOneDay() {
         Long userId = newUserId();

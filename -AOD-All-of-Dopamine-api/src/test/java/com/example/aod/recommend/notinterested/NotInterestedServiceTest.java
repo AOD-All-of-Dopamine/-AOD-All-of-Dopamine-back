@@ -76,4 +76,11 @@ class NotInterestedServiceTest {
         assertEquals(List.of(1L, 2L), service.activeContentIds(7L));
         verify(jdbc).queryForList(NotInterestedService.ACTIVE_SQL, Long.class, 7L, NOW_ODT.minusDays(90));
     }
+
+    @Test
+    void activeIdsComeBackNewestFirstWithAHardLimit() {
+        // 라우터 excluded 상한을 넘기면 잘라야 하는데, 순서가 없으면 무엇을 버릴지 정할 수 없다.
+        assertTrue(NotInterestedService.ACTIVE_SQL.contains("ORDER BY created_at DESC"));
+        assertTrue(NotInterestedService.ACTIVE_SQL.contains("LIMIT " + NotInterestedService.MAX_ACTIVE));
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.AOD.recommend.chain;
 
 import com.example.AOD.recommend.log.SqlArrays;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -27,6 +28,7 @@ import java.util.UUID;
  *
  * 배열은 CAST(? AS bigint[]) + 리터럴 문자열로 넘긴다(SqlArrays).
  */
+@Slf4j
 @Service
 public class ChainService {
 
@@ -34,6 +36,10 @@ public class ChainService {
     public static final int SEEN_MAX = 500;
     /** 버린 후보 키 상한 (설계 §4). */
     public static final int SKIPPED_MAX = 2_000;
+    /**
+     * 체인 수명. **마지막 활동 기준으로 미끄러진다** — updated_at 이 갱신되므로 계속 "더 보기"를 누르는 동안은
+     * 만료되지 않고, 24시간 동안 손대지 않은 체인만 사라진다(조회에서 제외 + 일일 정리에서 삭제).
+     */
     public static final Duration TTL = Duration.ofHours(24);
 
     static final String FIND_SQL =
@@ -42,9 +48,27 @@ public class ChainService {
     static final String INSERT_SQL =
             "INSERT INTO aod_rec.rec_chain (chain_id, user_id, tab, seen_ids, skipped_keys, page_depth, updated_at) "
           + "VALUES (?, ?, ?, CAST(? AS bigint[]), CAST(? AS text[]), ?, ?)";
+    /**
+     * 이번 응답분만 넘기고 합치기·중복 제거·정원·page_depth 는 **DB 안에서** 끝낸다.
+     * 요청 시작 때 읽은 스냅숏으로 통째로 덮어쓰면 "더 보기" 연타에서 앞 요청이 남긴 seen 이 사라진다
+     * (lost update). RETURNING 으로 합쳐진 실제 상태를 받아 응답의 pageDepth·hasMore 에 쓴다.
+     *
+     * 안쪽 SELECT: (기존 || 새것)을 순서 번호와 함께 풀어 값별 첫 등장 번호(min)로 묶고 —
+     * 중복은 처음 본 자리를 지킨다 — 번호가 큰(=최근) 것부터 정원만큼 남긴 뒤 다시 순서대로 모은다.
+     */
     static final String UPDATE_SQL =
-            "UPDATE aod_rec.rec_chain SET seen_ids = CAST(? AS bigint[]), skipped_keys = CAST(? AS text[]), "
-          + "page_depth = ?, updated_at = ? WHERE chain_id = ?";
+            "UPDATE aod_rec.rec_chain SET "
+          + "seen_ids = (SELECT COALESCE(array_agg(v ORDER BY first_ord), '{}'::bigint[]) FROM ("
+          + "  SELECT v, min(ord) AS first_ord"
+          + "  FROM unnest(seen_ids || CAST(? AS bigint[])) WITH ORDINALITY AS u(v, ord)"
+          + "  GROUP BY v ORDER BY first_ord DESC LIMIT " + SEEN_MAX + ") kept), "
+          + "skipped_keys = (SELECT COALESCE(array_agg(v ORDER BY first_ord), '{}'::text[]) FROM ("
+          + "  SELECT v, min(ord) AS first_ord"
+          + "  FROM unnest(skipped_keys || CAST(? AS text[])) WITH ORDINALITY AS u(v, ord)"
+          + "  GROUP BY v ORDER BY first_ord DESC LIMIT " + SKIPPED_MAX + ") kept), "
+          + "page_depth = page_depth + 1, updated_at = ? "
+          + "WHERE chain_id = ? "
+          + "RETURNING chain_id, user_id, tab, seen_ids, skipped_keys, page_depth, updated_at";
     static final String PURGE_SQL = "DELETE FROM aod_rec.rec_chain WHERE updated_at < ?";
 
     static final RowMapper<Chain> ROW_MAPPER = (rs, rowNum) -> new Chain(
@@ -93,25 +117,25 @@ public class ChainService {
         return new Chain(chainId, userId, tab, seen, skipped, 0, now);
     }
 
-    /** 기존 체인에 이번 응답분을 덧붙이고 page_depth 를 1 올린다. */
+    /**
+     * 기존 체인에 이번 응답분을 덧붙이고 page_depth 를 1 올린다(합치기는 DB 안에서 — UPDATE_SQL 참고).
+     * @return 갱신된 실제 행. 그사이 정리 작업이 체인을 지웠으면 null — 호출자는 이어 보기를 끈다.
+     */
     public Chain append(Chain chain, List<Long> newSeenIds, List<String> newSkippedKeys) {
-        List<Long> seen = capNewest(distinct(concat(chain.seenIds(), newSeenIds)), SEEN_MAX);
-        List<String> skipped = capNewest(distinct(concat(chain.skippedKeys(), newSkippedKeys)), SKIPPED_MAX);
-        int pageDepth = chain.pageDepth() + 1;
         OffsetDateTime now = OffsetDateTime.now(clock);
-        jdbc.update(UPDATE_SQL, SqlArrays.bigints(seen), SqlArrays.texts(skipped), pageDepth, now, chain.chainId());
-        return new Chain(chain.chainId(), chain.userId(), chain.tab(), seen, skipped, pageDepth, now);
+        List<Chain> updated = jdbc.query(UPDATE_SQL, ROW_MAPPER,
+                SqlArrays.bigints(distinct(newSeenIds)), SqlArrays.texts(distinct(newSkippedKeys)),
+                now, chain.chainId());
+        if (updated.isEmpty()) {
+            log.warn("갱신할 체인이 없다 — 만료 정리와 겹쳤다 (chainId={})", chain.chainId());
+            return null;
+        }
+        return updated.get(0);
     }
 
     /** 24시간 지난 체인 삭제. PartitionMaintenanceJob 이 하루 한 번 부른다. */
     public int purgeExpired() {
         return jdbc.update(PURGE_SQL, OffsetDateTime.now(clock).minus(TTL));
-    }
-
-    private static <T> List<T> concat(List<T> a, List<T> b) {
-        List<T> out = new ArrayList<>(a == null ? List.of() : a);
-        if (b != null) out.addAll(b);
-        return out;
     }
 
     private static <T> List<T> distinct(List<T> values) {

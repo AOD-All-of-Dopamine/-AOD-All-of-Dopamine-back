@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -71,17 +72,34 @@ class ChainServiceTest {
     }
 
     @Test
-    void appendMergesCapsAndBumpsPageDepth() {
+    void appendSendsOnlyTheNewValuesAndUsesWhatPostgresReturns() {
         Chain existing = new Chain(chainId, 7L, "all", List.of(1L, 2L), List.of("steam:9"), 3, NOW_ODT.minusMinutes(5));
+        Chain merged = new Chain(chainId, 7L, "all", List.of(1L, 2L, 5L),
+                List.of("steam:9", "tmdb:movie_1"), 4, NOW_ODT);
+        given(jdbc.query(eq(ChainService.UPDATE_SQL), org.mockito.ArgumentMatchers.<RowMapper<Chain>>any(),
+                eq("{2,5}"), eq("{\"tmdb:movie_1\"}"), eq(NOW_ODT), eq(chainId)))
+                .willReturn(List.of(merged));
 
         Chain updated = service.append(existing, List.of(2L, 5L), List.of("tmdb:movie_1"));
 
-        assertEquals(List.of(1L, 2L, 5L), updated.seenIds());
-        assertEquals(List.of("steam:9", "tmdb:movie_1"), updated.skippedKeys());
-        assertEquals(4, updated.pageDepth());
-        verify(jdbc).update(ChainService.UPDATE_SQL, "{1,2,5}", "{\"steam:9\",\"tmdb:movie_1\"}", 4, NOW_ODT, chainId);
+        assertEquals(merged, updated, "응답·hasMore 는 DB 가 돌려준 실제 상태를 쓴다");
+        // 읽은 시점의 스냅숏을 덮어쓰지 않는다 — 합치기·정원·page_depth 는 전부 DB 안에서 일어난다
+        assertTrue(ChainService.UPDATE_SQL.contains("page_depth = page_depth + 1"));
+        assertTrue(ChainService.UPDATE_SQL.contains("RETURNING"));
+        assertTrue(ChainService.UPDATE_SQL.contains("LIMIT " + ChainService.SEEN_MAX));
+        assertTrue(ChainService.UPDATE_SQL.contains("LIMIT " + ChainService.SKIPPED_MAX));
     }
 
+    @Test
+    void appendOnAChainThatVanishedReturnsNull() {
+        given(jdbc.query(eq(ChainService.UPDATE_SQL), org.mockito.ArgumentMatchers.<RowMapper<Chain>>any(),
+                any(), any(), any(), any())).willReturn(List.of());
+
+        assertNull(service.append(chain(7L, "all", NOW_ODT), List.of(1L), List.of("steam:1")),
+                "정리 작업이 방금 지운 체인 — 호출자가 이어 보기를 끈다");
+    }
+
+    /** create 는 자바에서 자른다(행이 아직 없다). append 의 정원은 SQL 이 맡고 통합 테스트가 확인한다. */
     @Test
     void seenAndSkippedAreCappedKeepingTheNewest() {
         List<Long> seen = new ArrayList<>();

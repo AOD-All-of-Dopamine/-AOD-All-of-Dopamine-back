@@ -1,5 +1,7 @@
 package com.example.AOD.recommend.log;
 
+import com.example.AOD.recommend.chain.ChainService;
+import com.example.AOD.recommend.notinterested.NotInterestedService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -9,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -33,8 +36,9 @@ public class PartitionMaintenanceJob {
     static final int MONTHS_AHEAD = 2;
     static final int EVENT_SEEN_DAYS = 7;
     static final int REJECTED_EVENT_DAYS = 30;
-    static final int REC_CHAIN_HOURS = 24;
-    static final int NOT_INTERESTED_DAYS = 90;
+    /** 보관 기간은 그 테이블을 소유한 서비스가 정한다 — 여기에 숫자를 또 적으면 한쪽만 바뀐다. */
+    static final Duration REC_CHAIN_TTL = ChainService.TTL;
+    static final Duration NOT_INTERESTED_TTL = NotInterestedService.TTL;
 
     private static final String CHILDREN_SQL =
             "SELECT c.relname FROM pg_inherits i "
@@ -138,11 +142,12 @@ public class PartitionMaintenanceJob {
     /**
      * 서빙 상태(aod_rec) 정리 — 24시간 지난 체인 · 90일 지난 관심 없음 (REC_TAB_DESIGN §5-3).
      * 같은 데이터베이스라 로그 풀로 지울 수 있다. DELETE 두 문장뿐이라 로그 풀(연결 2개)에 부담이 없고,
-     * ChainService·NotInterestedService(주 풀)를 주입하면 로그 컴포넌트가 서빙 쪽에 묶이므로 SQL 을 직접 쓴다.
+     * ChainService·NotInterestedService(주 풀)를 주입하면 로그 컴포넌트가 서빙 쪽에 묶이므로 SQL 은 직접 쓴다.
+     * 다만 **보관 기간은 그 서비스의 상수를 그대로 참조한다** — 숫자를 여기 또 적으면 한쪽만 바뀐다.
      */
     public void purgeRecTables() {
         OffsetDateTime now = OffsetDateTime.now(clock);
-        jdbc.update("DELETE FROM aod_rec.rec_chain WHERE updated_at < ?", now.minusHours(REC_CHAIN_HOURS));
-        jdbc.update("DELETE FROM aod_rec.not_interested WHERE created_at < ?", now.minusDays(NOT_INTERESTED_DAYS));
+        jdbc.update("DELETE FROM aod_rec.rec_chain WHERE updated_at < ?", now.minus(REC_CHAIN_TTL));
+        jdbc.update("DELETE FROM aod_rec.not_interested WHERE created_at < ?", now.minus(NOT_INTERESTED_TTL));
     }
 }

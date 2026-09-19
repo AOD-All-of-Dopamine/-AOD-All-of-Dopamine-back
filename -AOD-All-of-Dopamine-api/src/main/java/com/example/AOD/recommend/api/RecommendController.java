@@ -57,7 +57,14 @@ public class RecommendController {
         }
 
         RecContext ctx = RecContextHolder.current();
-        RecAuth.Result auth = recAuth.authenticate(authHeader);
+        RecAuth.Result auth;
+        try {
+            auth = recAuth.authenticate(authHeader);
+        } catch (RuntimeException e) {
+            // 토큰이 아니라 사용자 조회(DB)가 터진 경우 — 401 도 500 도 아니고 대체 목록이 맞다.
+            log.error("추천 인증 판정 실패 — 대체 목록으로 답한다", e);
+            return ResponseEntity.ok(recommendService.unavailableFallback(normalizedTab, size, ctx));
+        }
         if (auth.status() == RecAuth.Status.INVALID) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "인증이 만료되었거나 올바르지 않습니다."));
