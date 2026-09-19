@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -45,6 +46,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     
     // 특정 작품의 리뷰 개수
     long countByContent(Content content);
+
+    /**
+     * 추천 시드용 경량 조회 (User 엔티티를 불러오지 않는다).
+     * 평점 ≥ 4.0 은 시드, ≤ 2.0 은 제외 대상이라 걸러내지 않고 전부 준다 — 판단은 SeedResolver 가 한다.
+     * 정렬 기준은 updated_at (평점을 고치면 그때가 최근 상호작용이다).
+     */
+    @Query("SELECT new com.example.AOD.repo.UserReviewRow(r.content.contentId, r.rating, r.updatedAt) FROM Review r "
+         + "WHERE r.user.id = :userId ORDER BY r.updatedAt DESC, r.content.contentId ASC")
+    List<UserReviewRow> findReviewRowsByUserId(@Param("userId") Long userId, Pageable pageable);
 }
 
 
