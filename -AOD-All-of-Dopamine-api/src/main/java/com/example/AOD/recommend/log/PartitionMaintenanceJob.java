@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * aod_log 월 파티션 유지 (REC_TAB_DESIGN §5-3·§5-9).
- * 매일: 이번 달 + 다음 2개월 파티션 보장 · 보관 기간 지난 파티션 DROP · 보조 테이블 행 정리.
+ * 매일: 이번 달 + 다음 2개월 파티션 보장 · 보관 기간 지난 파티션 DROP · 보조 테이블 행 정리 · aod_rec 서빙 상태 정리.
  * 파티션 생성이 부모 테이블에 잠깐 ACCESS EXCLUSIVE 잠금을 걸기 때문에 한국 새벽(KST) 스케줄로 돈다.
  */
 @Slf4j
@@ -33,6 +33,8 @@ public class PartitionMaintenanceJob {
     static final int MONTHS_AHEAD = 2;
     static final int EVENT_SEEN_DAYS = 7;
     static final int REJECTED_EVENT_DAYS = 30;
+    static final int REC_CHAIN_HOURS = 24;
+    static final int NOT_INTERESTED_DAYS = 90;
 
     private static final String CHILDREN_SQL =
             "SELECT c.relname FROM pg_inherits i "
@@ -78,6 +80,7 @@ public class PartitionMaintenanceJob {
             List<String> created = ensureFuturePartitions();
             List<String> dropped = dropExpiredPartitions();
             purgeAuxTables();
+            purgeRecTables();
             log.info("aod_log 파티션 유지 완료 — 보장 {}개 · DROP {}개 {}", created.size(), dropped.size(), dropped);
         } catch (Exception e) {
             log.error("aod_log 파티션 유지 작업 실패", e);
@@ -130,5 +133,16 @@ public class PartitionMaintenanceJob {
         OffsetDateTime now = OffsetDateTime.now(clock);
         jdbc.update("DELETE FROM aod_log.event_seen WHERE server_ts < ?", now.minusDays(EVENT_SEEN_DAYS));
         jdbc.update("DELETE FROM aod_log.rejected_event WHERE server_ts < ?", now.minusDays(REJECTED_EVENT_DAYS));
+    }
+
+    /**
+     * 서빙 상태(aod_rec) 정리 — 24시간 지난 체인 · 90일 지난 관심 없음 (REC_TAB_DESIGN §5-3).
+     * 같은 데이터베이스라 로그 풀로 지울 수 있다. DELETE 두 문장뿐이라 로그 풀(연결 2개)에 부담이 없고,
+     * ChainService·NotInterestedService(주 풀)를 주입하면 로그 컴포넌트가 서빙 쪽에 묶이므로 SQL 을 직접 쓴다.
+     */
+    public void purgeRecTables() {
+        OffsetDateTime now = OffsetDateTime.now(clock);
+        jdbc.update("DELETE FROM aod_rec.rec_chain WHERE updated_at < ?", now.minusHours(REC_CHAIN_HOURS));
+        jdbc.update("DELETE FROM aod_rec.not_interested WHERE created_at < ?", now.minusDays(NOT_INTERESTED_DAYS));
     }
 }
