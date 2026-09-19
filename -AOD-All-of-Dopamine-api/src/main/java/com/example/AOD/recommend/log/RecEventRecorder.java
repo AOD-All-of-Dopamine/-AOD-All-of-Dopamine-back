@@ -66,6 +66,14 @@ public class RecEventRecorder {
         serverEvent("bookmark_changed", userId, contentId, payload, ctx);
     }
 
+    /** 관심 없음 켜기·끄기 (REC_TAB_DESIGN §2-4). 상태가 실제로 바뀔 때만 부른다. */
+    public void notInterestedChanged(Long userId, Long contentId, boolean on, RecContext ctx) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("state", on ? "on" : "off");
+        payload.put("source", ctx.source());
+        serverEvent("not_interested_changed", userId, contentId, payload, ctx);
+    }
+
     public void reviewSaved(Long userId, Long contentId, Double rating, boolean isNew, RecContext ctx) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("rating", rating);
