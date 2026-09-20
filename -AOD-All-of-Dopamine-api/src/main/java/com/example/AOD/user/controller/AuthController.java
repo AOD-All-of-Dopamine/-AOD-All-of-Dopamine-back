@@ -53,9 +53,15 @@ public class AuthController {
 
             userRepository.save(user);
 
+            // needsOnboarding: 프론트가 가입 직후 온보딩("좋아하는 작품 고르기")으로 보낼지 판단하는 값
+            // (REC_TAB_DESIGN §6-3). 방금 만든 사용자는 좋아요·북마크·리뷰가 있을 수 없으므로
+            // 시드는 반드시 0이다 — SeedResolver 를 부르면 빈 결과를 얻으려고 리포지토리 3개를
+            // 조회하고 user → recommend 패키지 의존까지 생긴다. 그래서 상수 true 로 둔다.
+            // 기존 사용자의 시드 유무는 GET /api/recommendations 의 fallbackReason=no_seed 가 알려 준다.
             return ResponseEntity.ok(Map.of(
                     "message", "회원가입이 완료되었습니다.",
-                    "username", user.getUsername()
+                    "username", user.getUsername(),
+                    "needsOnboarding", true
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "회원가입 중 오류가 발생했습니다: " + e.getMessage()));
