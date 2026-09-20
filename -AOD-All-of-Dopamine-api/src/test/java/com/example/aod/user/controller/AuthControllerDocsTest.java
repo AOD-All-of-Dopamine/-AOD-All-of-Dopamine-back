@@ -79,7 +79,9 @@ public class AuthControllerDocsTest extends RestDocsTestSupport {
                         ),
                         responseFields(
                                 fieldWithPath("message").description("결과 메시지"),
-                                fieldWithPath("username").description("가입된 아이디")
+                                fieldWithPath("username").description("가입된 아이디"),
+                                fieldWithPath("needsOnboarding")
+                                        .description("온보딩(좋아하는 작품 고르기) 필요 여부. 신규 가입자는 시드가 0이라 항상 true")
                         )
                 ));
     }
