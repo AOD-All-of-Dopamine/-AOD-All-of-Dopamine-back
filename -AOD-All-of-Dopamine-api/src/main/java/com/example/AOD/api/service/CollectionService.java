@@ -87,6 +87,7 @@ public class CollectionService {
         Map<Long, Long> itemCounts = toCountMap(collectionItemRepository.countByCollectionIds(ids));
         Set<Long> containing = new HashSet<>(
                 collectionItemRepository.findCollectionIdsContainingContent(ids, contentId));
+        Map<Long, List<CollectionSpineDTO>> spines = toSpineMap(collectionItemRepository.findSpines(ids));
 
         return collections.stream()
                 .map(c -> MyCollectionSummaryDTO.builder()
@@ -97,6 +98,7 @@ public class CollectionService {
                         .visibility(c.getVisibility().name())
                         .itemCount(itemCounts.getOrDefault(c.getId(), 0L))
                         .containsContent(containing.contains(c.getId()))
+                        .spines(spines.getOrDefault(c.getId(), List.of()))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -197,10 +199,10 @@ public class CollectionService {
 
         Collection saved = collectionRepository.save(collection);
         long itemCount = collectionItemRepository.countByCollectionId(collectionId);
-        List<String> covers = coverPostersOf(collectionId);
+        List<CollectionSpineDTO> spines = spinesOf(collectionId);
         boolean likedByMe = collectionLikeRepository.existsByCollectionIdAndUserId(
                 collectionId, collection.getUser().getId());
-        return toSummary(saved, itemCount, covers, likedByMe);
+        return toSummary(saved, itemCount, spines, likedByMe);
     }
 
     @Transactional
@@ -361,14 +363,14 @@ public class CollectionService {
         } else {
             List<Long> ids = collections.stream().map(Collection::getId).collect(Collectors.toList());
             Map<Long, Long> itemCounts = toCountMap(collectionItemRepository.countByCollectionIds(ids));
-            Map<Long, List<String>> covers = toCoverMap(collectionItemRepository.findCoverPosters(ids));
+            Map<Long, List<CollectionSpineDTO>> spines = toSpineMap(collectionItemRepository.findSpines(ids));
             Set<Long> liked = viewer == null ? Set.of()
                     : new HashSet<>(collectionLikeRepository.findLikedCollectionIds(viewer.getId(), ids));
 
             dtos = collections.stream()
                     .map(c -> toSummary(c,
                             itemCounts.getOrDefault(c.getId(), 0L),
-                            covers.getOrDefault(c.getId(), List.of()),
+                            spines.getOrDefault(c.getId(), List.of()),
                             liked.contains(c.getId())))
                     .collect(Collectors.toList());
         }
@@ -385,7 +387,7 @@ public class CollectionService {
     }
 
     private CollectionSummaryDTO toSummary(Collection c, long itemCount,
-                                           List<String> coverPosters, boolean likedByMe) {
+                                           List<CollectionSpineDTO> spines, boolean likedByMe) {
         return CollectionSummaryDTO.builder()
                 .id(c.getId())
                 .title(c.getTitle())
@@ -397,15 +399,25 @@ public class CollectionService {
                 .viewCount(c.getViewCount())
                 .itemCount(itemCount)
                 .curatorNickname(c.getUser().getUsername())
-                .coverPosters(coverPosters)
+                .coverPosters(coverPostersOf(spines))
+                .spines(spines)
                 .likedByMe(likedByMe)
                 .createdAt(c.getCreatedAt())
                 .build();
     }
 
-    private List<String> coverPostersOf(Long collectionId) {
-        return toCoverMap(collectionItemRepository.findCoverPosters(List.of(collectionId)))
+    private List<CollectionSpineDTO> spinesOf(Long collectionId) {
+        return toSpineMap(collectionItemRepository.findSpines(List.of(collectionId)))
                 .getOrDefault(collectionId, List.of());
+    }
+
+    /** 커버 콜라주 = 책등 중 포스터가 있는 앞 3개 (별도 조회 없이 파생) */
+    private static List<String> coverPostersOf(List<CollectionSpineDTO> spines) {
+        return spines.stream()
+                .map(CollectionSpineDTO::getPosterUrl)
+                .filter(url -> url != null && !url.isBlank())
+                .limit(3)
+                .collect(Collectors.toList());
     }
 
     private static Map<Long, Long> toCountMap(List<Object[]> rows) {
@@ -416,14 +428,17 @@ public class CollectionService {
         return map;
     }
 
-    private static Map<Long, List<String>> toCoverMap(List<Object[]> rows) {
-        Map<Long, List<String>> map = new LinkedHashMap<>();
+    /** findSpines 행([collectionId, contentId, masterTitle, posterUrl]) → 컬렉션별 책등 목록 (조회 순서 유지) */
+    private static Map<Long, List<CollectionSpineDTO>> toSpineMap(List<Object[]> rows) {
+        Map<Long, List<CollectionSpineDTO>> map = new LinkedHashMap<>();
         for (Object[] row : rows) {
             Long collectionId = ((Number) row[0]).longValue();
-            String posterUrl = (String) row[1];
-            if (posterUrl != null && !posterUrl.isBlank()) {
-                map.computeIfAbsent(collectionId, k -> new ArrayList<>(3)).add(posterUrl);
-            }
+            String posterUrl = (String) row[3];
+            map.computeIfAbsent(collectionId, k -> new ArrayList<>(20)).add(CollectionSpineDTO.builder()
+                    .contentId(((Number) row[1]).longValue())
+                    .title((String) row[2])
+                    .posterUrl(posterUrl == null || posterUrl.isBlank() ? null : posterUrl)
+                    .build());
         }
         return map;
     }
