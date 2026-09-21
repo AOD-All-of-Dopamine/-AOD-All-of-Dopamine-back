@@ -7,4 +7,10 @@ allprojects {
 	repositories {
 		mavenCentral()
 	}
+
+	// 소스는 UTF-8 (한글 주석). 지정하지 않으면 javac 가 OS 기본 인코딩을 쓴다 — 한국어 Windows(MS949)에서는
+	// "unmappable character" 로 컴파일이 실패한다. CI(Linux)는 기본이 UTF-8 이라 드러나지 않았다.
+	tasks.withType(JavaCompile).configureEach {
+		options.encoding = 'UTF-8'
+	}
 }

@@ -444,8 +444,13 @@ public class WorkApiService {
         return platformInfo;
     }
 
+    /** 신작 피드에 올라오는 게임의 Steam 리뷰 수 하한 (홈 "새로 나온 작품" · /new 신작 공용) */
+    static final int RECENT_RELEASE_GAME_MIN_REVIEWS = 100;
+
     /**
-     * 최근 출시작 조회 (최근 3개월 이내 출시된 작품들)
+     * 최근 출시작 조회 (최근 3개월 이내 출시된 작품들).
+     * 게임은 Steam 리뷰 {@value #RECENT_RELEASE_GAME_MIN_REVIEWS}개 이상만 — 출시 예정작(getUpcomingReleases)은
+     * 아직 리뷰가 없으므로 이 하한을 두지 않는다.
      */
     public PageResponse<WorkSummaryDTO> getRecentReleases(Domain domain, List<String> platforms, Pageable pageable) {
         LocalDate now = LocalDate.now();
@@ -453,9 +458,11 @@ public class WorkApiService {
         
         List<Content> allContent;
         if (domain != null) {
-            allContent = contentRepository.findReleasesInDateRange(domain, threeMonthsAgo, now, Pageable.unpaged()).getContent();
+            allContent = contentRepository.findReleasesInDateRange(domain, threeMonthsAgo, now,
+                    RECENT_RELEASE_GAME_MIN_REVIEWS, Pageable.unpaged()).getContent();
         } else {
-            allContent = contentRepository.findReleasesInDateRange(threeMonthsAgo, now, Pageable.unpaged()).getContent();
+            allContent = contentRepository.findReleasesInDateRange(threeMonthsAgo, now,
+                    RECENT_RELEASE_GAME_MIN_REVIEWS, Pageable.unpaged()).getContent();
         }
 
         // 플랫폼 필터링 (contents.platforms 배열 — OTT 포함)
