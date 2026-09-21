@@ -7,6 +7,7 @@ import com.example.AOD.api.dto.collection.CollectionItemAddRequest;
 import com.example.AOD.api.dto.collection.CollectionItemDTO;
 import com.example.AOD.api.dto.collection.CollectionItemUpdateRequest;
 import com.example.AOD.api.dto.collection.CollectionOrderRequest;
+import com.example.AOD.api.dto.collection.CollectionSpineDTO;
 import com.example.AOD.api.dto.collection.CollectionSummaryDTO;
 import com.example.AOD.api.dto.collection.CollectionUpdateRequest;
 import com.example.AOD.api.dto.collection.MyCollectionSummaryDTO;
@@ -72,6 +73,11 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                         "http://example.com/poster1.jpg",
                         "http://example.com/poster2.jpg",
                         "http://example.com/poster3.jpg"))
+                .spines(List.of(
+                        CollectionSpineDTO.builder().contentId(100L).title("화산귀환")
+                                .posterUrl("http://example.com/poster1.jpg").build(),
+                        CollectionSpineDTO.builder().contentId(101L).title("포스터 없는 작품")
+                                .posterUrl(null).build()))
                 .likedByMe(true)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -142,6 +148,10 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("content[].itemCount").description("담긴 작품 수"),
                                 fieldWithPath("content[].curatorNickname").description("큐레이터 닉네임"),
                                 fieldWithPath("content[].coverPosters").description("커버 콜라주용 상위 3개 포스터 URL (조회 시 파생)"),
+                                fieldWithPath("content[].spines").description("미니 책장용 상위 20권 (position 순, 조회 시 파생)"),
+                                fieldWithPath("content[].spines[].contentId").description("책등 작품 ID"),
+                                fieldWithPath("content[].spines[].title").description("책등 작품 제목"),
+                                fieldWithPath("content[].spines[].posterUrl").description("책등 포스터 URL (null 가능 - 단색 책등)").optional(),
                                 fieldWithPath("content[].likedByMe").description("로그인 사용자의 좋아요 여부 (비로그인 시 false)"),
                                 fieldWithPath("content[].createdAt").description("생성일시"),
                                 fieldWithPath("page").description("현재 페이지 번호"),
@@ -245,6 +255,7 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                 .itemCount(0L)
                 .curatorNickname("curator")
                 .coverPosters(List.of())
+                .spines(List.of())
                 .likedByMe(false)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -281,6 +292,7 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("itemCount").description("담긴 작품 수 (0)"),
                                 fieldWithPath("curatorNickname").description("큐레이터 닉네임"),
                                 fieldWithPath("coverPosters").description("커버 포스터 (빈 배열)"),
+                                fieldWithPath("spines").description("미니 책장용 책등 (생성 직후 빈 배열)"),
                                 fieldWithPath("likedByMe").description("좋아요 여부 (false)"),
                                 fieldWithPath("createdAt").description("생성일시")
                         )
@@ -373,6 +385,8 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                 .visibility("PUBLIC")
                 .itemCount(7L)
                 .containsContent(true)
+                .spines(List.of(CollectionSpineDTO.builder().contentId(100L).title("화산귀환")
+                        .posterUrl("http://example.com/poster1.jpg").build()))
                 .build();
         given(jwtTokenProvider.getUsername(anyString())).willReturn("curator");
         given(collectionService.getMyCollectionSummaries(anyString(), anyLong()))
@@ -398,7 +412,11 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("[].tint").description("커버 틴트"),
                                 fieldWithPath("[].visibility").description("공개 범위"),
                                 fieldWithPath("[].itemCount").description("담긴 작품 수"),
-                                fieldWithPath("[].containsContent").description("조회한 작품이 이미 담겨 있는지 여부")
+                                fieldWithPath("[].containsContent").description("조회한 작품이 이미 담겨 있는지 여부"),
+                                fieldWithPath("[].spines").description("미니 책장용 상위 20권 (position 순, 조회 시 파생)"),
+                                fieldWithPath("[].spines[].contentId").description("책등 작품 ID"),
+                                fieldWithPath("[].spines[].title").description("책등 작품 제목"),
+                                fieldWithPath("[].spines[].posterUrl").description("책등 포스터 URL (null 가능 - 단색 책등)").optional()
                         )
                 ));
     }
@@ -440,6 +458,10 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("content[].itemCount").description("담긴 작품 수"),
                                 fieldWithPath("content[].curatorNickname").description("큐레이터 닉네임 (본인)"),
                                 fieldWithPath("content[].coverPosters").description("커버 콜라주용 상위 3개 포스터 URL"),
+                                fieldWithPath("content[].spines").description("미니 책장용 상위 20권 (position 순, 조회 시 파생)"),
+                                fieldWithPath("content[].spines[].contentId").description("책등 작품 ID"),
+                                fieldWithPath("content[].spines[].title").description("책등 작품 제목"),
+                                fieldWithPath("content[].spines[].posterUrl").description("책등 포스터 URL (null 가능 - 단색 책등)").optional(),
                                 fieldWithPath("content[].likedByMe").description("내가 좋아요한 컬렉션인지 여부"),
                                 fieldWithPath("content[].createdAt").description("생성일시"),
                                 fieldWithPath("page").description("현재 페이지 번호"),
@@ -492,6 +514,10 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("itemCount").description("담긴 작품 수"),
                                 fieldWithPath("curatorNickname").description("큐레이터 닉네임"),
                                 fieldWithPath("coverPosters").description("커버 포스터 URL 목록"),
+                                fieldWithPath("spines").description("미니 책장용 상위 20권 (position 순, 조회 시 파생)"),
+                                fieldWithPath("spines[].contentId").description("책등 작품 ID"),
+                                fieldWithPath("spines[].title").description("책등 작품 제목"),
+                                fieldWithPath("spines[].posterUrl").description("책등 포스터 URL (null 가능 - 단색 책등)").optional(),
                                 fieldWithPath("likedByMe").description("좋아요 여부"),
                                 fieldWithPath("createdAt").description("생성일시")
                         )
