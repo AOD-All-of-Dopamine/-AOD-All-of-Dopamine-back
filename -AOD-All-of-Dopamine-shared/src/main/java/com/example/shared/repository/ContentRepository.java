@@ -77,19 +77,34 @@ public interface ContentRepository extends JpaRepository<Content, Long>, Content
                                        @Param("endDate") LocalDate endDate,
                                        Pageable pageable);
 
+    /**
+     * 신작 피드의 게임 품질 하한 — 게임은 game_contents.review_count 가 gameReviewMin 이상인 것만.
+     * Steam 은 매달 수백 편이 쏟아져 리뷰 없는 작품이 신작 목록을 덮는다. review_count 가 null(미수집)인
+     * 게임도 제외된다. 게임 외 도메인은 그대로 통과.
+     * 지금 GAME 은 Steam 단일 플랫폼이라 도메인으로 가른다 — 다른 게임 플랫폼을 붙이면 그 플랫폼의
+     * review_count 를 채우거나 이 조건을 플랫폼 기준으로 바꿀 것.
+     */
+    String RELEASE_GAME_REVIEW_FLOOR =
+            "AND (c.domain <> com.example.shared.entity.Domain.GAME OR EXISTS (" +
+            "  SELECT 1 FROM GameContent g WHERE g.contentId = c.contentId AND g.reviewCount >= :gameReviewMin)) ";
+
     // 특정 날짜 범위의 신작 조회 - 도메인별
     @Query("SELECT c FROM Content c WHERE c.domain = :domain AND c.isAdult = false AND c.releaseDate BETWEEN :startDate AND :endDate " +
+           RELEASE_GAME_REVIEW_FLOOR +
            "ORDER BY c.releaseDate DESC")
     Page<Content> findReleasesInDateRange(@Param("domain") Domain domain,
                                           @Param("startDate") LocalDate startDate,
                                           @Param("endDate") LocalDate endDate,
+                                          @Param("gameReviewMin") int gameReviewMin,
                                           Pageable pageable);
 
     // 특정 날짜 범위의 신작 조회 - 전체 도메인
     @Query("SELECT c FROM Content c WHERE c.isAdult = false AND c.releaseDate BETWEEN :startDate AND :endDate " +
+           RELEASE_GAME_REVIEW_FLOOR +
            "ORDER BY c.releaseDate DESC")
     Page<Content> findReleasesInDateRange(@Param("startDate") LocalDate startDate,
                                           @Param("endDate") LocalDate endDate,
+                                          @Param("gameReviewMin") int gameReviewMin,
                                           Pageable pageable);
 
     // findWorks(통합 필터 목록 조회)는 ContentRepositoryCustom / ContentRepositoryImpl 로 이동 (2026-09).
