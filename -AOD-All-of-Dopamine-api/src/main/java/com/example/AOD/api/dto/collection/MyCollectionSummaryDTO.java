@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /** 담기 팝오버용 — 내 컬렉션 + 해당 작품 포함 여부 */
 @Data
 @Builder
@@ -18,4 +20,5 @@ public class MyCollectionSummaryDTO {
     private String visibility;
     private long itemCount;
     private boolean containsContent; // 조회한 contentId가 이미 담겨 있는지
+    private List<CollectionSpineDTO> spines; // 상위 20권 (position 순) — 담기 팝오버의 미니 책장용 (조회 시 파생)
 }

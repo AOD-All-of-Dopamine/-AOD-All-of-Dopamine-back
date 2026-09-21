@@ -25,6 +25,7 @@ public class CollectionSummaryDTO {
     private long itemCount;
     private String curatorNickname;
     private List<String> coverPosters; // 상위 3개 포스터 URL (조회 시 파생, 저장 안 함)
+    private List<CollectionSpineDTO> spines; // 상위 20권 (position 순) — 목록 카드의 미니 책장용 (조회 시 파생)
     private boolean likedByMe;         // 비로그인 시 false
     private LocalDateTime createdAt;
 }
