@@ -72,6 +72,10 @@ import java.util.UUID;
 public class RecommendService {
 
     public static final String SURFACE = "rec_tab";
+    /** 홈 추천 릴 (프론트 docs/superpowers/specs/2026-09-25-home-rec-rail-design.md). */
+    public static final String HOME_SURFACE = "home_rec";
+    /** 요청 로그에 적을 수 있는 surface. 밖의 값은 추천 탭으로 적는다 — 아무 문자열이나 지표를 쪼개지 않게. */
+    static final Set<String> SURFACES = Set.of(SURFACE, HOME_SURFACE);
     /** 라우터에 요청할 총 후보 수 = k + buffer (설계 §4 — 커버리지가 낮아 버퍼를 크게 준다). */
     public static final int ROUTER_BUDGET = 50;
     /** 요청 전체 지연 예산 (REC_TAB_DESIGN §8-5). */
@@ -475,11 +479,17 @@ public class RecommendService {
         }
     }
 
+    /** 요청을 보낸 화면. 컨트롤러가 `surface` 파라미터를 맥락의 source 로 싣는다. 없거나 모르는 값이면 추천 탭. */
+    static String surfaceOf(RecContext ctx) {
+        String source = ctx == null ? null : ctx.source();
+        return source != null && SURFACES.contains(source) ? source : SURFACE;
+    }
+
     private RecRequestLogRecord requestLog(Flow flow, OffsetDateTime servedAt, UUID chainId, int pageDepth,
                                            String experimentsJson, String versionsJson,
                                            boolean fallback, String fallbackReason, List<String> partial) {
         return new RecRequestLogRecord(flow.requestId, servedAt, chainId, pageDepth,
-                flow.userId, flow.ctx.anonId(), flow.ctx.sessionId(), SURFACE, flow.tab,
+                flow.userId, flow.ctx.anonId(), flow.ctx.sessionId(), surfaceOf(flow.ctx), flow.tab,
                 flow.sentSeeds.stream().map(Seed::contentId).toList(),
                 flow.sentSeeds.stream().map(Seed::source).toList(),
                 flow.disliked, flow.notInterested, flow.chainSeen, flow.droppedSeedIds,
