@@ -14,6 +14,7 @@ import com.example.AOD.user.model.User;
 import com.example.AOD.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -129,6 +132,31 @@ class RecommendControllerTest {
                 .andExpect(jsonPath("$.items[0].reason").doesNotExist());
 
         verify(recommendService, never()).recommend(anyString(), any(), anyInt(), anyLong(), anyString(), any());
+    }
+
+    @Test
+    void surfaceParamReachesTheServiceAsContextSource() throws Exception {
+        given(recommendService.anonymousFallback(eq("all"), eq(12), any(RecContext.class)))
+                .willReturn(anonymous());
+
+        mvc.perform(get("/api/recommendations").param("size", "12").param("surface", " Home_Rec "))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<RecContext> ctx = ArgumentCaptor.forClass(RecContext.class);
+        verify(recommendService).anonymousFallback(eq("all"), eq(12), ctx.capture());
+        assertEquals("home_rec", ctx.getValue().source(), "앞뒤 공백·대소문자를 정리해 넘긴다");
+    }
+
+    @Test
+    void noSurfaceParamLeavesTheContextSourceEmpty() throws Exception {
+        given(recommendService.anonymousFallback(eq("all"), eq(20), any(RecContext.class)))
+                .willReturn(anonymous());
+
+        mvc.perform(get("/api/recommendations")).andExpect(status().isOk());
+
+        ArgumentCaptor<RecContext> ctx = ArgumentCaptor.forClass(RecContext.class);
+        verify(recommendService).anonymousFallback(eq("all"), eq(20), ctx.capture());
+        assertNull(ctx.getValue().source(), "파라미터가 없으면 서비스가 추천 탭으로 적는다");
     }
 
     @Test

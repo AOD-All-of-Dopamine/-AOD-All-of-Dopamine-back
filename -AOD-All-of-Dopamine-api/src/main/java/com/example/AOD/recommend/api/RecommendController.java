@@ -41,6 +41,7 @@ public class RecommendController {
             @RequestParam(value = "tab", defaultValue = "all") String tab,
             @RequestParam(value = "chainId", required = false) String chainId,
             @RequestParam(value = "size", defaultValue = "20") int size,
+            @RequestParam(value = "surface", required = false) String surface,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
         String normalizedTab = tab == null ? "" : tab.trim().toLowerCase(Locale.ROOT);
@@ -56,7 +57,10 @@ public class RecommendController {
             if (chain == null) return badRequest("chainId 는 uuid 여야 합니다.");
         }
 
-        RecContext ctx = RecContextHolder.current();
+        // 요청을 보낸 화면(홈·추천 탭)을 맥락의 source 로 싣는다 — 요청 로그의 surface 가 된다.
+        // 허용 목록 검사는 서비스가 한다(RecommendService.surfaceOf). 요청을 실패시키지는 않는다.
+        String normalizedSurface = surface == null ? null : surface.trim().toLowerCase(Locale.ROOT);
+        RecContext ctx = RecContextHolder.current().withBody(normalizedSurface, null, null);
         RecAuth.Result auth;
         try {
             auth = recAuth.authenticate(authHeader);

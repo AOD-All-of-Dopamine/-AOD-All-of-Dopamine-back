@@ -170,6 +170,33 @@ class RecommendServiceTest {
     }
 
     @Test
+    void requestLogRecordsTheHomeSurface() {
+        RecContext home = new RecContext("home_rec", null, null, CTX.anonId(), CTX.sessionId());
+        service.anonymousFallback("all", 20, home);
+
+        RecRequestLogRecord requestLog = (RecRequestLogRecord) offeredLogs().get(0);
+        assertEquals("home_rec", requestLog.surface(), "홈 요청은 추천 탭 지표와 갈라서 적는다");
+    }
+
+    @Test
+    void requestLogWritesRecTabForAnUnknownSurface() {
+        RecContext unknown = new RecContext("anything", null, null, CTX.anonId(), CTX.sessionId());
+        service.anonymousFallback("all", 20, unknown);
+
+        RecRequestLogRecord requestLog = (RecRequestLogRecord) offeredLogs().get(0);
+        assertEquals("rec_tab", requestLog.surface(), "허용 목록 밖의 값이 지표를 쪼개지 않는다");
+    }
+
+    @Test
+    void requestLogWritesRecTabWhenNoSurfaceIsGiven() {
+        RecContext none = new RecContext(null, null, null, CTX.anonId(), CTX.sessionId());
+        service.anonymousFallback("all", 20, none);
+
+        RecRequestLogRecord requestLog = (RecRequestLogRecord) offeredLogs().get(0);
+        assertEquals("rec_tab", requestLog.surface(), "파라미터가 없던 기존 요청은 그대로 추천 탭");
+    }
+
+    @Test
     void disabledFlagFallsBack() {
         given(featureFlag.allows("tester")).willReturn(false);
 
