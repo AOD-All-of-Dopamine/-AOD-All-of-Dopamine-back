@@ -29,6 +29,8 @@ public class WorkSummaryDTO {
     private String steamReviewDesc;             // 게임: Steam review_score_desc (영문 원문)
     private Integer steamPositivePct;           // 게임: 긍정 비율 % (total 기준)
     private Double externalRating;              // 영화/TV: TMDB vote_average (수집분부터)
+    private Integer externalVoteCount;          // 영화/TV: TMDB vote_count — 적은 표본의 별점을 숨기는 기준 (탐색 가벼운 카드 2026-09-26)
+    private Integer steamReviewCount;           // 게임: Steam total_reviews — 적은 리뷰의 긍정 %를 숨기는 기준
 }
 
 
