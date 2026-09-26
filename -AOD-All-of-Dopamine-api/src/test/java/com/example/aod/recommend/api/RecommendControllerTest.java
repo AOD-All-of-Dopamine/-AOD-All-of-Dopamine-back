@@ -199,7 +199,7 @@ class RecommendControllerTest {
                 .andExpect(status().isBadRequest());
         mvc.perform(get("/api/recommendations").param("size", "0").header("Authorization", "Bearer good"))
                 .andExpect(status().isBadRequest());
-        mvc.perform(get("/api/recommendations").param("size", "21").header("Authorization", "Bearer good"))
+        mvc.perform(get("/api/recommendations").param("size", "31").header("Authorization", "Bearer good"))
                 .andExpect(status().isBadRequest());
         mvc.perform(get("/api/recommendations").param("size", "twenty").header("Authorization", "Bearer good"))
                 .andExpect(status().isBadRequest());
@@ -216,6 +216,16 @@ class RecommendControllerTest {
                 .willReturn(personalized());
 
         mvc.perform(get("/api/recommendations").param("tab", " WebNovel ").header("Authorization", "Bearer good"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void homeSetSizeThirtyIsAccepted() throws Exception {
+        givenValidToken();
+        given(recommendService.recommend(eq("all"), isNull(), eq(30), eq(7L), eq("tester"), any(RecContext.class)))
+                .willReturn(personalized());
+
+        mvc.perform(get("/api/recommendations").param("size", "30").header("Authorization", "Bearer good"))
                 .andExpect(status().isOk());
     }
 

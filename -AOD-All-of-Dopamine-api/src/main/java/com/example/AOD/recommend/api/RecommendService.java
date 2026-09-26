@@ -92,7 +92,7 @@ public class RecommendService {
     /**
      * 플랫폼당 excluded 상한. 라우터는 플랫폼별 disliked+excluded+seen ≤ 5,000 을 강제한다(422).
      * disliked ≤ 1,000({@link SeedResolver#MAX_DISLIKED}) · seen ≤ 500({@link ChainService#SEEN_MAX})
-     * + 재호출 때 덧붙는 이번 쪽 카드 ≤ 20 · excluded ≤ 3,000 → 최대 4,520.
+     * + 재호출 때 덧붙는 이번 쪽 카드 ≤ 30(RecommendController.MAX_SIZE) · excluded ≤ 3,000 → 최대 4,530.
      */
     public static final int MAX_EXCLUDED_PER_PLATFORM = 3_000;
 

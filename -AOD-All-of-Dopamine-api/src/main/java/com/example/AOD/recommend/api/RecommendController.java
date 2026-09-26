@@ -31,7 +31,8 @@ import java.util.UUID;
 public class RecommendController {
 
     static final int MIN_SIZE = 1;
-    static final int MAX_SIZE = 20;
+    /** 홈 추천 한 묶음 = 30개(프론트 설계 2026-09-26-home-rec-only). 엔진 k 는 늘지 않는다 — k+buffer 가 ROUTER_BUDGET(50)로 고정. */
+    static final int MAX_SIZE = 30;
 
     private final RecommendService recommendService;
     private final RecAuth recAuth;
