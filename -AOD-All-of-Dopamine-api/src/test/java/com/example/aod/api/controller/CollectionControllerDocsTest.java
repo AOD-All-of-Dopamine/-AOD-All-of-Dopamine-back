@@ -233,7 +233,9 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("items[].ageRating").description("연령 등급 (웹툰/웹소설 외 null)").optional(),
                                 fieldWithPath("items[].steamReviewDesc").description("Steam 리뷰 요약 (게임 외 null)").optional(),
                                 fieldWithPath("items[].steamPositivePct").description("Steam 긍정 비율 % (게임 외 null)").optional(),
-                                fieldWithPath("items[].externalRating").description("TMDB 평점 (영화/TV 외 null)").optional()
+                                fieldWithPath("items[].externalRating").description("TMDB 평점 (영화/TV 외 null)").optional(),
+                                fieldWithPath("items[].externalVoteCount").description("TMDB 투표 수 (영화/TV 외 null)").optional(),
+                                fieldWithPath("items[].steamReviewCount").description("Steam 리뷰 수 (게임 외 null)").optional()
                         )
                 ));
     }
@@ -342,7 +344,9 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("ageRating").description("연령 등급").optional(),
                                 fieldWithPath("steamReviewDesc").description("Steam 리뷰 요약").optional(),
                                 fieldWithPath("steamPositivePct").description("Steam 긍정 비율 %").optional(),
-                                fieldWithPath("externalRating").description("TMDB 평점").optional()
+                                fieldWithPath("externalRating").description("TMDB 평점").optional(),
+                                fieldWithPath("externalVoteCount").description("TMDB 투표 수").optional(),
+                                fieldWithPath("steamReviewCount").description("Steam 리뷰 수").optional()
                         )
                 ));
     }
@@ -591,7 +595,9 @@ public class CollectionControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("ageRating").description("연령 등급").optional(),
                                 fieldWithPath("steamReviewDesc").description("Steam 리뷰 요약").optional(),
                                 fieldWithPath("steamPositivePct").description("Steam 긍정 비율 %").optional(),
-                                fieldWithPath("externalRating").description("TMDB 평점").optional()
+                                fieldWithPath("externalRating").description("TMDB 평점").optional(),
+                                fieldWithPath("externalVoteCount").description("TMDB 투표 수").optional(),
+                                fieldWithPath("steamReviewCount").description("Steam 리뷰 수").optional()
                         )
                 ));
     }

@@ -38,6 +38,8 @@ public class CollectionItemDTO {
     private String steamReviewDesc;     // 게임
     private Integer steamPositivePct;   // 게임
     private Double externalRating;      // 영화/TV (TMDB)
+    private Integer externalVoteCount;  // 영화/TV (TMDB vote_count)
+    private Integer steamReviewCount;   // 게임 (Steam total_reviews)
 
     /** 보강된 WorkSummaryDTO + 아이템 메타 → DTO */
     public static CollectionItemDTO of(Long itemId, String comment, Integer position, WorkSummaryDTO work) {
@@ -60,6 +62,8 @@ public class CollectionItemDTO {
                 .steamReviewDesc(work.getSteamReviewDesc())
                 .steamPositivePct(work.getSteamPositivePct())
                 .externalRating(work.getExternalRating())
+                .externalVoteCount(work.getExternalVoteCount())
+                .steamReviewCount(work.getSteamReviewCount())
                 .build();
     }
 }

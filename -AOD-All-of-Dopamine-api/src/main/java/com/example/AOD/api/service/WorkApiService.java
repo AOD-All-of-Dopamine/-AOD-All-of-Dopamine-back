@@ -318,24 +318,32 @@ public class WorkApiService {
         return fetcher.apply(ids).stream().collect(Collectors.toMap(idOf, t -> t));
     }
 
-    /** Steam attributes.review_summary → desc + 긍정 % (없으면 미설정) */
-    private static void applySteamReview(WorkSummaryDTO dto, List<PlatformData> pds) {
+    /** Steam attributes.review_summary → desc + 긍정 % + 리뷰 수 (없으면 미설정). 테스트를 위해 패키지 공개. */
+    static void applySteamReview(WorkSummaryDTO dto, List<PlatformData> pds) {
         Map<String, Object> attrs = firstAttributes(pds, "Steam");
         if (attrs == null || !(attrs.get("review_summary") instanceof Map<?, ?> summary)) return;
         Object desc = summary.get("review_score_desc");
         if (desc instanceof String s && !s.isBlank()) dto.setSteamReviewDesc(s);
-        if (summary.get("total_positive") instanceof Number pos
-                && summary.get("total_reviews") instanceof Number total
-                && total.longValue() > 0) {
-            dto.setSteamPositivePct((int) Math.round(pos.doubleValue() * 100.0 / total.doubleValue()));
+        if (summary.get("total_reviews") instanceof Number total) {
+            dto.setSteamReviewCount((int) Math.min(Integer.MAX_VALUE, Math.max(0L, total.longValue())));
+            if (summary.get("total_positive") instanceof Number pos && total.longValue() > 0) {
+                dto.setSteamPositivePct((int) Math.round(pos.doubleValue() * 100.0 / total.doubleValue()));
+            }
         }
     }
 
-    /** TMDB attributes.rating → 평점 (yml 매핑 추가 후 수집분부터 채워짐; 감독은 도메인 테이블에서) */
-    private static void applyTmdbRating(WorkSummaryDTO dto, List<PlatformData> pds) {
+    /**
+     * TMDB attributes.rating · vote_count → 평점 · 투표 수 (yml 매핑 추가 후 수집분부터 채워짐; 감독은 도메인 테이블에서).
+     * 투표 수는 수집 시점 값이다(매일 수집은 최근 7일 출시작만 다시 가져온다). 테스트를 위해 패키지 공개.
+     */
+    static void applyTmdbRating(WorkSummaryDTO dto, List<PlatformData> pds) {
         Map<String, Object> attrs = firstAttributes(pds, "TMDB");
-        if (attrs != null && attrs.get("rating") instanceof Number rating) {
+        if (attrs == null) return;
+        if (attrs.get("rating") instanceof Number rating) {
             dto.setExternalRating(rating.doubleValue());
+        }
+        if (attrs.get("vote_count") instanceof Number votes) {
+            dto.setExternalVoteCount((int) Math.min(Integer.MAX_VALUE, Math.max(0L, votes.longValue())));
         }
     }
 
