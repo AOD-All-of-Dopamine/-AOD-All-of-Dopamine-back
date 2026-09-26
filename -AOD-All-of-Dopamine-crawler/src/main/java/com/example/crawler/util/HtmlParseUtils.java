@@ -25,6 +25,14 @@ public final class HtmlParseUtils {
         return e == null ? null : e.attr(name);
     }
 
+    /**
+     * 연속 공백을 한 칸으로 접고 양끝을 자른다 (null → null). 제목 정리용.
+     * [독점]·[2부]·[외전] 같은 대괄호 태그는 다른 시즌을 구분하는 정보라 제거하지 않는다 (2026-09).
+     */
+    public static String collapseWhitespace(String s) {
+        return s == null ? null : s.replaceAll("\\s+", " ").trim();
+    }
+
     /** 상대 href를 절대 URL로 변환 */
     public static String absolutize(String href, String baseUrl) {
         return href.startsWith("http") ? href : baseUrl + href;

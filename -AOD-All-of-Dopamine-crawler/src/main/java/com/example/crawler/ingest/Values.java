@@ -75,9 +75,13 @@ public final class Values {
         try { return Integer.parseInt(v.toString()); } catch (NumberFormatException e) { return null; }
     }
 
-    /** yml normalizers 어휘 (RuleRegistry 기동검증이 참조). */
+    /**
+     * yml normalizers 어휘 (RuleRegistry 기동검증이 참조).
+     * strip_brackets·strip_series_qualifiers는 [독점]·[2부]·외전 같은 시즌 구분 표기를 지워
+     * 다른 시즌을 같은 작품으로 병합시키던 원인이라 2026-09 폐지.
+     */
     public static final Set<String> NORMALIZERS = Set.of(
-            "lowercase", "strip_parentheses", "collapse_spaces", "nfkc", "strip_brackets", "strip_series_qualifiers");
+            "lowercase", "strip_parentheses", "collapse_spaces", "nfkc");
 
     /** normalizer 스텝들을 순서대로 적용 (구 TransformEngine.applyNormalizers 이동). */
     public static String normalize(String value, List<String> steps) {
@@ -88,8 +92,6 @@ public final class Values {
                 case "strip_parentheses" -> s.replaceAll("\\([^)]*\\)", "");
                 case "collapse_spaces" -> s.replaceAll("\\s+", " ").trim();
                 case "nfkc" -> Normalizer.normalize(s, Normalizer.Form.NFKC);
-                case "strip_brackets" -> s.replaceAll("\\[[^\\]]*\\]", "");
-                case "strip_series_qualifiers" -> s.replaceAll("(시즌\\s*\\d+|외전|스페셜)$", "").trim();
                 default -> throw new IllegalArgumentException("unknown normalizer: " + step);
             };
         }

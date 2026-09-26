@@ -58,7 +58,7 @@ class RuleFilesTest {
                 "title", "[단행본] 화산귀환 시즌2", "author", "비가",
                 "status", "연재중", "weekday", "mon", "ageRating", "15세이용가",
                 "genres", List.of("무협"), "titleId", "769209"), registry.resolve("WEBTOON", "NaverWebtoon"));
-        assertEquals("화산귀환", d.content().getMasterTitle());          // 대괄호+시리즈수식어 제거
+        assertEquals("[단행본] 화산귀환 시즌2", d.content().getMasterTitle()); // 대괄호 태그·시즌 접미는 시즌 구분 정보 — 보존 (2026-09)
         assertEquals(List.of("무협"), d.content().getGenres());          // 2026-07 마스터로 승격
         WebtoonContent w = (WebtoonContent) d.domainEntity();
         assertEquals("비가", w.getAuthor());

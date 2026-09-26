@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import static com.example.crawler.util.HtmlParseUtils.absolutize;
 import static com.example.crawler.util.HtmlParseUtils.attr;
+import static com.example.crawler.util.HtmlParseUtils.collapseWhitespace;
 import static com.example.crawler.util.HtmlParseUtils.extractQueryParam;
 import static com.example.crawler.util.HtmlParseUtils.text;
 
@@ -158,7 +159,7 @@ public class NaverSeriesFetcher {
             productUrl = detailUrl;
 
         String rawTitle = attr(doc.selectFirst("meta[property=og:title]"), "content");
-        String title = cleanTitle(rawTitle);
+        String title = collapseWhitespace(rawTitle);   // [독점]·[2부] 등 태그는 시즌 구분 정보 — 보존 (2026-09)
         if (title == null || title.isBlank()) {
             log.warn("제목을 찾을 수 없는 작품 스킵: {}", detailUrl);
             return false;
@@ -333,15 +334,6 @@ public class NaverSeriesFetcher {
                 return t;
         }
         return null;
-    }
-
-    /**
-     * 제목 정리: [독점], [시리즈 에디션] 등 태그 제거 (공개 유틸리티 메서드)
-     */
-    public static String cleanTitle(String raw) {
-        if (raw == null)
-            return null;
-        return raw.replaceAll("\\s*\\[[^\\]]+\\]\\s*", " ").replaceAll("\\s+", " ").trim();
     }
 
     private static String nz(String s) {

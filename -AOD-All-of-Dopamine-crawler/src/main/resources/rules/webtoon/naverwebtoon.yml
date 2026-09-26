@@ -17,4 +17,4 @@ mappings:
   titleId:      platform.platformSpecificId
 
 normalizers:
-  master.masterTitle: [nfkc, strip_brackets, strip_series_qualifiers, collapse_spaces]
+  master.masterTitle: [nfkc, collapse_spaces]   # 대괄호 태그·시즌 접미는 시즌 구분 정보 — 정제하지 않음 (2026-09)

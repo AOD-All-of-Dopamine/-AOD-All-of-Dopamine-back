@@ -46,10 +46,11 @@ flowchart TD
 | `mappings` | 원본 경로 → 목적지. 접두사가 저장 위치 결정: `master.*`=contents(프로퍼티명), `domain.*`=도메인 엔티티(프로퍼티명), `platform.*`=platform_data(프로퍼티명), `attr.*`=JSONB 키 리터럴 | `author: domain.author` |
 | `defaults` | 원본 누락 시 채울 명시적 기본값 (key=목적지). 선언 없으면 스킵 | `attr.comment_count: 0` |
 | `platformsFrom` | `contents.platforms` 배열에 병합할 attr 키 목록 (배열 자체는 엔진이 `[자기 platformName]`으로 항상 주입) | `- watch_providers` |
-| `normalizers` | master 프로퍼티별 정규화 파이프 (`nfkc`, `strip_parentheses`, `strip_brackets`, `collapse_spaces`, `strip_series_qualifiers`, `lowercase`) | `master.masterTitle: [nfkc]` |
+| `normalizers` | master 프로퍼티별 정규화 파이프 (`nfkc`, `strip_parentheses`, `collapse_spaces`, `lowercase`) | `master.masterTitle: [nfkc]` |
 
 > 목적지 프로퍼티명 오타·엔티티 rename 미반영은 **부팅 실패**로 잡힌다 (RuleRegistry 기동 검증). 죽은 defaults(어떤 매핑도 안 쓰는 기본값)와 생산자 없는 platformsFrom 키도 부팅 실패로 잡힌다.
 > 구 v3의 `domainObjectMappings`/`valueMap`은 폐지 — 목적지가 프로퍼티명 직결이라 2중 매핑이 불필요.
+> `strip_brackets`/`strip_series_qualifiers`는 2026-09 폐지 — `[독점]`·`[2부]`·`외전` 같은 표기를 지우면 다른 시즌이 `sameTitle` 병합으로 같은 작품에 흡수되므로 제목 태그는 보존한다 (Fetcher 단의 `cleanTitle`도 같은 이유로 삭제).
 > 런타임 트레이스는 [8_INGEST_PIPELINE_TRACE.md](8_INGEST_PIPELINE_TRACE.md), 클래스 관계도는 [6_CLASS_DIAGRAMS.md](6_CLASS_DIAGRAMS.md) §4 참고 (둘 다 typed 파이프라인 기준으로 갱신됨).
 
 > **새 플랫폼 추가 절차**: `rules/<domain>/<platform>.yml` 파일 1개 작성이 전부다. 자바 코드 수정 불필요.

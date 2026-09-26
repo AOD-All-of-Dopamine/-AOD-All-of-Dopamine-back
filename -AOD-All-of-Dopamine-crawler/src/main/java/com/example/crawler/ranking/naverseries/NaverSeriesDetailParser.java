@@ -1,6 +1,6 @@
 package com.example.crawler.ranking.naverseries;
 
-import com.example.crawler.contents.novel.naverseries.NaverSeriesFetcher;
+import com.example.crawler.util.HtmlParseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 /**
  * 네이버 시리즈 랭킹용 상세 페이지 파서
  * - 랭킹 수집 시 제목만 추출하기 위한 전용 파서
- * - NaverSeriesFetcher의 유틸리티 메서드 재사용
+ * - HtmlParseUtils의 공용 문자열 헬퍼 재사용
  */
 @Component
 @Slf4j
@@ -19,7 +19,7 @@ public class NaverSeriesDetailParser {
      * 상세 페이지에서 제목 추출
      * - og:title 메타 태그 우선
      * - 폴백: h2 태그
-     * - [독점], [시리즈 에디션] 등 자동 제거
+     * - [독점], [2부] 등 대괄호 태그는 시즌 구분 정보라 보존 — 공백만 정리 (2026-09)
      * 
      * @param detailDoc 상세 페이지 Document
      * @return 정리된 제목 (null 가능)
@@ -40,8 +40,7 @@ public class NaverSeriesDetailParser {
                 rawTitle = h2 != null ? h2.text() : null;
             }
 
-            // NaverSeriesFetcher의 cleanTitle 유틸 재사용
-            return NaverSeriesFetcher.cleanTitle(rawTitle);
+            return HtmlParseUtils.collapseWhitespace(rawTitle);
 
         } catch (Exception e) {
             log.warn("제목 추출 중 오류 발생: {}", e.getMessage());

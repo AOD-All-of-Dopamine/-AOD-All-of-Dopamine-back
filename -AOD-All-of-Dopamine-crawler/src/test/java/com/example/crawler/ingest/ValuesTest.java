@@ -52,8 +52,18 @@ class ValuesTest {
     @Test
     void normalizeAppliesStepsInOrder() {
         assertEquals("제목", Values.normalize("제목  (개정판)  ", List.of("strip_parentheses", "collapse_spaces")));
-        assertEquals("전지적 독자 시점", Values.normalize("[신작] 전지적 독자 시점 외전", List.of("strip_brackets", "strip_series_qualifiers", "collapse_spaces")));
+        // [독점]·[2부] 같은 대괄호 태그와 시즌/외전 표기는 다른 시즌을 구분하는 정보 — 정제하지 않고 보존 (2026-09)
+        assertEquals("[독점] 전지적 독자 시점 외전", Values.normalize("[독점]  전지적 독자 시점 외전 ", List.of("nfkc", "collapse_spaces")));
         assertThrows(IllegalArgumentException.class, () -> Values.normalize("x", List.of("no_such_step")));
+    }
+
+    @Test
+    void bracketAndSeriesStrippersAreRemovedFromVocabulary() {
+        // 대괄호 태그·시즌 접미 제거는 다른 시즌을 같은 작품으로 병합시키던 원인 — yml에서 선언 자체가 불가해야 한다
+        assertFalse(Values.NORMALIZERS.contains("strip_brackets"));
+        assertFalse(Values.NORMALIZERS.contains("strip_series_qualifiers"));
+        assertThrows(IllegalArgumentException.class, () -> Values.normalize("[독점] x", List.of("strip_brackets")));
+        assertThrows(IllegalArgumentException.class, () -> Values.normalize("x 외전", List.of("strip_series_qualifiers")));
     }
 
     @Test
@@ -61,5 +71,13 @@ class ValuesTest {
         assertTrue(Values.sameTitle("전지적 독자 시점", "전지적  독자-시점!"));
         assertFalse(Values.sameTitle("전지적 독자 시점", "전지적 독자 시점 2"));
         assertFalse(Values.sameTitle(null, "x"));
+    }
+
+    @Test
+    void sameTitleKeepsDifferentSeasonsApart() {
+        // 대괄호 문자는 지워도 안의 글자는 남으므로 [2부]/외전이 붙은 제목은 원작과 병합되지 않는다
+        assertFalse(Values.sameTitle("화산귀환", "화산귀환 [2부]"));
+        assertFalse(Values.sameTitle("전지적 독자 시점", "전지적 독자 시점 외전"));
+        assertFalse(Values.sameTitle("화산귀환", "[독점] 화산귀환"));
     }
 }
