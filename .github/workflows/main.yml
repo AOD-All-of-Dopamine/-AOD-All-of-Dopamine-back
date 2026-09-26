@@ -128,6 +128,10 @@ jobs:
           NAVER_ID: ${{ secrets.NAVER_ID }}
           NAVER_PW: ${{ secrets.NAVER_PW }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          # 추천 라우터 — 없으면 docker-compose.yml 기본값(지금과 같은 동작)
+          REC_ROUTER_BASE_URL: ${{ secrets.REC_ROUTER_BASE_URL }}
+          REC_ENABLED: ${{ secrets.REC_ENABLED }}
+          REC_ALLOWED_USERS: ${{ secrets.REC_ALLOWED_USERS }}
           ECR_REGISTRY: ${{ needs.build.outputs.registry }}
           AWS_REGION: ${{ env.AWS_REGION }}
         run: |
@@ -157,6 +161,9 @@ jobs:
           export NAVER_ID="${NAVER_ID}"
           export NAVER_PW="${NAVER_PW}"
           export SENTRY_DSN="${SENTRY_DSN}"
+          export REC_ROUTER_BASE_URL="${REC_ROUTER_BASE_URL}"
+          export REC_ENABLED="${REC_ENABLED}"
+          export REC_ALLOWED_USERS="${REC_ALLOWED_USERS}"
           export AWS_REGION="${AWS_REGION}"
           export ECR_REGISTRY="${ECR_REGISTRY}"
           

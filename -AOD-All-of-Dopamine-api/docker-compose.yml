@@ -30,6 +30,15 @@ services:
       # Sentry 에러 추적
       SENTRY_DSN: ${SENTRY_DSN}
 
+      # 추천 라우터 (AI 리포 recommendation/serving/DEPLOY_VM.md 5단계). Spring 이 환경변수를
+      # rec.router.base-url · rec.enabled · rec.allowed-users 로 읽는다.
+      # 비밀값이 없으면 코드 기본값과 **같은 값**을 넣는다 — 빈 문자열이 들어가면 rec.enabled(boolean)
+      # 변환이 실패해 앱이 기동을 멈추고, base-url 은 빈 주소가 된다.
+      REC_ROUTER_BASE_URL: ${REC_ROUTER_BASE_URL:-http://localhost:18080}
+      REC_ENABLED: ${REC_ENABLED:-true}
+      # 쉼표로 이은 아이디 — 이 사용자만 추천을 받는다(팀 먼저 켜기). 비우면 전원.
+      REC_ALLOWED_USERS: ${REC_ALLOWED_USERS:-}
+
     # 리소스 제한 (t3.small 최적화)
     deploy:
       resources:
