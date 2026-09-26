@@ -2,13 +2,19 @@ package com.example.AOD.api.controller;
 
 import com.example.AOD.api.dto.PageResponse;
 import com.example.AOD.api.dto.WorkResponseDTO;
+import com.example.AOD.api.dto.WorkSummaryDTO;
+import com.example.AOD.api.featured.FeaturedWorkDTO;
+import com.example.AOD.api.featured.FeaturedWorkService;
 import com.example.AOD.api.service.WorkApiService;
 import com.example.AOD.support.RestDocsTestSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -18,16 +24,21 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class WorkControllerDocsTest extends RestDocsTestSupport {
 
     @MockBean
     private WorkApiService workApiService;
+
+    @MockBean
+    private FeaturedWorkService featuredWorkService;
 
     @Test
     void getWorksList() throws Exception {
@@ -167,5 +178,48 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
 
         verify(workApiService).getWorksLegacy(any(), any(), any(), any());
         verify(workApiService, never()).getWorks(any(), any(), any(), any());
+    }
+
+    @Test
+    void getFeaturedToday() throws Exception {
+        // 2026-09-27 12:00 KST — 다음 05:00 KST(09-28)까지 17시간
+        given(featuredWorkService.now()).willReturn(Instant.parse("2026-09-27T03:00:00Z"));
+        WorkSummaryDTO work = new WorkSummaryDTO();
+        work.setId(42L);
+        work.setDomain("GAME");
+        work.setTitle("Hades II");
+        work.setThumbnail("http://example.com/hades2.jpg");
+        work.setReleaseDate("2025-09-25");
+        given(featuredWorkService.pick(LocalDate.of(2026, 9, 27))).willReturn(Optional.of(new FeaturedWorkDTO(
+                "2026-09-27", work,
+                new FeaturedWorkDTO.Reason("Steam", 8, "steam", 0.9431, 125_310, "Overwhelmingly Positive"))));
+
+        mockMvc.perform(get("/api/works/featured-today").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "max-age=61200, public"))
+                .andDo(document("works-featured-today",
+                        responseFields(
+                                fieldWithPath("date").description("오늘의 작품 날짜 (yyyy-MM-dd, 05:00 KST 에 바뀜)"),
+                                subsectionWithPath("work").description("작품 요약 — 목록 조회의 content 항목과 같은 형식"),
+                                fieldWithPath("reason").description("고른 근거 — 뽑을 때의 값이라 그날 안에서 바뀌지 않는다"),
+                                fieldWithPath("reason.platform").description("랭킹 플랫폼 (Steam · TMDB_MOVIE · TMDB_TV)"),
+                                fieldWithPath("reason.ranking").description("그날 랭킹 순위"),
+                                fieldWithPath("reason.basis").description("평가 출처 (steam · tmdb)"),
+                                fieldWithPath("reason.ratingScore").description("게임: 긍정 비율(0~1) · 영화/시리즈: TMDB 평점(10점)").optional(),
+                                fieldWithPath("reason.ratingCount").description("게임: 리뷰 수 · 영화/시리즈: 투표 수").optional(),
+                                fieldWithPath("reason.ratingLabel").description("게임: Steam 판정(영문, 예: Very Positive) · 그 밖 null").optional()
+                        )
+                ));
+    }
+
+    @Test
+    void getFeaturedTodayEmptyIs204() throws Exception {
+        given(featuredWorkService.now()).willReturn(Instant.parse("2026-09-27T03:00:00Z"));
+        given(featuredWorkService.pick(any())).willReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/works/featured-today"))
+                .andExpect(status().isNoContent())
+                .andExpect(header().string("Cache-Control", "no-store"))
+                .andDo(document("works-featured-today-empty"));
     }
 }

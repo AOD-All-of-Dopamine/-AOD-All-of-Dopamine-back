@@ -57,6 +57,18 @@ include::{snippets}/works-get-platforms/http-request.adoc[]
 ==== 응답 예시
 include::{snippets}/works-get-platforms/http-response.adoc[]
 
+=== 오늘의 작품
+홈 히어로에 하루 한 작품. 05:00 KST 에 바뀌고, 200 응답은 다음 05:00 까지 `Cache-Control: public, max-age` 로 캐시된다.
+보여 줄 작품이 없으면 본문 없이 `204 No Content` (`Cache-Control: no-store`).
+==== 응답 필드
+include::{snippets}/works-featured-today/response-fields.adoc[]
+==== 요청 예시
+include::{snippets}/works-featured-today/http-request.adoc[]
+==== 응답 예시
+include::{snippets}/works-featured-today/http-response.adoc[]
+==== 응답 예시 (작품 없음)
+include::{snippets}/works-featured-today-empty/http-response.adoc[]
+
 ---
 
 [[Review-API]]

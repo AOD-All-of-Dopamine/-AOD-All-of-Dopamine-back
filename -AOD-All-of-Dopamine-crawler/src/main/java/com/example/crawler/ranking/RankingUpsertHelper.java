@@ -42,10 +42,12 @@ public class RankingUpsertHelper {
 
         List<ExternalRanking> toSave = new ArrayList<>();
         List<String> newPlatformSpecificIds = new ArrayList<>();
+        java.time.Instant fetchedAt = java.time.Instant.now();
 
         // 1. 기존 데이터 조회 및 병합
         for (ExternalRanking newRanking : newRankings) {
             newPlatformSpecificIds.add(newRanking.getPlatformSpecificId());
+            newRanking.setFetchedAt(fetchedAt);
             
             // 내부 Content 매핑 시도 (저장 시점 매핑)
             mapToInternalContent(newRanking, platform);
@@ -59,6 +61,11 @@ public class RankingUpsertHelper {
                 existing.setRanking(newRanking.getRanking());
                 existing.setTitle(newRanking.getTitle());
                 existing.setContent(newRanking.getContent()); // 매핑 정보 업데이트
+                // 신선한 평가 · 수집 시각 (홈 "오늘의 작품") — 없으면 null 로 덮는다(옛 값을 남기지 않는다)
+                existing.setRatingScore(newRanking.getRatingScore());
+                existing.setRatingCount(newRanking.getRatingCount());
+                existing.setRatingLabel(newRanking.getRatingLabel());
+                existing.setFetchedAt(fetchedAt);
                 toSave.add(existing);
                 log.debug("기존 작품 업데이트: id={}, 새 순위={}", 
                         existing.getPlatformSpecificId(), newRanking.getRanking());
