@@ -133,6 +133,10 @@ public class TmdbRankingMapper {
         ranking.setTitle(item.get(platformType.getTitleField()).asText());
         ranking.setRanking(rank);
         ranking.setPlatform(platformType.getPlatformName());
+
+        // 신선한 평가 — discover 응답에 이미 있다(추가 호출 없음). 홈 "오늘의 작품" 문턱 · 부제에 쓴다.
+        if (item.hasNonNull("vote_average")) ranking.setRatingScore(item.get("vote_average").asDouble());
+        if (item.hasNonNull("vote_count")) ranking.setRatingCount(item.get("vote_count").asInt());
         
         // 썸네일 URL 추출 (poster_path)
         if (item.has("poster_path") && !item.get("poster_path").isNull()) {

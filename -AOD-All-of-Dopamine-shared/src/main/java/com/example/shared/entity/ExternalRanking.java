@@ -52,5 +52,11 @@ public class ExternalRanking {
     @Column(columnDefinition = "jsonb")
     private List<String> watchProviders;        // OTT 플랫폼 정보 (예: ["Netflix", "Disney Plus", "Watcha"])
 
+    // ===== 랭킹을 받을 때의 신선한 평가 (홈 "오늘의 작품", 2026-09-26) — 콘텐츠 쪽 값은 수집 시점에 굳어 있다 =====
+    private Double ratingScore;                 // TMDB vote_average · Steam 긍정 비율(0~1, total_positive/total_reviews)
+    private Integer ratingCount;                // TMDB vote_count · Steam total_reviews
+    private String ratingLabel;                 // Steam review_score_desc (영문 판정) · TMDB 는 null
+    private java.time.Instant fetchedAt;        // 이 한 벌을 받은 시각
+
     // 생성자, 빌더 등 필요에 따라 추가
 }

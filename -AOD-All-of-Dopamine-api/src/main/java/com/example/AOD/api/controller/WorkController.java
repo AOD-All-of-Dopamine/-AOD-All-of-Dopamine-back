@@ -4,6 +4,8 @@ import com.example.AOD.api.dto.PageResponse;
 import com.example.AOD.api.dto.WorkFilters;
 import com.example.AOD.api.dto.WorkResponseDTO;
 import com.example.AOD.api.dto.WorkSummaryDTO;
+import com.example.AOD.api.featured.FeaturedWorkDTO;
+import com.example.AOD.api.featured.FeaturedWorkService;
 import com.example.AOD.api.service.WorkApiService;
 import com.example.shared.entity.Domain;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +24,23 @@ import org.springframework.web.bind.annotation.*;
 public class WorkController {
 
     private final WorkApiService workApiService;
+    private final FeaturedWorkService featuredWorkService;
+
+    /**
+     * 홈 "오늘의 작품" — 하루 한 작품(05:00 KST 에 바뀜). 200 은 다음 05:00 까지 캐시, 보여 줄 작품이 없으면 204.
+     * GET /api/works/featured-today
+     */
+    @GetMapping("/featured-today")
+    public ResponseEntity<FeaturedWorkDTO> getFeaturedToday() {
+        java.time.Instant now = featuredWorkService.now();
+        java.time.LocalDate date = FeaturedWorkService.featuredDate(now);
+        long maxAge = FeaturedWorkService.secondsUntilNextSwitch(date, now);
+        CacheControl cache = CacheControl.maxAge(java.time.Duration.ofSeconds(maxAge)).cachePublic();
+        return featuredWorkService.pick(date)
+                .map(dto -> ResponseEntity.ok().cacheControl(cache).body(dto))
+                // 204 는 저장하지 않으니(다음 요청이 다시 고른다) 캐시하지 않는다
+                .orElseGet(() -> ResponseEntity.noContent().cacheControl(CacheControl.noStore()).build());
+    }
 
     /**
      * 작품 목록 조회
