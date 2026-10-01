@@ -121,6 +121,7 @@ public class BookmarkService {
                 .domain(content.getDomain().name())
                 .title(content.getMasterTitle())
                 .thumbnail(content.getPosterImageUrl())
+                .portraitThumbnail(content.getPortraitImageUrl())
                 .releaseDate(content.getReleaseDate() != null ? content.getReleaseDate().toString() : null)
                 .score(calculateAverageScore(content.getContentId()))
                 .build();

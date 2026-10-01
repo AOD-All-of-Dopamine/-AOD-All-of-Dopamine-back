@@ -14,6 +14,7 @@ public class WorkSummaryDTO {
     private String domain;
     private String title;
     private String thumbnail;
+    private String portraitThumbnail; // 게임 세로 표지(Steam 라이브러리 캡슐 600×900, 2026-10-01) — 세로 카드 틀용, 없으면 null. thumbnail 은 그대로(가로 틀)
     private Double score;
     private Integer rank; // for ranking pages
     private String rankChange; // "up", "down", "new", or number

@@ -6,15 +6,18 @@ import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Persistable;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Entity @Table(name="game_contents")
+@DynamicUpdate // 바뀐 열만 UPDATE — portrait_checked_at 을 수집 병합이 덮지 않게
 @Getter
 @Setter
 public class GameContent implements Persistable<Long> {
@@ -45,6 +48,10 @@ public class GameContent implements Persistable<Long> {
     // null = 미수집 (재크롤 시 steam.yml 매핑으로 채워짐) — reviewCountMin 필터에서 자연 제외.
     @Column(name = "review_count")
     private Integer reviewCount;
+
+    // Steam 세로 표지를 마지막으로 확인한 시각 (V11) — 표지가 없다고 확인한 게임을 매일 다시 묻지 않는다.
+    @Column(name = "portrait_checked_at")
+    private Instant portraitCheckedAt;
 
     // OS 플랫폼 정보 (Windows, Mac 등) - JSONB 유지
     @Type(JsonType.class)

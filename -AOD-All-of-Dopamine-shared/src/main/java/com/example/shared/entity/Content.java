@@ -4,6 +4,7 @@ package com.example.shared.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -13,6 +14,8 @@ import java.util.List;
 @Entity
 @Setter
 @Getter
+// 바뀐 열만 UPDATE — 수집 병합의 save 가 다른 작업이 JDBC 로 쓴 열(portrait_image_url 등)을 옛 값으로 되돌리지 않게 (2026-10-01)
+@DynamicUpdate
 @Table(name = "contents",
         indexes = @Index(name = "idx_contents_lookup", columnList = "domain,masterTitle,releaseDate"))
 public class Content {
@@ -32,6 +35,11 @@ public class Content {
     private LocalDate releaseDate;
     @Column(length = 1000)
     private String posterImageUrl;
+
+    // 세로 표지 (게임 세로 표지 설계 2026-10-01, V11) — Steam 라이브러리 캡슐 600×900.
+    // 크롤러 SteamPortraitSyncService 가 채운다. 다른 도메인은 posterImageUrl 이 이미 세로라 비워 둔다.
+    @Column(name = "portrait_image_url", length = 1000)
+    private String portraitImageUrl;
 
     @Column(columnDefinition = "text")
     private String synopsis;

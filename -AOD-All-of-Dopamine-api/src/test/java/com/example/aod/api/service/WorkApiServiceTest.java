@@ -1,5 +1,7 @@
 package com.example.AOD.api.service;
 
+import com.example.AOD.api.dto.WorkSummaryDTO;
+
 import com.example.AOD.api.dto.WorkFilters;
 import com.example.AOD.api.dto.WorkResponseDTO;
 import com.example.AOD.repo.ReviewRepository;
@@ -136,5 +138,28 @@ class WorkApiServiceTest {
 
         assertEquals("Adult Game", dto.getTitle());
         assertEquals("GAME", dto.getDomain());
+    }
+
+    @Test
+    void portraitThumbnailRidesAlongsideThumbnail() {
+        // 게임 세로 표지 (2026-10-01): 세로 틀은 portraitThumbnail, 가로 틀은 그대로 thumbnail
+        Content game = new Content();
+        game.setContentId(1L);
+        game.setDomain(Domain.GAME);
+        game.setMasterTitle("Wuthering Waves");
+        game.setPosterImageUrl("https://cdn/header.jpg");
+        game.setPortraitImageUrl("https://cdn/library_capsule_koreana.jpg");
+        Content movie = new Content();
+        movie.setContentId(2L);
+        movie.setDomain(Domain.MOVIE);
+        movie.setMasterTitle("기생충");
+        movie.setPosterImageUrl("https://tmdb/poster.jpg");
+
+        List<WorkSummaryDTO> out = workApiService.toEnrichedSummaries(List.of(game, movie));
+
+        assertEquals("https://cdn/header.jpg", out.get(0).getThumbnail());
+        assertEquals("https://cdn/library_capsule_koreana.jpg", out.get(0).getPortraitThumbnail());
+        assertEquals("https://tmdb/poster.jpg", out.get(1).getThumbnail());
+        assertNull(out.get(1).getPortraitThumbnail());
     }
 }
