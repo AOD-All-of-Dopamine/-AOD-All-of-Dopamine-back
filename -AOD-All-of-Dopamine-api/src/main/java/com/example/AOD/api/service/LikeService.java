@@ -104,6 +104,7 @@ public class LikeService {
                             .id(c.getContentId())
                             .title(c.getMasterTitle())
                             .thumbnail(c.getPosterImageUrl())
+                            .portraitThumbnail(c.getPortraitImageUrl())
                             .domain(c.getDomain() != null ? c.getDomain().name() : null)
                             .releaseDate(c.getReleaseDate() != null ? c.getReleaseDate().toString() : null)
                             .build();

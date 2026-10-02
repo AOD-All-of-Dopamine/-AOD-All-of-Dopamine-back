@@ -206,6 +206,7 @@ public class WorkApiService {
                 .domain(content.getDomain().name())
                 .title(content.getMasterTitle())
                 .thumbnail(content.getPosterImageUrl())
+                .portraitThumbnail(content.getPortraitImageUrl())
                 .score(content.getAverageScore())
                 .releaseDate(content.getReleaseDate() != null ? content.getReleaseDate().toString() : null)
                 .genres(content.getGenres())
