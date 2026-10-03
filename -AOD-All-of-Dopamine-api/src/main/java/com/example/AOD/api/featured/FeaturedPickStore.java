@@ -32,12 +32,13 @@ public class FeaturedPickStore {
     /**
      * 우리 리뷰 후보 — 별점 4 이상 · 작성자 리뷰 3개 이상 · 작성자 첫 리뷰가 14일 이상 전(users 에 가입일이 없어 대신 쓴다).
      * 별점 높은 순 → 최신 순. 글 거름은 호출자(ReviewQuotes)가 한다.
+     * 작성자 조건은 이 작품 리뷰 작성자에 대해서만 센다(LATERAL) — 요청마다 리뷰 표 전체를 묶지 않는다.
      */
     static final String OUR_REVIEWS_SQL =
             "SELECT r.review_id, r.rating, r.review_content FROM reviews r "
+          + "JOIN LATERAL (SELECT count(*) AS n, min(u.created_at) AS first_at FROM reviews u WHERE u.user_id = r.user_id) a ON true "
           + "WHERE r.content_id = ? AND r.rating >= 4.0 AND r.review_content IS NOT NULL "
-          + "AND r.user_id IN (SELECT user_id FROM reviews GROUP BY user_id "
-          + "HAVING count(*) >= 3 AND min(created_at) <= now() - interval '14 days') "
+          + "AND a.n >= 3 AND a.first_at <= now() - interval '14 days' "
           + "ORDER BY r.rating DESC, r.created_at DESC LIMIT 30";
     static final String RECENT_SQL =
             "SELECT content_id FROM featured_pick WHERE featured_date > ? AND featured_date < ?";
