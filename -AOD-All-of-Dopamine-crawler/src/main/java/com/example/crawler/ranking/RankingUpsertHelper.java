@@ -66,6 +66,7 @@ public class RankingUpsertHelper {
                 existing.setRatingCount(newRanking.getRatingCount());
                 existing.setRatingLabel(newRanking.getRatingLabel());
                 existing.setFetchedAt(fetchedAt);
+                copyHeroFields(newRanking, existing);
                 toSave.add(existing);
                 log.debug("기존 작품 업데이트: id={}, 새 순위={}", 
                         existing.getPlatformSpecificId(), newRanking.getRanking());
@@ -132,6 +133,24 @@ public class RankingUpsertHelper {
             log.info("{} 플랫폼의 모든 랭킹 {}개 삭제", platform, rankings.size());
         }
     }
+
+    /**
+     * 히어로 그림 · 리뷰 한 줄(홈 "오늘의 작품", 2026-10-03) — 이번 수집에서 확인한 칸만 덮는다.
+     * 없다고 확인했으면 null 로, 호출이 실패했으면(확인 안 함) 옛 값을 둔다 — 그림은 거의 안 바뀌고, 하루 실패로 히어로가 무너지면 안 된다.
+     */
+    static void copyHeroFields(ExternalRanking from, ExternalRanking to) {
+        if (from.isBackdropChecked()) to.setBackdropUrl(from.getBackdropUrl());
+        if (from.isLogoChecked()) {
+            to.setLogoUrl(from.getLogoUrl());
+            to.setLogoLang(from.getLogoLang());
+        }
+        if (from.isQuoteChecked()) {
+            to.setQuoteText(from.getQuoteText());
+            to.setQuoteAuthor(from.getQuoteAuthor());
+            to.setQuoteVotes(from.getQuoteVotes());
+            to.setQuoteHours(from.getQuoteHours());
+            to.setQuoteUrl(from.getQuoteUrl());
+            to.setQuoteReviewId(from.getQuoteReviewId());
+        }
+    }
 }
-
-

@@ -137,6 +137,14 @@ public class TmdbRankingMapper {
         // 신선한 평가 — discover 응답에 이미 있다(추가 호출 없음). 홈 "오늘의 작품" 문턱 · 부제에 쓴다.
         if (item.hasNonNull("vote_average")) ranking.setRatingScore(item.get("vote_average").asDouble());
         if (item.hasNonNull("vote_count")) ranking.setRatingCount(item.get("vote_count").asInt());
+
+        // 히어로 배경 — discover 응답에 이미 있다(추가 호출 없음). 응답을 받았으니 "확인함"(없으면 null 로 덮는다)
+        if (item.hasNonNull("backdrop_path") && !item.get("backdrop_path").asText().isBlank()) {
+            ranking.setBackdropUrl("https://image.tmdb.org/t/p/w1280" + item.get("backdrop_path").asText());
+        }
+        ranking.setBackdropChecked(true);
+        // 영화 · 시리즈는 외부 인용을 쓰지 않는다(설계 결정) — 늘 비운다
+        ranking.setQuoteChecked(true);
         
         // 썸네일 URL 추출 (poster_path)
         if (item.has("poster_path") && !item.get("poster_path").isNull()) {

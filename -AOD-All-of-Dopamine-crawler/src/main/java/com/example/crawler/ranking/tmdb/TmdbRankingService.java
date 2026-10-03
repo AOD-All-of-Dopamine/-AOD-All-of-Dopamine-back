@@ -44,6 +44,30 @@ public class TmdbRankingService {
      * @param platformType 플랫폼 타입 (MOVIE/TV)
      * @param minVoteCount 최소 투표수 필터링 기준
      */
+    void attachLogos(List<ExternalRanking> rankings, TmdbPlatformType platformType) {
+        int candidates = 0, logos = 0;
+        for (ExternalRanking row : rankings) {
+            if (!com.example.shared.featured.FeaturedGates.isCandidate(row)) {
+                row.setLogoChecked(true);
+                continue;
+            }
+            candidates++;
+            try {
+                java.util.Optional<String[]> logo = tmdbRankingFetcher.fetchLogo(platformType, row.getPlatformSpecificId());
+                logo.ifPresent(l -> {
+                    row.setLogoUrl(l[0]);
+                    row.setLogoLang(l[1]);
+                });
+                row.setLogoChecked(true);
+                if (logo.isPresent()) logos++;
+            } catch (Exception e) {
+                log.warn("TMDB 로고 조회 실패 — 옛 값을 둔다 id={}: {}", row.getPlatformSpecificId(), e.getMessage());
+            }
+        }
+        log.info("TMDB {} 히어로 — 배경 {}/{} · 후보 {} · 로고 {}", platformType.name(),
+                rankings.stream().filter(r -> r.getBackdropUrl() != null).count(), rankings.size(), candidates, logos);
+    }
+
     private void updateRanking(TmdbPlatformType platformType, int minVoteCount) {
         log.info("TMDB {} 랭킹 업데이트를 시작합니다. (최소 투표수: {}, 목표: {}개)", 
                 platformType.name(), minVoteCount, MAX_RANKING_SIZE);
@@ -64,6 +88,9 @@ public class TmdbRankingService {
             log.warn("변환된 TMDB {} 랭킹 데이터가 없습니다.", platformType.name());
             return;
         }
+
+        // 2-1. 히어로 로고 — 오늘의 작품 문턱을 넘는 30위 이내만(그 밖은 없음으로 확인)
+        attachLogos(rankings, platformType);
 
         // 3. 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
         rankingUpsertHelper.upsertRankings(rankings, platformType.getPlatformName());

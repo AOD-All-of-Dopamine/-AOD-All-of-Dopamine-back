@@ -89,6 +89,45 @@ public class SteamPortraitClient {
                 .toUri();
     }
 
+    /** 넓은 배경 그림 한 장(홈 "오늘의 작품" 히어로). {@code heroUrl} 이 null 이면 없다고 확인. */
+    public record Assets(long appId, String heroUrl) { }
+
+    /**
+     * 히어로 배경 — {@code assets.library_hero}(1x 1920×620). 세로 표지 {@link #fetch} 와 같은 호출 · 같은 규칙.
+     * 응답에 빠진 appid 는 결과에 없다(확인 안 함).
+     *
+     * @throws SteamPortraitException 호출 실패 — 묶음 전체를 확인 안 한 것으로 둔다
+     */
+    public Map<Long, Assets> fetchAssets(List<Long> appIds) {
+        if (appIds.isEmpty()) return Map.of();
+        if (appIds.size() > MAX_BATCH) throw new IllegalArgumentException("최대 " + MAX_BATCH + "개: " + appIds.size());
+        String body;
+        try {
+            rateLimiter.acquirePermit();
+            body = restTemplate.getForObject(uri(appIds), String.class);
+        } catch (Exception e) {
+            throw new SteamPortraitException("GetItems 호출 실패: " + e.getMessage(), e);
+        }
+        Map<Long, Assets> out = new HashMap<>();
+        for (JsonNode item : items(body)) {
+            long id = item.path("id").asLong(0);
+            if (id <= 0) continue;
+            out.put(id, new Assets(id, item.path("success").asInt() == 1 ? assetUrl(item.path("assets"), "library_hero") : null));
+        }
+        return out;
+    }
+
+    private JsonNode items(String body) {
+        JsonNode items;
+        try {
+            items = objectMapper.readTree(body).path("response").path("store_items");
+        } catch (Exception e) {
+            throw new SteamPortraitException("GetItems 응답 해석 실패: " + e.getMessage(), e);
+        }
+        if (!items.isArray()) throw new SteamPortraitException("GetItems 응답에 store_items 가 없다", null);
+        return items;
+    }
+
     Map<Long, Portrait> parse(String body) {
         JsonNode items;
         try {
@@ -108,8 +147,12 @@ public class SteamPortraitClient {
     }
 
     static String capsuleUrl(JsonNode assets) {
+        return assetUrl(assets, "library_capsule");
+    }
+
+    static String assetUrl(JsonNode assets, String key) {
         String format = assets.path("asset_url_format").asText("");
-        String file = assets.path("library_capsule").asText("");
+        String file = assets.path(key).asText("");
         if (format.isBlank() || file.isBlank() || !format.contains("${FILENAME}")) return null;
         return ASSET_BASE + format.replace("${FILENAME}", file);
     }

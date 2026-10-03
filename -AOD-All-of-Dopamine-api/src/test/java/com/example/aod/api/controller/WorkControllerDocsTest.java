@@ -192,11 +192,17 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
         work.setReleaseDate("2025-09-25");
         given(featuredWorkService.pick(LocalDate.of(2026, 9, 27))).willReturn(Optional.of(new FeaturedWorkDTO(
                 "2026-09-27", work,
-                new FeaturedWorkDTO.Reason("Steam", 8, "steam", 0.9431, 125_310, "Overwhelmingly Positive"))));
+                new FeaturedWorkDTO.Reason("Steam", 8, "steam", 0.9431, 125_310, "Overwhelmingly Positive"),
+                "죽음과 그 너머의 신들에 맞서는 로그라이크 액션.",
+                new FeaturedWorkDTO.Facts(null, null),
+                new FeaturedWorkDTO.Media("https://cdn/library_hero.jpg", "https://cdn/logo.png", "other"),
+                new FeaturedWorkDTO.Quote("STEAM", "몇 번을 죽어도 다시 하고 싶어지는 게임", "명계주민", 94, 45, null,
+                        "https://steamcommunity.com/profiles/1/recommended/1145350/"))));
 
         mockMvc.perform(get("/api/works/featured-today").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Cache-Control", "max-age=61200, public"))
+                // 리뷰 한 줄이 있으면 10분 — 문제 인용을 회수할 수 있게
+                .andExpect(header().string("Cache-Control", "max-age=600, public"))
                 .andDo(document("works-featured-today",
                         responseFields(
                                 fieldWithPath("date").description("오늘의 작품 날짜 (yyyy-MM-dd, 05:00 KST 에 바뀜)"),
@@ -207,7 +213,23 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("reason.basis").description("평가 출처 (steam · tmdb)"),
                                 fieldWithPath("reason.ratingScore").description("게임: 긍정 비율(0~1) · 영화/시리즈: TMDB 평점(10점)").optional(),
                                 fieldWithPath("reason.ratingCount").description("게임: 리뷰 수 · 영화/시리즈: 투표 수").optional(),
-                                fieldWithPath("reason.ratingLabel").description("게임: Steam 판정(영문, 예: Very Positive) · 그 밖 null").optional()
+                                fieldWithPath("reason.ratingLabel").description("게임: Steam 판정(영문, 예: Very Positive) · 그 밖 null").optional(),
+                                fieldWithPath("synopsis").description("줄거리 (리뷰 한 줄이 없을 때 보인다)").optional(),
+                                fieldWithPath("facts").description("작품 정보"),
+                                fieldWithPath("facts.seasons").description("시리즈 시즌 수 · 그 밖 null").optional(),
+                                fieldWithPath("facts.runtimeMinutes").description("영화 러닝타임(분) · 그 밖 null").optional(),
+                                fieldWithPath("media").description("히어로 그림 — 값이 null 일 수 있다"),
+                                fieldWithPath("media.backdropUrl").description("넓은 배경 (Steam library_hero · TMDB backdrop)").optional(),
+                                fieldWithPath("media.logoUrl").description("투명 로고 (PNG)").optional(),
+                                fieldWithPath("media.logoLang").description("로고 언어 ko | other").optional(),
+                                fieldWithPath("quote").description("리뷰 한 줄 — 없으면 null. 있으면 Cache-Control max-age 600").optional(),
+                                fieldWithPath("quote.source").description("OURS(우리 사이트) | STEAM").optional(),
+                                fieldWithPath("quote.text").description("정리된 리뷰 (20~70자)").optional(),
+                                fieldWithPath("quote.author").description("STEAM: 작성자 이름 (없으면 null) · OURS: null").optional(),
+                                fieldWithPath("quote.votes").description("STEAM: 도움이 됨 수").optional(),
+                                fieldWithPath("quote.hours").description("STEAM: 리뷰 당시 플레이 시간(시간)").optional(),
+                                fieldWithPath("quote.rating").description("OURS: 별점 (0~5)").optional(),
+                                fieldWithPath("quote.url").description("STEAM: 원문 주소").optional()
                         )
                 ));
     }

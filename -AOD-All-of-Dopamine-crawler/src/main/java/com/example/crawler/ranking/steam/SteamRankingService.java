@@ -24,6 +24,7 @@ public class SteamRankingService {
     private final SteamRankingFetcher steamRankingFetcher;
     private final RankingUpsertHelper rankingUpsertHelper;
     private final SteamFetcher steamFetcher;
+    private final SteamHeroEnricher heroEnricher;
 
     private static final String PLATFORM_NAME = "Steam";
 
@@ -48,6 +49,13 @@ public class SteamRankingService {
 
         // 3. 신선한 평가 — 랭킹 작품마다 리뷰 요약을 다시 받는다(홈 "오늘의 작품"). 콘텐츠 쪽 요약은 사실상 재수집되지 않는다.
         attachReviewSummaries(rankings);
+
+        // 3-1. 히어로 그림 · 리뷰 한 줄 — 평가가 붙은 뒤라야 오늘의 작품 후보를 가린다(실패해도 랭킹 저장은 막지 않는다)
+        try {
+            heroEnricher.enrich(rankings);
+        } catch (Exception e) {
+            log.warn("Steam 히어로 보강 실패 — 그림 · 인용은 옛 값을 둔다: {}", e.getMessage());
+        }
 
         // 4. 기존 데이터와 병합하여 저장 (ID 유지) - Helper 사용
         rankingUpsertHelper.upsertRankings(rankings, PLATFORM_NAME);
