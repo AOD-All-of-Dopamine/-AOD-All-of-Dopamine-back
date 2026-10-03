@@ -93,4 +93,21 @@ class SteamPortraitClientTest {
         List<Long> tooMany = java.util.stream.LongStream.rangeClosed(1, 201).boxed().toList();
         assertThatThrownBy(() -> client.fetch(tooMany)).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void fetchAssetsReadsLibraryHero() {
+        when(rest.getForObject(any(URI.class), eq(String.class))).thenReturn("""
+                {"response":{"store_items":[
+                  {"id":1091500,"success":1,"assets":{"asset_url_format":"steam/apps/1091500/${FILENAME}?t=1",
+                    "library_hero":"abc/library_hero.jpg","library_hero_2x":"abc/library_hero_2x.jpg"}},
+                  {"id":870,"success":1,"assets":{"asset_url_format":"steam/apps/870/${FILENAME}"}},
+                  {"id":1,"success":15,"appid":0}]}}
+                """);
+        Map<Long, SteamPortraitClient.Assets> out = client.fetchAssets(List.of(1091500L, 870L, 1L, 2L));
+        assertThat(out.get(1091500L).heroUrl())
+                .isEqualTo("https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/abc/library_hero.jpg?t=1");
+        assertThat(out.get(870L).heroUrl()).isNull();
+        assertThat(out.get(1L).heroUrl()).isNull();
+        assertThat(out).doesNotContainKey(2L);
+    }
 }

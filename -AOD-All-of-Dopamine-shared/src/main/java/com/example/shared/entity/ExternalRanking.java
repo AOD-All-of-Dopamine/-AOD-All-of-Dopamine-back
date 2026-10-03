@@ -58,5 +58,33 @@ public class ExternalRanking {
     private String ratingLabel;                 // Steam review_score_desc (영문 판정) · TMDB 는 null
     private java.time.Instant fetchedAt;        // 이 한 벌을 받은 시각
 
+    // ===== 히어로 그림 · 리뷰 한 줄 (홈 "오늘의 작품" 시네마틱, 2026-10-03, V12) — 문턱 통과 · 30위 이내 행만 로고 · 인용을 받는다 =====
+    @Column(name = "backdrop_url", length = 1000)
+    private String backdropUrl;                 // 넓은 배경 — Steam library_hero 1x · TMDB backdrop w1280
+    @Column(name = "logo_url", length = 1000)
+    private String logoUrl;                     // 투명 로고 — Steam logo(_koreana).png · TMDB logos w500 (.png)
+    @Column(name = "logo_lang", length = 8)
+    private String logoLang;                    // ko | other
+    @Column(name = "quote_text", length = 400)
+    private String quoteText;                   // 정리된 리뷰 한 줄 (ReviewQuotes 통과)
+    @Column(name = "quote_author", length = 100)
+    private String quoteAuthor;                 // Steam 작성자 이름 (없으면 null — 화면은 "Steam 사용자")
+    @Column(name = "quote_votes")
+    private Integer quoteVotes;                 // 도움이 됨 수
+    @Column(name = "quote_hours")
+    private Integer quoteHours;                 // 리뷰 당시 플레이 시간(시간)
+    @Column(name = "quote_url", length = 1000)
+    private String quoteUrl;                    // 원문 주소
+    @Column(name = "quote_review_id", length = 32)
+    private String quoteReviewId;               // Steam recommendationid — 차단 목록용
+
+    // 이번 수집에서 "확인했는지" — 확인했으면(없다고 확인 포함) 덮고, 호출이 실패했으면 옛 값을 둔다 (RankingUpsertHelper)
+    @Transient
+    private boolean backdropChecked;
+    @Transient
+    private boolean logoChecked;
+    @Transient
+    private boolean quoteChecked;
+
     // 생성자, 빌더 등 필요에 따라 추가
 }

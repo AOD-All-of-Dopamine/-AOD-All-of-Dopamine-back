@@ -129,6 +129,39 @@ public class TmdbRankingFetcher {
         }
     }
 
+    /**
+     * 히어로 로고(홈 "오늘의 작품") — 한국어 → 그 밖, 같은 언어 안에선 투표 평균 높은 것. SVG 는 빼고 {@code .png} 만.
+     * 없으면 {@code Optional.empty()}(없다고 확인), 호출 실패는 예외(옛 값을 둔다).
+     */
+    public java.util.Optional<String[]> fetchLogo(TmdbPlatformType platformType, String tmdbId) {
+        String endpoint = platformType == TmdbPlatformType.MOVIE ? "movie" : "tv";
+        String url = String.format("%s/%s/%s/images?api_key=%s&include_image_language=ko,en,null",
+                tmdbBaseUrl, endpoint, tmdbId, tmdbApiKey);
+        JsonNode logos;
+        try {
+            logos = objectMapper.readTree(restTemplate.getForObject(url, String.class)).path("logos");
+        } catch (Exception e) {
+            throw new IllegalStateException("TMDB 로고 조회 실패 id=" + tmdbId + ": " + e.getMessage(), e);
+        }
+        JsonNode best = null;
+        int bestRank = Integer.MAX_VALUE;
+        double bestVote = -1;
+        for (JsonNode logo : logos) {
+            String path = logo.path("file_path").asText("");
+            if (!path.toLowerCase(java.util.Locale.ROOT).endsWith(".png")) continue;
+            String lang = logo.path("iso_639_1").asText("");
+            int rank = "ko".equals(lang) ? 0 : 1;
+            double vote = logo.path("vote_average").asDouble(0);
+            if (rank < bestRank || (rank == bestRank && vote > bestVote)) {
+                best = logo; bestRank = rank; bestVote = vote;
+            }
+        }
+        if (best == null) return java.util.Optional.empty();
+        return java.util.Optional.of(new String[]{
+                "https://image.tmdb.org/t/p/w500" + best.path("file_path").asText(),
+                bestRank == 0 ? "ko" : "other"});
+    }
+
     private String buildUrl(TmdbPlatformType platformType, int page) {
         // with_watch_providers의 | 문자가 URL 인코딩되면 TMDB API가 OR 연산을 인식하지 못하므로
         // 수동으로 URL을 구성하여 인코딩 방지

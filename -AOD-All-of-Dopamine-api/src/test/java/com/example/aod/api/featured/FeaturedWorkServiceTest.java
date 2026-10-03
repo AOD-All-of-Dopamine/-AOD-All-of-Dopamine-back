@@ -296,4 +296,74 @@ class FeaturedWorkServiceTest {
         given(contents.findById(anyLong())).willReturn(Optional.empty());
         assertThat(service.pick(GAME_DAY)).isEmpty();
     }
+
+    // ---------- 히어로 (2026-10-03) ----------
+
+    private ExternalRanking heroRow() {
+        ExternalRanking r = steam(2, "히어로 게임", 0.95, 50_000);
+        r.setBackdropUrl("https://cdn/hero.jpg");
+        r.setLogoUrl("https://cdn/logo.png");
+        r.setLogoLang("other");
+        r.setQuoteText("진짜 내 인생 게임 총 맞아도 되니까 나이트 시티에서 살고싶음");
+        r.setQuoteAuthor("주민");
+        r.setQuoteVotes(45);
+        r.setQuoteHours(10);
+        r.setQuoteUrl("https://steamcommunity.com/x");
+        r.setQuoteReviewId("rid-1");
+        return r;
+    }
+
+    @Test
+    void heroFieldsAreCopiedAndReturned() {
+        ranking("Steam", heroRow());
+
+        FeaturedWorkDTO dto = service.pick(GAME_DAY).orElseThrow();
+
+        assertThat(saved.get().hero().backdropUrl()).isEqualTo("https://cdn/hero.jpg");
+        assertThat(saved.get().hero().quoteReviewId()).isEqualTo("rid-1");
+        assertThat(dto.media()).isEqualTo(new FeaturedWorkDTO.Media("https://cdn/hero.jpg", "https://cdn/logo.png", "other"));
+        assertThat(dto.quote()).isEqualTo(new FeaturedWorkDTO.Quote("STEAM",
+                "진짜 내 인생 게임 총 맞아도 되니까 나이트 시티에서 살고싶음", "주민", 45, 10, null, "https://steamcommunity.com/x"));
+        assertThat(dto.facts()).isEqualTo(new FeaturedWorkDTO.Facts(null, null));
+    }
+
+    @Test
+    void ourReviewWinsOverSteamAndIsFiltered() {
+        ranking("Steam", heroRow());
+        given(store.ourReviewCandidates(anyLong())).willReturn(List.of(
+                new FeaturedPickStore.OurReview(1, 5.0, "이 게임 진짜 좆같이 재밌어요 다들 꼭 해보세요 진심으로"),   // 거름 탈락
+                new FeaturedPickStore.OurReview(2, 4.5, "주말 내내 붙잡고 있었어요. 전투가 이렇게 손맛 좋은 게임은 처음")));
+
+        FeaturedWorkDTO.Quote q = service.pick(GAME_DAY).orElseThrow().quote();
+
+        assertThat(q.source()).isEqualTo("OURS");
+        assertThat(q.rating()).isEqualTo(4.5);
+        assertThat(q.author()).isNull();                         // 닉네임은 내지 않는다
+        assertThat(q.text()).startsWith("주말 내내");
+    }
+
+    @Test
+    void switchOffAndBlockedIdsHideQuote() {
+        ranking("Steam", heroRow());
+        service.setBlockedReviewIds("rid-0, rid-1");
+        assertThat(service.pick(GAME_DAY).orElseThrow().quote()).isNull();
+
+        service.setBlockedReviewIds("");
+        service.setQuoteEnabled(false);
+        assertThat(service.pick(GAME_DAY).orElseThrow().quote()).isNull();
+        service.setQuoteEnabled(true);
+        assertThat(service.pick(GAME_DAY).orElseThrow().quote()).isNotNull();
+    }
+
+    @Test
+    void factsForTvAndMovie() {
+        ExternalRanking tv = tmdb("TMDB_TV", 1, "시리즈", 8.5, 5_000);
+        tv.getContent().setDomain(com.example.shared.entity.Domain.TV);
+        ranking("TMDB_TV", tv);
+        given(store.seasons(anyLong())).willReturn(9);
+        FeaturedWorkDTO dto = service.pick(TV_DAY).orElseThrow();
+        assertThat(dto.facts().seasons()).isEqualTo(9);
+        assertThat(dto.facts().runtimeMinutes()).isNull();
+        assertThat(dto.quote()).isNull();
+    }
 }

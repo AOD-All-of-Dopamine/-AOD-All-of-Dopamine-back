@@ -17,7 +17,7 @@ class SteamRankingReviewSummaryTest {
 
     private final SteamFetcher fetcher = mock(SteamFetcher.class);
     private final SteamRankingService service =
-            new SteamRankingService(mock(SteamRankingFetcher.class), mock(RankingUpsertHelper.class), fetcher);
+            new SteamRankingService(mock(SteamRankingFetcher.class), mock(RankingUpsertHelper.class), fetcher, mock(SteamHeroEnricher.class));
 
     private static ExternalRanking ranking(String appId) {
         ExternalRanking r = new ExternalRanking();

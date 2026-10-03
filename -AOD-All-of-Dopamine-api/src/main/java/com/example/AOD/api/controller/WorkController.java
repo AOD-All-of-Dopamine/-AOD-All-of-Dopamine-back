@@ -35,9 +35,10 @@ public class WorkController {
         java.time.Instant now = featuredWorkService.now();
         java.time.LocalDate date = FeaturedWorkService.featuredDate(now);
         long maxAge = FeaturedWorkService.secondsUntilNextSwitch(date, now);
-        CacheControl cache = CacheControl.maxAge(java.time.Duration.ofSeconds(maxAge)).cachePublic();
         return featuredWorkService.pick(date)
-                .map(dto -> ResponseEntity.ok().cacheControl(cache).body(dto))
+                // 리뷰 한 줄이 있으면 10분 — 문제 인용을 회수할 수 있게(설계 2026-10-03 "캐시")
+                .map(dto -> ResponseEntity.ok().cacheControl(CacheControl.maxAge(java.time.Duration.ofSeconds(
+                        dto.quote() != null ? Math.min(maxAge, FeaturedWorkService.QUOTE_MAX_AGE_SECONDS) : maxAge)).cachePublic()).body(dto))
                 // 204 는 저장하지 않으니(다음 요청이 다시 고른다) 캐시하지 않는다
                 .orElseGet(() -> ResponseEntity.noContent().cacheControl(CacheControl.noStore()).build());
     }
