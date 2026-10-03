@@ -47,6 +47,20 @@ class ReviewQuotesTest {
     }
 
     @Test
+    void normalSentencesAreNotFalsePositives() {
+        // PR #131 검수 실측 — 띄어쓰기를 지운 글 · 짧은 낱말 · 영어 우연 일치에 정상 리뷰가 걸리던 것
+        assertThat(reason("다시 바로 처음부터 하고 싶어지는 게임 진짜 최고예요")).isEqualTo("통과");
+        assertThat(reason("불이 꺼져도 계속 하고 싶은 게임입니다 강력 추천해요")).isEqualTo("통과");
+        assertThat(reason("This hit me hard, best game ever made")).isEqualTo("통과");
+        assertThat(reason("그래픽도 죽인다 진짜 최고의 게임 꼭 해보세요")).isEqualTo("통과");
+        assertThat(reason("스포츠 게임인데 스토리 모드가 이렇게 재밌을 줄이야")).isEqualTo("통과");
+        assertThat(reason("고민하지 마세요 그냥 사세요 후회 안 합니다 최고")).isEqualTo("통과");
+        assertThat(reason("즐거운 시간 보내시길 바랍니다 하시 바랍니다 최고")).isEqualTo("통과");
+        // 영어 낱말 자체는 여전히 걸린다
+        assertThat(reason("holy shit this game is so good, play it now")).isEqualTo("욕설");
+    }
+
+    @Test
     void negativeSignalInRecommendedReview() {
         assertThat(reason("앞으로는 미완성 게임 출시하지 말아주세요 그래도 추천은 함")).isEqualTo("부정 신호");
     }

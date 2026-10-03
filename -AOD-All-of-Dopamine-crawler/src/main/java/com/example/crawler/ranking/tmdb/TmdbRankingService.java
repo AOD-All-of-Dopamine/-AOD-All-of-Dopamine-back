@@ -38,12 +38,7 @@ public class TmdbRankingService {
         updateRanking(TmdbPlatformType.TV, minVoteCount);
     }
 
-    /**
-     * 통합된 랭킹 업데이트 로직 (DRY, SRP 준수)
-     * 다중 페이지를 가져와서 필터링 후에도 정확히 20개를 확보
-     * @param platformType 플랫폼 타입 (MOVIE/TV)
-     * @param minVoteCount 최소 투표수 필터링 기준
-     */
+    /** 히어로 로고 — 오늘의 작품 문턱을 넘는 30위 이내만(그 밖은 없음으로 확인). 실패는 확인 안 함(옛 값 유지). */
     void attachLogos(List<ExternalRanking> rankings, TmdbPlatformType platformType) {
         int candidates = 0, logos = 0;
         for (ExternalRanking row : rankings) {
@@ -68,6 +63,12 @@ public class TmdbRankingService {
                 rankings.stream().filter(r -> r.getBackdropUrl() != null).count(), rankings.size(), candidates, logos);
     }
 
+    /**
+     * 통합된 랭킹 업데이트 로직 (DRY, SRP 준수)
+     * 다중 페이지를 가져와서 필터링 후에도 정확히 20개를 확보
+     * @param platformType 플랫폼 타입 (MOVIE/TV)
+     * @param minVoteCount 최소 투표수 필터링 기준
+     */
     private void updateRanking(TmdbPlatformType platformType, int minVoteCount) {
         log.info("TMDB {} 랭킹 업데이트를 시작합니다. (최소 투표수: {}, 목표: {}개)", 
                 platformType.name(), minVoteCount, MAX_RANKING_SIZE);

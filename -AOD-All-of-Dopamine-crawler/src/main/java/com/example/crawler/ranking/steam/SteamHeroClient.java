@@ -60,8 +60,10 @@ public class SteamHeroClient {
         for (String file : List.of("logo_koreana.png", "logo.png")) {
             String url = LOGO_BASE + appId + "/" + file;
             try {
-                restTemplate.execute(url, HttpMethod.HEAD, null, response -> null);
-                return Optional.of(new Logo(url, file.contains("koreana") ? "ko" : "other"));
+                // HEAD 는 리다이렉트를 따라가지 않는다 — 2xx 일 때만 로고로 인정(3xx 주소를 저장하지 않게)
+                Boolean ok = restTemplate.execute(url, HttpMethod.HEAD, null,
+                        response -> response.getStatusCode().is2xxSuccessful());
+                if (Boolean.TRUE.equals(ok)) return Optional.of(new Logo(url, file.contains("koreana") ? "ko" : "other"));
             } catch (HttpClientErrorException.NotFound | HttpClientErrorException.Forbidden e) {
                 // 다음 후보
             }

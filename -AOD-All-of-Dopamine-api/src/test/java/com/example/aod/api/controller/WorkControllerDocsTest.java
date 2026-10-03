@@ -235,6 +235,22 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
     }
 
     @Test
+    void getFeaturedTodayWithoutQuoteCachesUntilNextSwitch() throws Exception {
+        // 인용이 없으면 지금처럼 다음 05:00 KST 까지(12:00 KST → 17시간)
+        given(featuredWorkService.now()).willReturn(Instant.parse("2026-09-27T03:00:00Z"));
+        WorkSummaryDTO work = new WorkSummaryDTO();
+        work.setId(7L);
+        work.setDomain("TV");
+        work.setTitle("오피스");
+        given(featuredWorkService.pick(LocalDate.of(2026, 9, 27))).willReturn(Optional.of(new FeaturedWorkDTO(
+                "2026-09-27", work, new FeaturedWorkDTO.Reason("TMDB_TV", 5, "tmdb", 8.6, 5389, null))));
+
+        mockMvc.perform(get("/api/works/featured-today").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "max-age=61200, public"));
+    }
+
+    @Test
     void getFeaturedTodayEmptyIs204() throws Exception {
         given(featuredWorkService.now()).willReturn(Instant.parse("2026-09-27T03:00:00Z"));
         given(featuredWorkService.pick(any())).willReturn(Optional.empty());

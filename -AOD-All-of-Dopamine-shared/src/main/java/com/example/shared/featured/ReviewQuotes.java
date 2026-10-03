@@ -58,17 +58,26 @@ public final class ReviewQuotes {
         if (len > MAX_LENGTH) return Verdict.reject("너무 김");
         String lower = text.toLowerCase(Locale.ROOT);
         String squashed = NOT_LETTER.matcher(lower).replaceAll("");   // 띄어쓰기 · 문장부호 우회 막기
-        for (String w : LISTS.profanity) {
+        for (String w : LISTS.profanitySquash) {
             if (lower.contains(w) || squashed.contains(w)) return Verdict.reject("욕설");
         }
+        for (String w : LISTS.profanity) {
+            if (containsWord(lower, w)) return Verdict.reject("욕설");
+        }
         for (String w : LISTS.spoiler) {
-            if (lower.contains(w)) return Verdict.reject("스포일러 의심");
+            if (containsWord(lower, w)) return Verdict.reject("스포일러 의심");
         }
         for (String w : LISTS.negative) {
-            if (lower.contains(w) || squashed.contains(w)) return Verdict.reject("부정 신호");
+            if (lower.contains(w)) return Verdict.reject("부정 신호");
         }
         if (REPEAT.matcher(text).find() || text.codePoints().distinct().count() < 12) return Verdict.reject("반복");
         return new Verdict(true, null, text);
+    }
+
+    /** 영어 낱말은 낱말 경계로("this hit" 의 "shit" 같은 우연 일치 막기), 그 밖은 포함 여부. */
+    private static boolean containsWord(String text, String word) {
+        if (!word.chars().allMatch(c -> c < 128)) return text.contains(word);
+        return Pattern.compile("(?<![a-z])" + Pattern.quote(word) + "(?![a-z])").matcher(text).find();
     }
 
     /** Steam 리뷰 하나 — 글 거름 + 추천 · 도움 · 밈 · 플레이 시간. */
@@ -107,10 +116,11 @@ public final class ReviewQuotes {
 
     // ---------- 낱말 목록 ----------
 
-    private record Lists(List<String> profanity, List<String> spoiler, List<String> negative) { }
+    private record Lists(List<String> profanitySquash, List<String> profanity, List<String> spoiler, List<String> negative) { }
 
     private static Lists load() {
-        List<String> profanity = new ArrayList<>(), spoiler = new ArrayList<>(), negative = new ArrayList<>();
+        List<String> profanitySquash = new ArrayList<>(), profanity = new ArrayList<>(), spoiler = new ArrayList<>(),
+                negative = new ArrayList<>();
         List<String> current = null;
         try (InputStream in = ReviewQuotes.class.getClassLoader().getResourceAsStream("quote-blocklist.txt")) {
             if (in == null) throw new IllegalStateException("quote-blocklist.txt 가 없다");
@@ -119,6 +129,7 @@ public final class ReviewQuotes {
                 String t = line.trim();
                 if (t.isEmpty() || t.startsWith("#")) continue;
                 switch (t) {
+                    case "[profanity-squash]" -> current = profanitySquash;
                     case "[profanity]" -> current = profanity;
                     case "[spoiler]" -> current = spoiler;
                     case "[negative]" -> current = negative;
@@ -130,7 +141,7 @@ public final class ReviewQuotes {
         } catch (IOException e) {
             throw new IllegalStateException("quote-blocklist.txt 읽기 실패", e);
         }
-        return new Lists(Collections.unmodifiableList(profanity), Collections.unmodifiableList(spoiler),
-                Collections.unmodifiableList(negative));
+        return new Lists(Collections.unmodifiableList(profanitySquash), Collections.unmodifiableList(profanity),
+                Collections.unmodifiableList(spoiler), Collections.unmodifiableList(negative));
     }
 }

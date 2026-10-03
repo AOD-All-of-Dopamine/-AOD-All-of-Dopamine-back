@@ -27,3 +27,6 @@ ALTER TABLE IF EXISTS featured_pick
   ADD COLUMN IF NOT EXISTS quote_hours     integer,
   ADD COLUMN IF NOT EXISTS quote_url       varchar(1000),
   ADD COLUMN IF NOT EXISTS quote_review_id varchar(32);
+
+-- 우리 리뷰 후보의 작성자 조건(리뷰 수 · 첫 리뷰 시각)을 작성자별로 센다 — featured-today 요청마다 돈다
+CREATE INDEX IF NOT EXISTS idx_reviews_user_created ON reviews (user_id, created_at);
