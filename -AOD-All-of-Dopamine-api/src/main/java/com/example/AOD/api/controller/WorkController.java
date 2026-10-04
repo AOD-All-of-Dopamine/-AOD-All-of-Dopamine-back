@@ -25,6 +25,18 @@ public class WorkController {
 
     private final WorkApiService workApiService;
     private final FeaturedWorkService featuredWorkService;
+    private final com.example.AOD.api.trend.NotableReleaseService notableReleaseService;
+
+    /**
+     * 트렌드 "새로 나온 주목작" — 분야마다 2편 + 이유(순위 · 투표 · 리뷰 · 최신). 30분 캐시.
+     * GET /api/works/releases/notable
+     */
+    @GetMapping("/releases/notable")
+    public ResponseEntity<java.util.List<com.example.AOD.api.trend.NotableReleaseService.Group>> getNotableReleases() {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(java.time.Duration.ofMinutes(30)).cachePublic())
+                .body(notableReleaseService.notable());
+    }
 
     /**
      * 홈 "오늘의 작품" — 하루 한 작품(05:00 KST 에 바뀜). 200 은 다음 05:00 까지 캐시, 보여 줄 작품이 없으면 204.
@@ -81,11 +93,15 @@ public class WorkController {
             return ResponseEntity.badRequest().build();
         }
 
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy)
+        // sortBy=steamReviews — 게임 탭 "리뷰 많은 순"(Steam 리뷰 수). Content 필드가 아니므로 Sort 로 넘기지 않는다
+        // (Content.reviewCount 는 우리 사이트 리뷰 수 — 이름이 겹치지 않게 steamReviews).
+        boolean steamReviewSort = "steamReviews".equals(sortBy);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), steamReviewSort ? "masterTitle" : sortBy)
                         .and(Sort.by(Sort.Direction.ASC, "contentId"));
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        WorkFilters filters = new WorkFilters(genres, platforms, releaseFrom, releaseTo, status, weekdays, ageRatings, reviewCountMin);
+        WorkFilters filters = new WorkFilters(genres, platforms, releaseFrom, releaseTo, status, weekdays, ageRatings,
+                reviewCountMin, steamReviewSort && domainEnum == Domain.GAME);
         PageResponse<WorkSummaryDTO> response = "legacy".equalsIgnoreCase(impl)
                 ? workApiService.getWorksLegacy(domainEnum, keyword, filters, pageable)
                 : workApiService.getWorks(domainEnum, keyword, filters, pageable);

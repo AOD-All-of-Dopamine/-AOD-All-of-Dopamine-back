@@ -25,6 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RankingControllerDocsTest extends RestDocsTestSupport {
 
     @MockBean
+    private com.example.AOD.ranking.service.RankingHistoryStore historyStore;
+
+    @MockBean
     private RankingService rankingService;
 
     @MockBean
@@ -50,7 +53,7 @@ public class RankingControllerDocsTest extends RestDocsTestSupport {
         mockResponse.setContent(contentInfo);
 
         given(rankingService.getAllRankings()).willReturn(Collections.emptyList()); // returns ignored
-        given(rankingMapper.toResponseList(any())).willReturn(Collections.singletonList(mockResponse));
+        given(rankingMapper.toResponseList(any(), any())).willReturn(Collections.singletonList(mockResponse));
 
         // when & then
         mockMvc.perform(get("/api/rankings/all")
@@ -65,6 +68,12 @@ public class RankingControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("[].platform").description("플랫폼 (NaverWebtoon, Steam 등)"),
                                 fieldWithPath("[].thumbnailUrl").description("썸네일 이미지 URL"),
                                 fieldWithPath("[].watchProviders").description("OTT 플랫폼 목록 (문자열 배열)"),
+                                fieldWithPath("[].portraitImageUrl").description("게임 세로 표지 (없으면 null)").optional(),
+                                fieldWithPath("[].ratingScore").description("순위를 받을 때의 평가 — 게임: 긍정 비율(0~1) · 영화/시리즈: TMDB 평점").optional(),
+                                fieldWithPath("[].ratingCount").description("게임: 리뷰 수 · 영화/시리즈: 투표 수").optional(),
+                                fieldWithPath("[].ratingLabel").description("게임: Steam 판정(영문)").optional(),
+                                fieldWithPath("[].previousRanking").description("비교 기준일 순위 — 기준일 기록에 없으면 null(= NEW, rankBaseDate 가 있을 때만)").optional(),
+                                fieldWithPath("[].rankBaseDate").description("비교 기준일 yyyy-MM-dd — null 이면 비교할 기록 없음(변동 표시 안 함). 네이버웹툰은 7일 전 같은 요일").optional(),
                                 fieldWithPath("[].content").description("내부 작품 매핑 정보 (null 가능)").optional(),
                                 fieldWithPath("[].content.contentId").description("내부 작품 ID").optional(),
                                 fieldWithPath("[].content.domain").description("작품 도메인").optional(),
@@ -86,7 +95,7 @@ public class RankingControllerDocsTest extends RestDocsTestSupport {
         mockResponse.setThumbnailUrl("http://example.com/thumb_squid.png");
 
         given(rankingService.getRankingsByPlatform(anyString())).willReturn(Collections.emptyList());
-        given(rankingMapper.toResponseList(any())).willReturn(Collections.singletonList(mockResponse));
+        given(rankingMapper.toResponseList(any(), any())).willReturn(Collections.singletonList(mockResponse));
 
         // when & then
         mockMvc.perform(get("/api/rankings/{platform}", "Netflix")
@@ -104,6 +113,12 @@ public class RankingControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("[].platform").description("조회한 플랫폼 이름"),
                                 fieldWithPath("[].thumbnailUrl").description("썸네일 이미지 URL"),
                                 fieldWithPath("[].watchProviders").description("스트리밍 지원 플랫폼 목록 (null 가능)").optional(),
+                                fieldWithPath("[].portraitImageUrl").description("게임 세로 표지 (없으면 null)").optional(),
+                                fieldWithPath("[].ratingScore").description("순위를 받을 때의 평가 — 게임: 긍정 비율(0~1) · 영화/시리즈: TMDB 평점").optional(),
+                                fieldWithPath("[].ratingCount").description("게임: 리뷰 수 · 영화/시리즈: 투표 수").optional(),
+                                fieldWithPath("[].ratingLabel").description("게임: Steam 판정(영문)").optional(),
+                                fieldWithPath("[].previousRanking").description("비교 기준일 순위 — 기준일 기록에 없으면 null(= NEW, rankBaseDate 가 있을 때만)").optional(),
+                                fieldWithPath("[].rankBaseDate").description("비교 기준일 yyyy-MM-dd — null 이면 비교할 기록 없음(변동 표시 안 함). 네이버웹툰은 7일 전 같은 요일").optional(),
                                 fieldWithPath("[].content").description("내부 매핑 정보").optional()
                         )
                 ));
@@ -121,7 +136,7 @@ public class RankingControllerDocsTest extends RestDocsTestSupport {
         mockResponse.setThumbnailUrl("http://example.com/thumb_lol.png");
 
         given(rankingService.getRankingsByDomain(anyString())).willReturn(Collections.emptyList());
-        given(rankingMapper.toResponseList(any())).willReturn(Collections.singletonList(mockResponse));
+        given(rankingMapper.toResponseList(any(), any())).willReturn(Collections.singletonList(mockResponse));
 
         // when & then
         mockMvc.perform(get("/api/rankings/domain/{domain}", "GAME")
@@ -139,6 +154,12 @@ public class RankingControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("[].platform").description("플랫폼"),
                                 fieldWithPath("[].thumbnailUrl").description("썸네일 이미지 URL"),
                                 fieldWithPath("[].watchProviders").description("스트리밍/구매 플랫폼 목록").optional(),
+                                fieldWithPath("[].portraitImageUrl").description("게임 세로 표지 (없으면 null)").optional(),
+                                fieldWithPath("[].ratingScore").description("순위를 받을 때의 평가 — 게임: 긍정 비율(0~1) · 영화/시리즈: TMDB 평점").optional(),
+                                fieldWithPath("[].ratingCount").description("게임: 리뷰 수 · 영화/시리즈: 투표 수").optional(),
+                                fieldWithPath("[].ratingLabel").description("게임: Steam 판정(영문)").optional(),
+                                fieldWithPath("[].previousRanking").description("비교 기준일 순위 — 기준일 기록에 없으면 null(= NEW, rankBaseDate 가 있을 때만)").optional(),
+                                fieldWithPath("[].rankBaseDate").description("비교 기준일 yyyy-MM-dd — null 이면 비교할 기록 없음(변동 표시 안 함). 네이버웹툰은 7일 전 같은 요일").optional(),
                                 fieldWithPath("[].content").description("내부 매핑 정보").optional()
                         )
                 ));

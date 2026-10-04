@@ -26,6 +26,7 @@ public class RankingUpsertHelper {
 
     private final ExternalRankingRepository rankingRepository;
     private final PlatformDataRepository platformDataRepository;
+    private final RankingDailyRecorder dailyRecorder;
 
     /**
      * 랭킹 데이터 Upsert (Insert or Update)
@@ -84,6 +85,32 @@ public class RankingUpsertHelper {
 
         // 3. 랭킹에서 제외된 작품 삭제
         deleteRankingsNotInList(platform, newPlatformSpecificIds);
+
+        // 4. 일별 기록(트렌드 변동) — 커밋 뒤 별도 트랜잭션. 실패해도 본 순위 저장은 그대로다
+        List<RankingDailyRecorder.Row> rows = new ArrayList<>();
+        for (ExternalRanking r : toSave) {
+            if (r.getRanking() == null) continue;
+            rows.add(new RankingDailyRecorder.Row(r.getPlatformSpecificId(),
+                    r.getContent() != null ? r.getContent().getContentId() : null, r.getRanking()));
+        }
+        Runnable record = () -> {
+            try {
+                dailyRecorder.record(platform, fetchedAt, rows);
+            } catch (Exception e) {
+                log.warn("순위 일별 기록 실패 — 순위 저장은 유지된다 platform={}: {}", platform, e.getMessage());
+            }
+        };
+        if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                    new org.springframework.transaction.support.TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            record.run();
+                        }
+                    });
+        } else {
+            record.run();
+        }
     }
 
     private void mapToInternalContent(ExternalRanking ranking, String platform) {

@@ -35,6 +35,9 @@ public class RankingMapper {
         response.setPlatform(entity.getPlatform());
         response.setThumbnailUrl(entity.getThumbnailUrl());
         response.setWatchProviders(entity.getWatchProviders());
+        response.setRatingScore(entity.getRatingScore());
+        response.setRatingCount(entity.getRatingCount());
+        response.setRatingLabel(entity.getRatingLabel());
         
         // Content 매핑 정보가 있는 경우
         if (entity.getContent() != null) {
@@ -42,6 +45,7 @@ public class RankingMapper {
             
             // contentId 설정 (프론트엔드 호환)
             response.setContentId(content.getContentId());
+            response.setPortraitImageUrl(content.getPortraitImageUrl());
             
             // 상세 정보 설정 (선택적)
             RankingResponse.ContentInfo contentInfo = new RankingResponse.ContentInfo();
@@ -65,6 +69,20 @@ public class RankingMapper {
         return entities.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    /** 직전 순위를 붙인다 (트렌드 변동). 기준일이 없는 플랫폼은 previousRanking · rankBaseDate 모두 null. */
+    public List<RankingResponse> toResponseList(List<ExternalRanking> entities,
+                                                java.util.Map<String, com.example.AOD.ranking.service.RankingHistoryStore.Baseline> baselines) {
+        List<RankingResponse> out = toResponseList(entities);
+        for (int i = 0; i < out.size(); i++) {
+            ExternalRanking e = entities.get(i);
+            var base = baselines.get(e.getPlatform());
+            if (base == null || base.baseDate() == null) continue;
+            out.get(i).setRankBaseDate(base.baseDate().toString());
+            out.get(i).setPreviousRanking(base.ranks().get(e.getPlatformSpecificId()));
+        }
+        return out;
     }
 }
 

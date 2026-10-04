@@ -30,6 +30,7 @@ public class RankingController {
 
     private final RankingService rankingService;
     private final RankingMapper rankingMapper;
+    private final com.example.AOD.ranking.service.RankingHistoryStore historyStore;
 
     /**
      * 전체 랭킹 조회 (DB에서 가져오기)
@@ -39,7 +40,7 @@ public class RankingController {
     @GetMapping("/all")
     public ResponseEntity<List<RankingResponse>> getAllRankings() {
         List<ExternalRanking> rankings = rankingService.getAllRankings();
-        return ResponseEntity.ok(rankingMapper.toResponseList(rankings));
+        return ResponseEntity.ok(rankingMapper.toResponseList(rankings, historyStore.baselines(rankings)));
     }
 
     /**
@@ -51,7 +52,7 @@ public class RankingController {
     @GetMapping("/{platform}")
     public ResponseEntity<List<RankingResponse>> getRankingsByPlatform(@PathVariable String platform) {
         List<ExternalRanking> rankings = rankingService.getRankingsByPlatform(platform);
-        return ResponseEntity.ok(rankingMapper.toResponseList(rankings));
+        return ResponseEntity.ok(rankingMapper.toResponseList(rankings, historyStore.baselines(rankings)));
     }
 
     /**
@@ -63,6 +64,6 @@ public class RankingController {
     @GetMapping("/domain/{domain}")
     public ResponseEntity<List<RankingResponse>> getRankingsByDomain(@PathVariable String domain) {
         List<ExternalRanking> rankings = rankingService.getRankingsByDomain(domain);
-        return ResponseEntity.ok(rankingMapper.toResponseList(rankings));
+        return ResponseEntity.ok(rankingMapper.toResponseList(rankings, historyStore.baselines(rankings)));
     }
 }

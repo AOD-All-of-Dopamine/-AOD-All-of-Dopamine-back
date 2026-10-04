@@ -152,4 +152,21 @@ class WorksQueryBuilderTest {
         assertTrue(norm(b.sql()).contains("c.is_adult = false"));
         assertTrue(norm(b.countSql()).contains("c.is_adult = false"));
     }
+
+    @Test
+    void steamReviewSortJoinsGameContentsOnlyForGame() {
+        // 2026-10-04 트렌드 · 탐색 — 게임 탭 "리뷰 많은 순"
+        WorksFilterCriteria byReviews = new WorksFilterCriteria("GAME", null, null, null, null, LocalDate.of(2026, 10, 4),
+                null, null, null, null, true);
+        WorksQueryBuilder.Built b = WorksQueryBuilder.build(byReviews);
+        assertTrue(b.sql().contains("LEFT JOIN game_contents gs ON gs.content_id = c.content_id"));
+        assertTrue(b.sql().endsWith(" ORDER BY gs.review_count DESC NULLS LAST, c.content_id ASC"));
+        assertFalse(b.countSql().contains("game_contents"), "count 쿼리는 정렬 조인이 필요 없다");
+
+        // 게임 외 도메인은 무시 — 출시일 순 그대로
+        WorksFilterCriteria movie = new WorksFilterCriteria("MOVIE", null, null, null, null, null, null, null, null, null, true);
+        WorksQueryBuilder.Built m = WorksQueryBuilder.build(movie);
+        assertFalse(m.sql().contains("game_contents"));
+        assertTrue(m.sql().endsWith(" ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC"));
+    }
 }

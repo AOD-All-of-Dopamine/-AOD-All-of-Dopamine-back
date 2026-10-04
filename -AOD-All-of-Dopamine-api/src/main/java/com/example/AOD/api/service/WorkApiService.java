@@ -49,7 +49,7 @@ public class WorkApiService {
         log.debug("getWorks - domain: {}, keyword: {}, filters: {}, page: {}",
                   domain, keyword, filters, pageable.getPageNumber());
 
-        if (filters != null && filters.hasAny()) {
+        if (filters != null && (filters.hasAny() || (filters.steamReviewSort() && domain == Domain.GAME))) {
             return getWorksWithDbFiltering(domain, keyword, filters, pageable);
         }
 
@@ -82,7 +82,8 @@ public class WorkApiService {
                 blankToNull(filters.status()),
                 filters.weekdays(),
                 filters.ageRatings(),
-                filters.reviewCountMin());
+                filters.reviewCountMin(),
+                filters.steamReviewSort());
 
         Page<Content> page = contentRepository.findWorks(criteria, pageReq);
 
@@ -454,7 +455,7 @@ public class WorkApiService {
     }
 
     /** 신작 피드에 올라오는 게임의 Steam 리뷰 수 하한 (홈 "새로 나온 작품" · /new 신작 공용) */
-    static final int RECENT_RELEASE_GAME_MIN_REVIEWS = 100;
+    public static final int RECENT_RELEASE_GAME_MIN_REVIEWS = 100;
 
     /**
      * 최근 출시작 조회 (최근 3개월 이내 출시된 작품들).

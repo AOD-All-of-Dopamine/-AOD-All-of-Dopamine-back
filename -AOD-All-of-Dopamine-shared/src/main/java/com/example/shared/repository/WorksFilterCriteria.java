@@ -17,6 +17,13 @@ public record WorksFilterCriteria(
         String status,
         List<String> weekdays,
         List<String> ageRatings,
-        Integer reviewCountMin
+        Integer reviewCountMin,
+        /** 게임 탭 "리뷰 많은 순"(Steam 리뷰 수 · game_contents.review_count) — 게임 외 도메인에선 무시 (2026-10-04 트렌드 · 탐색) */
+        boolean steamReviewSort
 ) {
+    public WorksFilterCriteria(String domain, List<String> genres, List<String> platforms, String keyword,
+                               LocalDate releaseFrom, LocalDate releaseTo, String status, List<String> weekdays,
+                               List<String> ageRatings, Integer reviewCountMin) {
+        this(domain, genres, platforms, keyword, releaseFrom, releaseTo, status, weekdays, ageRatings, reviewCountMin, false);
+    }
 }
