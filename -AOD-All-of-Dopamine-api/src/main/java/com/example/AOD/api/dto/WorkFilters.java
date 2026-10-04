@@ -23,8 +23,15 @@ public record WorkFilters(
         String status,
         List<String> weekdays,
         List<String> ageRatings,
-        Integer reviewCountMin
+        Integer reviewCountMin,
+        /** 게임 탭 "리뷰 많은 순" (sortBy=steamReviews) — 필터가 없어도 동적 조립 경로로 간다 */
+        boolean steamReviewSort
 ) {
+    public WorkFilters(List<String> genres, List<String> platforms, String releaseFrom, String releaseTo,
+                       String status, List<String> weekdays, List<String> ageRatings, Integer reviewCountMin) {
+        this(genres, platforms, releaseFrom, releaseTo, status, weekdays, ageRatings, reviewCountMin, false);
+    }
+
     public static WorkFilters none() {
         return new WorkFilters(null, null, null, null, null, null, null, null);
     }

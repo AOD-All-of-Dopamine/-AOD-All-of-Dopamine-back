@@ -40,6 +40,9 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
     @MockBean
     private FeaturedWorkService featuredWorkService;
 
+    @MockBean
+    private com.example.AOD.api.trend.NotableReleaseService notableReleaseService;
+
     @Test
     void getWorksList() throws Exception {
         // given: 빈 리스트를 응답하는 Mock 객체 설정 (DB 연결 없이 문서화만 테스트)
@@ -259,5 +262,41 @@ public class WorkControllerDocsTest extends RestDocsTestSupport {
                 .andExpect(status().isNoContent())
                 .andExpect(header().string("Cache-Control", "no-store"))
                 .andDo(document("works-featured-today-empty"));
+    }
+
+    @Test
+    void getNotableReleases() throws Exception {
+        WorkSummaryDTO game = new WorkSummaryDTO();
+        game.setId(125536L);
+        game.setDomain("GAME");
+        game.setTitle("에이스 컴뱃 8: 시브의 날개");
+        game.setReleaseDate("2026-10-01");
+        WorkSummaryDTO novel = new WorkSummaryDTO();
+        novel.setId(9L);
+        novel.setDomain("WEBNOVEL");
+        novel.setTitle("나를 잊은 너에게");
+        novel.setReleaseDate("2026-10-03");
+        given(notableReleaseService.notable()).willReturn(java.util.List.of(
+                new com.example.AOD.api.trend.NotableReleaseService.Group("GAME", java.util.List.of(
+                        new com.example.AOD.api.trend.NotableReleaseService.Item(game,
+                                new com.example.AOD.api.trend.NotableReleaseService.Reason("RANK", 6, "Steam", null)))),
+                new com.example.AOD.api.trend.NotableReleaseService.Group("WEBNOVEL", java.util.List.of(
+                        new com.example.AOD.api.trend.NotableReleaseService.Item(novel,
+                                new com.example.AOD.api.trend.NotableReleaseService.Reason("LATEST", null, null, "2026-10-03")))),
+                new com.example.AOD.api.trend.NotableReleaseService.Group("TV", java.util.List.of())));
+
+        mockMvc.perform(get("/api/works/releases/notable").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "max-age=1800, public"))
+                .andDo(document("works-releases-notable",
+                        responseFields(
+                                fieldWithPath("[].domain").description("분야 (MOVIE · TV · GAME · WEBTOON · WEBNOVEL) — 늘 다섯 묶음, 빈 분야는 items 가 빈 배열"),
+                                fieldWithPath("[].items").description("주목작 (분야마다 최대 2편)"),
+                                subsectionWithPath("[].items[].work").description("작품 요약 — 목록 조회의 content 항목과 같은 형식"),
+                                fieldWithPath("[].items[].reason.type").description("고른 이유 RANK(오늘 순위) · VOTES(TMDB 투표 수) · REVIEWS(Steam 리뷰 수) · LATEST(최신)"),
+                                fieldWithPath("[].items[].reason.value").description("RANK: 순위 · VOTES/REVIEWS: 수").optional(),
+                                fieldWithPath("[].items[].reason.platform").description("RANK: 순위 플랫폼").optional(),
+                                fieldWithPath("[].items[].reason.date").description("LATEST: 시작일 yyyy-MM-dd").optional()
+                        )));
     }
 }

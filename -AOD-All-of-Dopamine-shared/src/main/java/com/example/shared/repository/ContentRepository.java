@@ -78,7 +78,7 @@ public interface ContentRepository extends JpaRepository<Content, Long>, Content
                                        Pageable pageable);
 
     /**
-     * 신작 피드의 게임 품질 하한 — 게임은 game_contents.review_count 가 gameReviewMin 이상인 것만.
+     * 신작 피드의 게임 품질 하한 — 게임은 game_contents.review_count 가 gameReviewMin 이상이거나 오늘 Steam 순위에 오른 것만.
      * Steam 은 매달 수백 편이 쏟아져 리뷰 없는 작품이 신작 목록을 덮는다. review_count 가 null(미수집)인
      * 게임도 제외된다. 게임 외 도메인은 그대로 통과.
      * 지금 GAME 은 Steam 단일 플랫폼이라 도메인으로 가른다 — 다른 게임 플랫폼을 붙이면 그 플랫폼의
@@ -86,7 +86,9 @@ public interface ContentRepository extends JpaRepository<Content, Long>, Content
      */
     String RELEASE_GAME_REVIEW_FLOOR =
             "AND (c.domain <> com.example.shared.entity.Domain.GAME OR EXISTS (" +
-            "  SELECT 1 FROM GameContent g WHERE g.contentId = c.contentId AND g.reviewCount >= :gameReviewMin)) ";
+            "  SELECT 1 FROM GameContent g WHERE g.contentId = c.contentId AND g.reviewCount >= :gameReviewMin)" +
+            // 리뷰 수는 수집 때 굳어 신작은 하한을 넘지 못한다 — 오늘 Steam 순위에 오른 게임은 통과 (2026-10-04 트렌드)
+            "  OR EXISTS (SELECT 1 FROM ExternalRanking er WHERE er.content.contentId = c.contentId AND er.platform = 'Steam')) ";
 
     // 특정 날짜 범위의 신작 조회 - 도메인별
     @Query("SELECT c FROM Content c WHERE c.domain = :domain AND c.isAdult = false AND c.releaseDate BETWEEN :startDate AND :endDate " +

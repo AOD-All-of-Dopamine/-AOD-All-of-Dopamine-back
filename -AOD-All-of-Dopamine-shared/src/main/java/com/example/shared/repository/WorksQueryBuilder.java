@@ -21,7 +21,11 @@ import java.util.Objects;
  *   <li>releaseFrom/To: 출시일 범위</li>
  *   <li>status/weekdays/ageRatings: webtoon_contents EXISTS (켜진 조건만 내부에 포함)</li>
  *   <li>reviewCountMin: game_contents EXISTS (최상위 AND → 세미조인 변환 가능)</li>
- *   <li>is_adult = false 고정, ORDER BY release_date DESC NULLS LAST, content_id ASC 고정</li>
+ *   <li>is_adult = false 고정, ORDER BY release_date DESC NULLS LAST, content_id ASC
+ *       — 게임 탭 리뷰 순(steamReviewSort)이면 game_contents 와 INNER JOIN 해 review_count DESC NULLS LAST
+ *       (idx_game_contents_review_desc, V14 — game_contents 인덱스 순서로 걷다 LIMIT 에서 멈춘다. LEFT JOIN 은
+ *       contents 전체를 읽고 정렬해야 해서 쓰지 않는다. 게임은 수집 때 game_contents 행이 늘 함께 생겨 빠지는 작품이 없다).
+ *       리뷰 수는 수집 때 굳은 값이다(재수집 없음).</li>
  * </ul>
  */
 public final class WorksQueryBuilder {
@@ -33,6 +37,9 @@ public final class WorksQueryBuilder {
     private static final String SELECT = "SELECT c.* FROM contents c WHERE ";
     private static final String COUNT = "SELECT COUNT(*) FROM contents c WHERE ";
     private static final String ORDER_BY = " ORDER BY c.release_date DESC NULLS LAST, c.content_id ASC";
+    private static final String SELECT_BY_REVIEWS =
+            "SELECT c.* FROM contents c JOIN game_contents gs ON gs.content_id = c.content_id WHERE ";
+    private static final String ORDER_BY_REVIEWS = " ORDER BY gs.review_count DESC NULLS LAST, c.content_id ASC";
 
     private WorksQueryBuilder() {
     }
@@ -91,7 +98,9 @@ public final class WorksQueryBuilder {
             params.put("reviewCountMin", c.reviewCountMin());
         }
 
-        return new Built(SELECT + where + ORDER_BY, COUNT + where, params);
+        boolean byReviews = c.steamReviewSort() && "GAME".equals(c.domain());
+        return new Built((byReviews ? SELECT_BY_REVIEWS : SELECT) + where + (byReviews ? ORDER_BY_REVIEWS : ORDER_BY),
+                COUNT + where, params);
     }
 
     private static boolean notEmpty(List<String> list) {

@@ -70,6 +70,13 @@ include::{snippets}/works-featured-today/http-response.adoc[]
 ==== 응답 예시 (작품 없음)
 include::{snippets}/works-featured-today-empty/http-response.adoc[]
 
+=== 새로 나온 주목작 (트렌드)
+분야마다 최대 2편 — 오늘 순위에 오른 최근작을 먼저, 모자라면 분야별 근거(TMDB 투표 · Steam 리뷰 · 최신)로 채운다. 30분 캐시.
+==== 응답 필드
+include::{snippets}/works-releases-notable/response-fields.adoc[]
+==== 응답 예시
+include::{snippets}/works-releases-notable/http-response.adoc[]
+
 ---
 
 [[Review-API]]
