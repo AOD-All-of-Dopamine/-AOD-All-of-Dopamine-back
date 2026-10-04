@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ import java.util.Set;
  *       웹툰 · 웹소설: 최신순</li>
  * </ol>
  * 게임 리뷰 수 · TMDB 투표 수는 수집 때 굳어 신작에서 작으므로 순위를 먼저 본다.
+ * <p>결과는 서버에서 {@link #CACHE_TTL} 동안(같은 KST 날짜 안) 들고 있는다 — 한 번에 쿼리 수십 개라 트렌드 탭마다
+ * 다시 고르지 않게. 앱 캐시 매니저(ConcurrentMapCacheManager)는 만료가 없어 쓰지 않는다.</p>
  */
 @Service
 public class NotableReleaseService {
@@ -46,6 +50,12 @@ public class NotableReleaseService {
             Domain.WEBTOON, 45, Domain.WEBNOVEL, 14);
     /** 채우기 후보 상한(분야당) — 메모리에서 투표 · 리뷰 순으로 고른다 */
     static final int FILL_CANDIDATES = 100;
+
+    static final Duration CACHE_TTL = Duration.ofMinutes(30);
+
+    private record Snapshot(LocalDate day, Instant at, List<Group> groups) { }
+
+    private volatile Snapshot cached;
 
     private final ExternalRankingRepository rankingRepository;
     private final ContentRepository contentRepository;
@@ -75,10 +85,15 @@ public class NotableReleaseService {
 
     @Transactional(readOnly = true)
     public List<Group> notable() {
-        LocalDate today = LocalDate.now(clock.withZone(KST));
+        Instant now = clock.instant();
+        LocalDate today = LocalDate.ofInstant(now, KST);
+        Snapshot hit = cached;
+        if (hit != null && hit.day().equals(today) && now.isBefore(hit.at().plus(CACHE_TTL))) return hit.groups();
         List<Group> out = new ArrayList<>();
         for (Domain domain : ORDER) out.add(new Group(domain.name(), pick(domain, today)));
-        return out;
+        List<Group> groups = List.copyOf(out);
+        cached = new Snapshot(today, now, groups);
+        return groups;
     }
 
     List<Item> pick(Domain domain, LocalDate today) {

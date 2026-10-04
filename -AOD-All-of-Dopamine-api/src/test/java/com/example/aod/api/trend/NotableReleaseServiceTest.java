@@ -26,6 +26,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /** 트렌드 "새로 나온 주목작" — 순위 먼저, 모자라면 분야별 근거로 채운다. */
 class NotableReleaseServiceTest {
@@ -127,5 +129,13 @@ class NotableReleaseServiceTest {
         Content ok = content(Domain.WEBTOON, "정상", TODAY.minusDays(3), 0);
         given(rankings.findByPlatformWithContent("NaverWebtoon")).willReturn(List.of(rank(1, adult), rank(2, ok)));
         assertThat(service.pick(Domain.WEBTOON, TODAY)).extracting(i -> i.work().getTitle()).containsExactly("정상");
+    }
+
+    @Test
+    void cachesWithinTtlSameDay() {
+        service.notable();
+        service.notable();
+        // 분야 다섯 개 × 한 번 — 두 번째 호출은 서버 캐시에서
+        verify(rankings, times(5)).findByPlatformWithContent(anyString());
     }
 }
