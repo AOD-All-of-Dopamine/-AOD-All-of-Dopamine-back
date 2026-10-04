@@ -159,7 +159,7 @@ class WorksQueryBuilderTest {
         WorksFilterCriteria byReviews = new WorksFilterCriteria("GAME", null, null, null, null, LocalDate.of(2026, 10, 4),
                 null, null, null, null, true);
         WorksQueryBuilder.Built b = WorksQueryBuilder.build(byReviews);
-        assertTrue(b.sql().contains("LEFT JOIN game_contents gs ON gs.content_id = c.content_id"));
+        assertTrue(b.sql().contains("FROM contents c JOIN game_contents gs ON gs.content_id = c.content_id"));
         assertTrue(b.sql().endsWith(" ORDER BY gs.review_count DESC NULLS LAST, c.content_id ASC"));
         assertFalse(b.countSql().contains("game_contents"), "count 쿼리는 정렬 조인이 필요 없다");
 
