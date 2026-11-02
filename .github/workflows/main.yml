@@ -1,10 +1,9 @@
 name: CI/CD Pipeline - API & Crawler
 
+# 2026-11 맥미니 이전: 운영은 main-server(deploy/main-server)에서 돈다. 이 워크플로는 이전 직후
+# EC2 브리지(설계 §6)에서만 수동으로 쓴다 — push 로 EC2 에 배포되지 않게 push 트리거를 뺐다.
+# 2단계(GHCR + arm64 러너 + Tailscale 배포)로 교체할 때 다시 연다.
 on:
-  push:
-    branches:
-      - main
-      - develop
   workflow_dispatch:
 
 env:
