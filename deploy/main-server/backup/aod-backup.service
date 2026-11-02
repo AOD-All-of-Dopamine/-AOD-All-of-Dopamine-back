@@ -1,0 +1,8 @@
+[Unit]
+Description=AOD Postgres 일일 백업 (pg_dump -> /srv/aod-backups)
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/aod-backup.sh

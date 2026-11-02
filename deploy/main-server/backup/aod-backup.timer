@@ -1,0 +1,9 @@
+[Unit]
+Description=AOD Postgres 일일 백업 타이머 (03:30 KST)
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 Asia/Seoul
+Persistent=true
+
+[Install]
+WantedBy=timers.target
