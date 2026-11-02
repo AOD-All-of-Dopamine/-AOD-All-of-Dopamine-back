@@ -28,6 +28,7 @@ docker ps --format '{{.Names}} {{.Status}}' | sort      # 성공: rec-* 5개 hea
 1-3 〔맥〕 디렉터리
 ```bash
 sudo mkdir -p /srv/aod-pg /srv/aod-backups
+sudo chown "$USER": /srv/aod-backups   # §2 의 .verify 리디렉션을 로그인 사용자가 쓴다. /srv/aod-pg 는 root 그대로 — postgres 엔트리포인트가 uid 999 로 바꾼다
 ```
 1-4 〔맥〕 코드
 ```bash
