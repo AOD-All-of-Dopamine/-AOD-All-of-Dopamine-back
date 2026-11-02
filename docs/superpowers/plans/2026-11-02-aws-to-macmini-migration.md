@@ -46,8 +46,10 @@ PowerShell:
 ```powershell
 New-Item -ItemType Directory -Force D:\AOD\backup | Out-Null
 $stamp = Get-Date -Format "yyyyMMdd-HHmm"
-& "C:\Program Files\PostgreSQL\17\bin\pg_dump.exe" -h <RDS_HOST> -U postgres -d postgres -W -Fd -j4 -Z1 -f "D:\AOD\backup\rds-$stamp"
+$rdsHost = ((Get-Content D:\AOD\-AOD-All-of-Dopamine-AI\.env | Select-String '^AOD_DB_HOST=') -split '=', 2)[1].Trim()
+& "C:\Program Files\PostgreSQL\17\bin\pg_dump.exe" -h $rdsHost -U postgres -d postgres -W -Fd -j4 -Z1 -f "D:\AOD\backup\rds-$stamp"
 ```
+RDS 엔드포인트는 레포가 퍼블릭이라 문서에 적지 않는다 — AI 레포의 gitignore된 `.env`(`AOD_DB_HOST`)에서 읽는다.
 Expected: 몇 분 뒤 에러 없이 프롬프트 복귀.
 
 - [ ] **Step 2: 사본이 읽히는지 확인**
@@ -1085,9 +1087,9 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - 성공 표시가 안 보이면 다음 단계로 가지 않는다.
 
 ```bash
-# 〔맥〕 매 셸에서 먼저
-export RDS_HOST=<RDS_HOST>
+# 〔맥〕 매 셸에서 먼저 (1-5 에서 .env 를 만든 뒤)
 cd ~/-AOD-All-of-Dopamine-back/deploy/main-server     # 아래 docker compose 명령은 전부 여기서
+export RDS_HOST=$(grep '^RDS_HOST=' .env | cut -d= -f2-)   # 엔드포인트는 퍼블릭 레포에 적지 않는다 — .env 에만
 ```
 
 ## 1. 호스트 준비
@@ -1119,9 +1121,10 @@ cd ./-AOD-All-of-Dopamine-back && git checkout feat/macmini-migration    # './' 
 cd ~/-AOD-All-of-Dopamine-back/deploy/main-server
 cp .env.example .env && chmod 600 .env
 openssl rand -base64 24 | tr -d '/+='     # 두 번 돌려 POSTGRES_PASSWORD · AOD_AI_PASSWORD 에
-nano .env                                  # 나머지 값(GitHub Actions 시크릿 원본) 입력
+nano .env                                  # 나머지 값(GitHub Actions 시크릿 원본)과 RDS_HOST(AWS 콘솔 → RDS → 엔드포인트) 입력
+RDS_HOST=$(grep '^RDS_HOST=' .env | cut -d= -f2-)
 read -rs -p 'RDS master password: ' PGPW; echo
-printf '%s:5432:*:postgres:%s\n' <RDS_HOST> "$PGPW" > ~/.pgpass-rds
+printf '%s:5432:*:postgres:%s\n' "$RDS_HOST" "$PGPW" > ~/.pgpass-rds
 chmod 600 ~/.pgpass-rds; unset PGPW
 ```
 1-6 〔맥〕 확인

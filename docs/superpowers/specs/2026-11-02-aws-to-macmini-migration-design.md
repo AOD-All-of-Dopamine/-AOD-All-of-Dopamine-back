@@ -23,7 +23,7 @@ AWS 크레딧이 끝나 **이미 과금 중**이다. AWS에 있는 백엔드 전
 |---|---|---|
 | API EC2 | t3.small, 인스턴스 `i-0718dec7cc7bf2037`, EIP `13.125.165.117`, Ubuntu + nginx 1.24(TLS 종단) → 컨테이너 `aod-app:8080`. Tailscale 노드 `aod-api`(100.126.116.57) | `main.yml`, `curl -I`, tailscale status, 맥 세션 |
 | 크롤러 EC2 | t3.small 별도 인스턴스, 컨테이너 `aod-crawler:8081`, Chrome/Selenium 내장. Tailscale 미가입 | `main.yml`, crawler compose |
-| RDS | `<RDS_HOST>`, PostgreSQL 17.9, `vector 0.8.1`, DB `postgres` 2,506 MB. 스키마 public(29 테이블, 2,487 MB) · aod_ai(9) · aod_log(30) · aod_rec(3). 모든 객체 소유자 `postgres`. 롤 `postgres`(마스터, 비superuser) · `aod_ai`(login) · `aod_public_ro`(nologin). `flyway_schema_history` baseline 3부터 V12 이상(코드에 V13 참조 있음 — 정확한 값은 verify.sql이 RDS에서 뽑는다). 이 PC에서 5432 접속 가능 | psql 읽기 조회 |
+| RDS | 인스턴스 `aod-database`(엔드포인트는 레포가 퍼블릭이라 적지 않는다 — AI 레포 `.env`의 `AOD_DB_HOST`, main-server `.env`의 `RDS_HOST`), PostgreSQL 17.9, `vector 0.8.1`, DB `postgres` 2,506 MB. 스키마 public(29 테이블, 2,487 MB) · aod_ai(9) · aod_log(30) · aod_rec(3). 모든 객체 소유자 `postgres`. 롤 `postgres`(마스터, 비superuser) · `aod_ai`(login) · `aod_public_ro`(nologin). `flyway_schema_history` 12행, 최대 V14(2026-11-02 verify.sql). 이 PC에서 5432 접속 가능 | psql 읽기 조회 |
 | 큰 테이블 | raw_items 1,380 MB(259k) · platform_data 532 MB · contents 275 MB(245k) · crawl_job_queue 132 MB · game_contents 79 MB · transform_runs 71 MB | psql |
 | 권한 | `aod_ai`는 public·aod_ai만 읽음. **aod_log·aod_rec 33개 테이블은 못 읽음 → 전체 덤프는 마스터 `postgres` 계정 필요**. `aod_ai`는 `aod_public_ro`의 멤버. 기본 권한 3건(`postgres`가 public 테이블 SELECT→aod_public_ro, aod_ai 테이블 arwd→aod_ai, aod_ai 시퀀스 rU→aod_ai) | psql `has_table_privilege`, `pg_auth_members`, `pg_default_acl` |
 | RDS 설정 | `timezone=UTC`, `max_connections=80`, 조사 시점 연결 13개 | psql `SHOW` |
@@ -121,9 +121,9 @@ deploy/main-server/
 
 **덤프(맥 main-server에서, 마스터 계정)**
 ```bash
-# 비번은 채팅에 쓰지 않는다 — 터미널 프롬프트 입력 또는 ~/.pgpass
-docker run --rm -it -v /srv/aod-backups:/out postgres:17 \
-  pg_dump -h <RDS_HOST> -U postgres -d postgres \
+# 비번은 채팅에 쓰지 않는다 — ~/.pgpass-rds (런북 §1-5). RDS_HOST 는 .env 에서 읽는다.
+docker run --rm -v "$HOME/.pgpass-rds:/pgpass:ro" -e PGPASSFILE=/pgpass -v /srv/aod-backups:/out postgres:17 \
+  pg_dump -h "$RDS_HOST" -U postgres -d postgres \
           -Fd -j4 -Z1 -f /out/rds-YYYYMMDD-HHMM
 ```
 - 롤 속성·멤버십은 §1에서 이미 조회했으므로 globals 덤프는 받지 않는다(RDS는 `pg_dumpall --globals-only`가 `rds_*` 롤 때문에 지저분하다).
