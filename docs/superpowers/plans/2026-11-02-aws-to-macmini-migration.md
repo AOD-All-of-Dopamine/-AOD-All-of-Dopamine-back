@@ -775,7 +775,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       TMDB_API_KEY: ${TMDB_API_KEY:?TMDB_API_KEY 를 .env 에 넣는다}
       STEAM_API_KEY: ${STEAM_API_KEY:?STEAM_API_KEY 를 .env 에 넣는다}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY 를 .env 에 넣는다}
+      # 운영 EC2 에서도 비어 있다(2026-11-02 확인) — 비어도 prod 프로필 자리표시자가 빈 문자열로 풀린다
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
       # 추천 라우터는 같은 VM 의 aod-rec 스택 — Docker 네트워크로 부른다
       REC_ROUTER_BASE_URL: http://rec-router:8080
@@ -819,7 +820,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       TMDB_API_KEY: ${TMDB_API_KEY}
       STEAM_API_KEY: ${STEAM_API_KEY}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       NAVER_ID: ${NAVER_ID:-}
       NAVER_PW: ${NAVER_PW:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
