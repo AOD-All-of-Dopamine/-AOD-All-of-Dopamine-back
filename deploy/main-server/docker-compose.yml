@@ -1,0 +1,155 @@
+# AOD 백엔드 — 맥미니 OrbStack VM main-server 용
+#   설계: docs/superpowers/specs/2026-11-02-aws-to-macmini-migration-design.md
+#   순서: deploy/main-server/RUNBOOK.md
+#   cd deploy/main-server && cp .env.example .env   (값 채우기)
+#   docker compose build && docker compose up -d
+# 추천 스택(compose 프로젝트 aod-rec)이 먼저 떠 있어야 한다 — api 가 그 네트워크의 rec-router 를 부른다.
+name: aod-backend
+
+x-java-common: &java-common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.1-pg17
+    container_name: aod-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 를 .env 에 넣는다}
+      AOD_AI_PASSWORD: ${AOD_AI_PASSWORD:?AOD_AI_PASSWORD 를 .env 에 넣는다}
+    # RDS 와 같은 UTC — timestamptz 표시와 now() 기본값이 이전 전후로 바뀌지 않게. 앱 JVM 은 Asia/Seoul.
+    command: >-
+      postgres -c timezone=UTC -c log_timezone=UTC
+      -c shared_buffers=512MB -c effective_cache_size=1GB -c max_connections=150
+    volumes:
+      - /srv/aod-pg:/var/lib/postgresql/data
+      - /srv/aod-backups:/backups
+      - ./init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${PG_PUBLISH:-127.0.0.1:15432}:5432"
+    shm_size: 256m
+    mem_limit: 1536m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [aod-backend]
+
+  api:
+    <<: *java-common
+    build:
+      context: ../..
+      dockerfile: -AOD-All-of-Dopamine-api/Dockerfile
+    image: aod-api:local
+    container_name: aod-api
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      TZ: Asia/Seoul
+      # 힙은 여기 한 곳에서만. 컨테이너 한도 1.5G = 힙 1G + 비힙 0.3~0.4G.
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul -Dfile.encoding=UTF-8 -Xms256m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      SPRING_PROFILES_ACTIVE: prod
+      # application-prod.properties 가 ${POSTGRES_*} 를 참조하므로 둘 다 넣는다
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      TMDB_API_KEY: ${TMDB_API_KEY:?TMDB_API_KEY 를 .env 에 넣는다}
+      STEAM_API_KEY: ${STEAM_API_KEY:?STEAM_API_KEY 를 .env 에 넣는다}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY 를 .env 에 넣는다}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      # 추천 라우터는 같은 VM 의 aod-rec 스택 — Docker 네트워크로 부른다
+      REC_ROUTER_BASE_URL: http://rec-router:8080
+      REC_ENABLED: ${REC_ENABLED:-true}
+      REC_ALLOWED_USERS: ${REC_ALLOWED_USERS:-}
+    volumes:
+      - aod-api-logs:/var/log/aod
+    ports:
+      - "127.0.0.1:18080:8080"
+    mem_limit: 1536m
+    cpus: 2.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    networks: [aod-backend, aod-rec]
+
+  crawler:
+    <<: *java-common
+    build:
+      context: ../..
+      dockerfile: -AOD-All-of-Dopamine-crawler/Dockerfile
+    image: aod-crawler:local
+    container_name: aod-crawler
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      TZ: Asia/Seoul
+      # 컨테이너 한도 2.5G = 힙 1.25G + 비힙 + Chromium 프로세스(힙 밖)
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul -Dfile.encoding=UTF-8 -Xms256m -Xmx1280m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      SPRING_PROFILES_ACTIVE: prod
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      STEAM_API_KEY: ${STEAM_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      NAVER_ID: ${NAVER_ID:-}
+      NAVER_PW: ${NAVER_PW:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      HEADLESS_MODE: "true"
+      # CHROME_BIN · CHROMEDRIVER_PATH 는 이미지 ENV 에 있다
+    volumes:
+      - aod-crawler-logs:/app/logs
+    ports:
+      - "127.0.0.1:18081:8081"
+    shm_size: 512m
+    mem_limit: 2560m
+    cpus: 2.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    networks: [aod-backend]
+
+  # 토큰이 준비되면 .env 에 COMPOSE_PROFILES=tunnel. 아웃바운드 전용 — 호스트 포트 없음.
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.7
+    container_name: aod-cloudflared
+    profiles: [tunnel]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:-}
+    depends_on: [api]
+    mem_limit: 128m
+    networks: [aod-backend]
+
+networks:
+  aod-backend: {}
+  aod-rec:
+    external: true
+    name: aod-rec_aod-rec
+
+volumes:
+  aod-api-logs: {}
+  aod-crawler-logs: {}
