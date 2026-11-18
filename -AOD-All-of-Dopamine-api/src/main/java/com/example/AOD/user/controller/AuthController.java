@@ -5,6 +5,8 @@ import com.example.AOD.user.dto.LoginRequest;
 import com.example.AOD.user.dto.SignUpRequest;
 import com.example.AOD.user.model.User;
 import com.example.AOD.user.repository.UserRepository;
+import com.example.AOD.user.service.WithdrawService;
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -31,6 +33,9 @@ public class AuthController {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private WithdrawService withdrawService;
 
     /** users.policy_version 길이. */
     private static final int POLICY_VERSION_MAX = 20;
@@ -175,6 +180,23 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "인증에 실패했습니다."));
         }
     }
+
+    /** 비밀번호를 다시 확인한다 — 토큰만으로 지우면 열어 둔 브라우저 하나로 계정이 사라진다. */
+    @PostMapping("/withdraw")
+    public ResponseEntity<?> withdraw(@RequestHeader(value = "Authorization", required = false) String authHeader,
+                                      @RequestBody(required = false) Map<String, String> body) {
+        User user;
+        try {
+            String username = jwtTokenProvider.getUsername(authHeader.substring(7)); // "Bearer " 제거
+            user = userRepository.findByUsername(username).orElseThrow();
+        } catch (RuntimeException e) {   // 헤더 없음 · 토큰 오류 · 이미 없는 회원
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "인증에 실패했습니다."));
+        }
+        String password = body == null ? null : body.get("password");
+        if (password == null || !passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "비밀번호가 올바르지 않습니다."));
+        }
+        withdrawService.withdraw(user);
+        return ResponseEntity.ok(Map.of("message", "탈퇴가 완료되었습니다."));
+    }
 }
-
-

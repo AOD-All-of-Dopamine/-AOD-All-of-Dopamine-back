@@ -11,6 +11,7 @@ import com.example.AOD.recommend.reaction.ReactionService;
 import com.example.AOD.recommend.reaction.ReactionState;
 import com.example.AOD.user.model.User;
 import com.example.AOD.user.repository.UserRepository;
+import com.example.AOD.user.service.WithdrawService;
 import com.example.shared.entity.Content;
 import com.example.shared.entity.Domain;
 import com.example.shared.repository.ContentRepository;
@@ -44,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * 실제 PostgreSQL 에서 V8 · 로그 풀 격리 · 중복 제거 · 반응 흐름 · 파티션 작업을 검증한다.
+ * 실제 PostgreSQL 에서 V8 · 로그 풀 격리 · 중복 제거 · 반응 흐름 · 파티션 작업 · 회원 탈퇴를 검증한다.
  *
  * DB 는 둘 중 하나:
  *  - 환경변수 REC_IT_JDBC_URL(+ REC_IT_JDBC_USER / REC_IT_JDBC_PASSWORD) — 버려도 되는 DB 여야 한다(URL 에 "rec_it" 필수)
@@ -121,6 +122,7 @@ class RecLogIntegrationTest {
     @Autowired BookmarkService bookmarkService;
     @Autowired UserRepository userRepository;
     @Autowired ContentRepository contentRepository;
+    @Autowired WithdrawService withdrawService;
 
     private JdbcTemplate logJdbc;
 
@@ -233,6 +235,133 @@ class RecLogIntegrationTest {
         assertTrue(children.contains(PartitionNames.of("event", YearMonth.now(ZoneOffset.UTC).plusMonths(2))));
         assertFalse(children.contains("event_y2020m01"));
         assertTrue(children.contains("event_default"), "DEFAULT 는 지우지 않는다");
+    }
+
+    /**
+     * 탈퇴: 그 회원의 활동·추천 상태·계정·로그(함께 쓰인 익명 ID 의 비로그인 행 포함)가 사라지고,
+     * 리뷰는 작성자 없이 남으며, 같은 브라우저를 쓴 다른 회원의 행은 그대로다.
+     */
+    @Test
+    void withdrawRemovesAccountAndLinkedLogsButKeepsReviewAndOtherUsers() {
+        User leaver = newUser("leaver");
+        User other = newUser("other");
+        Long a = leaver.getId();
+        Long b = other.getId();
+
+        Content content = new Content();
+        content.setDomain(Domain.GAME);
+        content.setMasterTitle("탈퇴 테스트 작품 " + UUID.randomUUID());
+        Long contentId = contentRepository.save(content).getContentId();
+
+        reactionService.setReaction(contentId, leaver.getUsername(), ReactionState.LIKE);
+        reactionService.setReaction(contentId, other.getUsername(), ReactionState.LIKE);
+        bookmarkService.toggleBookmark(contentId, leaver.getUsername());
+        mainJdbc.update("INSERT INTO reviews (content_id, user_id, rating, review_content, created_at) "
+                + "VALUES (?, ?, 4.5, '남는 글', now())", contentId, a);
+
+        Long mine = newCollection(a);
+        Long theirs = newCollection(b);
+        mainJdbc.update("INSERT INTO collection_items (collection_id, content_id, position, created_at) "
+                + "VALUES (?, ?, 0, now())", mine, contentId);
+        likeCollection(mine, b);      // 내 컬렉션이 받은 좋아요 — 컬렉션과 함께 사라진다
+        likeCollection(theirs, a);    // 내가 누른 좋아요 — 그 컬렉션의 좋아요 수가 내려간다
+
+        mainJdbc.update("INSERT INTO aod_rec.not_interested (user_id, content_id, created_at) VALUES (?, ?, now())", a, contentId);
+        mainJdbc.update("INSERT INTO aod_rec.not_interested (user_id, content_id, created_at) VALUES (?, ?, now())", b, contentId);
+        mainJdbc.update("INSERT INTO aod_rec.rec_chain (chain_id, user_id, tab, updated_at) VALUES (?, ?, 'all', now())",
+                UUID.randomUUID(), a);
+
+        UUID sharedAnon = UUID.randomUUID();     // 같은 브라우저를 두 회원이 썼다
+        UUID session = UUID.randomUUID();
+        UUID mineReq = recRequest(a, sharedAnon, session);
+        UUID anonReq = recRequest(null, sharedAnon, UUID.randomUUID());       // 로그인 전 — 익명 ID 로 이어진다
+        UUID otherReq = recRequest(b, sharedAnon, UUID.randomUUID());
+        UUID strangerReq = recRequest(null, UUID.randomUUID(), UUID.randomUUID());
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        UUID strangerAnon = UUID.randomUUID();
+        queue.offer(event(a, sharedAnon, session, now));
+        queue.offer(event(null, sharedAnon, UUID.randomUUID(), now));
+        queue.offer(event(null, UUID.randomUUID(), session, now));            // 세션으로만 이어지는 익명 행
+        queue.offer(event(b, sharedAnon, UUID.randomUUID(), now));
+        queue.offer(event(null, strangerAnon, UUID.randomUUID(), now));
+        writer.flushNow();
+        logJdbc.update("INSERT INTO aod_log.client_agent (session_id, first_seen, user_agent) VALUES (?, now(), 'it')", session);
+
+        withdrawService.withdraw(leaver);
+
+        assertFalse(userRepository.existsById(a));
+        assertTrue(userRepository.existsById(b));
+        for (String table : List.of("content_likes", "bookmarks", "collections", "collection_likes",
+                "aod_rec.not_interested", "aod_rec.rec_chain")) {
+            assertEquals(0, count(mainJdbc, "SELECT count(*) FROM " + table + " WHERE user_id = ?", a), table);
+        }
+        assertEquals(0, count(mainJdbc, "SELECT count(*) FROM collection_items WHERE collection_id = ?", mine));
+        assertEquals(0, count(mainJdbc, "SELECT count(*) FROM collection_likes WHERE collection_id = ?", mine));
+        assertEquals(1, count(mainJdbc, "SELECT count(*) FROM reviews WHERE content_id = ? AND user_id IS NULL", contentId),
+                "리뷰는 작성자 없이 남는다");
+
+        assertEquals(1, count(mainJdbc, "SELECT count(*) FROM content_likes WHERE user_id = ?", b), "다른 회원의 좋아요");
+        assertEquals(1, count(mainJdbc, "SELECT count(*) FROM aod_rec.not_interested WHERE user_id = ?", b));
+        assertEquals(0, count(mainJdbc, "SELECT like_count FROM collections WHERE id = ?", theirs), "누른 좋아요 수를 되돌린다");
+
+        assertEquals(0, count(logJdbc, "SELECT count(*) FROM aod_log.event WHERE user_id = ?", a));
+        assertEquals(0, count(logJdbc, "SELECT count(*) FROM aod_log.event WHERE user_id IS NULL AND (anon_id = ? OR session_id = ?)",
+                sharedAnon, session), "함께 쓰인 익명 ID · 세션의 비로그인 행");
+        assertTrue(count(logJdbc, "SELECT count(*) FROM aod_log.event WHERE user_id = ?", b) >= 2, "다른 회원의 로그(반응 + 클릭)");
+        assertEquals(1, count(logJdbc, "SELECT count(*) FROM aod_log.event WHERE anon_id = ?", strangerAnon), "무관한 익명 행");
+        assertEquals(0, count(logJdbc, "SELECT count(*) FROM aod_log.rec_request WHERE request_id IN (?, ?)", mineReq, anonReq));
+        assertEquals(0, count(logJdbc, "SELECT count(*) FROM aod_log.rec_item_served WHERE request_id IN (?, ?)", mineReq, anonReq));
+        assertEquals(2, count(logJdbc, "SELECT count(*) FROM aod_log.rec_request WHERE request_id IN (?, ?)", otherReq, strangerReq));
+        assertEquals(2, count(logJdbc, "SELECT count(*) FROM aod_log.rec_item_served WHERE request_id IN (?, ?)", otherReq, strangerReq));
+        assertEquals(0, count(logJdbc, "SELECT count(*) FROM aod_log.client_agent WHERE session_id = ?", session));
+
+        // 같은 아이디 · 이메일로 다시 가입된다
+        User again = new User();
+        again.setUsername(leaver.getUsername());
+        again.setPassword("x");
+        again.setEmail(leaver.getEmail());
+        assertNotEquals(a, userRepository.save(again).getId());
+    }
+
+    private User newUser(String label) {
+        String suffix = UUID.randomUUID().toString().substring(0, 8);
+        User user = new User();
+        user.setUsername(label + "-" + suffix);
+        user.setPassword("x");
+        user.setEmail(label + "-" + suffix + "@example.com");
+        return userRepository.save(user);
+    }
+
+    private Long newCollection(Long userId) {
+        return mainJdbc.queryForObject("INSERT INTO collections (user_id, title, domain, tint, visibility, like_count, view_count, created_at) "
+                + "VALUES (?, '탈퇴 테스트', 'GAME', 'PINE', 'PUBLIC', 0, 0, now()) RETURNING id", Long.class, userId);
+    }
+
+    private void likeCollection(Long collectionId, Long userId) {
+        mainJdbc.update("INSERT INTO collection_likes (collection_id, user_id, created_at) VALUES (?, ?, now())", collectionId, userId);
+        mainJdbc.update("UPDATE collections SET like_count = like_count + 1 WHERE id = ?", collectionId);
+    }
+
+    /** 요청 1건 + 응답 작품 1개. */
+    private UUID recRequest(Long userId, UUID anonId, UUID sessionId) {
+        UUID requestId = UUID.randomUUID();
+        logJdbc.update("INSERT INTO aod_log.rec_request (request_id, served_at, chain_id, page_depth, user_id, anon_id, session_id, "
+                + "surface, tab, seed_ids, seed_sources, disliked_ids, excluded_ids, seen_ids, versions, fallback) "
+                + "VALUES (?, now(), ?, 0, ?, ?, ?, 'home_rec', 'all', '{}', '{}', '{}', '{}', '{}', '{}', false)",
+                requestId, UUID.randomUUID(), userId, anonId, sessionId);
+        logJdbc.update("INSERT INTO aod_log.rec_item_served (impression_id, served_at, request_id, content_id, platform, corpus_key, "
+                + "rank_position, candidate_source, score) VALUES (?, now(), ?, 1, 'steam', '1', 0, 'content_sim', '{}')",
+                UUID.randomUUID(), requestId);
+        return requestId;
+    }
+
+    private static int count(JdbcTemplate jdbc, String sql, Object... args) {
+        return jdbc.queryForObject(sql, Integer.class, args);
+    }
+
+    private static EventLogRecord event(Long userId, UUID anonId, UUID sessionId, OffsetDateTime serverTs) {
+        return new EventLogRecord(UUID.randomUUID(), serverTs, "card_clicked", "client",
+                userId, anonId, sessionId, 1L, null, null, "home_rec", "{}", serverTs, "test", "desktop");
     }
 
     private static EventLogRecord clientEvent(UUID eventId, OffsetDateTime serverTs) {

@@ -89,4 +89,16 @@ class RecAuthTest {
         assertThrows(DataAccessResourceFailureException.class, () -> recAuth.authenticate("Bearer good"));
         assertNull(recAuth.userIdOrNull("Bearer good"), "비콘은 사용자 미상으로라도 받는다");
     }
+
+    /** 탈퇴한 회원 — 캐시에 남아 있으면 만료 전 토큰이 계속 통한다. */
+    @Test
+    void forgottenUserNoLongerAuthenticatesFromCache() {
+        givenValidToken();
+        recAuth.authenticate("Bearer good");
+        given(users.findByUsername("tester")).willReturn(Optional.empty());
+
+        recAuth.forget("tester");
+
+        assertEquals(RecAuth.Status.INVALID, recAuth.authenticate("Bearer good").status());
+    }
 }

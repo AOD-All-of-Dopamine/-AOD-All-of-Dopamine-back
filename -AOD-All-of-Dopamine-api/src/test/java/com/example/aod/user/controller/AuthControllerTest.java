@@ -4,6 +4,7 @@ import com.example.AOD.security.JwtTokenProvider;
 import com.example.AOD.security.SecurityConfig;
 import com.example.AOD.user.model.User;
 import com.example.AOD.user.repository.UserRepository;
+import com.example.AOD.user.service.WithdrawService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,6 +48,8 @@ class AuthControllerTest {
     @Autowired MockMvc mvc;
     @MockBean UserRepository userRepository;
     @MockBean JwtTokenProvider jwtTokenProvider;
+    @MockBean WithdrawService withdrawService;
+    @Autowired PasswordEncoder passwordEncoder;
 
     @Test
     void signupTellsClientToRunOnboarding() throws Exception {
@@ -105,6 +111,60 @@ class AuthControllerTest {
         ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(saved.capture());
         assertNull(saved.getValue().getPolicyVersion());
+    }
+
+    @Test
+    void withdrawWithoutTokenIs401() throws Exception {
+        mvc.perform(post("/api/auth/withdraw").contentType(MediaType.APPLICATION_JSON).content("{\"password\":\"pw\"}"))
+                .andExpect(status().isUnauthorized());
+        verify(withdrawService, never()).withdraw(any(User.class));
+    }
+
+    @Test
+    void withdrawWithWrongPasswordIs400AndDeletesNothing() throws Exception {
+        givenLoggedIn("pw");
+
+        mvc.perform(post("/api/auth/withdraw").header("Authorization", "Bearer t")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"password\":\"nope\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+        mvc.perform(post("/api/auth/withdraw").header("Authorization", "Bearer t"))   // 본문 없음
+                .andExpect(status().isBadRequest());
+
+        verify(withdrawService, never()).withdraw(any(User.class));
+    }
+
+    @Test
+    void withdrawWithPasswordDeletesTheTokenOwner() throws Exception {
+        User user = givenLoggedIn("pw");
+
+        mvc.perform(post("/api/auth/withdraw").header("Authorization", "Bearer t")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"password\":\"pw\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").exists());
+
+        verify(withdrawService).withdraw(user);
+    }
+
+    /** 이미 탈퇴한 회원의 남은 토큰 — 없는 회원이라 401. */
+    @Test
+    void withdrawByMissingUserIs401() throws Exception {
+        given(jwtTokenProvider.getUsername("t")).willReturn("gone");
+        given(userRepository.findByUsername("gone")).willReturn(Optional.empty());
+
+        mvc.perform(post("/api/auth/withdraw").header("Authorization", "Bearer t")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"password\":\"pw\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    private User givenLoggedIn(String rawPassword) {
+        User user = new User();
+        user.setId(7L);
+        user.setUsername("newUser");
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        given(jwtTokenProvider.getUsername("t")).willReturn("newUser");
+        given(userRepository.findByUsername("newUser")).willReturn(Optional.of(user));
+        return user;
     }
 
     @Test

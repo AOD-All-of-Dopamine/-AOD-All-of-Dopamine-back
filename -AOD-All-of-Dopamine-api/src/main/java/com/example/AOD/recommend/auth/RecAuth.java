@@ -75,6 +75,11 @@ public class RecAuth {
         }
     }
 
+    /** 탈퇴한 회원을 캐시에서 지운다 — 남겨 두면 만료 전 토큰이 통하고, 같은 아이디로 재가입하면 옛 id 를 돌려준다. */
+    public void forget(String username) {
+        userIdCache.remove(username);
+    }
+
     private Long resolveUserId(String username) {
         Long cached = userIdCache.get(username);
         if (cached != null) return cached;
