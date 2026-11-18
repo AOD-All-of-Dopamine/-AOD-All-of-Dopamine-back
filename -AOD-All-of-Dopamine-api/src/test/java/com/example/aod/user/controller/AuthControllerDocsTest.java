@@ -49,6 +49,7 @@ public class AuthControllerDocsTest extends RestDocsTestSupport {
         request.setUsername("newUser");
         request.setEmail("newuser@example.com");
         request.setPassword("password123!");
+        request.setPolicyVersion("2026-11-18");
 
         given(userRepository.existsByUsername(anyString())).willReturn(false);
         given(userRepository.existsByEmail(anyString())).willReturn(false);
@@ -66,6 +67,8 @@ public class AuthControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("username").description("사용할 아이디 (닉네임)"),
                                 fieldWithPath("email").description("이메일 주소"),
                                 fieldWithPath("password").description("비밀번호"),
+                                fieldWithPath("policyVersion")
+                                        .description("가입 화면에서 동의한 처리방침 버전. 동의 기록으로 저장한다").optional(),
                                 fieldWithPath("preferredGenres").description("선호 장르").optional(),
                                 fieldWithPath("preferredContentTypes").description("선호 컨텐츠 타입").optional(),
                                 fieldWithPath("ageGroup").description("연령대").optional(),

@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
@@ -30,6 +31,9 @@ public class AuthController {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    /** users.policy_version 길이. */
+    private static final int POLICY_VERSION_MAX = 20;
 
     @PostMapping("/signup")
     @Transactional
@@ -50,6 +54,12 @@ public class AuthController {
             user.setEmail(signUpRequest.getEmail());
             user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
             user.setRoles(Collections.singletonList("ROLE_USER"));
+            // 동의 기능 이전 클라이언트는 policyVersion 을 보내지 않는다 — 프론트·앱이 다 바뀌면 필수로 올린다.
+            String policyVersion = signUpRequest.getPolicyVersion();
+            if (policyVersion != null && !policyVersion.isBlank() && policyVersion.length() <= POLICY_VERSION_MAX) {
+                user.setPolicyVersion(policyVersion.trim());
+                user.setPolicyAgreedAt(LocalDateTime.now());
+            }
 
             userRepository.save(user);
 

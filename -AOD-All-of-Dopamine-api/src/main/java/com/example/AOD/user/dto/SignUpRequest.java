@@ -6,6 +6,8 @@ public class SignUpRequest {
     private String username;
     private String email;
     private String password;
+    /** 가입 화면에서 동의한 처리방침 버전. 동의 기능 이전 클라이언트는 보내지 않는다(선택). */
+    private String policyVersion;
 
     // 초기 선호도 설정 필드 추가
     private List<String> preferredGenres;
@@ -28,6 +30,9 @@ public class SignUpRequest {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public String getPolicyVersion() { return policyVersion; }
+    public void setPolicyVersion(String policyVersion) { this.policyVersion = policyVersion; }
 
     // 새로운 선호도 Getters & Setters
     public List<String> getPreferredGenres() { return preferredGenres; }

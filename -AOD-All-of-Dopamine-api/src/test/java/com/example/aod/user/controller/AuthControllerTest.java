@@ -5,6 +5,7 @@ import com.example.AOD.security.SecurityConfig;
 import com.example.AOD.user.model.User;
 import com.example.AOD.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,6 +13,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -54,6 +58,53 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.username").value("newUser"))
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.needsOnboarding").value(true));
+    }
+
+    @Test
+    void signupStoresAgreedPolicyVersion() throws Exception {
+        given(userRepository.existsByUsername(anyString())).willReturn(false);
+        given(userRepository.existsByEmail(anyString())).willReturn(false);
+
+        mvc.perform(post("/api/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(SIGNUP_BODY.replace("}", ",\"policyVersion\":\"2026-11-18\"}")))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(saved.capture());
+        assertEquals("2026-11-18", saved.getValue().getPolicyVersion());
+        assertNotNull(saved.getValue().getPolicyAgreedAt());
+    }
+
+    /** 동의 기능 이전 클라이언트 — 가입은 되고 동의 기록만 비어 있다 (설계 §3 두 단계 배포). */
+    @Test
+    void signupWithoutPolicyVersionStillWorks() throws Exception {
+        given(userRepository.existsByUsername(anyString())).willReturn(false);
+        given(userRepository.existsByEmail(anyString())).willReturn(false);
+
+        mvc.perform(post("/api/auth/signup").contentType(MediaType.APPLICATION_JSON).content(SIGNUP_BODY))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(saved.capture());
+        assertNull(saved.getValue().getPolicyVersion());
+        assertNull(saved.getValue().getPolicyAgreedAt());
+    }
+
+    /** users.policy_version 은 20자다 — 넘는 값은 저장하면 가입 자체가 실패하므로 동의 기록 없이 가입시킨다. */
+    @Test
+    void signupIgnoresPolicyVersionLongerThanColumn() throws Exception {
+        given(userRepository.existsByUsername(anyString())).willReturn(false);
+        given(userRepository.existsByEmail(anyString())).willReturn(false);
+
+        mvc.perform(post("/api/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(SIGNUP_BODY.replace("}", ",\"policyVersion\":\"2026-11-18-and-then-some\"}")))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(saved.capture());
+        assertNull(saved.getValue().getPolicyVersion());
     }
 
     @Test
