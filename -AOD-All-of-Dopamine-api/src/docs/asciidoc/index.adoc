@@ -260,3 +260,14 @@ include::{snippets}/auth-me/http-request.adoc[]
 ==== 응답
 include::{snippets}/auth-me/response-fields.adoc[]
 include::{snippets}/auth-me/http-response.adoc[]
+
+=== 회원 탈퇴
+좋아요 · 북마크 · 컬렉션 · 추천 상태 · 계정과 행동 로그를 지운다. 리뷰는 작성자 없이 남는다.
+
+==== 요청
+include::{snippets}/auth-withdraw/request-headers.adoc[]
+include::{snippets}/auth-withdraw/request-fields.adoc[]
+include::{snippets}/auth-withdraw/http-request.adoc[]
+==== 응답
+include::{snippets}/auth-withdraw/response-fields.adoc[]
+include::{snippets}/auth-withdraw/http-response.adoc[]

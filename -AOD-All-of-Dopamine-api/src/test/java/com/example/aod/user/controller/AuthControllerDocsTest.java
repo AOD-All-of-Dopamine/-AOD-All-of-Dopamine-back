@@ -6,6 +6,7 @@ import com.example.AOD.user.dto.LoginRequest;
 import com.example.AOD.user.dto.SignUpRequest;
 import com.example.AOD.user.model.User;
 import com.example.AOD.user.repository.UserRepository;
+import com.example.AOD.user.service.WithdrawService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ public class AuthControllerDocsTest extends RestDocsTestSupport {
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
 
+    @MockBean
+    private WithdrawService withdrawService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -49,6 +53,7 @@ public class AuthControllerDocsTest extends RestDocsTestSupport {
         request.setUsername("newUser");
         request.setEmail("newuser@example.com");
         request.setPassword("password123!");
+        request.setPolicyVersion("2026-11-18");
 
         given(userRepository.existsByUsername(anyString())).willReturn(false);
         given(userRepository.existsByEmail(anyString())).willReturn(false);
@@ -66,6 +71,8 @@ public class AuthControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("username").description("사용할 아이디 (닉네임)"),
                                 fieldWithPath("email").description("이메일 주소"),
                                 fieldWithPath("password").description("비밀번호"),
+                                fieldWithPath("policyVersion")
+                                        .description("가입 화면에서 동의한 처리방침 버전. 동의 기록으로 저장한다").optional(),
                                 fieldWithPath("preferredGenres").description("선호 장르").optional(),
                                 fieldWithPath("preferredContentTypes").description("선호 컨텐츠 타입").optional(),
                                 fieldWithPath("ageGroup").description("연령대").optional(),
@@ -177,6 +184,38 @@ public class AuthControllerDocsTest extends RestDocsTestSupport {
                                 fieldWithPath("userId").description("유저 고유 ID"),
                                 fieldWithPath("username").description("아이디 (닉네임)"),
                                 fieldWithPath("email").description("이메일 주소")
+                        )
+                ));
+    }
+
+    @Test
+    void withdraw() throws Exception {
+        // given
+        User mockUser = new User();
+        mockUser.setId(10L);
+        mockUser.setUsername("testUser");
+        mockUser.setPassword("encodedPassword");
+
+        given(jwtTokenProvider.getUsername("mock-token")).willReturn("testUser");
+        given(userRepository.findByUsername("testUser")).willReturn(Optional.of(mockUser));
+        given(passwordEncoder.matches("password123!", "encodedPassword")).willReturn(true);
+
+        // when & then
+        mockMvc.perform(post("/api/auth/withdraw")
+                        .header("Authorization", "Bearer mock-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"password\":\"password123!\"}")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(document("auth-withdraw",
+                        requestHeaders(
+                                headerWithName("Authorization").description("JWT 토큰")
+                        ),
+                        requestFields(
+                                fieldWithPath("password").description("본인 확인용 비밀번호. 틀리면 400")
+                        ),
+                        responseFields(
+                                fieldWithPath("message").description("결과 메시지")
                         )
                 ));
     }

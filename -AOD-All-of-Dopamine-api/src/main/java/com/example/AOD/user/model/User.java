@@ -1,6 +1,7 @@
 package com.example.AOD.user.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,13 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 
+    /** 가입 때 동의한 처리방침 버전과 시각. 동의 기능 이전 클라이언트로 가입하면 비어 있다. */
+    @Column(name = "policy_version", length = 20)
+    private String policyVersion;
+
+    @Column(name = "policy_agreed_at")
+    private LocalDateTime policyAgreedAt;
+
     // Getters
     public Long getId() {
         return id;
@@ -44,7 +52,23 @@ public class User {
         return roles;
     }
 
+    public String getPolicyVersion() {
+        return policyVersion;
+    }
+
+    public LocalDateTime getPolicyAgreedAt() {
+        return policyAgreedAt;
+    }
+
     // Setters
+    public void setPolicyVersion(String policyVersion) {
+        this.policyVersion = policyVersion;
+    }
+
+    public void setPolicyAgreedAt(LocalDateTime policyAgreedAt) {
+        this.policyAgreedAt = policyAgreedAt;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }

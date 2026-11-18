@@ -33,7 +33,7 @@ public class Review {
     private Content content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")   // 탈퇴한 회원의 리뷰는 작성자 없이 남는다
     private User user;
 
     @Column(nullable = false)
@@ -65,6 +65,9 @@ public class Review {
             this.reviewContent = reviewContent;
         }
     }
+
+    /** 작성자 본인인가. 탈퇴한 회원의 리뷰(작성자 없음)는 누구의 것도 아니다. */
+    public boolean isWrittenBy(String username) {
+        return user != null && user.getUsername().equals(username);
+    }
 }
-
-
