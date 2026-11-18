@@ -96,7 +96,7 @@ public class ReviewService {
                 .orElseThrow(() -> new RuntimeException("Review not found: " + reviewId));
 
         // 작성자 본인 확인
-        if (!review.getUser().getUsername().equals(username)) {
+        if (!review.isWrittenBy(username)) {
             throw new RuntimeException("리뷰 수정 권한이 없습니다.");
         }
 
@@ -120,7 +120,7 @@ public class ReviewService {
                 .orElseThrow(() -> new RuntimeException("Review not found: " + reviewId));
 
         // 작성자 본인 확인
-        if (!review.getUser().getUsername().equals(username)) {
+        if (!review.isWrittenBy(username)) {
             throw new RuntimeException("리뷰 삭제 권한이 없습니다.");
         }
 
