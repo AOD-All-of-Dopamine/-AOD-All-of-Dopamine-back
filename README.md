@@ -107,8 +107,8 @@ AOD(All of Dopamine)는 영화, TV(OTT), 게임, 웹툰, 웹소설 정보를 여
 **콘텐츠 카탈로그**
 
 ```mermaid
-%%{init: {"er": {"layoutDirection": "LR"}}}%%
 erDiagram
+    direction LR
     contents ||--o| movie_contents : "1:1"
     contents ||--o| tv_contents : "1:1"
     contents ||--o| game_contents : "1:1"
